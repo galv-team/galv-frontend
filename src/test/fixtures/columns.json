@@ -1,0 +1,886 @@
+[
+  {
+    "id": 52,
+    "url": "http://api.localhost/columns/52/?format=json",
+    "name": "VARx2",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/52/values/"
+  },
+  {
+    "id": 51,
+    "url": "http://api.localhost/columns/51/?format=json",
+    "name": "VARx1",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/51/values/"
+  },
+  {
+    "id": 50,
+    "url": "http://api.localhost/columns/50/?format=json",
+    "name": "Temperature",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Temperature",
+    "description": "The temperature.",
+    "unit": {
+      "url": "http://api.localhost/units/7/?format=json",
+      "id": 7,
+      "name": "Temperature",
+      "symbol": "°c",
+      "description": "Temperature in Centigrade"
+    },
+        "values": "http://api.localhost/columns/50/values/"
+  },
+  {
+    "id": 49,
+    "url": "http://api.localhost/columns/49/?format=json",
+    "name": "DPt Time",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/49/values/"
+  },
+  {
+    "id": 48,
+    "url": "http://api.localhost/columns/48/?format=json",
+    "name": "ES",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/48/values/"
+  },
+  {
+    "id": 47,
+    "url": "http://api.localhost/columns/47/?format=json",
+    "name": "State",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "str",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/47/values/"
+  },
+  {
+    "id": 46,
+    "url": "http://api.localhost/columns/46/?format=json",
+    "name": "Volts",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Volts",
+    "description": "The voltage of the cell.",
+    "unit": {
+      "url": "http://api.localhost/units/3/?format=json",
+      "id": 3,
+      "name": "Volts",
+      "symbol": "V",
+      "description": "Voltage"
+    },
+        "values": "http://api.localhost/columns/46/values/"
+  },
+  {
+    "id": 45,
+    "url": "http://api.localhost/columns/45/?format=json",
+    "name": "Amps",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Amps",
+    "description": "The current current.",
+    "unit": {
+      "url": "http://api.localhost/units/4/?format=json",
+      "id": 4,
+      "name": "Amps",
+      "symbol": "A",
+      "description": "Current"
+    },
+        "values": "http://api.localhost/columns/45/values/"
+  },
+  {
+    "id": 44,
+    "url": "http://api.localhost/columns/44/?format=json",
+    "name": "Energy Capacity",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Energy Capacity",
+    "description": "The Energy Capacity.",
+    "unit": {
+      "url": "http://api.localhost/units/5/?format=json",
+      "id": 5,
+      "name": "Energy",
+      "symbol": "Wh",
+      "description": "Energy in Watt-Hours"
+    },
+        "values": "http://api.localhost/columns/44/values/"
+  },
+  {
+    "id": 43,
+    "url": "http://api.localhost/columns/43/?format=json",
+    "name": "Charge Capacity",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Charge Capacity",
+    "description": "The Charge Capacity.",
+    "unit": {
+      "url": "http://api.localhost/units/6/?format=json",
+      "id": 6,
+      "name": "Charge",
+      "symbol": "Ah",
+      "description": "Charge in Amp-Hours"
+    },
+        "values": "http://api.localhost/columns/43/values/"
+  },
+  {
+    "id": 42,
+    "url": "http://api.localhost/columns/42/?format=json",
+    "name": "Step Time",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Step Time",
+    "description": "The time in seconds since the current step began.",
+    "unit": {
+      "url": "http://api.localhost/units/8/?format=json",
+      "id": 8,
+      "name": "Power",
+      "symbol": "W",
+      "description": "Power in Watts"
+    },
+        "values": "http://api.localhost/columns/42/values/"
+  },
+  {
+    "id": 41,
+    "url": "http://api.localhost/columns/41/?format=json",
+    "name": "Time",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Time",
+    "description": "The time in seconds since the test run began.",
+    "unit": {
+      "url": "http://api.localhost/units/2/?format=json",
+      "id": 2,
+      "name": "Time",
+      "symbol": "s",
+      "description": "Time in seconds"
+    },
+        "values": "http://api.localhost/columns/41/values/"
+  },
+  {
+    "id": 40,
+    "url": "http://api.localhost/columns/40/?format=json",
+    "name": "Step",
+    "dataset": "http://api.localhost/datasets/5/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/40/values/"
+  },
+  {
+    "id": 39,
+    "url": "http://api.localhost/columns/39/?format=json",
+    "name": "half cycle",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/39/values/"
+  },
+  {
+    "id": 38,
+    "url": "http://api.localhost/columns/38/?format=json",
+    "name": "Charge Capacity",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Charge Capacity",
+    "description": "The Charge Capacity.",
+    "unit": {
+      "url": "http://api.localhost/units/6/?format=json",
+      "id": 6,
+      "name": "Charge",
+      "symbol": "Ah",
+      "description": "Charge in Amp-Hours"
+    },
+        "values": "http://api.localhost/columns/38/values/"
+  },
+  {
+    "id": 37,
+    "url": "http://api.localhost/columns/37/?format=json",
+    "name": "Energy Capacity",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Energy Capacity",
+    "description": "The Energy Capacity.",
+    "unit": {
+      "url": "http://api.localhost/units/5/?format=json",
+      "id": 5,
+      "name": "Energy",
+      "symbol": "Wh",
+      "description": "Energy in Watt-Hours"
+    },
+        "values": "http://api.localhost/columns/37/values/"
+  },
+  {
+    "id": 36,
+    "url": "http://api.localhost/columns/36/?format=json",
+    "name": "(Q-Qo)/mA.h",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/36/values/"
+  },
+  {
+    "id": 35,
+    "url": "http://api.localhost/columns/35/?format=json",
+    "name": "dQ/mA.h",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/35/values/"
+  },
+  {
+    "id": 34,
+    "url": "http://api.localhost/columns/34/?format=json",
+    "name": "Amps",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Amps",
+    "description": "The current current.",
+    "unit": {
+      "url": "http://api.localhost/units/4/?format=json",
+      "id": 4,
+      "name": "Amps",
+      "symbol": "A",
+      "description": "Current"
+    },
+        "values": "http://api.localhost/columns/34/values/"
+  },
+  {
+    "id": 33,
+    "url": "http://api.localhost/columns/33/?format=json",
+    "name": "Volts",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Volts",
+    "description": "The voltage of the cell.",
+    "unit": {
+      "url": "http://api.localhost/units/3/?format=json",
+      "id": 3,
+      "name": "Volts",
+      "symbol": "V",
+      "description": "Voltage"
+    },
+        "values": "http://api.localhost/columns/33/values/"
+  },
+  {
+    "id": 32,
+    "url": "http://api.localhost/columns/32/?format=json",
+    "name": "control/V/mA",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/32/values/"
+  },
+  {
+    "id": 31,
+    "url": "http://api.localhost/columns/31/?format=json",
+    "name": "Time",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Time",
+    "description": "The time in seconds since the test run began.",
+    "unit": {
+      "url": "http://api.localhost/units/2/?format=json",
+      "id": 2,
+      "name": "Time",
+      "symbol": "s",
+      "description": "Time in seconds"
+    },
+        "values": "http://api.localhost/columns/31/values/"
+  },
+  {
+    "id": 30,
+    "url": "http://api.localhost/columns/30/?format=json",
+    "name": "I Range",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/30/values/"
+  },
+  {
+    "id": 29,
+    "url": "http://api.localhost/columns/29/?format=json",
+    "name": "Ns",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/29/values/"
+  },
+  {
+    "id": 28,
+    "url": "http://api.localhost/columns/28/?format=json",
+    "name": "flags",
+    "dataset": "http://api.localhost/datasets/4/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/28/values/"
+  },
+  {
+    "id": 27,
+    "url": "http://api.localhost/columns/27/?format=json",
+    "name": "Volts",
+    "dataset": "http://api.localhost/datasets/3/",
+    "data_type": "float",
+    "type_name": "Volts",
+    "description": "The voltage of the cell.",
+    "unit": {
+      "url": "http://api.localhost/units/3/?format=json",
+      "id": 3,
+      "name": "Volts",
+      "symbol": "V",
+      "description": "Voltage"
+    },
+        "values": "http://api.localhost/columns/27/values/"
+  },
+  {
+    "id": 26,
+    "url": "http://api.localhost/columns/26/?format=json",
+    "name": "Amps",
+    "dataset": "http://api.localhost/datasets/3/",
+    "data_type": "float",
+    "type_name": "Amps",
+    "description": "The current current.",
+    "unit": {
+      "url": "http://api.localhost/units/4/?format=json",
+      "id": 4,
+      "name": "Amps",
+      "symbol": "A",
+      "description": "Current"
+    },
+        "values": "http://api.localhost/columns/26/values/"
+  },
+  {
+    "id": 25,
+    "url": "http://api.localhost/columns/25/?format=json",
+    "name": "Time",
+    "dataset": "http://api.localhost/datasets/3/",
+    "data_type": "float",
+    "type_name": "Time",
+    "description": "The time in seconds since the test run began.",
+    "unit": {
+      "url": "http://api.localhost/units/2/?format=json",
+      "id": 2,
+      "name": "Time",
+      "symbol": "s",
+      "description": "Time in seconds"
+    },
+        "values": "http://api.localhost/columns/25/values/"
+  },
+  {
+    "id": 24,
+    "url": "http://api.localhost/columns/24/?format=json",
+    "name": "half cycle",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/24/values/"
+  },
+  {
+    "id": 23,
+    "url": "http://api.localhost/columns/23/?format=json",
+    "name": "Charge Capacity",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Charge Capacity",
+    "description": "The Charge Capacity.",
+    "unit": {
+      "url": "http://api.localhost/units/6/?format=json",
+      "id": 6,
+      "name": "Charge",
+      "symbol": "Ah",
+      "description": "Charge in Amp-Hours"
+    },
+        "values": "http://api.localhost/columns/23/values/"
+  },
+  {
+    "id": 22,
+    "url": "http://api.localhost/columns/22/?format=json",
+    "name": "Energy Capacity",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Energy Capacity",
+    "description": "The Energy Capacity.",
+    "unit": {
+      "url": "http://api.localhost/units/5/?format=json",
+      "id": 5,
+      "name": "Energy",
+      "symbol": "Wh",
+      "description": "Energy in Watt-Hours"
+    },
+        "values": "http://api.localhost/columns/22/values/"
+  },
+  {
+    "id": 21,
+    "url": "http://api.localhost/columns/21/?format=json",
+    "name": "(Q-Qo)/mA.h",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/21/values/"
+  },
+  {
+    "id": 20,
+    "url": "http://api.localhost/columns/20/?format=json",
+    "name": "dQ/mA.h",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/20/values/"
+  },
+  {
+    "id": 19,
+    "url": "http://api.localhost/columns/19/?format=json",
+    "name": "Amps",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Amps",
+    "description": "The current current.",
+    "unit": {
+      "url": "http://api.localhost/units/4/?format=json",
+      "id": 4,
+      "name": "Amps",
+      "symbol": "A",
+      "description": "Current"
+    },
+        "values": "http://api.localhost/columns/19/values/"
+  },
+  {
+    "id": 18,
+    "url": "http://api.localhost/columns/18/?format=json",
+    "name": "Volts",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Volts",
+    "description": "The voltage of the cell.",
+    "unit": {
+      "url": "http://api.localhost/units/3/?format=json",
+      "id": 3,
+      "name": "Volts",
+      "symbol": "V",
+      "description": "Voltage"
+    },
+        "values": "http://api.localhost/columns/18/values/"
+  },
+  {
+    "id": 17,
+    "url": "http://api.localhost/columns/17/?format=json",
+    "name": "control/V/mA",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/17/values/"
+  },
+  {
+    "id": 16,
+    "url": "http://api.localhost/columns/16/?format=json",
+    "name": "Time",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Time",
+    "description": "The time in seconds since the test run began.",
+    "unit": {
+      "url": "http://api.localhost/units/2/?format=json",
+      "id": 2,
+      "name": "Time",
+      "symbol": "s",
+      "description": "Time in seconds"
+    },
+        "values": "http://api.localhost/columns/16/values/"
+  },
+  {
+    "id": 15,
+    "url": "http://api.localhost/columns/15/?format=json",
+    "name": "I Range",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/15/values/"
+  },
+  {
+    "id": 14,
+    "url": "http://api.localhost/columns/14/?format=json",
+    "name": "Ns",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/14/values/"
+  },
+  {
+    "id": 13,
+    "url": "http://api.localhost/columns/13/?format=json",
+    "name": "flags",
+    "dataset": "http://api.localhost/datasets/2/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/13/values/"
+  },
+  {
+    "id": 12,
+    "url": "http://api.localhost/columns/12/?format=json",
+    "name": "half cycle",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/12/values/"
+  },
+  {
+    "id": 11,
+    "url": "http://api.localhost/columns/11/?format=json",
+    "name": "Charge Capacity",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Charge Capacity",
+    "description": "The Charge Capacity.",
+    "unit": {
+      "url": "http://api.localhost/units/6/?format=json",
+      "id": 6,
+      "name": "Charge",
+      "symbol": "Ah",
+      "description": "Charge in Amp-Hours"
+    },
+        "values": "http://api.localhost/columns/11/values/"
+  },
+  {
+    "id": 10,
+    "url": "http://api.localhost/columns/10/?format=json",
+    "name": "Energy Capacity",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Energy Capacity",
+    "description": "The Energy Capacity.",
+    "unit": {
+      "url": "http://api.localhost/units/5/?format=json",
+      "id": 5,
+      "name": "Energy",
+      "symbol": "Wh",
+      "description": "Energy in Watt-Hours"
+    },
+        "values": "http://api.localhost/columns/10/values/"
+  },
+  {
+    "id": 9,
+    "url": "http://api.localhost/columns/9/?format=json",
+    "name": "(Q-Qo)/mA.h",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/9/values/"
+  },
+  {
+    "id": 8,
+    "url": "http://api.localhost/columns/8/?format=json",
+    "name": "dQ/mA.h",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/8/values/"
+  },
+  {
+    "id": 7,
+    "url": "http://api.localhost/columns/7/?format=json",
+    "name": "Amps",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Amps",
+    "description": "The current current.",
+    "unit": {
+      "url": "http://api.localhost/units/4/?format=json",
+      "id": 4,
+      "name": "Amps",
+      "symbol": "A",
+      "description": "Current"
+    },
+        "values": "http://api.localhost/columns/7/values/"
+  },
+  {
+    "id": 6,
+    "url": "http://api.localhost/columns/6/?format=json",
+    "name": "Volts",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Volts",
+    "description": "The voltage of the cell.",
+    "unit": {
+      "url": "http://api.localhost/units/3/?format=json",
+      "id": 3,
+      "name": "Volts",
+      "symbol": "V",
+      "description": "Voltage"
+    },
+        "values": "http://api.localhost/columns/6/values/"
+  },
+  {
+    "id": 5,
+    "url": "http://api.localhost/columns/5/?format=json",
+    "name": "control/V/mA",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/5/values/"
+  },
+  {
+    "id": 4,
+    "url": "http://api.localhost/columns/4/?format=json",
+    "name": "Time",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Time",
+    "description": "The time in seconds since the test run began.",
+    "unit": {
+      "url": "http://api.localhost/units/2/?format=json",
+      "id": 2,
+      "name": "Time",
+      "symbol": "s",
+      "description": "Time in seconds"
+    },
+        "values": "http://api.localhost/columns/4/values/"
+  },
+  {
+    "id": 3,
+    "url": "http://api.localhost/columns/3/?format=json",
+    "name": "I Range",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/3/values/"
+  },
+  {
+    "id": 2,
+    "url": "http://api.localhost/columns/2/?format=json",
+    "name": "Ns",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/2/values/"
+  },
+  {
+    "id": 1,
+    "url": "http://api.localhost/columns/1/?format=json",
+    "name": "flags",
+    "dataset": "http://api.localhost/datasets/1/",
+    "data_type": "float",
+    "type_name": "Sample Number",
+    "description": "The sample or record number. Is increased by one each time a test machine records a reading. Usually counts from 1 at the start of a test",
+    "unit": {
+      "url": "http://api.localhost/units/1/?format=json",
+      "id": 1,
+      "name": "Unitless",
+      "symbol": "",
+      "description": "A value with no units"
+    },
+        "values": "http://api.localhost/columns/1/values/"
+  }
+]

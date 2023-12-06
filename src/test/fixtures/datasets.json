@@ -1,0 +1,369 @@
+[
+  {
+    "url": "http://api.localhost/datasets/4/",
+    "id": 4,
+    "name": "Jie_OCV1_C01",
+    "date": "2021-02-08T00:00:00Z",
+    "type": "BioLogic",
+    "purpose": "",
+    "cell": null,
+    "equipment": [],
+    "file": "http://api.localhost/files/4/",
+    "user_sets": [
+      {
+        "url": "http://api.localhost/groups/11/",
+        "id": 11,
+        "name": "Harvester admins",
+        "description": "Harvester administrators can alter any of the harvester's paths or datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/13/",
+        "id": 13,
+        "name": "Admins",
+        "description": "Administrators can change paths and their datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/14/",
+        "id": 14,
+        "name": "Users",
+        "description": "Users can monitored paths and their datasets.",
+        "is_admin": false,
+        "users": []
+      }
+    ],
+    "columns": [
+      "http://api.localhost/columns/28/",
+      "http://api.localhost/columns/29/",
+      "http://api.localhost/columns/30/",
+      "http://api.localhost/columns/31/",
+      "http://api.localhost/columns/32/",
+      "http://api.localhost/columns/33/",
+      "http://api.localhost/columns/34/",
+      "http://api.localhost/columns/35/",
+      "http://api.localhost/columns/36/",
+      "http://api.localhost/columns/37/",
+      "http://api.localhost/columns/38/",
+      "http://api.localhost/columns/39/"
+    ]
+  },
+  {
+    "url": "http://api.localhost/datasets/1/",
+    "id": 1,
+    "name": "adam_3_C05",
+    "date": "2021-01-22T00:00:00Z",
+    "type": "BioLogic",
+    "purpose": "",
+    "cell": null,
+    "equipment": [],
+    "file": "http://api.localhost/files/1/",
+    "user_sets": [
+      {
+        "url": "http://api.localhost/groups/11/",
+        "id": 11,
+        "name": "Harvester admins",
+        "description": "Harvester administrators can alter any of the harvester's paths or datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/13/",
+        "id": 13,
+        "name": "Admins",
+        "description": "Administrators can change paths and their datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/14/",
+        "id": 14,
+        "name": "Users",
+        "description": "Users can monitored paths and their datasets.",
+        "is_admin": false,
+        "users": []
+      }
+    ],
+    "columns": [
+      "http://api.localhost/columns/1/",
+      "http://api.localhost/columns/2/",
+      "http://api.localhost/columns/3/",
+      "http://api.localhost/columns/4/",
+      "http://api.localhost/columns/5/",
+      "http://api.localhost/columns/6/",
+      "http://api.localhost/columns/7/",
+      "http://api.localhost/columns/8/",
+      "http://api.localhost/columns/9/",
+      "http://api.localhost/columns/10/",
+      "http://api.localhost/columns/11/",
+      "http://api.localhost/columns/12/"
+    ]
+  },
+  {
+    "url": "http://api.localhost/datasets/3/",
+    "id": 3,
+    "name": "Ivium_Cell+1",
+    "date": "2019-01-24T11:45:23Z",
+    "type": "Ivium",
+    "purpose": "",
+    "cell": null,
+    "equipment": [],
+    "file": "http://api.localhost/files/3/",
+    "user_sets": [
+      {
+        "url": "http://api.localhost/groups/11/",
+        "id": 11,
+        "name": "Harvester admins",
+        "description": "Harvester administrators can alter any of the harvester's paths or datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/13/",
+        "id": 13,
+        "name": "Admins",
+        "description": "Administrators can change paths and their datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/14/",
+        "id": 14,
+        "name": "Users",
+        "description": "Users can monitored paths and their datasets.",
+        "is_admin": false,
+        "users": []
+      }
+    ],
+    "columns": [
+      "http://api.localhost/columns/25/",
+      "http://api.localhost/columns/26/",
+      "http://api.localhost/columns/27/"
+    ]
+  },
+  {
+    "url": "http://api.localhost/datasets/5/",
+    "id": 5,
+    "name": "TPG1+-+Cell+15+-+002",
+    "date": "2018-02-23T08:42:16Z",
+    "type": "Maccor",
+    "purpose": "",
+    "cell": null,
+    "equipment": [],
+    "file": "http://api.localhost/files/5/",
+    "user_sets": [
+      {
+        "url": "http://api.localhost/groups/11/",
+        "id": 11,
+        "name": "Harvester admins",
+        "description": "Harvester administrators can alter any of the harvester's paths or datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/13/",
+        "id": 13,
+        "name": "Admins",
+        "description": "Administrators can change paths and their datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/14/",
+        "id": 14,
+        "name": "Users",
+        "description": "Users can monitored paths and their datasets.",
+        "is_admin": false,
+        "users": []
+      }
+    ],
+    "columns": [
+      "http://api.localhost/columns/40/",
+      "http://api.localhost/columns/41/",
+      "http://api.localhost/columns/42/",
+      "http://api.localhost/columns/43/",
+      "http://api.localhost/columns/44/",
+      "http://api.localhost/columns/45/",
+      "http://api.localhost/columns/46/",
+      "http://api.localhost/columns/47/",
+      "http://api.localhost/columns/48/",
+      "http://api.localhost/columns/49/",
+      "http://api.localhost/columns/50/",
+      "http://api.localhost/columns/51/",
+      "http://api.localhost/columns/52/"
+    ]
+  },
+  {
+    "url": "http://api.localhost/datasets/2/",
+    "id": 2,
+    "name": "CCCV -exp1_C01",
+    "date": "2017-02-08T00:00:00Z",
+    "type": "BioLogic",
+    "purpose": "",
+    "cell": null,
+    "equipment": [],
+    "file": "http://api.localhost/files/2/",
+    "user_sets": [
+      {
+        "url": "http://api.localhost/groups/11/",
+        "id": 11,
+        "name": "Harvester admins",
+        "description": "Harvester administrators can alter any of the harvester's paths or datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/13/",
+        "id": 13,
+        "name": "Admins",
+        "description": "Administrators can change paths and their datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/14/",
+        "id": 14,
+        "name": "Users",
+        "description": "Users can monitored paths and their datasets.",
+        "is_admin": false,
+        "users": []
+      }
+    ],
+    "columns": [
+      "http://api.localhost/columns/13/",
+      "http://api.localhost/columns/14/",
+      "http://api.localhost/columns/15/",
+      "http://api.localhost/columns/16/",
+      "http://api.localhost/columns/17/",
+      "http://api.localhost/columns/18/",
+      "http://api.localhost/columns/19/",
+      "http://api.localhost/columns/20/",
+      "http://api.localhost/columns/21/",
+      "http://api.localhost/columns/22/",
+      "http://api.localhost/columns/23/",
+      "http://api.localhost/columns/24/"
+    ]
+  }
+]

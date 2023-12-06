@@ -1,0 +1,10 @@
+[
+  {
+    "url": "http://api.localhost/equipment/1/",
+    "id": 1,
+    "name": "Truckload of kit",
+    "type": "Multipurpose",
+    "datasets": [],
+    "in_use": false
+  }
+]

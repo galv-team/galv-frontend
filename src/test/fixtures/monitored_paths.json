@@ -1,0 +1,80 @@
+[
+  {
+    "url": "http://api.localhost/monitored_paths/2/",
+    "id": 2,
+    "path": "/usr/test_data",
+    "regex": "^T",
+    "stable_time": 60,
+    "active": true,
+    "harvester": "http://api.localhost/harvesters/1/",
+    "user_sets": [
+      {
+        "url": "http://api.localhost/groups/5/",
+        "id": 5,
+        "name": "Admins",
+        "description": "Administrators can change paths and their datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/6/",
+        "id": 6,
+        "name": "Users",
+        "description": "Users can view monitored paths and edit their datasets.",
+        "is_admin": false,
+        "users": []
+      }
+    ]
+  },
+  {
+    "url": "http://api.localhost/monitored_paths/1/",
+    "id": 1,
+    "path": "/usr/test_data",
+    "regex": "^[^T]",
+    "stable_time": 60,
+    "active": true,
+    "harvester": "http://api.localhost/harvesters/1/",
+    "user_sets": [
+      {
+        "url": "http://api.localhost/groups/3/",
+        "id": 3,
+        "name": "Admins",
+        "description": "Administrators can change paths and their datasets.",
+        "is_admin": true,
+        "users": [
+          {
+            "username": "admin",
+            "email": "",
+            "first_name": "",
+            "last_name": "",
+            "url": "http://api.localhost/users/1/",
+            "id": 1,
+            "is_active": true,
+            "is_staff": true,
+            "is_superuser": true
+          }
+        ]
+      },
+      {
+        "url": "http://api.localhost/groups/4/",
+        "id": 4,
+        "name": "Users",
+        "description": "Users can view monitored paths and edit their datasets.",
+        "is_admin": false,
+        "users": []
+      }
+    ]
+  }
+]

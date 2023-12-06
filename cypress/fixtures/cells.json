@@ -1,0 +1,65 @@
+{
+  "count": 3,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "url": "http://api.localhost/cells/6a3a910b-d42e-46f6-9604-6fb3c2f3d059/?format=json",
+      "uuid": "6a3a910b-d42e-46f6-9604-6fb3c2f3d059",
+      "identifier": "sny-vtc-1234-bb94",
+      "family": "http://api.localhost/cell_families/42fc4c44-efbb-4457-a734-f68ee28de617/?format=json",
+      "cycler_tests": [
+        "http://api.localhost/cycler_tests/2b7313c9-94c2-4276-a4ee-e9d58d8a641b/?format=json"
+      ],
+      "in_use": true,
+      "team": "http://api.localhost/teams/1/?format=json",
+      "permissions": {
+        "create": true,
+        "destroy": true,
+        "write": true,
+        "read": true
+      },
+      "color": "green and white"
+    },
+    {
+      "url": "http://api.localhost/cells/595d9d6a-102b-4a62-bf2f-bc2fcdf789e2/?format=json",
+      "uuid": "595d9d6a-102b-4a62-bf2f-bc2fcdf789e2",
+      "identifier": "lg-hg2-1234-1111",
+      "family": "http://api.localhost/cell_families/5d19c8d6-a976-423d-ab5d-a624a0606d30/?format=json",
+      "cycler_tests": [],
+      "in_use": false,
+      "team": "http://api.localhost/teams/1/?format=json",
+      "permissions": {
+        "create": true,
+        "destroy": true,
+        "write": true,
+        "read": true
+      },
+      "some_json": {
+        "prop": "value",
+        "other_prop": 3
+      }
+    },
+    {
+      "url": "http://api.localhost/cells/4281a89b-48ff-4f4a-bcd8-5fe427f87a81/?format=json",
+      "uuid": "4281a89b-48ff-4f4a-bcd8-5fe427f87a81",
+      "identifier": "lg-hg2-1234-xx94",
+      "family": "http://api.localhost/cell_families/5d19c8d6-a976-423d-ab5d-a624a0606d30/?format=json",
+      "cycler_tests": [
+        "http://api.localhost/cycler_tests/e5a1a806-ef9e-4da8-9dd4-caa6cb491af9/?format=json"
+      ],
+      "in_use": true,
+      "team": "http://api.localhost/teams/1/?format=json",
+      "permissions": {
+        "create": true,
+        "destroy": true,
+        "write": true,
+        "read": true
+      },
+      "some_json": {
+        "prop": "value",
+        "other_prop": 3
+      }
+    }
+  ]
+}

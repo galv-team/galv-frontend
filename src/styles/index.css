@@ -1,0 +1,24 @@
+/*
+// SPDX-License-Identifier: BSD-2-Clause
+// Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
+// of Oxford, and the 'Galv' Developers. All rights reserved.
+ */
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Override .MuiPopover-paper because we can't do it inside the UserRoleSet component */
+.MuiPopover-paper {
+  overflow: visible;
+}
