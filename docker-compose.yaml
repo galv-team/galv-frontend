@@ -25,7 +25,7 @@ services:
     # defined in the schema.json file. It is run once before the mockserver
     # container is started.
     image: curlimages/curl:8.5.0
-    command: > 
+    command: >
       -X PUT http://mockserver:1080/mockserver/openapi -d '{"specUrlOrPayload": "/config/schema.json"}'
     depends_on:
       - mockserver
@@ -47,4 +47,13 @@ services:
     volumes:
       - ./src:/app/src
     command: bash -c "./fix_base_path.sh && pnpm start --host --port 80"
-#    command: tail -F anything
+  #    command: tail -F anything
+
+  frontend_test:
+    build:
+      context: .
+      dockerfile: Dockerfile_dev
+    env_file:
+      - .env.vite
+    restart: "on-failure"
+    command: "pnpm test"

@@ -4,11 +4,13 @@
 
 FROM node:lts@sha256:132309f5136555725debd57b711eb4b329fff22a00588834dbec391a3f9782cf
 
-RUN npm install -g pnpm
-
 RUN mkdir -p /app
 WORKDIR /app
 COPY . /app
+
+RUN rm -rf /app/node_modules /app/.pnpm-store
+
+RUN npm install -g pnpm
 
 RUN mv .env.vite .env
 

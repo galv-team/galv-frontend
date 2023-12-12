@@ -1,5 +1,4 @@
 import TableContainer, {TableContainerProps} from "@mui/material/TableContainer";
-import React from "react";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
 import Table from "@mui/material/Table";

@@ -1,4 +1,7 @@
 # Galv frontend (React app)
+> A metadata secretary for battery science
+
+[![Jest CI](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test.yml/badge.svg)](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test.yml)
 
 The Galv frontend is a user-friendly web interface for interacting with the [Galv REST API](/Battery-Intelligence-Lab/galv-backend/).
 
@@ -29,6 +32,10 @@ docker-compose up app
 
 The server will be available at http://localhost:8002. 
 If you need access to the mockserver, it will be available at http://localhost:1080.
+
+### Gotchas
+
+- The `src` directory is mounted as a volume in the Docker container, so changes made outside that directory will not be automatically reflected in the container.
 
 ## Testing
 

@@ -2,7 +2,6 @@
 // Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
-import React from "react";
 import {
     Routes,
     Route,
@@ -47,6 +46,7 @@ import SelectionManagementContextProvider from "./Components/SelectionManagement
 import {SelectedResourcesPane} from "./Components/SelectedResourcesPane";
 
 import * as AxiosConfig from "./AxiosConfig"
+import {useState} from "react";
 console.log({AxiosConfig})
 
 export const pathMatches = (path: string, pathname: string) => matchPath({path: path, end: true}, pathname) !== null
@@ -57,7 +57,7 @@ export function Core() {
 
     const { classes } = useStyles();
 
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
     const toggleDrawerOpen = () => {
         setOpen(!open);
     };

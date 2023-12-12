@@ -1,5 +1,4 @@
 import {API_HANDLERS, API_SLUGS, AutocompleteKey} from "../../constants";
-import React from "react";
 import {AxiosError, AxiosResponse} from "axios";
 import {PaginatedAPIResponse} from "../misc";
 import {useQuery} from "@tanstack/react-query";
@@ -46,10 +45,10 @@ export default function PrettyAutocomplete(
                 InputProps={{
                     ...params.InputProps,
                     endAdornment: (
-                        <React.Fragment>
+                        <>
                             {query.isLoading ? <CircularProgress color="inherit" size={20} /> : null}
                             {params.InputProps.endAdornment}
-                        </React.Fragment>
+                        </>
                     ),
                 }}
             />

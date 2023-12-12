@@ -3,8 +3,6 @@ import useStyles from "../styles/UseStyles";
 import clsx from "clsx";
 import CircularProgress from "@mui/material/CircularProgress";
 import {Link} from "react-router-dom";
-import React from "react";
-
 
 export default function LoadingChip(props: {url?: string, icon: JSX.Element} & ChipProps) {
     const { classes } = useStyles();
