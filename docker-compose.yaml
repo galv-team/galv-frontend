@@ -6,9 +6,9 @@ services:
     ports:
       - "1080:1080"
     environment:
-      MOCKSERVER_PERSIST_EXPECTATIONS: "true"
-      MOCKSERVER_PERSISTED_EXPECTATIONS_PATH: /persisted_expectations/expectations.json
-      MOCKSERVER_INITIALIZATION_JSON_PATH: /persisted_expectations/expectations.json
+      #      MOCKSERVER_PERSIST_EXPECTATIONS: "true"
+      #      MOCKSERVER_PERSISTED_EXPECTATIONS_PATH: /persisted_expectations/expectations.json
+      #      MOCKSERVER_INITIALIZATION_JSON_PATH: /persisted_expectations/expectations.json
       MOCKSERVER_ENABLE_CORS_FOR_ALL_RESPONSES: "true"
       MOCKSERVER_CORS_ALLOW_ORIGIN: "*"
       MOCKSERVER_CORS_ALLOW_METHODS: "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH"
@@ -18,15 +18,30 @@ services:
       MOCKSERVER_CORS_MAX_AGE_IN_SECONDS: "300"
     volumes:
       - ./src/api_codegen/schema.json:/config/schema.json
-      - ./.mockserver/persisted_expectations:/persisted_expectations
+  #      - ./.mockserver/persisted_expectations:/persisted_expectations
 
   setup-expectations:
     # This container is used to set up the mockserver with the expectations
     # defined in the schema.json file. It is run once before the mockserver
     # container is started.
     image: curlimages/curl:8.5.0
+    environment:
+      REMOTE_SPEC_URL: "https://github.com/Battery-Intelligence-Lab/galv-spec/releases/latest/download/galv-spec.json"
+    #    entrypoint: tail
+    #    command: -F anything
+#    entrypoint: /bin/sh
+#    command: >
+#      -c "
+#      /usr/bin/curl "$$REMOTE_SPEC_URL" -fsSL --output-dir /dev/null --next
+#      /usr/bin/curl -X PUT http://mockserver:1080/mockserver/openapi -sSd \"{\\\"specUrlOrPayload\\\": \\\"$$REMOTE_SPEC_URL\\\"}\" --output-dir /dev/null ||
+#      /usr/bin/curl -X PUT http://mockserver:1080/mockserver/openapi -sSd \"{\\\"specUrlOrPayload\\\": \\\"/config/schema.json\\\"}\" --output-dir /dev/null
+#      "
+    entrypoint: /bin/sh
     command: >
-      -X PUT http://mockserver:1080/mockserver/openapi -d '{"specUrlOrPayload": "/config/schema.json"}'
+      -c "/usr/bin/curl 
+      -X PUT http://mockserver:1080/mockserver/openapi 
+      -d \"{\\\"specUrlOrPayload\\\": \\\"$$REMOTE_SPEC_URL\\\"}\"
+      "
     depends_on:
       - mockserver
     restart: "on-failure"

@@ -5,6 +5,12 @@
 
 The Galv frontend is a user-friendly web interface for interacting with the [Galv REST API](/Battery-Intelligence-Lab/galv-backend/).
 
+## Galv Project
+- [Specification](/Battery-Intelligence-Lab/galv-spec)
+- [Backend](/Battery-Intelligence-Lab/galv-backend)
+- [**Frontend**](/Battery-Intelligence-Lab/galv-frontend)
+- [Harvester](/Battery-Intelligence-Lab/galv-harvester)
+
 ## Deploying
 
 The frontend is deployed as a Docker container.  
@@ -32,6 +38,14 @@ docker-compose up app
 
 The server will be available at http://localhost:8002. 
 If you need access to the mockserver, it will be available at http://localhost:1080.
+
+### Expectations
+
+The expectations are set up by the `setup-expectations` container. 
+This tries to read from the `glav-spec.json` file in the [galv-spec](/Battery-Intelligence-Lab/galv-spec) repository.
+If you're developing without internet access, you can modify the `docker-compose.yml` file to mount a local copy of 
+the spec file into the `mockserver` container and modify the `setup-expectations` container to instruct
+mockserver to use that file instead.
 
 ### Gotchas
 
