@@ -1,61 +1,46 @@
 version: "3.8"
 
 services:
-  mockserver:
-    image: mockserver/mockserver:5.14.0
-    ports:
-      - "1080:1080"
+  postgres:
+    image: postgres:14
+    stop_signal: SIGINT # Fast Shutdown mode
     environment:
-      #      MOCKSERVER_PERSIST_EXPECTATIONS: "true"
-      #      MOCKSERVER_PERSISTED_EXPECTATIONS_PATH: /persisted_expectations/expectations.json
-      #      MOCKSERVER_INITIALIZATION_JSON_PATH: /persisted_expectations/expectations.json
-      MOCKSERVER_ENABLE_CORS_FOR_ALL_RESPONSES: "true"
-      MOCKSERVER_CORS_ALLOW_ORIGIN: "*"
-      MOCKSERVER_CORS_ALLOW_METHODS: "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH"
-      MOCKSERVER_CORS_ALLOW_HEADERS: "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, Accept, Origin, X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Host, X-Forwarded-Port, X-Forwarded-Prefix, X-Forwarded-Server, X-Real-IP, X-Forwarded-By, X-Forwarded-Host, X-Forwarded-Proto, X-Forwarded-Port, X-Forwarded-Prefix, X-Forwarded-Server, X-Real-IP"
-      MOCKSERVER_CORS_EXPOSE_HEADERS: "Set-Cookie, Access-Control-Allow-Headers, Access-Control-Allow-Credentials, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers, Access-Control-Expose-Headers, Access-Control-Max-Age, Access-Control-Request-Headers, Access-Control-Request-Method, Age, Allow, Cache-Control, Connection, Content-Disposition, Content-Encoding, Content-Length, Content-Range, Content-Type, Date, ETag, Expires, Last-Modified, Location, Pragma, Proxy-Authenticate, Proxy-Authorization, Public-Key-Pins, Retry-After, Server, Set-Cookie, Strict-Transport-Security, Trailer, Transfer-Encoding, Upgrade, Vary, Via, Warning, WWW-Authenticate, X-Content-Type-Options, X-Correlation-ID, X-Frame-Options, X-Powered-By, X-XSS-Protection"
-      MOCKSERVER_CORS_ALLOW_CREDENTIALS: "false"
-      MOCKSERVER_CORS_MAX_AGE_IN_SECONDS: "300"
-    volumes:
-      - ./src/api_codegen/schema.json:/config/schema.json
-  #      - ./.mockserver/persisted_expectations:/persisted_expectations
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "galv"
+      POSTGRES_PORT: "5432"
+    restart: unless-stopped
+    # Add a volume if you want to persist data between runs
+    # volumes:
+    #   - .run/postgres_data:/var/lib/postgresql/data
 
-  setup-expectations:
-    # This container is used to set up the mockserver with the expectations
-    # defined in the schema.json file. It is run once before the mockserver
-    # container is started.
-    image: curlimages/curl:8.5.0
+  backend:
+    # For big development changes, best to target a specific SHA build rather than :latest in case backend changes.
+    image: ghcr.io/battery-intelligence-lab/galv-backend:latest
+    restart: unless-stopped
     environment:
-      REMOTE_SPEC_URL: "https://github.com/Battery-Intelligence-Lab/galv-spec/releases/latest/download/galv-spec.json"
-    #    entrypoint: tail
-    #    command: -F anything
-#    entrypoint: /bin/sh
-#    command: >
-#      -c "
-#      /usr/bin/curl "$$REMOTE_SPEC_URL" -fsSL --output-dir /dev/null --next
-#      /usr/bin/curl -X PUT http://mockserver:1080/mockserver/openapi -sSd \"{\\\"specUrlOrPayload\\\": \\\"$$REMOTE_SPEC_URL\\\"}\" --output-dir /dev/null ||
-#      /usr/bin/curl -X PUT http://mockserver:1080/mockserver/openapi -sSd \"{\\\"specUrlOrPayload\\\": \\\"/config/schema.json\\\"}\" --output-dir /dev/null
-#      "
-    entrypoint: /bin/sh
-    command: >
-      -c "/usr/bin/curl 
-      -X PUT http://mockserver:1080/mockserver/openapi 
-      -d \"{\\\"specUrlOrPayload\\\": \\\"$$REMOTE_SPEC_URL\\\"}\"
-      "
+      VIRTUAL_HOST: "localhost"
+      FRONTEND_VIRTUAL_HOST: "http://localhost:8002,https://localhost:8002"
+      DJANGO_SETTINGS: "dev"
+      DJANGO_SUPERUSER_PASSWORD: "admin"
+    ports:
+      - "8082:80"
     depends_on:
-      - mockserver
-    restart: "on-failure"
+      - postgres
+    command: ./server.sh
+    volumes:
+      - ./.schema:/spec
 
   frontend:
     build:
       context: .
       dockerfile: Dockerfile_dev
     depends_on:
-      - mockserver
+      - backend
     env_file:
       - .env.vite
     environment:
-      GALV_API_BASE_URL: "http://localhost:1080"
+      GALV_API_BASE_URL: "http://localhost:8082"
     restart: unless-stopped
     ports:
       - "8002:80"

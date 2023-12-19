@@ -26,18 +26,18 @@ If you're using `docker-compose`, you can set them in the `environment` section 
 
 Development is most easily done by using the provided Dockerfile and docker-compose.yml files.  The docker-compose.yml file will start a postgres database and the Django server.  The Django server will automatically reload when changes are made to the code.
 This will create three containers:
-- a `mockserver` container that mocks the Galv REST API
-- a `setup-expectations` container that sets up the mockserver's expectations from the Galv REST API specification
+- a `backend` container that runs a copy of the latest version of the Galv backend
+- a `postgres` container that runs a postgres database for the backend
 - the `frontend` container that runs the frontend
 
 The following command will start the server:
 
 ```bash
-docker-compose up app
+docker-compose up frontend
 ```
 
 The server will be available at http://localhost:8002. 
-If you need access to the mockserver, it will be available at http://localhost:1080.
+If you need access to the backend, it will be available at http://localhost:8081.
 
 ### Expectations
 
