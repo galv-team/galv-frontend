@@ -4,7 +4,7 @@
 
 import React, {ReactNode} from "react";
 import useStyles from "../styles/UseStyles";
-import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {useInfiniteQuery, useQueryClient} from "@tanstack/react-query";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import axios, {AxiosError, AxiosResponse} from "axios";
@@ -31,16 +31,26 @@ type PaginatedAPIResponse<T = any> = {
 export function ResourceList<T extends BaseResource>({lookup_key}: {lookup_key: LookupKey}) {
     const { classes } = useStyles();
 
+    const extract_limit_offset = (url: string|null) => {
+        const safe_number = (n: string | null) => n && !isNaN(parseInt(n))? parseInt(n) : undefined
+        if (!url) return undefined
+        const params = new URLSearchParams(url.split('?')[1])
+        return {
+            limit: safe_number(params.get('limit')),
+            offset: safe_number(params.get('offset'))
+        }
+    }
+
     // API handler
     const api_handler = new API_HANDLERS[lookup_key]()
     const get = api_handler[
         `${API_SLUGS[lookup_key]}List` as keyof typeof api_handler
-        ] as () => Promise<AxiosResponse<PaginatedAPIResponse<T>>>
+        ] as (limit?: number, offset?: number) => Promise<AxiosResponse<PaginatedAPIResponse<T>>>
     // Queries
     const queryClient = useQueryClient()
-    const query = useQuery<AxiosResponse<PaginatedAPIResponse<T>>, AxiosError>({
+    const query = useInfiniteQuery<AxiosResponse<PaginatedAPIResponse<T>>, AxiosError>({
         queryKey: [lookup_key, 'list'],
-        queryFn: () => get.bind(api_handler)().then(r => {
+        queryFn: (ctx) => get.bind(api_handler)(ctx.pageParam?.limit, ctx.pageParam?.offset).then(r => {
             try {
                 // Update the cache for each resource
                 r.data.results.forEach((resource: T) => {
@@ -56,7 +66,9 @@ export function ResourceList<T extends BaseResource>({lookup_key}: {lookup_key: 
                 console.error("Error updating cache from list data.", e)
             }
             return r
-        })
+        }),
+        getNextPageParam: (lastPage) => extract_limit_offset(lastPage.data.next),
+        getPreviousPageParam: (firstPage) => extract_limit_offset(firstPage.data.previous),
     })
 
     const {setLoginFormOpen} = useCurrentUser()
@@ -65,20 +77,25 @@ export function ResourceList<T extends BaseResource>({lookup_key}: {lookup_key: 
 
     if (query.isInitialLoading) {
         content = Array(5).fill(0).map((_, i) => <Skeleton key={i} variant="rounded" height="6em"/>)
-    } else if (!query.data || query.data.data.results.length === 0) {
+    } else if (!query.data || query.data.pages.length === 0) {
         if (!axios.defaults.headers.common['Authorization'])
             content = <p><Button onClick={() => setLoginFormOpen(true)}>Log in</Button> to see {DISPLAY_NAMES_PLURAL[lookup_key]}</p>
         else
             content = <p>No {DISPLAY_NAMES_PLURAL[lookup_key].toLowerCase()} on the server are visible for this account.</p>
     } else {
-        content = query.data.data.results.map(
-            (resource: T, i) => <ResourceCard
-                key={`resource_${i}`}
-                resource_id={resource.uuid as string ?? resource.id as number}
-                lookup_key={lookup_key}
-            />
-        )
+        content = query.data.pages
+            .reduce((p, c) => p.concat(c.data.results), [] as T[])
+            .map(
+                (resource: T, i) => <ResourceCard
+                    key={`resource_${i}`}
+                    resource_id={resource.uuid as string ?? resource.id as number}
+                    lookup_key={lookup_key}
+                />
+            )
     }
+
+    if (query.hasNextPage && !query.isFetchingNextPage)
+        query.fetchNextPage()
 
     return (
         <Container maxWidth="lg">
