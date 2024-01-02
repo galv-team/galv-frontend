@@ -57,3 +57,23 @@ services:
       - .env.vite
     restart: "on-failure"
     command: "pnpm test"
+
+  frontend_test_e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile_cypress
+    env_file:
+      - .env.vite
+    restart: "on-failure"
+    command: "pnpm cypress:e2e"
+
+  frontend_build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GALV_API_BASE_URL: "http://localhost:8082"
+    env_file:
+      - .env.vite
+    restart: "no"
+    command: "tail -F anything"

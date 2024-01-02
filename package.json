@@ -52,6 +52,7 @@
   "scripts": {
     "dev": "vite",
     "start": "vite",
+    "build:plain": "vite build",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
@@ -60,6 +61,6 @@
     "styleguide:build": "styleguidist build",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "cypress:e2e": "start-server-and-test start http://localhost:3000 cypress:run"
+    "cypress:e2e": "start-server-and-test 'pnpm start --port 80' http://localhost 'pnpm cypress:run'"
   }
 }

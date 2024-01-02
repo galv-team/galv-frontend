@@ -11,20 +11,21 @@ WORKDIR /app
 COPY . /app/
 
 RUN mv .env.vite .env
+RUN chmod +x /app/*.sh
 
 ARG GALV_API_BASE_URL
 ENV GALV_API_BASE_URL=$GALV_API_BASE_URL
 
-RUN ["/bin/sh", "-c", "./fix_base_path.sh"]
+RUN ["/bin/sh", "-c", "/app/fix_base_path.sh"]
 
 RUN pnpm install
 
-RUN ["/bin/sh", "-c", "./inject_envvars.sh"]
+#RUN ["/bin/sh", "-c", "/app/inject_envvars.sh"]
 
-RUN pnpm build
+RUN pnpm build:plain
 
 FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 COPY --from=build /app/nginx.conf.template /etc/nginx/conf.d/custom.conf
 
 EXPOSE 80
