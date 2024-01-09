@@ -154,7 +154,7 @@ export function SchemaValidationList() {
     // Queries
     const queryClient = useQueryClient()
     const query = useQuery<AxiosResponse<PaginatedSchemaValidationList>, AxiosError, SchemaValidationSummary[]>({
-        queryKey: ["SCHEMA_VALIDATION", 'list'],
+        queryKey: ["SCHEMA_VALIDATION", 'dashboard-list'],
         queryFn: () => api_handler.schemaValidationsList().then((r): typeof r => {
             try {
                 // Update the cache for each resource
@@ -212,12 +212,12 @@ export function DatasetStatus() {
     // Queries
     const queryClient = useQueryClient()
     const query = useQuery<AxiosResponse<PaginatedObservedFileList>, AxiosError>({
-        queryKey: [LOOKUP_KEYS.FILE, 'list'],
+        queryKey: [LOOKUP_KEYS.FILE, 'dashboard-list'],
         queryFn: () => api_handler.filesList().then((r): typeof r => {
             try {
                 // Update the cache for each resource
                 r.data.results?.forEach((resource: ObservedFile) => {
-                    queryClient.setQueryData(["SCHEMA_VALIDATION", resource.uuid], {...r, data: resource})
+                    queryClient.setQueryData([LOOKUP_KEYS.FILE, resource.uuid], {...r, data: resource})
                 })
             } catch (e) {
                 console.error("Error updating cache from list data.", e)
