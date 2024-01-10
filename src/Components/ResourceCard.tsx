@@ -350,6 +350,7 @@ function ResourceCard<T extends BaseResource>(
                 </Stack>}
             />
         }
+        {...cardProps}
     />
 
     return <QueryWrapper
