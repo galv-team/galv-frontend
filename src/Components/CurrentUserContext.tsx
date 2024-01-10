@@ -80,8 +80,8 @@ export default function CurrentUserContextProvider({children}: {children: React.
                     </Stack>,
                     severity: 'warning'
                 })
-                return Promise.reject(error)
             }
+            return Promise.reject(error)
         }
     )
 
