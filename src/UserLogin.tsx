@@ -10,7 +10,7 @@ import Box from "@mui/material/Box";
 import {useCurrentUser} from "./Components/CurrentUserContext";
 import UseStyles from "./styles/UseStyles";
 import Popover from "@mui/material/Popover";
-import {DISPLAY_NAMES, ICONS, PATHS} from "./constants";
+import {DISPLAY_NAMES, ICONS, LOOKUP_KEYS, PATHS} from "./constants";
 import Grid from "@mui/material/Unstable_Grid2";
 import {Link} from "react-router-dom";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -19,17 +19,68 @@ import ListItem from "@mui/material/ListItem";
 import List from "@mui/material/List";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import {useSnackbarMessenger} from "./Components/SnackbarMessengerContext";
+import {SerializableObject} from "./Components/TypeChanger";
+import {AxiosError, AxiosResponse} from "axios/index";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import Stack from "@mui/material/Stack";
+import {User, UsersApi} from "./api_codegen";
 
 export default function UserLogin() {
     const {postSnackbarMessage} = useSnackbarMessenger()
     const {user, login, logout, loginFormOpen, setLoginFormOpen} = useCurrentUser()
     const { classes } = UseStyles();
+    const queryClient = useQueryClient()
+    const users_handler = new UsersApi()
+    const registration_mutation =
+        useMutation<AxiosResponse<User>, AxiosError, User>(
+            (data: User) => users_handler.usersCreate(data),
+            {
+                onSuccess: (data, variables, context) => {
+                    if (data === undefined) {
+                        console.warn("No data in mutation response", {data, variables, context})
+                        return
+                    }
+                    queryClient.setQueryData([LOOKUP_KEYS.USER, data.data.id], data)
+                    setLoginFormOpen(false)
+                    postSnackbarMessage({
+                        message: `Activation code sent to ${data.data.email}`,
+                        severity: 'success'
+                    })
+                    clear_form()
+                },
+                onError: (error, variables, context) => {
+                    console.error(error, {variables, context})
+                    const d = error.response?.data as SerializableObject
+                    const firstError = Object.entries(d)[0]
+                    postSnackbarMessage({
+                        message: <Stack>
+                            <span>{`Error registering new user  
+                        (HTTP ${error.response?.status} - ${error.response?.statusText}).`}</span>
+                            <span style={{fontWeight: "bold"}}>{`${firstError[0]}: ${firstError[1]}`}</span>
+                            {Object.keys(d).length > 1 && <span>+ {Object.keys(d).length - 1} more</span>}
+                        </Stack>,
+                        severity: 'error'
+                    })
+                },
+            })
+
 
     const [username, setUsername] = useState('')
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
     const [password, setPassword] = useState('')
     const [registerMode, setRegisterMode] = useState<boolean>(false)
     const [email, setEmail] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+
+    const clear_form = () => {
+        setUsername('')
+        setFirstName('')
+        setLastName('')
+        setPassword('')
+        setEmail('')
+        setConfirmPassword('')
+    }
 
     // useState + useCallback to avoid child popover rendering with a null anchorEl
     const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement|null>(null)
@@ -41,6 +92,7 @@ export default function UserLogin() {
         if (username === "" || password === "") return
         login(username, password)
         setLoginFormOpen(false)
+        clear_form()
     }
     const do_register = () => {
         if (username === "" || password === "" || email === "" || confirmPassword === "") return
@@ -51,7 +103,13 @@ export default function UserLogin() {
             })
             return
         }
-        
+        registration_mutation.mutate({
+            username,
+            password,
+            email,
+            first_name: firstName,
+            last_name: lastName,
+        } as User)  // type coercion because many properties of user are optional
     }
 
     const MainButton = user?
@@ -93,7 +151,7 @@ export default function UserLogin() {
             <ListItemIcon>
                 <ICONS.MANAGE_ACCOUNT />
             </ListItemIcon>
-            <ListItemButton component={Link} to={`${PATHS.USER}/${user!.id}?editing=true`}>
+            <ListItemButton component={Link} to={`${PATHS.USER}/${user?.id}?editing=true`}>
                 Manage Profile
             </ListItemButton>
         </ListItem>
@@ -146,6 +204,26 @@ export default function UserLogin() {
 
     const registerForm = <Box p={2}>
         {usernameField}
+        <TextField
+            autoFocus
+            margin="dense"
+            id="firstname"
+            label="First name"
+            type="text"
+            fullWidth
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+        />
+        <TextField
+            autoFocus
+            margin="dense"
+            id="lastname"
+            label="Last name"
+            type="text"
+            fullWidth
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+        />
         <TextField
             margin="dense"
             id="email"
