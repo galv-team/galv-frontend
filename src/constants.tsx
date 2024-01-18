@@ -446,15 +446,13 @@ export const FIELDS = {
             readonly: true,
             type: LOOKUP_KEYS.USER,
             many: true,
-            priority: PRIORITY_LEVELS.SUMMARY,
-            transformation: (group: any) => group?.users ?? group ?? []
+            priority: PRIORITY_LEVELS.SUMMARY
         },
         admin_group: {
             readonly: true,
             type: LOOKUP_KEYS.USER,
             many: true,
-            priority: PRIORITY_LEVELS.SUMMARY,
-            transformation: (group: any) => group?.users ?? group ?? []
+            priority: PRIORITY_LEVELS.SUMMARY
         },
         monitored_paths: {readonly: true, type: LOOKUP_KEYS.PATH, many: true},
         cellfamily_resources: {readonly: true, type: LOOKUP_KEYS.CELL_FAMILY, many: true, priority: PRIORITY_LEVELS.CONTEXT},
@@ -478,10 +476,9 @@ export const FIELDS = {
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         admin_group: {
-            readonly: true,
+            readonly: false,
             type: LOOKUP_KEYS.USER,
             many: true,
-            transformation: (group: any) => group?.users ?? group ?? [],
             priority: PRIORITY_LEVELS.SUMMARY
         },
         teams: {readonly: true, type: LOOKUP_KEYS.TEAM, many: true, priority: PRIORITY_LEVELS.SUMMARY},
