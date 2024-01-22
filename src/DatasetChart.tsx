@@ -8,7 +8,7 @@ import Stack from "@mui/material/Stack";
 import CardHeader from "@mui/material/CardHeader";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import {ColumnsApi} from "./api_codegen";
+import {ColumnsApi} from "@battery-intelligence-lab/galv-backend";
 import {useQueries, useQuery} from "@tanstack/react-query";
 import useStyles from "./styles/UseStyles";
 import clsx from "clsx";

@@ -23,7 +23,7 @@ import {SerializableObject} from "./Components/TypeChanger";
 import {AxiosError, AxiosResponse} from "axios/index";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import Stack from "@mui/material/Stack";
-import {User, UsersApi} from "./api_codegen";
+import {User, UsersApi} from "@battery-intelligence-lab/galv-backend";
 
 export default function UserLogin() {
     const {postSnackbarMessage} = useSnackbarMessenger()

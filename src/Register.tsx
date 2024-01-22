@@ -14,7 +14,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
-import {User} from "./api_codegen";
+import {User} from "@battery-intelligence-lab/galv-backend";
 import {useCurrentUser} from "./Components/CurrentUserContext";
 import {ReactSVG} from "react-svg";
 import UseStyles from "./styles/UseStyles";

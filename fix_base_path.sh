@@ -11,17 +11,17 @@ then
 fi
 
 # Check if the generated base.ts file exists
-if [ ! -f "src/api_codegen/base.ts" ]
+if [ ! -f "node_modules/@battery-intelligence-lab/galv-backend/base.ts" ]
 then
-    echo "src/api_codegen/base.ts file does not exist"
+    echo "node_modules/@battery-intelligence-lab/galv-backend/base.ts file does not exist"
     exit 1
 fi
 
 # Check BASE_PATH variable in base.ts file
-if grep -q "BASE_PATH = " "src/api_codegen/base.ts"
+if grep -q "BASE_PATH = " "node_modules/@battery-intelligence-lab/galv-backend/base.ts"
 then
     echo "Hacking BASE_PATH in base.ts file to be $GALV_API_BASE_URL"
-    sed -i "/.*BASE_PATH = .*/c\export const BASE_PATH = \"$GALV_API_BASE_URL\".replace(/\\\/+\$/, \"\");" src/api_codegen/base.ts
+    sed -i "/.*BASE_PATH = .*/c\export const BASE_PATH = \"$GALV_API_BASE_URL\".replace(/\\\/+\$/, \"\");" node_modules/@battery-intelligence-lab/galv-backend/base.ts
     echo "BASE_PATH variable in base.ts file is set to $GALV_API_BASE_URL"
 else
     echo "Could not find BASE_PATH variable in base.ts file"

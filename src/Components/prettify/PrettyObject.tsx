@@ -13,6 +13,7 @@ import {API_HANDLERS, API_SLUGS, Field, FIELDS, LookupKey, PRIORITY_LEVELS} from
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery} from "@tanstack/react-query";
 import {BaseResource} from "../ResourceCard";
+import {AccessLevelsApi, PermittedAccessLevels} from "@battery-intelligence-lab/galv-backend";
 
 export type PrettyObjectProps = {
     target?: SerializableObject
