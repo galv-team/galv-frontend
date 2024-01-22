@@ -13,14 +13,7 @@ COPY . /app/
 RUN mv .env.vite .env
 RUN chmod +x /app/*.sh
 
-ARG GALV_API_BASE_URL
-ENV GALV_API_BASE_URL=$GALV_API_BASE_URL
-
-RUN ["/bin/sh", "-c", "/app/fix_base_path.sh"]
-
 RUN pnpm install
-
-#RUN ["/bin/sh", "-c", "/app/inject_envvars.sh"]
 
 RUN pnpm build:plain
 

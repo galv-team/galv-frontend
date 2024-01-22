@@ -2,6 +2,7 @@ import {DISPLAY_NAMES_PLURAL, ICONS, LOOKUP_KEYS, LookupKey} from "./constants";
 import axios, {AxiosError, AxiosResponse} from "axios";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {
+    Configuration,
     FilesApi,
     ObservedFile, PaginatedObservedFileList,
     PaginatedSchemaValidationList,
@@ -150,7 +151,11 @@ export function SchemaValidationList() {
     const {setLoginFormOpen} = useCurrentUser()
 
     // API handler
-    const api_handler = new SchemaValidationsApi()
+    const config = new Configuration({
+        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new SchemaValidationsApi(config)
     // Queries
     const queryClient = useQueryClient()
     const query = useQuery<AxiosResponse<PaginatedSchemaValidationList>, AxiosError, SchemaValidationSummary[]>({
@@ -208,7 +213,11 @@ export function SchemaValidationList() {
 
 export function DatasetStatus() {
     // API handler
-    const api_handler = new FilesApi()
+    const config = new Configuration({
+        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new FilesApi(config)
     // Queries
     const queryClient = useQueryClient()
     const query = useQuery<AxiosResponse<PaginatedObservedFileList>, AxiosError>({

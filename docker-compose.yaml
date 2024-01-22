@@ -56,7 +56,7 @@ services:
       - "8002:80"
     volumes:
       - ./src:/app/src
-    command: bash -c "./fix_base_path.sh && pnpm start --host --port 80 -d"
+    command: bash -c "(node _resource-check.js &) && pnpm start --host --port 80 -d"
   #    command: tail -F anything
 
   frontend_test:

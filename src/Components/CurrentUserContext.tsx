@@ -1,5 +1,5 @@
 import {createContext, useContext, useState} from "react";
-import {KnoxUser, LoginApi, User} from "@battery-intelligence-lab/galv-backend";
+import {Configuration, KnoxUser, LoginApi, User} from "@battery-intelligence-lab/galv-backend";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {AxiosError, AxiosResponse} from "axios";
 import axios from "axios";
@@ -36,7 +36,10 @@ export default function CurrentUserContextProvider({children}: {children: React.
     const {postSnackbarMessage} = useSnackbarMessenger()
 
     const queryClient = useQueryClient()
-    const api_handler = new LoginApi()
+    const config = new Configuration({
+        basePath: import.meta.env.VITE_GALV_API_BASE_URL
+    })
+    const api_handler = new LoginApi(config)
     const Login = useMutation<AxiosResponse<KnoxUser>, AxiosError>({
         mutationFn: () => {
             console.log('login', username, password)
@@ -57,7 +60,7 @@ export default function CurrentUserContextProvider({children}: {children: React.
             window.localStorage.removeItem('user')
             setUser(null)
             axios.defaults.headers.common['Authorization'] = undefined
-            queryClient.invalidateQueries({predicate: (q: any) => true})
+            queryClient.resetQueries({predicate: (q: any) => true})
         }
     }
 

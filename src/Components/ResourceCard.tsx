@@ -42,6 +42,8 @@ import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import DatasetChart from "../DatasetChart";
 import {Modal} from "@mui/material";
 import {ResourceCreator, get_modal_title} from "./ResourceCreator";
+import {Configuration} from "@battery-intelligence-lab/galv-backend";
+import {useCurrentUser} from "./CurrentUserContext";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
@@ -104,7 +106,11 @@ function ResourceCard<T extends BaseResource>(
 
     // Mutations for saving edits
     const {postSnackbarMessage} = useSnackbarMessenger()
-    const api_handler = new API_HANDLERS[lookup_key]()
+    const config = new Configuration({
+        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new API_HANDLERS[lookup_key](config)
     const patch = api_handler[
         `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
         ] as (uuid: string, data: SerializableObject) => Promise<AxiosResponse<T>>

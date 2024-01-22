@@ -21,6 +21,8 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
+import {Configuration} from "@battery-intelligence-lab/galv-backend";
+import {useCurrentUser} from "./CurrentUserContext";
 
 export function ResourceCreator<T extends BaseResource>(
     { lookup_key, initial_data, onCreate, onDiscard, ...cardProps}:
@@ -54,7 +56,11 @@ export function ResourceCreator<T extends BaseResource>(
         UndoRedoRef.current.set(template_object)
     }, [initial_data, lookup_key])
 
-    const api_handler = new API_HANDLERS[lookup_key]()
+    const config = new Configuration({
+        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new API_HANDLERS[lookup_key](config)
     const post = api_handler[
         `${API_SLUGS[lookup_key]}Create` as keyof typeof api_handler
         ] as (data: SerializableObject) => Promise<AxiosResponse<T>>

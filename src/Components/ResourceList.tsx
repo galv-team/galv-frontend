@@ -20,6 +20,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import {get_select_function} from "./ApiResourceContext";
 import Button from "@mui/material/Button";
 import {useCurrentUser} from "./CurrentUserContext";
+import {Configuration} from "@battery-intelligence-lab/galv-backend";
 
 type PaginatedAPIResponse<T = any> = {
     count: number
@@ -42,7 +43,11 @@ export function ResourceList<T extends BaseResource>({lookup_key}: {lookup_key: 
     }
 
     // API handler
-    const api_handler = new API_HANDLERS[lookup_key]()
+    const config = new Configuration({
+        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new API_HANDLERS[lookup_key](config)
     const get = api_handler[
         `${API_SLUGS[lookup_key]}List` as keyof typeof api_handler
         ] as (limit?: number, offset?: number) => Promise<AxiosResponse<PaginatedAPIResponse<T>>>

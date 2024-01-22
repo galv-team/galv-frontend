@@ -14,13 +14,19 @@ import Autocomplete, {createFilterOptions} from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 import {CreateFilterOptionsConfig} from "@mui/material";
 import {representation} from "../Representation";
+import {Configuration} from "@battery-intelligence-lab/galv-backend";
+import {useCurrentUser} from "../CurrentUserContext";
 
 export const PrettyResourceSelect = (
     {value, onChange, edit_mode, lookup_key, ...childProps}:
         { lookup_key: LookupKey } & PrettyComponentProps & Partial<Omit<ChipProps, "onChange">>
 ) => {
 
-    const api_handler = new API_HANDLERS[lookup_key]()
+    const config = new Configuration({
+        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new API_HANDLERS[lookup_key](config)
     const api_list = api_handler[
         `${API_SLUGS[lookup_key]}List` as keyof typeof api_handler
         ] as () => Promise<AxiosResponse<PaginatedAPIResponse>>
@@ -32,7 +38,7 @@ export const PrettyResourceSelect = (
     const family_lookup_key = Object.keys(FAMILY_LOOKUP_KEYS).includes(lookup_key)?
         FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS] : undefined
     const family_api_handler = family_lookup_key?
-        new API_HANDLERS[family_lookup_key as keyof typeof API_HANDLERS]() : null
+        new API_HANDLERS[family_lookup_key as keyof typeof API_HANDLERS](config) : null
     const family_api_list = family_api_handler !== null?
         family_api_handler[
             `${API_SLUGS[family_lookup_key as keyof typeof API_SLUGS]}List` as keyof typeof family_api_handler

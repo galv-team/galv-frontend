@@ -8,6 +8,8 @@ import Autocomplete, {AutocompleteProps} from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 import {TypographyProps} from "@mui/material/Typography";
 import {AutocompleteResource} from "../ResourceCard";
+import {Configuration} from "@battery-intelligence-lab/galv-backend";
+import {useCurrentUser} from "../CurrentUserContext";
 
 export default function PrettyAutocomplete(
     {value, onChange, edit_mode, autocomplete_key, ...childProps}:
@@ -16,7 +18,11 @@ export default function PrettyAutocomplete(
         Omit<Partial<AutocompleteProps<string, any, true, any>|TypographyProps>, "onChange">
 ) {
 
-    const api_handler = new API_HANDLERS[autocomplete_key]()
+    const config = new Configuration({
+        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new API_HANDLERS[autocomplete_key](config)
     const api_list = api_handler[
         `${API_SLUGS[autocomplete_key]}List` as keyof typeof api_handler
         ] as () => Promise<AxiosResponse<PaginatedAPIResponse<AutocompleteResource>>>

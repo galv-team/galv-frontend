@@ -13,7 +13,8 @@ import {API_HANDLERS, API_SLUGS, Field, FIELDS, LookupKey, PRIORITY_LEVELS} from
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery} from "@tanstack/react-query";
 import {BaseResource} from "../ResourceCard";
-import {AccessLevelsApi, PermittedAccessLevels} from "@battery-intelligence-lab/galv-backend";
+import {AccessLevelsApi, Configuration, PermittedAccessLevels} from "@battery-intelligence-lab/galv-backend";
+import {useCurrentUser} from "../CurrentUserContext";
 
 export type PrettyObjectProps = {
     target?: SerializableObject
@@ -47,7 +48,11 @@ export function PrettyObjectFromQuery<T extends BaseResource>(
             filter?: (d: any, lookup_key: LookupKey) => any
         } & Omit<PrettyObjectProps, "target">
 ) {
-    const target_api_handler = new API_HANDLERS[lookup_key]()
+    const config = new Configuration({
+        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const target_api_handler = new API_HANDLERS[lookup_key](config)
     const target_get = target_api_handler[
         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
         ] as (uuid: string) => Promise<AxiosResponse<T>>

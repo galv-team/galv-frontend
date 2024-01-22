@@ -23,14 +23,18 @@ import {SerializableObject} from "./Components/TypeChanger";
 import {AxiosError, AxiosResponse} from "axios/index";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import Stack from "@mui/material/Stack";
-import {User, UsersApi} from "@battery-intelligence-lab/galv-backend";
+import {Configuration, User, UsersApi} from "@battery-intelligence-lab/galv-backend";
 
 export default function UserLogin() {
     const {postSnackbarMessage} = useSnackbarMessenger()
     const {user, login, logout, loginFormOpen, setLoginFormOpen} = useCurrentUser()
     const { classes } = UseStyles();
     const queryClient = useQueryClient()
-    const users_handler = new UsersApi()
+    const config = new Configuration({
+        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const users_handler = new UsersApi(config)
     const registration_mutation =
         useMutation<AxiosResponse<User>, AxiosError, User>(
             (data: User) => users_handler.usersCreate(data),
