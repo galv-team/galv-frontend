@@ -57,7 +57,7 @@ export function ResourceCreator<T extends BaseResource>(
     }, [initial_data, lookup_key])
 
     const config = new Configuration({
-        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        basePath: process.env.VITE_GALV_API_BASE_URL,
         accessToken: useCurrentUser().user?.token
     })
     const api_handler = new API_HANDLERS[lookup_key](config)

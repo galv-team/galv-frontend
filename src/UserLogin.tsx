@@ -31,7 +31,7 @@ export default function UserLogin() {
     const { classes } = UseStyles();
     const queryClient = useQueryClient()
     const config = new Configuration({
-        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        basePath: process.env.VITE_GALV_API_BASE_URL,
         accessToken: useCurrentUser().user?.token
     })
     const users_handler = new UsersApi(config)

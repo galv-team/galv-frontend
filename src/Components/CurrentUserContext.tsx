@@ -37,7 +37,7 @@ export default function CurrentUserContextProvider({children}: {children: React.
 
     const queryClient = useQueryClient()
     const config = new Configuration({
-        basePath: import.meta.env.VITE_GALV_API_BASE_URL
+        basePath: process.env.VITE_GALV_API_BASE_URL
     })
     const api_handler = new LoginApi(config)
     const Login = useMutation<AxiosResponse<KnoxUser>, AxiosError>({

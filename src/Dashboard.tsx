@@ -152,7 +152,7 @@ export function SchemaValidationList() {
 
     // API handler
     const config = new Configuration({
-        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        basePath: process.env.VITE_GALV_API_BASE_URL,
         accessToken: useCurrentUser().user?.token
     })
     const api_handler = new SchemaValidationsApi(config)
@@ -214,7 +214,7 @@ export function SchemaValidationList() {
 export function DatasetStatus() {
     // API handler
     const config = new Configuration({
-        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        basePath: process.env.VITE_GALV_API_BASE_URL,
         accessToken: useCurrentUser().user?.token
     })
     const api_handler = new FilesApi(config)

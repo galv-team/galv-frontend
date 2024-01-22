@@ -49,7 +49,7 @@ export function PrettyObjectFromQuery<T extends BaseResource>(
         } & Omit<PrettyObjectProps, "target">
 ) {
     const config = new Configuration({
-        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        basePath: process.env.VITE_GALV_API_BASE_URL,
         accessToken: useCurrentUser().user?.token
     })
     const target_api_handler = new API_HANDLERS[lookup_key](config)
@@ -73,6 +73,14 @@ export default function PrettyObject(
         PrettyObjectProps & TableContainerProps) {
 
     const {classes} = useStyles()
+    const config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const permissions_query = useQuery<AxiosResponse<PermittedAccessLevels>, AxiosError>({
+        queryKey: ["access_levels"],
+        queryFn: () => new AccessLevelsApi(config).accessLevelsRetrieve()
+    })
 
     if (typeof target === 'undefined') {
         console.error("PrettyObject: target is undefined", {target, lookup_key, nest_level, edit_mode, creating, onEdit, ...table_props})

@@ -19,7 +19,7 @@ export default function PrettyAutocomplete(
 ) {
 
     const config = new Configuration({
-        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        basePath: process.env.VITE_GALV_API_BASE_URL,
         accessToken: useCurrentUser().user?.token
     })
     const api_handler = new API_HANDLERS[autocomplete_key](config)

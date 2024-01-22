@@ -52,7 +52,7 @@ function ApiResourceContextStandaloneProvider<T extends BaseResource>(
 ) {
     const {postSnackbarMessage} = useSnackbarMessenger()
     const config = new Configuration({
-        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        basePath: process.env.VITE_GALV_API_BASE_URL,
         accessToken: useCurrentUser().user?.token
     })
     const api_handler = new API_HANDLERS[lookup_key](config)
@@ -84,7 +84,7 @@ function ApiResourceContextWithFamilyProvider<T extends BaseResource>(
         throw new Error(`Cannot use ApiResourceContextWithFamilyProvider for ${lookup_key} because it does not have a family.`)
 
     const config = new Configuration({
-        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        basePath: process.env.VITE_GALV_API_BASE_URL,
         accessToken: useCurrentUser().user?.token
     })
     const {postSnackbarMessage} = useSnackbarMessenger()

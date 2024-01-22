@@ -1,0 +1,31 @@
+name: Jest CI
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      # Enable tmate debugging of manually-triggered workflows if the input option was provided
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+
+      - name: Setup docker-compose
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y docker-compose
+
+      - name: Build test container
+        run: docker-compose build frontend_test
+
+      - name: Run tests
+        run: docker-compose run --rm frontend_test
