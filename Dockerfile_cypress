@@ -4,6 +4,11 @@
 
 FROM cypress/base:20.9.0
 
+RUN apt update && apt install -y \
+    python3.9 python-is-python3 \
+    build-essential \
+		&& rm -rf /var/lib/apt/lists/*
+
 RUN mkdir -p /app
 WORKDIR /app
 COPY . /app
