@@ -276,7 +276,7 @@ function ResourceCard<T extends BaseResource>(
     const cardSummary = <CardContent>
         {apiResource && <Grid container spacing={1}>{
             Object.entries(FIELDS[lookup_key])
-                .filter(([_, v]) => v.priority === PRIORITY_LEVELS.SUMMARY)
+                .filter((e) => e[1].priority === PRIORITY_LEVELS.SUMMARY)
                 .map(([k, v]) => <Grid key={k}>{summarise(apiResource[k], v.many, k, v.type)}</Grid>)
         }</Grid>}
         {lookup_key === LOOKUP_KEYS.FILE && <DatasetChart file_uuid={resource_id as string} />}

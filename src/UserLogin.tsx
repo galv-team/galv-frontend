@@ -10,7 +10,7 @@ import Box from "@mui/material/Box";
 import {useCurrentUser} from "./Components/CurrentUserContext";
 import UseStyles from "./styles/UseStyles";
 import Popover from "@mui/material/Popover";
-import {DISPLAY_NAMES, ICONS, LOOKUP_KEYS, PATHS} from "./constants";
+import {ICONS, LOOKUP_KEYS, PATHS} from "./constants";
 import Grid from "@mui/material/Unstable_Grid2";
 import {Link} from "react-router-dom";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -20,10 +20,10 @@ import List from "@mui/material/List";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import {useSnackbarMessenger} from "./Components/SnackbarMessengerContext";
 import {SerializableObject} from "./Components/TypeChanger";
-import {AxiosError, AxiosResponse} from "axios/index";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import Stack from "@mui/material/Stack";
-import {Configuration, User, UsersApi} from "@battery-intelligence-lab/galv-backend";
+import {Configuration, UserRequest, UsersApi} from "@battery-intelligence-lab/galv-backend";
+import {AxiosError} from "axios";
 
 export default function UserLogin() {
     const {postSnackbarMessage} = useSnackbarMessenger()
@@ -36,8 +36,8 @@ export default function UserLogin() {
     })
     const users_handler = new UsersApi(config)
     const registration_mutation =
-        useMutation<AxiosResponse<User>, AxiosError, User>(
-            (data: User) => users_handler.usersCreate(data),
+        useMutation(
+            (data: UserRequest) => users_handler.usersCreate(data),
             {
                 onSuccess: (data, variables, context) => {
                     if (data === undefined) {
@@ -52,7 +52,7 @@ export default function UserLogin() {
                     })
                     clear_form()
                 },
-                onError: (error, variables, context) => {
+                onError: (error: AxiosError, variables, context) => {
                     console.error(error, {variables, context})
                     const d = error.response?.data as SerializableObject
                     const firstError = Object.entries(d)[0]
@@ -113,7 +113,7 @@ export default function UserLogin() {
             email,
             first_name: firstName,
             last_name: lastName,
-        } as User)  // type coercion because many properties of user are optional
+        })
     }
 
     const MainButton = user?

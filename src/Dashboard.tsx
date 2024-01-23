@@ -1,5 +1,5 @@
 import {DISPLAY_NAMES_PLURAL, ICONS, LOOKUP_KEYS, LookupKey} from "./constants";
-import axios, {AxiosError, AxiosResponse} from "axios";
+import {AxiosError, AxiosResponse} from "axios";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {
     Configuration,
@@ -108,7 +108,7 @@ function KeySummary(
                             status={status as SchemaValidation["status"]}
                             count={status_counts[status as keyof typeof status_counts] &&
                                 Object.entries(status_counts[status as keyof typeof status_counts]!)
-                                    .reduce((a, [_, b]) => a + b, 0)}
+                                    .reduce((a, c) => a + c[1], 0)}
                         />
                     </div>
                 </Tooltip>
@@ -284,7 +284,7 @@ export function DatasetStatus() {
                                 <StatusIcon
                                     key={status}
                                     status={status as SchemaValidation["status"]}
-                                    count={Object.entries(counts).reduce((a, [_, b]) => a + b, 0)}
+                                    count={Object.entries(counts).reduce((a, c) => a + c[1], 0)}
                                 />
                             </div>
                         </Tooltip>)}

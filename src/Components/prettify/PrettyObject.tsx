@@ -22,7 +22,7 @@ export type AccessLevels = Partial<{[key in keyof PermittedAccessLevels]: Serial
 
 export type PermissionsTableProps = {
     permissions: AccessLevels
-    query: ReturnType<typeof useQuery>
+    query: ReturnType<typeof useQuery<AxiosResponse>>
     edit_fun_factory?: (key: string) => (value: Serializable) => Serializable|void
     is_path?: boolean
 }
@@ -73,7 +73,7 @@ export function PermissionsTable({permissions, query, edit_fun_factory, is_path}
                                         }}
                                     >
                                         {Object.entries(query_data[k as keyof PermittedAccessLevels] || {})
-                                            .map(([k, v], i) => (<MenuItem key={i} value={v}>{k}</MenuItem>))}
+                                            .map(([k, v], i) => (<MenuItem key={i} value={v as number}>{k}</MenuItem>))}
                                     </Select>
                                 </Stack>
                             </TableCell>
@@ -104,7 +104,7 @@ export function PrettyObjectFromQuery<T extends BaseResource>(
         {
             resource_id: string|number,
             lookup_key: LookupKey,
-            filter?: (d: any, lookup_key: LookupKey) => any
+            filter?: (d: SerializableObject, lookup_key: LookupKey) => SerializableObject
         } & Omit<PrettyObjectProps, "target">
 ) {
     const config = new Configuration({
@@ -123,7 +123,7 @@ export function PrettyObjectFromQuery<T extends BaseResource>(
 
     return <PrettyObject
         {...prettyObjectProps}
-        target={filter? filter(target_query.data?.data, lookup_key) : target_query.data?.data}
+        target={filter? filter(target_query.data?.data ?? {}, lookup_key) : target_query.data?.data}
     />
 }
 

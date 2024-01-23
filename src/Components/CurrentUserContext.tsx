@@ -1,7 +1,7 @@
 import {createContext, useContext, useState} from "react";
 import {Configuration, KnoxUser, LoginApi, User} from "@battery-intelligence-lab/galv-backend";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {AxiosError, AxiosResponse} from "axios";
+import {AxiosResponse} from "axios";
 import axios from "axios";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import Button from "@mui/material/Button";
@@ -34,39 +34,38 @@ export default function CurrentUserContextProvider({children}: {children: React.
 
     const queryClient = useQueryClient()
     const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        username,
+        password
     })
     const api_handler = new LoginApi(config)
-    const Login = useMutation<AxiosResponse<KnoxUser>, AxiosError>({
-        mutationFn: () => {
-            console.log('login', username, password)
-            return api_handler.loginCreate({
-                headers: {Authorization: `Basic ${btoa(username + ":" + password)}`}
-            })
-        },
-        onSuccess: (data: AxiosResponse<KnoxUser>) => {
-            window.localStorage.setItem('user', JSON.stringify(data.data))
-            setUser(data.data as unknown as LoginUser)
-            queryClient.invalidateQueries({predicate: (q: any) => true})
+    const Login = useMutation(
+        api_handler.loginCreate,
+        {
+            onSuccess: (data: AxiosResponse<KnoxUser>) => {
+                window.localStorage.setItem('user', JSON.stringify(data.data))
+                setUser(data.data as unknown as LoginUser)
+                queryClient.removeQueries({predicate: () => true})
+            }
         }
-    })
+    )
 
     const Logout = () => {
         if (user) {
             window.localStorage.removeItem('user')
             setUser(null)
-            queryClient.resetQueries({predicate: (q: any) => true})
+            queryClient.removeQueries({predicate: () => true})
         }
     }
 
     const do_login = (username: string, password: string) => {
         setUsername(username)
         setPassword(password)
-        Login.mutate()
+        Login.mutate({})
     }
 
     axios.interceptors.response.use(
-        null,
+        undefined,
         // 401 should log the user out and display a message
         (error) => {
             if (error.response?.status === 401) {
