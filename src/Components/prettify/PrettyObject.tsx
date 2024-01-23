@@ -24,6 +24,7 @@ export type PermissionsTableProps = {
     permissions: AccessLevels
     query: ReturnType<typeof useQuery>
     edit_fun_factory?: (key: string) => (value: Serializable) => Serializable|void
+    is_path?: boolean
 }
 
 export type PrettyObjectProps = {
@@ -36,8 +37,13 @@ export type PrettyObjectProps = {
     onEdit?: (value: SerializableObject) => void
 }
 
-export function PermissionsTable({permissions, query, edit_fun_factory}: PermissionsTableProps) {
+export function PermissionsTable({permissions, query, edit_fun_factory, is_path}: PermissionsTableProps) {
     const {classes} = useStyles()
+    // Hack to handle paths having different access level requirements
+    const query_data = {...query.data?.data}
+    if (is_path && query_data) {
+        query_data["edit_access_level"] = query_data["path.edit_access_level"]
+    }
     return <>
         {Object.keys(permissions).length > 0 && <TableContainer
             className={clsx(
@@ -66,7 +72,7 @@ export function PermissionsTable({permissions, query, edit_fun_factory}: Permiss
                                             edit_fun_factory && edit_fun_factory(k)(e.target.value)
                                         }}
                                     >
-                                        {Object.entries(query.data?.data[k as keyof PermittedAccessLevels] || {})
+                                        {Object.entries(query_data[k as keyof PermittedAccessLevels] || {})
                                             .map(([k, v], i) => (<MenuItem key={i} value={v}>{k}</MenuItem>))}
                                     </Select>
                                 </Stack>
@@ -160,12 +166,6 @@ export default function PrettyObject(
     // Edit function factory produces a function that edits the object with a new value for key k
     const edit_fun_factory = (k: string) => (v: Serializable) => _onEdit({..._target, [k]: v})
 
-    // Rename edit_access_level key for path objects
-    if (lookup_key === LOOKUP_KEYS.PATH && "edit_access_level" in Object.keys(_target)) {
-        _target["path.edit_access_level"] = _target.edit_access_level
-        delete _target.edit_access_level
-    }
-
     // Build a list of Prettify'd contents
     const base_keys = Object.keys(_target).filter(key => get_metadata(key)?.priority !== PRIORITY_LEVELS.HIDDEN)
     let keys = base_keys;
@@ -180,7 +180,12 @@ export default function PrettyObject(
         keys = base_keys.filter(key => !Object.keys(permissions_query.data?.data).includes(key))
     }
     return <>
-        <PermissionsTable permissions={permissions} query={permissions_query} edit_fun_factory={_edit_mode? edit_fun_factory : undefined}/>
+        <PermissionsTable
+            permissions={permissions}
+            query={permissions_query}
+            edit_fun_factory={_edit_mode? edit_fun_factory : undefined}
+            is_path={lookup_key === LOOKUP_KEYS.PATH}
+        />
         <TableContainer
             className={clsx(
                 classes.prettyTable,
