@@ -11,7 +11,6 @@ WORKDIR /app
 COPY . /app/
 
 RUN mv .env.vite .env
-RUN chmod +x /app/*.sh
 
 RUN pnpm install
 
