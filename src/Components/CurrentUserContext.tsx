@@ -24,9 +24,6 @@ export const useCurrentUser = () => useContext(CurrentUserContext)
 export default function CurrentUserContextProvider({children}: {children: React.ReactNode}) {
     const local_user_string = window.localStorage.getItem('user')
     const local_user: LoginUser|null = JSON.parse(local_user_string || 'null')
-    if (local_user && local_user.token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${local_user.token}`
-    }
 
     const [user, setUser] = useState<LoginUser|null>(local_user ?? null)
     const [username, setUsername] = useState<string>('')
@@ -48,7 +45,6 @@ export default function CurrentUserContextProvider({children}: {children: React.
             })
         },
         onSuccess: (data: AxiosResponse<KnoxUser>) => {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${data.data.token}`
             window.localStorage.setItem('user', JSON.stringify(data.data))
             setUser(data.data as unknown as LoginUser)
             queryClient.invalidateQueries({predicate: (q: any) => true})
@@ -59,7 +55,6 @@ export default function CurrentUserContextProvider({children}: {children: React.
         if (user) {
             window.localStorage.removeItem('user')
             setUser(null)
-            axios.defaults.headers.common['Authorization'] = undefined
             queryClient.resetQueries({predicate: (q: any) => true})
         }
     }

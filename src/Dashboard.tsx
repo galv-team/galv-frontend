@@ -148,12 +148,12 @@ function KeySummary(
 
 export function SchemaValidationList() {
 
-    const {setLoginFormOpen} = useCurrentUser()
+    const {setLoginFormOpen, user} = useCurrentUser()
 
     // API handler
     const config = new Configuration({
         basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
+        accessToken: user?.token
     })
     const api_handler = new SchemaValidationsApi(config)
     // Queries
@@ -184,7 +184,7 @@ export function SchemaValidationList() {
     if (!query.data)
         body = <p>Loading...</p>
     else if (query.data.length === 0)
-        body = !axios.defaults.headers.common['Authorization']?
+        body = !user?.token ?
             <p>
                 <Button onClick={() => setLoginFormOpen(true)}>
                     Log in

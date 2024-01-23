@@ -76,14 +76,14 @@ export function ResourceList<T extends BaseResource>({lookup_key}: {lookup_key: 
         getPreviousPageParam: (firstPage) => extract_limit_offset(firstPage.data.previous),
     })
 
-    const {setLoginFormOpen} = useCurrentUser()
+    const {setLoginFormOpen, user} = useCurrentUser()
 
     let content: ReactNode
 
     if (query.isInitialLoading) {
         content = Array(5).fill(0).map((_, i) => <Skeleton key={i} variant="rounded" height="6em"/>)
     } else if (!query.data || query.data.pages.length === 0) {
-        if (!axios.defaults.headers.common['Authorization'])
+        if (!user?.token)
             content = <p><Button onClick={() => setLoginFormOpen(true)}>Log in</Button> to see {DISPLAY_NAMES_PLURAL[lookup_key]}</p>
         else
             content = <p>No {DISPLAY_NAMES_PLURAL[lookup_key].toLowerCase()} on the server are visible for this account.</p>
