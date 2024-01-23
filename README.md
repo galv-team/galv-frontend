@@ -2,6 +2,7 @@
 > A metadata secretary for battery science
 
 [![Jest CI](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test.yml/badge.svg)](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test.yml)
+[![Cypress CI](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test_e2e.yml/badge.svg)](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test_e2e.yml)
 
 The Galv frontend is a user-friendly web interface for interacting with the [Galv REST API](/Battery-Intelligence-Lab/galv-backend/).
 

@@ -50,13 +50,12 @@ services:
       - .env.vite
     environment:
       GALV_API_BASE_URL: "http://localhost:8082"
-      NODE_OPTIONS: "--max-old-space-size=32768"  # fix hanging container?
     restart: unless-stopped
     ports:
       - "8002:80"
     volumes:
       - ./src:/app/src
-    command: bash -c "(node _resource-check.js &) && pnpm start --host --port 80 -d"
+    command: bash -c "(node _resource-check.js &) && pnpm start --host --port 80"
   #    command: tail -F anything
 
   frontend_test:
