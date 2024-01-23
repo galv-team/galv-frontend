@@ -49,7 +49,7 @@ services:
     env_file:
       - .env.vite
     environment:
-      GALV_API_BASE_URL: "http://localhost:8082"
+      VITE_GALV_API_BASE_URL: "http://localhost:8082"
     restart: unless-stopped
     ports:
       - "8002:80"
@@ -80,8 +80,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        GALV_API_BASE_URL: "http://localhost:8082"
     env_file:
       - .env.vite
     restart: "no"

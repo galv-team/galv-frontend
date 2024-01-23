@@ -40,7 +40,7 @@ export default function CurrentUserContextProvider({children}: {children: React.
     })
     const api_handler = new LoginApi(config)
     const Login = useMutation(
-        api_handler.loginCreate,
+        () => api_handler.loginCreate.bind(api_handler)(),
         {
             onSuccess: (data: AxiosResponse<KnoxUser>) => {
                 window.localStorage.setItem('user', JSON.stringify(data.data))
@@ -61,7 +61,7 @@ export default function CurrentUserContextProvider({children}: {children: React.
     const do_login = (username: string, password: string) => {
         setUsername(username)
         setPassword(password)
-        Login.mutate({})
+        Login.mutate()
     }
 
     axios.interceptors.response.use(
