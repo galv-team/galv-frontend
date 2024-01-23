@@ -85,4 +85,4 @@ services:
     env_file:
       - .env.vite
     restart: "no"
-    command: "tail -F anything"
+    command: "tree /usr/share/nginx/html"

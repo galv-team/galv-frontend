@@ -14,7 +14,7 @@ RUN mv .env.vite .env
 
 RUN pnpm install
 
-RUN pnpm build:plain
+RUN pnpm build
 
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
