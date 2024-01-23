@@ -443,13 +443,13 @@ export const FIELDS = {
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         lab: {readonly: true, type: LOOKUP_KEYS.LAB, priority: PRIORITY_LEVELS.CONTEXT},
         member_group: {
-            readonly: true,
+            readonly: false,
             type: LOOKUP_KEYS.USER,
             many: true,
             priority: PRIORITY_LEVELS.SUMMARY
         },
         admin_group: {
-            readonly: true,
+            readonly: false,
             type: LOOKUP_KEYS.USER,
             many: true,
             priority: PRIORITY_LEVELS.SUMMARY
