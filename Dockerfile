@@ -12,6 +12,9 @@ COPY . /app/
 
 RUN mv .env.vite .env
 
+ARG VITE_GALV_API_BASE_URL
+ENV VITE_GALV_API_BASE_URL=$VITE_GALV_API_BASE_URL
+
 RUN pnpm install
 
 RUN pnpm build

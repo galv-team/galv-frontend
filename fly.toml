@@ -6,7 +6,8 @@
 app = "galv-frontend-dev"
 primary_region = "lhr"
 
-[env]
+[build]
+[build.args]
   VITE_GALV_API_BASE_URL = "https://galv-backend-dev.fly.dev"
 
 [http_service]
