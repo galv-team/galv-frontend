@@ -1,7 +1,7 @@
 import {createContext, useContext} from "react";
 import {useCurrentUser} from "./CurrentUserContext";
 import {API_HANDLERS, API_SLUGS, AutocompleteKey, is_lookup_key, LookupKey} from "../constants";
-import {AxiosError, AxiosResponse} from "axios";
+import {AxiosResponse} from "axios";
 import {QueryFunction, useInfiniteQuery, type UseInfiniteQueryResult, useQueryClient} from "@tanstack/react-query";
 import {get_select_function} from "./ApiResourceContext";
 import {Configuration} from "@battery-intelligence-lab/galv-backend"

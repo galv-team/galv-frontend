@@ -76,10 +76,12 @@ export const AUTOCOMPLETE_KEYS = {
 } as const
 
 export type LookupKey = keyof typeof LOOKUP_KEYS
-export const is_lookup_key = (key: any): key is LookupKey => Object.keys(LOOKUP_KEYS).includes(key)
+export const is_lookup_key = (key: unknown): key is LookupKey =>
+    typeof key === "string" && Object.keys(LOOKUP_KEYS).includes(key)
 
 export type AutocompleteKey = keyof typeof AUTOCOMPLETE_KEYS
-export const is_autocomplete_key = (key: any): key is AutocompleteKey => Object.keys(AUTOCOMPLETE_KEYS).includes(key)
+export const is_autocomplete_key = (key: unknown): key is AutocompleteKey =>
+    typeof key === "string" && Object.keys(AUTOCOMPLETE_KEYS).includes(key)
 
 /**
  * Icons for each resource type.
