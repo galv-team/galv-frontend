@@ -1,10 +1,8 @@
-import {API_HANDLERS, API_SLUGS, DISPLAY_NAMES, FAMILY_LOOKUP_KEYS, LookupKey} from "../../constants";
+import {DISPLAY_NAMES, FAMILY_LOOKUP_KEYS, LookupKey} from "../../constants";
 import {ChipProps} from "@mui/material/Chip";
 import React, {useEffect, useState} from "react";
 import useStyles from "../../styles/UseStyles";
-import {AxiosError, AxiosResponse} from "axios";
-import {build_placeholder_url, get_url_components, id_from_ref_props, PaginatedAPIResponse} from "../misc";
-import {useQuery} from "@tanstack/react-query";
+import {build_placeholder_url, get_url_components, id_from_ref_props} from "../misc";
 import TextField from "@mui/material/TextField";
 import clsx from "clsx";
 import ButtonBase from "@mui/material/ButtonBase";
@@ -12,53 +10,29 @@ import ResourceChip from "../ResourceChip";
 import {PrettyComponentProps, PrettyString} from "./Prettify";
 import Autocomplete, {createFilterOptions} from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
-import {CreateFilterOptionsConfig} from "@mui/material";
 import {representation} from "../Representation";
-import {Configuration} from "@battery-intelligence-lab/galv-backend";
-import {useCurrentUser} from "../CurrentUserContext";
+import {useResourceList} from "../ResourceListContext";
+import {BaseResource} from "../ResourceCard";
 
-export const PrettyResourceSelect = (
-    {value, onChange, edit_mode, lookup_key, ...childProps}:
+export const PrettyResourceSelect = <T extends BaseResource>(
+    {value, onChange, lookup_key}:
         { lookup_key: LookupKey } & PrettyComponentProps & Partial<Omit<ChipProps, "onChange">>
 ) => {
+    const { useListQuery } = useResourceList();
 
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const api_handler = new API_HANDLERS[lookup_key](config)
-    const api_list = api_handler[
-        `${API_SLUGS[lookup_key]}List` as keyof typeof api_handler
-        ] as () => Promise<AxiosResponse<PaginatedAPIResponse>>
-    const query = useQuery<AxiosResponse<PaginatedAPIResponse>, AxiosError>({
-        queryKey: [lookup_key, 'list'],
-        queryFn: () => api_list.bind(api_handler)()
-    })
+    const query = useListQuery<T>(lookup_key)
 
     const family_lookup_key = Object.keys(FAMILY_LOOKUP_KEYS).includes(lookup_key)?
         FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS] : undefined
-    const family_api_handler = family_lookup_key?
-        new API_HANDLERS[family_lookup_key as keyof typeof API_HANDLERS](config) : null
-    const family_api_list = family_api_handler !== null?
-        family_api_handler[
-            `${API_SLUGS[family_lookup_key as keyof typeof API_SLUGS]}List` as keyof typeof family_api_handler
-            ] as () => Promise<AxiosResponse<PaginatedAPIResponse>> :
-        () => Promise.resolve(null)
-    const family_queryFn = family_api_handler !== null?
-        () => family_api_list.bind(family_api_handler)() :
-        () => Promise.resolve(null)
-    const family_query = useQuery<AxiosResponse<PaginatedAPIResponse>|null, AxiosError>({
-        queryKey: [family_lookup_key, 'list'],
-        queryFn: family_queryFn
-    })
+    const family_query = useListQuery<BaseResource>(family_lookup_key)
 
     const [url, setUrl] = useState<string>("")
     const [open, setOpen] = React.useState(false);
-    const loading = open && query.isLoading;
+    const loading = open && query?.isLoading;
 
     useEffect(() => setUrl(value), [value])
 
-    const url_to_query_result = (url: string) => query.data?.data.results.find(o => o.url === url)
+    const url_to_query_result = (url: string) => query.results?.find(o => o.url === url)
     const represent = (url: string) => {
         const object = url_to_query_result(url)
         if (!object) return url
@@ -67,7 +41,7 @@ export const PrettyResourceSelect = (
     const url_to_value = (url: string) => represent(url)
     const value_to_url = (value: string) => {
         // console.log(`value_to_url`, {value, url, repr_value: represent(value), repr_url: represent(url)})
-        const object = query.data?.data.results.find(o => represent(o.url) === value)
+        const object = query.results?.find(o => represent(o.url) === value)
         return object?.url || value
     }
 
@@ -76,7 +50,7 @@ export const PrettyResourceSelect = (
     return <Autocomplete
         className={clsx(classes.prettySelect)}
         freeSolo={true}
-        filterOptions={createFilterOptions({stringify: represent} as CreateFilterOptionsConfig<any>)}
+        filterOptions={createFilterOptions({stringify: represent})}
         open={open}
         onOpen={() => setOpen(true)}
         onChange={(e, v) => {
@@ -92,10 +66,15 @@ export const PrettyResourceSelect = (
         }}
         onClose={() => setOpen(false)}
         value={url_to_value(url)}
-        options={query.data?.data.results.map(r => url_to_value(r.url)) || []}
+        options={query.results?.map(r => url_to_value(r.url)) || []}
         loading={loading}
         getOptionLabel={(option: string) => option}
-        groupBy={family_lookup_key? (option) => url_to_query_result(value_to_url(option)).family : undefined}
+        groupBy={family_lookup_key?
+            (option) => {
+                const o = url_to_query_result(value_to_url(option) ?? "")
+                return o? o.family ?? "" : ""
+            } : () => ""
+        }
         renderInput={(params) => <TextField
             {...params}
             label={`Select ${DISPLAY_NAMES[lookup_key]}`}
@@ -112,9 +91,9 @@ export const PrettyResourceSelect = (
         }
         renderGroup={(params) => <li key={params.key}>
             <div>{
-                family_query.data?.data?.results?
+                family_query.results?
                     <ResourceChip
-                        resource_id={id_from_ref_props<string>(family_query.data.data.results.find(f => f.url === params.group))}
+                        resource_id={id_from_ref_props<string>(family_query.results.find(f => f.url === params.group) ?? "")}
                         lookup_key={FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS]}
                         component={ButtonBase}
                         clickable={false}
