@@ -4,11 +4,12 @@
   "private": true,
   "proxy": "http://app/",
   "dependencies": {
-    "@battery-intelligence-lab/galv-backend": "2.1.5",
+    "@battery-intelligence-lab/galv-backend": "2.1.6",
     "@canvasjs/charts": "^3.7.27",
     "@canvasjs/react-charts": "^1.0.0",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
+    "@mui/base": "5.0.0-beta.33",
     "@mui/icons-material": "^5.10.15",
     "@mui/lab": "^5.0.0-alpha.109",
     "@mui/material": "^5.10.15",

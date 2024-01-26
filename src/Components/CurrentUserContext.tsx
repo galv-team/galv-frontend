@@ -33,14 +33,14 @@ export default function CurrentUserContextProvider({children}: {children: React.
     const {postSnackbarMessage} = useSnackbarMessenger()
 
     const queryClient = useQueryClient()
-    const config = new Configuration({
+    const get_config = () => new Configuration({
         basePath: process.env.VITE_GALV_API_BASE_URL,
         username,
         password
     })
-    const api_handler = new LoginApi(config)
+    const api_handler = new LoginApi(get_config())
     const Login = useMutation(
-        () => api_handler.loginCreate.bind(api_handler)(),
+        () => api_handler.loginCreate.bind(new LoginApi(get_config()))(),
         {
             onSuccess: (data: AxiosResponse<KnoxUser>) => {
                 window.localStorage.setItem('user', JSON.stringify(data.data))
@@ -61,7 +61,7 @@ export default function CurrentUserContextProvider({children}: {children: React.
     const do_login = (username: string, password: string) => {
         setUsername(username)
         setPassword(password)
-        Login.mutate()
+        setTimeout(() => Login.mutate(), 100)
     }
 
     axios.interceptors.response.use(
