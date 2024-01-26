@@ -157,7 +157,9 @@ function ResourceCard<T extends BaseResource>(
         editable={!!apiResource?.permissions?.write}
         editing={isEditMode}
         setEditing={setEditing}
-        onFork={apiResource?.permissions?.create? () => setForking(true) : undefined}
+        // Harvesters must be created elsewhere - they can't be forked
+        onFork={apiResource?.permissions?.create && lookup_key !== LOOKUP_KEYS.HARVESTER?
+            () => setForking(true) : undefined}
         onUndo={UndoRedo.undo}
         onRedo={UndoRedo.redo}
         undoable={UndoRedo.can_undo}
