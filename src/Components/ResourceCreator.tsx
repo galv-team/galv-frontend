@@ -7,12 +7,24 @@ import Card, {CardProps} from "@mui/material/Card";
 import clsx from "clsx";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
+import Button from "@mui/material/Button";
+import NumberInput from './NumberInput';
+import InputLabel from "@mui/material/InputLabel";
 import Avatar from "@mui/material/Avatar";
 import React, {useContext, useEffect, useRef, useState} from "react";
 import ErrorCard from "./error/ErrorCard";
 import {AxiosError, AxiosResponse} from "axios";
 import {Serializable, SerializableObject} from "./TypeChanger";
-import {API_HANDLERS, API_SLUGS, DISPLAY_NAMES, FIELDS, ICONS, LookupKey, PRIORITY_LEVELS} from "../constants";
+import {
+    API_HANDLERS,
+    API_SLUGS,
+    DISPLAY_NAMES,
+    FIELDS,
+    ICONS,
+    LOOKUP_KEYS,
+    LookupKey,
+    PRIORITY_LEVELS
+} from "../constants";
 import ErrorBoundary from "./ErrorBoundary";
 import UndoRedoProvider, {UndoRedoContext} from "./UndoRedoContext";
 import {BaseResource} from "./ResourceCard";
@@ -21,12 +33,146 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
-import {Configuration} from "@battery-intelligence-lab/galv-backend";
+import {Configuration, CreateTokenApi, type CreateKnoxTokenRequest, type KnoxTokenFull} from "@battery-intelligence-lab/galv-backend";
 import {useCurrentUser} from "./CurrentUserContext";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Skeleton from "@mui/material/Skeleton";
+
+export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: boolean) => void} & CardProps) {
+    const { classes } = useStyles()
+    const [name, setName] = useState<string>("")
+    const [ttl, setTTL] = useState<number|undefined>(undefined)
+    const [timeUnit, setTimeUnit] = useState<number>(1)
+    const config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const [err, setErr] = useState<string>("")
+    const [responseData, setResponseData] = useState<KnoxTokenFull|null>(null)
+    const queryClient = useQueryClient()
+    const create_mutation = useMutation<
+        AxiosResponse<KnoxTokenFull>, AxiosError, CreateKnoxTokenRequest
+    >(
+        (data) => new CreateTokenApi(config).createTokenCreate(data),
+        {
+            onSuccess: (data) => {
+                setErr("")
+                setResponseData(data.data)
+                queryClient.invalidateQueries([lookup_key, 'list'], {exact: true})
+            },
+            onError: (err) => {setErr(err.message)}
+        }
+    )
+
+    const update_ttl = (v: number|undefined) => {
+        const x = (v ?? 0) * timeUnit
+        x > 0? setTTL(x) : setTTL(undefined)
+    }
+
+    const time_units = {
+        "seconds": 1,
+        "minutes": 60,
+        "hours": 60 * 60,
+        "days": 60 * 60 * 24,
+        "weeks": 60 * 60 * 24 * 7
+    }
+
+    const lookup_key = LOOKUP_KEYS.TOKEN
+
+    const ICON = ICONS[lookup_key]
+
+    const cardHeader = <CardHeader
+        id={get_modal_title(lookup_key, 'title')}
+        avatar={<Avatar variant="square"><ICON /></Avatar>}
+        title={`Create a new ${DISPLAY_NAMES[lookup_key]}`}
+    />
+    const cardBody =
+        <Stack spacing={1}>
+            <TextField
+                label="Token name"
+                id="token-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+            />
+            <Stack direction="row" spacing={1}>
+                <NumberInput
+                    aria-label="Time-to-live"
+                    placeholder="Token time-to-live"
+                    id="token-ttl"
+                    step={1}
+                    min={0}
+                    value={ttl || 0}
+                    onChange={(_e, v) => update_ttl(v)}
+                />
+                <Select
+                    labelId="select-time-unit-label"
+                    id="select-time-unit"
+                    value={timeUnit}
+                    label="Unit"
+                    onChange={(e) => setTimeUnit(e.target.value as number)}
+                >
+                    {Object.entries(time_units).map(([k, v]) => <MenuItem key={v} value={v}>{k}</MenuItem>)}
+                </Select>
+            </Stack>
+            {ttl === undefined && <Typography>Tokens with no TTL value will be valid forever.</Typography>}
+            <Button
+                variant="contained"
+                color="success"
+                onClick={() => create_mutation.mutate({name, ttl})} disabled={name === ""}
+            >
+                Create
+            </Button>
+        </Stack>
+
+    const showResponse = <Stack>
+        <Typography>
+            Your token code is shown below. This is the only time you will see your token code.
+        </Typography>
+        <Typography>
+            <b>Make sure to copy it now.</b>
+        </Typography>
+        <Typography>
+            You will not be able to retrieve it again.
+        </Typography>
+        <Typography>
+            <b>{responseData?.token}</b>
+        </Typography>
+        <Button onClick={() => setModalOpen(false)}>Close</Button>
+    </Stack>
+
+    const showErr = <Stack sx={{m: 2}}>
+        <Typography color="error">
+            Error creating token: {err}
+        </Typography>
+    </Stack>
+
+
+    return <Card
+        className={clsx(classes.itemCard, classes.itemCreateCard)}
+        {...cardProps}
+    >
+        {cardHeader}
+        <CardContent sx={{
+            height: (t) => `calc(100% - ${t.spacing(8)})`,
+            overflowY: "auto",
+            "& li": {marginTop: (t) => t.spacing(0.5)},
+            "& table": {borderCollapse: "separate", borderSpacing: (t) => t.spacing(0.5)},
+            m: 2
+        }}>
+            {err && showErr}
+            {create_mutation.isLoading? <Skeleton variant="rounded" height="6em"/> :
+                responseData? showResponse :
+                    cardBody}
+        </CardContent>
+    </Card>
+}
 
 export function ResourceCreator<T extends BaseResource>(
     { lookup_key, initial_data, onCreate, onDiscard, ...cardProps}:
-        {lookup_key: LookupKey, initial_data?: any, onCreate: (error?: any) => void, onDiscard: () => void} &
+        {lookup_key: LookupKey, initial_data?: object, onCreate: (error?: unknown) => void, onDiscard: () => void} &
         CardProps
 ) {
     const { classes } = useStyles();
@@ -38,11 +184,11 @@ export function ResourceCreator<T extends BaseResource>(
     useEffect(() => {
         const template_object: {[key: string]: Serializable} = {}
         Object.entries(FIELDS[lookup_key])
-            .filter(([_, v]) => v.priority !== PRIORITY_LEVELS.HIDDEN)
+            .filter((v) => v[1].priority !== PRIORITY_LEVELS.HIDDEN)
             .forEach(([k, v]) => {
                 if (!v.readonly || v.createonly) {
-                    if (initial_data?.[k] !== undefined)
-                        template_object[k] = initial_data[k]
+                    if (initial_data?.[k as keyof typeof initial_data] !== undefined)
+                        template_object[k] = initial_data[k as keyof typeof initial_data]
                     else
                         template_object[k] = v.many? [] : ""
                 }
@@ -79,9 +225,10 @@ export function ResourceCreator<T extends BaseResource>(
                     }
                     queryClient.invalidateQueries([lookup_key, 'list'], {exact: true})
                     // Also invalidate any query mentioned in the response
-                    const invalidate = (url: string|any[]) => {
+                    const invalidate = (url: Serializable|Serializable[]): void => {
                         if (url instanceof Array)
                             return url.forEach(invalidate)
+                        if (typeof url !== "string") return
                         const components = get_url_components(url)
                         if (components)
                             queryClient.invalidateQueries([components.lookup_key, components.resource_id], {exact: true})
@@ -175,6 +322,7 @@ export default function WrappedResourceCreator<T extends BaseResource>(props: {l
     const [modalOpen, setModalOpen] = useState(false)
 
     const get_can_create = (lookup_key: LookupKey) => {
+        if (lookup_key === LOOKUP_KEYS.TOKEN) return true
         const fields = FIELDS[lookup_key]
         return Object.keys(fields).includes('team')
     }
@@ -207,11 +355,13 @@ export default function WrappedResourceCreator<T extends BaseResource>(props: {l
                         }
                     />}
                 >
-                    <ResourceCreator<T>
-                        onCreate={() => setModalOpen(false)}
-                        onDiscard={() => setModalOpen(false)}
-                        {...props}
-                    />
+                    {props.lookup_key === LOOKUP_KEYS.TOKEN?
+                        <TokenCreator setModalOpen={setModalOpen} {...props} /> :
+                        <ResourceCreator<T>
+                            onCreate={() => setModalOpen(false)}
+                            onDiscard={() => setModalOpen(false)}
+                            {...props}
+                        />}
                 </ErrorBoundary>
             </div>
         </Modal>
