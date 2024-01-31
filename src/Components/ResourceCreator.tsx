@@ -9,7 +9,7 @@ import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import NumberInput from './NumberInput';
-import InputLabel from "@mui/material/InputLabel";
+import {CopyBlock, a11yDark} from "react-code-blocks";
 import Avatar from "@mui/material/Avatar";
 import React, {useContext, useEffect, useRef, useState} from "react";
 import ErrorCard from "./error/ErrorCard";
@@ -127,20 +127,22 @@ export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: 
             </Button>
         </Stack>
 
-    const showResponse = <Stack>
+    const showResponse = <Stack spacing={1}>
         <Typography>
-            Your token code is shown below. This is the only time you will see your token code.
-        </Typography>
-        <Typography>
+            Your token code is shown below.
+            This is the only time you will see your token code.
+            You will not be able to retrieve it again.<br/>
             <b>Make sure to copy it now.</b>
         </Typography>
-        <Typography>
-            You will not be able to retrieve it again.
-        </Typography>
-        <Typography>
-            <b>{responseData?.token}</b>
-        </Typography>
-        <Button onClick={() => setModalOpen(false)}>Close</Button>
+        <CopyBlock
+            text={responseData?.token ?? ""}
+            theme={a11yDark}
+            language={"html"}
+            wrapLongLines
+            showLineNumbers={false}
+            codeBlock={true}
+        />
+        <Button variant="contained" onClick={() => setModalOpen(false)}>Close</Button>
     </Stack>
 
     const showErr = <Stack sx={{m: 2}}>
