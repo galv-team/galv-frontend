@@ -1,7 +1,7 @@
 import {createContext, useContext, useState} from "react";
-import {KnoxUser, LoginApi, User} from "../api_codegen";
+import {Configuration, KnoxUser, LoginApi, User} from "@battery-intelligence-lab/galv-backend";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {AxiosError, AxiosResponse} from "axios";
+import {AxiosResponse} from "axios";
 import axios from "axios";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import Button from "@mui/material/Button";
@@ -24,9 +24,6 @@ export const useCurrentUser = () => useContext(CurrentUserContext)
 export default function CurrentUserContextProvider({children}: {children: React.ReactNode}) {
     const local_user_string = window.localStorage.getItem('user')
     const local_user: LoginUser|null = JSON.parse(local_user_string || 'null')
-    if (local_user && local_user.token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${local_user.token}`
-    }
 
     const [user, setUser] = useState<LoginUser|null>(local_user ?? null)
     const [username, setUsername] = useState<string>('')
@@ -36,39 +33,39 @@ export default function CurrentUserContextProvider({children}: {children: React.
     const {postSnackbarMessage} = useSnackbarMessenger()
 
     const queryClient = useQueryClient()
-    const api_handler = new LoginApi()
-    const Login = useMutation<AxiosResponse<KnoxUser>, AxiosError>({
-        mutationFn: () => {
-            console.log('login', username, password)
-            return api_handler.loginCreate({
-                headers: {Authorization: `Basic ${btoa(username + ":" + password)}`}
-            })
-        },
-        onSuccess: (data: AxiosResponse<KnoxUser>) => {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${data.data.token}`
-            window.localStorage.setItem('user', JSON.stringify(data.data))
-            setUser(data.data as unknown as LoginUser)
-            queryClient.invalidateQueries({predicate: (q: any) => true})
-        }
+    const get_config = () => new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        username,
+        password
     })
+    const api_handler = new LoginApi(get_config())
+    const Login = useMutation(
+        () => api_handler.loginCreate.bind(new LoginApi(get_config()))(),
+        {
+            onSuccess: (data: AxiosResponse<KnoxUser>) => {
+                window.localStorage.setItem('user', JSON.stringify(data.data))
+                setUser(data.data as unknown as LoginUser)
+                queryClient.removeQueries({predicate: () => true})
+            }
+        }
+    )
 
     const Logout = () => {
         if (user) {
             window.localStorage.removeItem('user')
             setUser(null)
-            axios.defaults.headers.common['Authorization'] = undefined
-            queryClient.invalidateQueries({predicate: (q: any) => true})
+            queryClient.removeQueries({predicate: () => true})
         }
     }
 
     const do_login = (username: string, password: string) => {
         setUsername(username)
         setPassword(password)
-        Login.mutate()
+        setTimeout(() => Login.mutate(), 100)
     }
 
     axios.interceptors.response.use(
-        null,
+        undefined,
         // 401 should log the user out and display a message
         (error) => {
             if (error.response?.status === 401) {
@@ -80,8 +77,8 @@ export default function CurrentUserContextProvider({children}: {children: React.
                     </Stack>,
                     severity: 'warning'
                 })
-                return Promise.reject(error)
             }
+            return Promise.reject(error)
         }
     )
 

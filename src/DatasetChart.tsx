@@ -8,13 +8,14 @@ import Stack from "@mui/material/Stack";
 import CardHeader from "@mui/material/CardHeader";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import {ColumnsApi} from "./api_codegen";
+import {ColumnsApi, Configuration} from "@battery-intelligence-lab/galv-backend";
 import {useQueries, useQuery} from "@tanstack/react-query";
 import useStyles from "./styles/UseStyles";
 import clsx from "clsx";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 import CanvasJSReact from "@canvasjs/react-charts";
+import {useCurrentUser} from "./Components/CurrentUserContext";
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
@@ -39,7 +40,11 @@ export function DatasetChart({file_uuid}: {file_uuid: string}) {
     const maxDataPoints = 10000
     const [chartKey, setChartKey] = useState<number[]>([])
 
-    const api_handler = new ColumnsApi()
+    const config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new ColumnsApi(config)
     const columns_query = useQuery({
         queryKey: ["COLUMNS", file_uuid, "list"],
         queryFn: () => api_handler.columnsList(

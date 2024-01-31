@@ -33,7 +33,7 @@ import {
     FilesApi, HarvestersApi, LabsApi, MonitoredPathsApi,
     ScheduleFamiliesApi, ScheduleIdentifiersApi, SchedulesApi,
     TeamsApi, TokensApi, UsersApi, ValidationSchemasApi
-} from "./api_codegen";
+} from "@battery-intelligence-lab/galv-backend";
 import {Serializable, TypeChangerSupportedTypeName} from "./Components/TypeChanger";
 
 /**
@@ -76,10 +76,12 @@ export const AUTOCOMPLETE_KEYS = {
 } as const
 
 export type LookupKey = keyof typeof LOOKUP_KEYS
-export const is_lookup_key = (key: any): key is LookupKey => Object.keys(LOOKUP_KEYS).includes(key)
+export const is_lookup_key = (key: unknown): key is LookupKey =>
+    typeof key === "string" && Object.keys(LOOKUP_KEYS).includes(key)
 
 export type AutocompleteKey = keyof typeof AUTOCOMPLETE_KEYS
-export const is_autocomplete_key = (key: any): key is AutocompleteKey => Object.keys(AUTOCOMPLETE_KEYS).includes(key)
+export const is_autocomplete_key = (key: unknown): key is AutocompleteKey =>
+    typeof key === "string" && Object.keys(AUTOCOMPLETE_KEYS).includes(key)
 
 /**
  * Icons for each resource type.
@@ -443,18 +445,16 @@ export const FIELDS = {
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         lab: {readonly: true, type: LOOKUP_KEYS.LAB, priority: PRIORITY_LEVELS.CONTEXT},
         member_group: {
-            readonly: true,
+            readonly: false,
             type: LOOKUP_KEYS.USER,
             many: true,
-            priority: PRIORITY_LEVELS.SUMMARY,
-            transformation: (group: any) => group?.users ?? group ?? []
+            priority: PRIORITY_LEVELS.SUMMARY
         },
         admin_group: {
-            readonly: true,
+            readonly: false,
             type: LOOKUP_KEYS.USER,
             many: true,
-            priority: PRIORITY_LEVELS.SUMMARY,
-            transformation: (group: any) => group?.users ?? group ?? []
+            priority: PRIORITY_LEVELS.SUMMARY
         },
         monitored_paths: {readonly: true, type: LOOKUP_KEYS.PATH, many: true},
         cellfamily_resources: {readonly: true, type: LOOKUP_KEYS.CELL_FAMILY, many: true, priority: PRIORITY_LEVELS.CONTEXT},
@@ -478,10 +478,9 @@ export const FIELDS = {
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         admin_group: {
-            readonly: true,
+            readonly: false,
             type: LOOKUP_KEYS.USER,
             many: true,
-            transformation: (group: any) => group?.users ?? group ?? [],
             priority: PRIORITY_LEVELS.SUMMARY
         },
         teams: {readonly: true, type: LOOKUP_KEYS.TEAM, many: true, priority: PRIORITY_LEVELS.SUMMARY},

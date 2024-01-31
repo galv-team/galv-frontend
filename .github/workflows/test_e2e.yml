@@ -1,4 +1,4 @@
-name: Jest CI
+name: Cypress CI
 on:
   push:
   workflow_dispatch:
@@ -23,4 +23,9 @@ jobs:
         run: |
             sudo apt-get update
             sudo apt-get install -y docker-compose
-            docker-compose run --rm frontend_test
+
+      - name: Build test container
+        run: docker-compose build frontend_test_e2e
+
+      - name: Run tests
+        run: docker-compose run --rm frontend_test_e2e

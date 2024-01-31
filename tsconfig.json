@@ -19,10 +19,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "types": ["vite/client"]
+    "types": ["vite/client", "jest", "@testing-library/jest-dom"]
   },
   "include": [
     "src/*",
-    "src/**/*"
+    "src/**/*",
   ]
 }

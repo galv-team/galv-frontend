@@ -13,6 +13,8 @@ import {AxiosError, AxiosResponse} from "axios";
 import {useQuery, UseQueryResult} from "@tanstack/react-query";
 import {id_from_ref_props} from "./misc";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
+import {useCurrentUser} from "./CurrentUserContext";
+import {Configuration} from "@battery-intelligence-lab/galv-backend";
 
 export interface IApiResourceContext<T extends BaseResource = BaseResource> {
     apiResource?: T
@@ -49,7 +51,11 @@ function ApiResourceContextStandaloneProvider<T extends BaseResource>(
     {lookup_key, resource_id, children}: PropsWithChildren<ApiResourceContextProviderProps>
 ) {
     const {postSnackbarMessage} = useSnackbarMessenger()
-    const api_handler = new API_HANDLERS[lookup_key]()
+    const config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new API_HANDLERS[lookup_key](config)
     const get = api_handler[
         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof api_handler
         ] as (uuid: string) => Promise<AxiosResponse<T>>
@@ -77,8 +83,12 @@ function ApiResourceContextWithFamilyProvider<T extends BaseResource>(
     if (!get_has_family(lookup_key))
         throw new Error(`Cannot use ApiResourceContextWithFamilyProvider for ${lookup_key} because it does not have a family.`)
 
+    const config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
     const {postSnackbarMessage} = useSnackbarMessenger()
-    const api_handler = new API_HANDLERS[lookup_key]()
+    const api_handler = new API_HANDLERS[lookup_key](config)
     const get = api_handler[
         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof api_handler
         ] as (uuid: string) => Promise<AxiosResponse<T>>
@@ -96,7 +106,7 @@ function ApiResourceContextWithFamilyProvider<T extends BaseResource>(
     })
 
     const family_lookup_key = FAMILY_LOOKUP_KEYS[lookup_key]
-    const family_api_handler = new API_HANDLERS[family_lookup_key]()
+    const family_api_handler = new API_HANDLERS[family_lookup_key](config)
     const family_get = family_api_handler[
         `${API_SLUGS[family_lookup_key]}Retrieve` as keyof typeof family_api_handler
         ] as (uuid: string) => Promise<AxiosResponse<BaseResource>>

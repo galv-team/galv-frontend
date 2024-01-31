@@ -14,8 +14,17 @@ services:
     # volumes:
     #   - .run/postgres_data:/var/lib/postgresql/data
 
+  # Backend server uses mail service to send activation emails
+  mailhog:
+    image: mailhog/mailhog
+    restart: unless-stopped
+    ports:
+      - "8085:8025"
+      - "1085:1025"
+
   backend:
     # For big development changes, best to target a specific SHA build rather than :latest in case backend changes.
+    # If you prefer, of course, you can target a real backend deployment by changing the frontend GALV_API_BASE_URL
     image: ghcr.io/battery-intelligence-lab/galv-backend:latest
     restart: unless-stopped
     environment:
@@ -24,10 +33,10 @@ services:
       DJANGO_SETTINGS: "dev"
       DJANGO_SUPERUSER_PASSWORD: "admin"
     ports:
-      - "8082:80"
+      - "8082:8000"
     depends_on:
       - postgres
-    command: ./server.sh
+      - mailhog
     volumes:
       - ./.schema:/spec
 
@@ -35,18 +44,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile_dev
+      args:
+        VITE_GALV_API_BASE_URL: "http://localhost:8082"
     depends_on:
       - backend
     env_file:
       - .env.vite
     environment:
-      GALV_API_BASE_URL: "http://localhost:8082"
+      VITE_GALV_API_BASE_URL: "http://localhost:8082"
     restart: unless-stopped
     ports:
       - "8002:80"
     volumes:
       - ./src:/app/src
-    command: bash -c "./fix_base_path.sh && pnpm start --host --port 80"
+    command: bash -c "(node _resource-check.js &) && pnpm start --host --port 80"
   #    command: tail -F anything
 
   frontend_test:
@@ -57,3 +68,23 @@ services:
       - .env.vite
     restart: "on-failure"
     command: "pnpm test"
+
+  frontend_test_e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile_cypress
+    env_file:
+      - .env.vite
+    restart: "on-failure"
+    command: "pnpm cypress:e2e"
+
+  frontend_build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_GALV_API_BASE_URL: "http://localhost:8082"
+    env_file:
+      - .env.vite
+    restart: "no"
+    command: "tree /usr/share/nginx/html"

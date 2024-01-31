@@ -4,7 +4,7 @@ import PrettyObject, {PrettyObjectFromQuery} from "./prettify/PrettyObject";
 import useStyles from "../styles/UseStyles";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import Card, {CardProps} from "@mui/material/Card";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import clsx from "clsx";
 import CardHeader from "@mui/material/CardHeader";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -42,6 +42,8 @@ import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import DatasetChart from "../DatasetChart";
 import {Modal} from "@mui/material";
 import {ResourceCreator, get_modal_title} from "./ResourceCreator";
+import {Configuration} from "@battery-intelligence-lab/galv-backend";
+import {useCurrentUser} from "./CurrentUserContext";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
@@ -73,6 +75,7 @@ function ResourceCard<T extends BaseResource>(
     }: ResourceCardProps & CardProps
 ) {
     const { classes } = useStyles();
+    const navigate = useNavigate()
     const [isEditMode, _setIsEditMode] = useState<boolean>(editing || false)
     const [isExpanded, setIsExpanded] = useState<boolean>(expanded || isEditMode)
 
@@ -104,7 +107,11 @@ function ResourceCard<T extends BaseResource>(
 
     // Mutations for saving edits
     const {postSnackbarMessage} = useSnackbarMessenger()
-    const api_handler = new API_HANDLERS[lookup_key]()
+    const config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new API_HANDLERS[lookup_key](config)
     const patch = api_handler[
         `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
         ] as (uuid: string, data: SerializableObject) => Promise<AxiosResponse<T>>
@@ -151,7 +158,11 @@ function ResourceCard<T extends BaseResource>(
         editable={!!apiResource?.permissions?.write}
         editing={isEditMode}
         setEditing={setEditing}
-        onFork={apiResource?.permissions?.create? () => setForking(true) : undefined}
+        // Harvesters must be created elsewhere - they can't be forked
+        onFork={apiResource?.permissions?.create &&
+        lookup_key !== LOOKUP_KEYS.HARVESTER &&
+        lookup_key !== LOOKUP_KEYS.TOKEN?
+            () => setForking(true) : undefined}
         onUndo={UndoRedo.undo}
         onRedo={UndoRedo.redo}
         undoable={UndoRedo.can_undo}
@@ -165,6 +176,26 @@ function ResourceCard<T extends BaseResource>(
                 return false
             UndoRedo.reset()
             return true
+        }}
+        destroyable={apiResource?.permissions?.destroy && !apiResource.in_use}
+        onDestroy={() => {
+            if (!window.confirm(`Delete ${DISPLAY_NAMES[lookup_key]}/${resource_id}?`))
+                return
+            const destroy = api_handler[
+                `${API_SLUGS[lookup_key]}Destroy` as keyof typeof api_handler
+                ] as (uuid: string) => Promise<AxiosResponse<T>>
+            destroy.bind(api_handler)(String(resource_id))
+                .then(() => queryClient.invalidateQueries([lookup_key, 'list']))
+                .then(() => {
+                    navigate(PATHS[lookup_key])
+                    queryClient.removeQueries([lookup_key, resource_id])
+                }).catch(e => {
+                postSnackbarMessage({
+                    message: `Error deleting ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
+                        (HTTP ${e.response?.status} - ${e.response?.statusText}): ${e.response?.data?.detail}`,
+                    severity: 'error'
+                })
+            })
         }}
         expanded={isExpanded}
         setExpanded={setIsExpanded}
@@ -270,7 +301,7 @@ function ResourceCard<T extends BaseResource>(
     const cardSummary = <CardContent>
         {apiResource && <Grid container spacing={1}>{
             Object.entries(FIELDS[lookup_key])
-                .filter(([_, v]) => v.priority === PRIORITY_LEVELS.SUMMARY)
+                .filter((e) => e[1].priority === PRIORITY_LEVELS.SUMMARY)
                 .map(([k, v]) => <Grid key={k}>{summarise(apiResource[k], v.many, k, v.type)}</Grid>)
         }</Grid>}
         {lookup_key === LOOKUP_KEYS.FILE && <DatasetChart file_uuid={resource_id as string} />}
@@ -350,6 +381,7 @@ function ResourceCard<T extends BaseResource>(
                 </Stack>}
             />
         }
+        {...cardProps}
     />
 
     return <QueryWrapper

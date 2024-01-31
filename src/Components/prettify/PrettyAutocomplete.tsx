@@ -1,29 +1,25 @@
-import {API_HANDLERS, API_SLUGS, AutocompleteKey} from "../../constants";
-import {AxiosError, AxiosResponse} from "axios";
-import {PaginatedAPIResponse} from "../misc";
-import {useQuery} from "@tanstack/react-query";
+import {AutocompleteKey} from "../../constants";
 import TextField from "@mui/material/TextField";
 import {PrettyComponentProps, PrettyString} from "./Prettify";
 import Autocomplete, {AutocompleteProps} from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 import {TypographyProps} from "@mui/material/Typography";
-import {AutocompleteResource} from "../ResourceCard";
+import {BaseResource} from "../ResourceCard";
+import {useResourceList} from "../ResourceListContext";
+
+export type AutcompleteEntry = BaseResource & {
+    value: string
+}
 
 export default function PrettyAutocomplete(
     {value, onChange, edit_mode, autocomplete_key, ...childProps}:
         {autocomplete_key: AutocompleteKey} &
         PrettyComponentProps &
-        Omit<Partial<AutocompleteProps<string, any, true, any>|TypographyProps>, "onChange">
+        Omit<Partial<AutocompleteProps<string, boolean|undefined, true, boolean|undefined>|TypographyProps>, "onChange">
 ) {
 
-    const api_handler = new API_HANDLERS[autocomplete_key]()
-    const api_list = api_handler[
-        `${API_SLUGS[autocomplete_key]}List` as keyof typeof api_handler
-        ] as () => Promise<AxiosResponse<PaginatedAPIResponse<AutocompleteResource>>>
-    const query = useQuery<AxiosResponse<PaginatedAPIResponse<AutocompleteResource>>, AxiosError>({
-        queryKey: ['autocomplete', autocomplete_key, 'list'],
-        queryFn: () => api_list.bind(api_handler)()
-    })
+    const { useListQuery } = useResourceList();
+    const query = useListQuery<AutcompleteEntry>(autocomplete_key)
 
     if (!edit_mode)
         return <PrettyString
@@ -36,7 +32,7 @@ export default function PrettyAutocomplete(
     return <Autocomplete
         value={value}
         freeSolo
-        options={query.data? query.data.data.results.map(r => r.value) : []}
+        options={query.results? query.results.map(r => r.value) : []}
         onChange={(e, value) => onChange(value)}
         renderInput={(params) => (
             <TextField
@@ -46,7 +42,7 @@ export default function PrettyAutocomplete(
                     ...params.InputProps,
                     endAdornment: (
                         <>
-                            {query.isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                            {query?.isLoading ? <CircularProgress color="inherit" size={20} /> : null}
                             {params.InputProps.endAdornment}
                         </>
                     ),
@@ -54,6 +50,6 @@ export default function PrettyAutocomplete(
             />
         )}
         fullWidth={true}
-        {...childProps as Partial<AutocompleteProps<string, any, true, any>>}
+        {...childProps as Partial<AutocompleteProps<string, boolean|undefined, true, boolean|undefined>>}
     />
 }

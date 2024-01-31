@@ -2,6 +2,7 @@
 > A metadata secretary for battery science
 
 [![Jest CI](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test.yml/badge.svg)](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test.yml)
+[![Cypress CI](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test_e2e.yml/badge.svg)](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test_e2e.yml)
 
 The Galv frontend is a user-friendly web interface for interacting with the [Galv REST API](/Battery-Intelligence-Lab/galv-backend/).
 
@@ -60,6 +61,24 @@ The unit tests are run with Jest and the end-to-end tests are run with Cypress.
 
 Unit tests are kept to a minimum, and used to ensure that novel logic in the components works as expected.
 
+To run the unit tests, run the following command:
+
+```bash
+docker-compose up frontend_test
+```
+
 ### End-to-end tests
 
 End-to-end tests are used to ensure that the frontend works as expected from the user's perspective.  They are run with Cypress.
+
+To run the end-to-end tests, run the following command:
+
+```bash
+docker-compose up frontend_test_e2e
+```
+
+To develop end-to-end tests, you can use the Cypress GUI.  To do this, run the following command:
+
+```bash
+pnpm run cypress:open
+```

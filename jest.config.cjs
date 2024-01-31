@@ -13,9 +13,9 @@ module.exports = {
             },
         ],
     },
-    moduleNameMapper: {
-        axios: 'axios/dist/node/axios.cjs',
-    },
+    // moduleNameMapper: {
+    //     axios: 'axios/dist/node/axios.cjs',
+    // },
     transformIgnorePatterns: [
         "node_modules/(?!(array-move))/",
     ],

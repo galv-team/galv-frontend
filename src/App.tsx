@@ -47,7 +47,7 @@ import {SelectedResourcesPane} from "./Components/SelectedResourcesPane";
 
 import * as AxiosConfig from "./AxiosConfig"
 import {useState} from "react";
-console.log({AxiosConfig})
+import ResourceListContextProvider from "./Components/ResourceListContext";
 
 export const pathMatches = (path: string, pathname: string) => matchPath({path: path, end: true}, pathname) !== null
 
@@ -227,9 +227,11 @@ export default function WrappedCore() {
     // the user is logged out by the server
     return <SnackbarMessengerContextProvider>
         <CurrentUserContextProvider>
-            <SelectionManagementContextProvider>
-                <Core />
-            </SelectionManagementContextProvider>
+            <ResourceListContextProvider>
+                <SelectionManagementContextProvider>
+                    <Core />
+                </SelectionManagementContextProvider>
+            </ResourceListContextProvider>
         </CurrentUserContextProvider>
     </SnackbarMessengerContextProvider>
 }

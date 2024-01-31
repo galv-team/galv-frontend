@@ -5,12 +5,6 @@ export type ObjectReferenceProps =
     { uuid: string } |
     { id: number } |
     { url: string }
-export type PaginatedAPIResponse<T = any> = {
-    count: number
-    next: string | null
-    previous: string | null
-    results: T[]
-}
 
 export function id_from_ref_props<T extends number | string>(props: ObjectReferenceProps | string | number): T {
     if (props === undefined) throw new Error(`Cannot get id from undefined`)

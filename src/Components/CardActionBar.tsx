@@ -2,6 +2,7 @@ import React, {ReactNode} from "react";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import UndoIcon from "@mui/icons-material/Undo";
 import RedoIcon from "@mui/icons-material/Redo";
 import SaveIcon from "@mui/icons-material/Save";
@@ -47,6 +48,7 @@ type CardActionBarProps = {
     onUndo?: () => void
     onRedo?: () => void
     destroyable?: boolean
+    onDestroy?: () => void
     expanded?: boolean
     setExpanded?: (expanded: boolean) => void
     iconProps?: Partial<SvgIconProps>
@@ -72,7 +74,7 @@ export default function CardActionBar(props: CardActionBarProps) {
 
     const context_section = <>{
         Object.entries(FIELDS[props.lookup_key])
-            .filter(([k, v]) => is_lookup_key(v.type))
+            .filter((e) => is_lookup_key(e[1].type))
             .map(([k, v]) => {
                 const relative_lookup_key = v.type as LookupKey
                 let content: ReactNode
@@ -168,6 +170,22 @@ export default function CardActionBar(props: CardActionBarProps) {
         }
     }
 
+    const destroy_section = <Tooltip
+        title={props.destroyable?
+            `Delete this ${DISPLAY_NAMES[props.lookup_key]}` :
+            `Cannot delete this ${DISPLAY_NAMES[props.lookup_key]}, it may be being used by other resources.`
+        }
+        arrow
+        describeChild
+        key="delete"
+    >
+        <span>
+            <IconButton onClick={() => props.onDestroy && props.onDestroy()} disabled={!props.destroyable}>
+                <DeleteIcon className={clsx(classes.deleteIcon)} {...iconProps}/>
+            </IconButton>
+        </span>
+    </Tooltip>
+
     const select_section = selectable && apiResource && apiResource?.url && <Tooltip
         title={`${isSelected(apiResource)? 'Deselect' : 'Select'} this ${DISPLAY_NAMES[props.lookup_key]}`}
         arrow
@@ -189,16 +207,7 @@ export default function CardActionBar(props: CardActionBarProps) {
         >
             <IconButton onClick={props.onFork}><ICONS.FORK {...iconProps}/></IconButton>
         </Tooltip>}
-        {props.destroyable && <Tooltip
-            title={`Delete this ${DISPLAY_NAMES[props.lookup_key]}`}
-            arrow
-            describeChild
-            key="delete"
-        >
-            <IconButton component={Link} to={`${PATHS[props.lookup_key]}/${props.resource_id}/delete`}>
-                <EditIcon className={clsx(classes.deleteIcon)} {...iconProps}/>
-            </IconButton>
-        </Tooltip>}
+        {props.onDestroy && destroy_section}
         {select_section}
         {props.expanded !== undefined &&
             props.setExpanded !== undefined &&

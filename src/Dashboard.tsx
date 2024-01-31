@@ -1,13 +1,14 @@
 import {DISPLAY_NAMES_PLURAL, ICONS, LOOKUP_KEYS, LookupKey} from "./constants";
-import axios, {AxiosError, AxiosResponse} from "axios";
+import {AxiosError, AxiosResponse} from "axios";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {
+    Configuration,
     FilesApi,
     ObservedFile, PaginatedObservedFileList,
     PaginatedSchemaValidationList,
     SchemaValidation,
     SchemaValidationsApi
-} from "./api_codegen";
+} from "@battery-intelligence-lab/galv-backend";
 import {get_url_components, id_from_ref_props} from "./Components/misc";
 import LookupKeyIcon from "./Components/LookupKeyIcon";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -107,7 +108,7 @@ function KeySummary(
                             status={status as SchemaValidation["status"]}
                             count={status_counts[status as keyof typeof status_counts] &&
                                 Object.entries(status_counts[status as keyof typeof status_counts]!)
-                                    .reduce((a, [_, b]) => a + b, 0)}
+                                    .reduce((a, c) => a + c[1], 0)}
                         />
                     </div>
                 </Tooltip>
@@ -147,14 +148,18 @@ function KeySummary(
 
 export function SchemaValidationList() {
 
-    const {setLoginFormOpen} = useCurrentUser()
+    const {setLoginFormOpen, user} = useCurrentUser()
 
     // API handler
-    const api_handler = new SchemaValidationsApi()
+    const config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: user?.token
+    })
+    const api_handler = new SchemaValidationsApi(config)
     // Queries
     const queryClient = useQueryClient()
     const query = useQuery<AxiosResponse<PaginatedSchemaValidationList>, AxiosError, SchemaValidationSummary[]>({
-        queryKey: ["SCHEMA_VALIDATION", 'list'],
+        queryKey: ["SCHEMA_VALIDATION", 'dashboard-list'],
         queryFn: () => api_handler.schemaValidationsList().then((r): typeof r => {
             try {
                 // Update the cache for each resource
@@ -179,7 +184,7 @@ export function SchemaValidationList() {
     if (!query.data)
         body = <p>Loading...</p>
     else if (query.data.length === 0)
-        body = !axios.defaults.headers.common['Authorization']?
+        body = !user?.token ?
             <p>
                 <Button onClick={() => setLoginFormOpen(true)}>
                     Log in
@@ -208,16 +213,20 @@ export function SchemaValidationList() {
 
 export function DatasetStatus() {
     // API handler
-    const api_handler = new FilesApi()
+    const config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new FilesApi(config)
     // Queries
     const queryClient = useQueryClient()
     const query = useQuery<AxiosResponse<PaginatedObservedFileList>, AxiosError>({
-        queryKey: [LOOKUP_KEYS.FILE, 'list'],
+        queryKey: [LOOKUP_KEYS.FILE, 'dashboard-list'],
         queryFn: () => api_handler.filesList().then((r): typeof r => {
             try {
                 // Update the cache for each resource
                 r.data.results?.forEach((resource: ObservedFile) => {
-                    queryClient.setQueryData(["SCHEMA_VALIDATION", resource.uuid], {...r, data: resource})
+                    queryClient.setQueryData([LOOKUP_KEYS.FILE, resource.uuid], {...r, data: resource})
                 })
             } catch (e) {
                 console.error("Error updating cache from list data.", e)
@@ -275,7 +284,7 @@ export function DatasetStatus() {
                                 <StatusIcon
                                     key={status}
                                     status={status as SchemaValidation["status"]}
-                                    count={Object.entries(counts).reduce((a, [_, b]) => a + b, 0)}
+                                    count={Object.entries(counts).reduce((a, c) => a + c[1], 0)}
                                 />
                             </div>
                         </Tooltip>)}

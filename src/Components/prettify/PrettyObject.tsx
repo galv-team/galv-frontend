@@ -9,10 +9,23 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Prettify from "./Prettify";
 import {SerializableObject, Serializable} from "../TypeChanger";
-import {API_HANDLERS, API_SLUGS, Field, FIELDS, LookupKey, PRIORITY_LEVELS} from "../../constants";
+import {API_HANDLERS, API_SLUGS, Field, FIELDS, LOOKUP_KEYS, LookupKey, PRIORITY_LEVELS} from "../../constants";
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery} from "@tanstack/react-query";
 import {BaseResource} from "../ResourceCard";
+import {AccessLevelsApi, Configuration, PermittedAccessLevels} from "@battery-intelligence-lab/galv-backend";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import {useCurrentUser} from "../CurrentUserContext";
+
+export type AccessLevels = Partial<{[key in keyof PermittedAccessLevels]: Serializable}>
+
+export type PermissionsTableProps = {
+    permissions: AccessLevels
+    query: ReturnType<typeof useQuery<AxiosResponse>>
+    edit_fun_factory?: (key: string) => (value: Serializable) => Serializable|void
+    is_path?: boolean
+}
 
 export type PrettyObjectProps = {
     target?: SerializableObject
@@ -20,7 +33,55 @@ export type PrettyObjectProps = {
     nest_level?: number
     edit_mode?: boolean
     creating?: boolean
+    extractPermissions?: boolean  // Extract *_access_level properties; defaults to nest_level == 0
     onEdit?: (value: SerializableObject) => void
+}
+
+export function PermissionsTable({permissions, query, edit_fun_factory, is_path}: PermissionsTableProps) {
+    const {classes} = useStyles()
+    // Hack to handle paths having different access level requirements
+    const query_data = {...query.data?.data}
+    if (is_path && query_data) {
+        query_data["edit_access_level"] = query_data["path.edit_access_level"]
+    }
+    return <>
+        {Object.keys(permissions).length > 0 && <TableContainer
+            className={clsx(
+                classes.prettyTable,
+                classes.prettyNested,
+                // classes.prettyPermissions,
+            )}
+        >
+            <Table size="small">
+                <TableBody>
+                    {Object.entries(permissions).map(([k, v], i) => (
+                        <TableRow key={i}>
+                            <TableCell component="th" scope="row" key={`key_${i}`} align="right">
+                                <Stack alignItems="stretch" justifyContent="flex-end">
+                                    <Typography variant="subtitle2" component="span" textAlign="right">
+                                        {k}
+                                    </Typography>
+                                </Stack>
+                            </TableCell>
+                            <TableCell key={`value_${i}`} align="left">
+                                <Stack alignItems="stretch" justifyContent="flex-start">
+                                    <Select
+                                        value={v}
+                                        disabled={edit_fun_factory === undefined}
+                                        onChange={(e) => {
+                                            edit_fun_factory && edit_fun_factory(k)(e.target.value)
+                                        }}
+                                    >
+                                        {Object.entries(query_data[k as keyof PermittedAccessLevels] || {})
+                                            .map(([k, v], i) => (<MenuItem key={i} value={v as number}>{k}</MenuItem>))}
+                                    </Select>
+                                </Stack>
+                            </TableCell>
+                        </TableRow>))}
+                </TableBody>
+            </Table>
+        </TableContainer>}
+    </>
 }
 
 function rename_key_in_place(
@@ -43,10 +104,14 @@ export function PrettyObjectFromQuery<T extends BaseResource>(
         {
             resource_id: string|number,
             lookup_key: LookupKey,
-            filter?: (d: any, lookup_key: LookupKey) => any
+            filter?: (d: SerializableObject, lookup_key: LookupKey) => SerializableObject
         } & Omit<PrettyObjectProps, "target">
 ) {
-    const target_api_handler = new API_HANDLERS[lookup_key]()
+    const config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const target_api_handler = new API_HANDLERS[lookup_key](config)
     const target_get = target_api_handler[
         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
         ] as (uuid: string) => Promise<AxiosResponse<T>>
@@ -58,15 +123,23 @@ export function PrettyObjectFromQuery<T extends BaseResource>(
 
     return <PrettyObject
         {...prettyObjectProps}
-        target={filter? filter(target_query.data?.data, lookup_key) : target_query.data?.data}
+        target={filter? filter(target_query.data?.data ?? {}, lookup_key) : target_query.data?.data}
     />
 }
 
 export default function PrettyObject(
-    {target, lookup_key, nest_level, edit_mode, creating, onEdit, ...table_props}:
+    {target, lookup_key, nest_level, edit_mode, creating, onEdit, extractPermissions, ...table_props}:
         PrettyObjectProps & TableContainerProps) {
 
     const {classes} = useStyles()
+    const config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const permissions_query = useQuery<AxiosResponse<PermittedAccessLevels>, AxiosError>({
+        queryKey: ["access_levels"],
+        queryFn: () => new AccessLevelsApi(config).accessLevelsRetrieve()
+    })
 
     if (typeof target === 'undefined') {
         console.error("PrettyObject: target is undefined", {target, lookup_key, nest_level, edit_mode, creating, onEdit, ...table_props})
@@ -78,6 +151,7 @@ export default function PrettyObject(
     const _edit_mode = edit_mode || false
     const _onEdit = onEdit || (() => {})
     const _nest_level = nest_level || 0
+    const _extractPermissions = extractPermissions || _nest_level === 0
 
     const get_metadata = (key: string) => {
         if (lookup_key !== undefined && _nest_level === 0) {
@@ -93,8 +167,25 @@ export default function PrettyObject(
     const edit_fun_factory = (k: string) => (v: Serializable) => _onEdit({..._target, [k]: v})
 
     // Build a list of Prettify'd contents
-    const keys = Object.keys(_target).filter(key => get_metadata(key)?.priority !== PRIORITY_LEVELS.HIDDEN)
+    const base_keys = Object.keys(_target).filter(key => get_metadata(key)?.priority !== PRIORITY_LEVELS.HIDDEN)
+    let keys = base_keys;
+    let permissions_keys: typeof base_keys = [];
+    const permissions: AccessLevels = {};
+    if (_extractPermissions && permissions_query.data?.data) {
+        permissions_keys = base_keys.filter(key => Object.keys(permissions_query.data?.data).includes(key))
+        // Include values from _target in permissions
+        for (const key of permissions_keys) {
+            permissions[key as keyof PermittedAccessLevels] = _target[key]
+        }
+        keys = base_keys.filter(key => !Object.keys(permissions_query.data?.data).includes(key))
+    }
     return <>
+        <PermissionsTable
+            permissions={permissions}
+            query={permissions_query}
+            edit_fun_factory={_edit_mode? edit_fun_factory : undefined}
+            is_path={lookup_key === LOOKUP_KEYS.PATH}
+        />
         <TableContainer
             className={clsx(
                 classes.prettyTable,
@@ -104,8 +195,8 @@ export default function PrettyObject(
         >
             <Table size="small">
                 <TableBody>
-                    {keys.map((key, i) => (
-                        <TableRow key={i}>
+                    {keys.map((key, i) => {
+                        return <TableRow key={i}>
                             <TableCell component="th" scope="row" key={`key_${i}`} align="right">
                                 <Stack alignItems="stretch" justifyContent="flex-end">
                                     {_edit_mode && onEdit && !is_readonly(key) ?
@@ -115,7 +206,11 @@ export default function PrettyObject(
                                             hide_type_changer={true}
                                             onEdit={(new_key) => {
                                                 // Rename key (or delete if new_key is empty)
-                                                try {new_key = String(new_key)} catch (e) {new_key = ""}
+                                                try {
+                                                    new_key = String(new_key)
+                                                } catch (e) {
+                                                    new_key = ""
+                                                }
                                                 _onEdit(rename_key_in_place(_target, key, new_key))
                                             }}
                                             target={key}
@@ -135,12 +230,12 @@ export default function PrettyObject(
                                         edit_mode={_edit_mode}
                                         onEdit={edit_fun_factory(key)}
                                         target={_target[key]}
-                                        lock_type_to={get_metadata(key)?.many? "array" : get_metadata(key)?.type}
-                                        lock_child_type_to={get_metadata(key)?.many? get_metadata(key)?.type : undefined}
+                                        lock_type_to={get_metadata(key)?.many ? "array" : get_metadata(key)?.type}
+                                        lock_child_type_to={get_metadata(key)?.many ? get_metadata(key)?.type : undefined}
                                     />
                                 </Stack>
                             </TableCell>
-                        </TableRow>))}
+                        </TableRow>})}
                     {_edit_mode && <TableRow key="add_new">
                         <TableCell component="th" scope="row" key="add_key" align="right">
                             <Prettify

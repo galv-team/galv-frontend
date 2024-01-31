@@ -3,6 +3,8 @@ import {AxiosError, AxiosResponse} from "axios";
 import {useQuery} from "@tanstack/react-query";
 import {BaseResource} from "./ResourceCard";
 import {ReactNode} from "react";
+import {Configuration} from "@battery-intelligence-lab/galv-backend";
+import {useCurrentUser} from "./CurrentUserContext";
 
 export function representation({data, lookup_key}: {data: any, lookup_key: LookupKey}): string {
     try {
@@ -28,7 +30,11 @@ export default function Representation<T extends BaseResource>({resource_id, loo
     prefix?: ReactNode
     suffix?: ReactNode
 }) {
-    const api_handler = new API_HANDLERS[lookup_key]()
+    const config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: useCurrentUser().user?.token
+    })
+    const api_handler = new API_HANDLERS[lookup_key](config)
     const get = api_handler[
         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof api_handler
         ] as (uuid: string) => Promise<AxiosResponse<T>>
