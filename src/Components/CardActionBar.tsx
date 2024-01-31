@@ -47,6 +47,7 @@ type CardActionBarProps = {
     redoable?: boolean
     onUndo?: () => void
     onRedo?: () => void
+    destroyable?: boolean
     onDestroy?: () => void
     expanded?: boolean
     setExpanded?: (expanded: boolean) => void
@@ -169,6 +170,22 @@ export default function CardActionBar(props: CardActionBarProps) {
         }
     }
 
+    const destroy_section = <Tooltip
+        title={props.destroyable?
+            `Delete this ${DISPLAY_NAMES[props.lookup_key]}` :
+            `Cannot delete this ${DISPLAY_NAMES[props.lookup_key]}, it may be being used by other resources.`
+        }
+        arrow
+        describeChild
+        key="delete"
+    >
+        <span>
+            <IconButton onClick={() => props.onDestroy && props.onDestroy()} disabled={!props.destroyable}>
+                <DeleteIcon className={clsx(classes.deleteIcon)} {...iconProps}/>
+            </IconButton>
+        </span>
+    </Tooltip>
+
     const select_section = selectable && apiResource && apiResource?.url && <Tooltip
         title={`${isSelected(apiResource)? 'Deselect' : 'Select'} this ${DISPLAY_NAMES[props.lookup_key]}`}
         arrow
@@ -190,16 +207,7 @@ export default function CardActionBar(props: CardActionBarProps) {
         >
             <IconButton onClick={props.onFork}><ICONS.FORK {...iconProps}/></IconButton>
         </Tooltip>}
-        {props.onDestroy && <Tooltip
-            title={`Delete this ${DISPLAY_NAMES[props.lookup_key]}`}
-            arrow
-            describeChild
-            key="delete"
-        >
-            <IconButton onClick={() => props.onDestroy && props.onDestroy()}>
-                <DeleteIcon className={clsx(classes.deleteIcon)} {...iconProps}/>
-            </IconButton>
-        </Tooltip>}
+        {props.onDestroy && destroy_section}
         {select_section}
         {props.expanded !== undefined &&
             props.setExpanded !== undefined &&

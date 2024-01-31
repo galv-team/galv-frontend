@@ -177,27 +177,26 @@ function ResourceCard<T extends BaseResource>(
             UndoRedo.reset()
             return true
         }}
-        onDestroy={apiResource?.permissions?.destroy && !apiResource.in_use?
-            () => {
-                if (!window.confirm(`Delete ${DISPLAY_NAMES[lookup_key]}/${resource_id}?`))
-                    return
-                const destroy = api_handler[
-                    `${API_SLUGS[lookup_key]}Destroy` as keyof typeof api_handler
-                    ] as (uuid: string) => Promise<AxiosResponse<T>>
-                destroy.bind(api_handler)(String(resource_id))
-                    .then(() => queryClient.invalidateQueries([lookup_key, 'list']))
-                    .then(() => {
-                        navigate(PATHS[lookup_key])
-                        queryClient.removeQueries([lookup_key, resource_id])
-                    }).catch(e => {
-                    postSnackbarMessage({
-                        message: `Error deleting ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
+        destroyable={apiResource?.permissions?.destroy && !apiResource.in_use}
+        onDestroy={() => {
+            if (!window.confirm(`Delete ${DISPLAY_NAMES[lookup_key]}/${resource_id}?`))
+                return
+            const destroy = api_handler[
+                `${API_SLUGS[lookup_key]}Destroy` as keyof typeof api_handler
+                ] as (uuid: string) => Promise<AxiosResponse<T>>
+            destroy.bind(api_handler)(String(resource_id))
+                .then(() => queryClient.invalidateQueries([lookup_key, 'list']))
+                .then(() => {
+                    navigate(PATHS[lookup_key])
+                    queryClient.removeQueries([lookup_key, resource_id])
+                }).catch(e => {
+                postSnackbarMessage({
+                    message: `Error deleting ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
                         (HTTP ${e.response?.status} - ${e.response?.statusText}): ${e.response?.data?.detail}`,
-                        severity: 'error'
-                    })
+                    severity: 'error'
                 })
-            } : undefined
-        }
+            })
+        }}
         expanded={isExpanded}
         setExpanded={setIsExpanded}
     />
