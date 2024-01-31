@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@battery-intelligence-lab/galv-backend':
-    specifier: 2.1.6
-    version: 2.1.6
+    specifier: 2.1.7
+    version: 2.1.7
   '@canvasjs/charts':
     specifier: ^3.7.27
     version: 3.7.30
@@ -512,8 +512,8 @@ packages:
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
 
-  /@battery-intelligence-lab/galv-backend@2.1.6:
-    resolution: {integrity: sha512-QFfRyKjydfRqe8ALPtM1YSBRCu2x5lsr2MWJCP7o0eZhp9C1+pB2gjnJIRLn9yXSa8qgkS5DhM36YvP+EKfb7Q==}
+  /@battery-intelligence-lab/galv-backend@2.1.7:
+    resolution: {integrity: sha512-nqm+StcjVKgD1obdS35gRVXua8Ec6dG4f4sy2edv/lslFrNtPB5knYeAKRLF6NJ+LP0FNTRrHYyTz/3CBck8BA==}
     dependencies:
       axios: 0.21.4
     transitivePeerDependencies:
