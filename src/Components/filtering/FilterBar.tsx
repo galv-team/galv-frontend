@@ -178,7 +178,7 @@ function FilterCreateForm({onCreate, onCancel}: FilterCreateFormProps) {
 export default function FilterBar() {
 
     const {activeFilters, setActiveFilters, clearActiveFilters} = useContext(FilterContext)
-    const [creating, setCreating] = useState<boolean>(true)
+    const [creating, setCreating] = useState<boolean>(false)
     const [open, setOpen] = useState<boolean>(false)
 
     const {classes} = useStyles()
