@@ -1,4 +1,4 @@
-import {DISPLAY_NAMES_PLURAL, ICONS, LOOKUP_KEYS, LookupKey} from "./constants";
+import {DISPLAY_NAMES_PLURAL, ICONS, INTRODUCTIONS, LOOKUP_KEYS, LookupKey} from "./constants";
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {
@@ -30,6 +30,11 @@ import Container from "@mui/material/Container";
 import Chip from "@mui/material/Chip";
 import Representation from "./Components/Representation";
 import ListSubheader from "@mui/material/ListSubheader";
+import Markdown from "react-markdown";
+import IntroText from "./Components/IntroText";
+import Box from "@mui/material/Box";
+import clsx from "clsx";
+import UseStyles from "./styles/UseStyles";
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -296,7 +301,18 @@ export function DatasetStatus() {
 }
 
 export default function Dashboard() {
+    const {classes} = UseStyles()
     return <Stack spacing={2}>
+        <Box sx={{padding: 1}}>
+            <Typography
+                component="h1"
+                variant="h3"
+                className={clsx(classes.pageTitle, classes.text)}
+            >
+                Dashboard
+            </Typography>
+            <IntroText k={"DASHBOARD"} />
+        </Box>
         <Typography variant={"h6"} sx={{paddingLeft: "1em"}}>Harvested Files</Typography>
         <DatasetStatus />
         <Typography variant={"h6"} sx={{paddingLeft: "1em"}}>Metadata Validations</Typography>

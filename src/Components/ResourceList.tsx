@@ -18,6 +18,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import Button from "@mui/material/Button";
 import {useCurrentUser} from "./CurrentUserContext";
 import {useResourceList} from "./ResourceListContext";
+import IntroText from "./IntroText";
 
 export function ResourceList<T extends BaseResource>({lookup_key}: {lookup_key: LookupKey}) {
     const { classes } = useStyles();
@@ -63,6 +64,7 @@ export function ResourceList<T extends BaseResource>({lookup_key}: {lookup_key: 
                     {query?.isLoading && <CircularProgress sx={{color: (t) => t.palette.text.disabled, marginLeft: "1em"}} />}
                 </Typography>
             </Grid>
+            <IntroText k={lookup_key} />
             <Stack spacing={2} key="body">
                 {content}
                 <ResourceCreator key={'creator'} lookup_key={lookup_key} />

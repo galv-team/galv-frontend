@@ -564,3 +564,164 @@ export const CHILD_PROPERTY_NAMES  = {
 
 export const get_is_family = (key: string|number): key is keyof typeof CHILD_PROPERTY_NAMES =>
     Object.keys(CHILD_PROPERTY_NAMES).includes(key as string)
+
+export const INTRODUCTIONS = {
+    [LOOKUP_KEYS.HARVESTER]: `
+Harvesters are responsible for collecting data from external sources.
+Each harvester belongs to a [lab](${PATHS[LOOKUP_KEYS.LAB]}), and any team within that lab can set up a [monitored path](${PATHS[LOOKUP_KEYS.PATH]}) for it.
+
+Harvesters cannot be created here, but you can view and edit their settings.
+
+Harvesters are created and managed by running a Python script on a computer with access to the data source.
+See the [harvester repository](https://github.com/Battery-Intelligence-Lab/galv-harvester) for more information on creating harvesters.
+
+You can see all the harvesters that belong to your [labs](${PATHS[LOOKUP_KEYS.LAB]}).
+    `,
+    [LOOKUP_KEYS.PATH]: `
+Monitored paths are responsible for collecting data from external sources.
+Paths are file paths on a computer running a [harvester](${PATHS[LOOKUP_KEYS.HARVESTER]}).
+Harvesters are owned by a lab, and any team member within that lab can set up a path for it.
+
+As paths are crawled by the harvester, any files that match the path and regex will be added to the database.
+When a file maintains a stable size for a given period of time, its data content will be uploaded.
+The harvester will also monitor the path for new files, and upload them as they appear.
+
+You can see all the paths that have been set up by your team.
+    `,
+    [LOOKUP_KEYS.FILE]: `
+Files are data files produced by battery cycler machines (or simulations of them).
+Files are collected when [harvesters](${PATHS[LOOKUP_KEYS.HARVESTER]}) crawl [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}).
+
+The data in each file is parsed and uploaded to the database.
+Files are required to have, at minimum, columns for "time", "potential difference", and "current".
+
+You can see all the files that have been collected on [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}) created by your team.
+    `,
+    [LOOKUP_KEYS.CELL_FAMILY]: `
+Cell families are collections of [cells](${PATHS[LOOKUP_KEYS.CELL]}) that share some common properties.
+
+A [cell](${PATHS[LOOKUP_KEYS.CELL]}) will have all the properties of the family it belongs to, but it can override them if the property is declared on the cell itself.
+    `,
+    [LOOKUP_KEYS.CELL]: `
+Cells are the basic unit of a battery.
+Each [cycler test](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}) is performed on a single cell.
+
+Cells are organised into [cell families](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}), which define their properties.
+Most properties of a cell are inherited from its family, but they can be overridden on the cell itself.
+
+For most cells, you'll probably only want to set the identifier and family.
+    `,
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: `
+Equipment families are collections of [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) that share some common properties.
+
+[Equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) will have all the properties of the family it belongs to, but it can override them if the property is declared on the equipment itself.
+    `,
+    [LOOKUP_KEYS.EQUIPMENT]: `
+Equipment resources describe any and all pieces of equipment that are relevant to the battery [cycler tests](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}).
+This includes the cycler itself, but also any other equipment that is used to perform the test,
+for example a temperature chamber or a power supply.
+
+Equipment is organised into [equipment families](${PATHS[LOOKUP_KEYS.EQUIPMENT_FAMILY]}), which define their properties.
+Most properties of an equipment are inherited from its family, but they can be overridden on the equipment itself.
+    `,
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: `
+Schedule families are collections of [schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) that share some common properties.
+
+[Schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) will have all the properties of the family it belongs to, but it can override them if the property is declared on the schedule itself.
+
+Schedule families' schedule templates can contain variables that are replaced with values when a schedule is created.
+Those variables can be set by variables in the schedule itself,
+in the [family](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}) of the cell being tested, 
+or in the individual [cell](${PATHS[LOOKUP_KEYS.CELL]}) being tested.
+The order of priority is cell (highest), cell family, schedule (lowest).
+    `,
+    [LOOKUP_KEYS.SCHEDULE]: `
+Schedules are the instructions for a battery [cycler test](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}).
+They define the pattern of charging and discharging, and the ambient temperature.
+
+Schedules are organised into [schedule families](${PATHS[LOOKUP_KEYS.SCHEDULE_FAMILY]}), which define their properties.
+Most properties of a schedule are inherited from its family, but they can be overridden on the schedule itself.
+
+Schedules can specify values for variables in their family's template.
+Those values can be overridden if the same variable is set in the [family](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}) of the cell being tested,
+or in the individual [cell](${PATHS[LOOKUP_KEYS.CELL]}) being tested.
+    `,
+    [LOOKUP_KEYS.EXPERIMENT]: `
+Experiments are collections of [cycler tests](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}) that share some common properties.
+
+Typically, a single experiment will be performed on a single cell family, 
+using a variety of different schedules that seek to characterise different properties of the cells.
+
+Experiments will group together the metadata (e.g. 
+[authors](${PATHS[LOOKUP_KEYS.USER]}), 
+[cells](${PATHS[LOOKUP_KEYS.CELL]})}, 
+[schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}), 
+[equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}),
+) of the tests they contain,
+alongside the actual data produced (see [files](${PATHS[LOOKUP_KEYS.FILE]})).
+    `,
+    [LOOKUP_KEYS.CYCLER_TEST]: `
+Cycler tests are the basic unit of battery testing.
+Each test is performed on a single [cell](${PATHS[LOOKUP_KEYS.CELL]}), using a single [schedule](${PATHS[LOOKUP_KEYS.SCHEDULE]}).
+The test may also use multiple pieces of [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}).
+The tests describe the conditions under which the cell was tested, and the data produced by the test.
+
+Cycler tests can be grouped into [experiments](${PATHS[LOOKUP_KEYS.EXPERIMENT]}).
+    `,
+    [LOOKUP_KEYS.VALIDATION_SCHEMA]: `
+Validation schemas are used to validate the data in [files](${PATHS[LOOKUP_KEYS.FILE]}).
+They are also used to validate the metadata in the other resources.
+
+Validation schemas are JSON schemas, and can be used to validate any JSON data.
+
+By default, Galv applies a loose validation schema to all data, which ensures that the data is valid JSON.
+The schema checks that data has the minimal required columns of "time", "potential difference", and "current".
+    `,
+    [LOOKUP_KEYS.LAB]: `
+Labs are the top-level organisational unit in Galv.
+Labs are collections of [teams](${PATHS[LOOKUP_KEYS.TEAM]}), which in turn contain all the resources in Galv.
+
+You are a member of any lab that contains a team you are a member of.
+
+Lab administrators can create new teams, and manage the permissions of existing teams.
+They cannot create or edit any other resources, unless they are also a member of a team.
+    `,
+    [LOOKUP_KEYS.TEAM]: `
+Teams are the basic organisational unit in Galv.
+Teams are collections of [users](${PATHS[LOOKUP_KEYS.USER]}), and own the resources in Galv.
+
+The team that owns a resource can alter its permissions, and can delete it.
+
+Teams have two groups of users: members and admins.
+Members can view and edit all resources owned by the team unless those resources have been restricted.
+Admins can do everything members can, and can also alter the permissions of the team.
+    `,
+    [LOOKUP_KEYS.USER]: `
+Users are the people who use Galv.
+Each user has a username, email address, and password.
+
+Users can be members of multiple [teams](${PATHS[LOOKUP_KEYS.TEAM]}).
+
+You can see and edit your own user details here.
+    `,
+    [LOOKUP_KEYS.TOKEN]: `
+Tokens are used to authenticate with Galv.
+
+Tokens are created by users, and can be used to authenticate with Galv's API.
+You'll also see Browser session tokens which are created automatically when you log in.
+
+If you want to use the API, you'll need to create a token.
+    `,
+    DASHBOARD: `
+The dashboard shows a summary of the resources that are relevant to you.
+
+It shows the [files](${PATHS[LOOKUP_KEYS.FILE]}) that have been collected on 
+[monitored paths](${PATHS[LOOKUP_KEYS.PATH]}) created by your [teams](${PATHS[LOOKUP_KEYS.TEAM]}),
+alongside an indication of their upload and validation status.
+
+You'll also see a list of the resources you are able to edit, 
+alongside an indication of their validation status.
+
+If you see problems on your dashboard, you should check the relevant resource for more information.
+    `,
+} as const
