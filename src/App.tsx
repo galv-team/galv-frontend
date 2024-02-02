@@ -45,9 +45,8 @@ import Dashboard from "./Dashboard";
 import SelectionManagementContextProvider from "./Components/SelectionManagementContext";
 import {SelectedResourcesPane} from "./Components/SelectedResourcesPane";
 
-import * as AxiosConfig from "./AxiosConfig"
 import {useState} from "react";
-import ResourceListContextProvider from "./Components/ResourceListContext";
+import FetchResourceContextProvider from "./Components/FetchResourceContext";
 
 export const pathMatches = (path: string, pathname: string) => matchPath({path: path, end: true}, pathname) !== null
 
@@ -227,11 +226,11 @@ export default function WrappedCore() {
     // the user is logged out by the server
     return <SnackbarMessengerContextProvider>
         <CurrentUserContextProvider>
-            <ResourceListContextProvider>
+            <FetchResourceContextProvider>
                 <SelectionManagementContextProvider>
                     <Core />
                 </SelectionManagementContextProvider>
-            </ResourceListContextProvider>
+            </FetchResourceContextProvider>
         </CurrentUserContextProvider>
     </SnackbarMessengerContextProvider>
 }

@@ -9,7 +9,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import axios from 'axios';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import ResourceListContextProvider from "../Components/ResourceListContext";
+import FetchResourceContextProvider from "../Components/FetchResourceContext";
 
 jest.mock('../Components/ResourceCard')
 
@@ -31,11 +31,11 @@ it('renders', async () => {
   const queryClient = new QueryClient();
 
   render(
-      <ResourceListContextProvider>
+      <FetchResourceContextProvider>
         <QueryClientProvider client={queryClient}>
           <ResourceList lookup_key={LOOKUP_KEYS.CELL} />
         </QueryClientProvider>
-      </ResourceListContextProvider>
+      </FetchResourceContextProvider>
   )
   await screen.findByText(t => t.includes(results[0].uuid))
 

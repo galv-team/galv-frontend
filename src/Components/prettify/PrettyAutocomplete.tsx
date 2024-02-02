@@ -5,7 +5,7 @@ import Autocomplete, {AutocompleteProps} from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 import {TypographyProps} from "@mui/material/Typography";
 import {BaseResource} from "../ResourceCard";
-import {useResourceList} from "../ResourceListContext";
+import {useFetchResource} from "../FetchResourceContext";
 
 export type AutcompleteEntry = BaseResource & {
     value: string
@@ -18,7 +18,7 @@ export default function PrettyAutocomplete(
         Omit<Partial<AutocompleteProps<string, boolean|undefined, true, boolean|undefined>|TypographyProps>, "onChange">
 ) {
 
-    const { useListQuery } = useResourceList();
+    const { useListQuery } = useFetchResource();
     const query = useListQuery<AutcompleteEntry>(autocomplete_key)
 
     if (!edit_mode)

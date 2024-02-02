@@ -1,20 +1,10 @@
 import {createContext, PropsWithChildren, useContext} from "react";
 import {BaseResource} from "./ResourceCard";
-import {
-    API_HANDLERS,
-    API_SLUGS,
-    DISPLAY_NAMES,
-    FAMILY_LOOKUP_KEYS,
-    FIELDS,
-    get_has_family,
-    LookupKey
-} from "../constants";
+import {FAMILY_LOOKUP_KEYS, FIELDS, get_has_family, LookupKey} from "../constants";
 import {AxiosError, AxiosResponse} from "axios";
-import {useQuery, UseQueryResult} from "@tanstack/react-query";
+import {UseQueryResult} from "@tanstack/react-query";
 import {id_from_ref_props} from "./misc";
-import {useSnackbarMessenger} from "./SnackbarMessengerContext";
-import {useCurrentUser} from "./CurrentUserContext";
-import {Configuration} from "@battery-intelligence-lab/galv-backend";
+import {useFetchResource} from "./FetchResourceContext";
 
 export interface IApiResourceContext<T extends BaseResource = BaseResource> {
     apiResource?: T
@@ -50,27 +40,12 @@ export const get_select_function = (lookup_key: LookupKey) =>
 function ApiResourceContextStandaloneProvider<T extends BaseResource>(
     {lookup_key, resource_id, children}: PropsWithChildren<ApiResourceContextProviderProps>
 ) {
-    const {postSnackbarMessage} = useSnackbarMessenger()
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const api_handler = new API_HANDLERS[lookup_key](config)
-    const get = api_handler[
-        `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof api_handler
-        ] as (uuid: string) => Promise<AxiosResponse<T>>
-    const query = useQuery<AxiosResponse<T>, AxiosError>({
-        queryKey: [lookup_key, resource_id],
-        queryFn: () => get.bind(api_handler)(String(resource_id)).catch(e => {
-            postSnackbarMessage({
-                message: `Error retrieving ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
-                (HTTP ${e.response?.status} - ${e.response?.statusText}): ${e.response?.data?.detail}`,
-                severity: 'error'
-            })
-            throw e
-        }),
-        select: get_select_function(lookup_key),
-    })
+    const {useRetrieveQuery} = useFetchResource()
+    const query = useRetrieveQuery<T>(
+        lookup_key,
+        resource_id,
+        {extra_query_options: {select: get_select_function(lookup_key)}}
+    )
 
     return <ApiResourceContext.Provider value={{apiResource: query.data?.data, apiQuery: query}}>
         {children}
@@ -83,50 +58,26 @@ function ApiResourceContextWithFamilyProvider<T extends BaseResource>(
     if (!get_has_family(lookup_key))
         throw new Error(`Cannot use ApiResourceContextWithFamilyProvider for ${lookup_key} because it does not have a family.`)
 
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const {postSnackbarMessage} = useSnackbarMessenger()
-    const api_handler = new API_HANDLERS[lookup_key](config)
-    const get = api_handler[
-        `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof api_handler
-        ] as (uuid: string) => Promise<AxiosResponse<T>>
-    const query = useQuery<AxiosResponse<T>, AxiosError>({
-        queryKey: [lookup_key, resource_id],
-        queryFn: () => get.bind(api_handler)(String(resource_id)).catch(e => {
-            postSnackbarMessage({
-                message: `Error retrieving ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
-                (HTTP ${e.response?.status} - ${e.response?.statusText}): ${e.response?.data?.detail}`,
-                severity: 'error'
-            })
-            throw e
-        }),
-        select: get_select_function(lookup_key),
-    })
+    const {useRetrieveQuery} = useFetchResource()
+    const query = useRetrieveQuery<T>(
+        lookup_key,
+        resource_id,
+        {
+            extra_query_options: {select: get_select_function(lookup_key)}
+        }
+    )
 
     const family_lookup_key = FAMILY_LOOKUP_KEYS[lookup_key]
-    const family_api_handler = new API_HANDLERS[family_lookup_key](config)
-    const family_get = family_api_handler[
-        `${API_SLUGS[family_lookup_key]}Retrieve` as keyof typeof family_api_handler
-        ] as (uuid: string) => Promise<AxiosResponse<BaseResource>>
-    const family_query = useQuery<AxiosResponse<BaseResource>, AxiosError>({
-        queryKey: [
-            family_lookup_key,
-            query.data?.data.family? id_from_ref_props(query.data?.data?.family) : "never"
-        ],
-        queryFn: () => family_get.bind(family_api_handler)(id_from_ref_props<string>(query.data?.data?.family!))
-            .catch(e => {
-                postSnackbarMessage({
-                    message: `Error retrieving ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
-                (HTTP ${e.response?.status} - ${e.response?.statusText}): ${e.response?.data?.detail}`,
-                    severity: 'error'
-                })
-                throw e
-            }),
-        enabled: !!query.data?.data?.family,
-        select: get_select_function(family_lookup_key),
-    })
+    const family_query = useRetrieveQuery(
+        family_lookup_key,
+        query.data?.data?.family? id_from_ref_props(query.data?.data?.family) : "never",
+        {extra_query_options: {
+                enabled: !!query.data?.data?.family,
+                select
+                    :
+                    get_select_function(family_lookup_key),
+            }}
+    )
 
     return <ApiResourceContext.Provider value={{
         apiResource: query.data?.data,

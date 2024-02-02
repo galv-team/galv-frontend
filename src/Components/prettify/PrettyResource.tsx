@@ -11,14 +11,14 @@ import {PrettyComponentProps, PrettyString} from "./Prettify";
 import Autocomplete, {createFilterOptions} from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 import {representation} from "../Representation";
-import {useResourceList} from "../ResourceListContext";
+import {useFetchResource} from "../FetchResourceContext";
 import {BaseResource} from "../ResourceCard";
 
 export const PrettyResourceSelect = <T extends BaseResource>(
     {value, onChange, lookup_key}:
         { lookup_key: LookupKey } & PrettyComponentProps & Partial<Omit<ChipProps, "onChange">>
 ) => {
-    const { useListQuery } = useResourceList();
+    const { useListQuery } = useFetchResource();
 
     const query = useListQuery<T>(lookup_key)
 
