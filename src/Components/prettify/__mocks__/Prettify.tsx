@@ -4,7 +4,7 @@
 
 import dummy from "../../__mocks__/DummyComponent"
 
-const f = (v: any) => (props: any) => dummy(v, props)
+const f = (v: unknown) => (props: unknown) => dummy(v, props)
 
 export const PrettyString = f("PrettyString")
 export const PrettyNumber = f("PrettyNumber")

@@ -4,6 +4,6 @@
 
 import dummy from "../../__mocks__/DummyComponent"
 
-export default function PrettyResource(props: any) {
+export default function PrettyResource(props: unknown) {
     return dummy("PrettyResource", props)
 }

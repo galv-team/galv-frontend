@@ -4,6 +4,6 @@
 
 import dummy from "./DummyComponent"
 
-export default function LoadingChip(params: any) {
+export default function LoadingChip(params: unknown) {
 	return dummy("LoadingChip", params)
 }

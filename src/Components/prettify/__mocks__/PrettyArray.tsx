@@ -4,6 +4,6 @@
 
 import dummy from "../../__mocks__/DummyComponent"
 
-export default function PrettyArray(props: any) {
+export default function PrettyArray(props: unknown) {
     return dummy("PrettyArray", props)
 }

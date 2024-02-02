@@ -4,6 +4,6 @@
 
 import dummy from "./DummyComponent"
 
-export default function SelectedResourcesPane(params: any) {
+export default function SelectedResourcesPane(params: unknown) {
 	return dummy("SelectedResourcesPane", params)
 }

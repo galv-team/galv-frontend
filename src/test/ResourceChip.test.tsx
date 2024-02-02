@@ -4,7 +4,7 @@
 
 // globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-import {LOOKUP_KEYS, PATHS} from "../constants";
+import {LOOKUP_KEYS} from "../constants";
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import axios from 'axios';

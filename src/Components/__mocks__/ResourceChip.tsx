@@ -4,6 +4,6 @@
 
 import dummy from "./DummyComponent"
 
-export default function ResourceChip(params: any) {
+export default function ResourceChip(params: unknown) {
 	return dummy("ResourceChip", params)
 }

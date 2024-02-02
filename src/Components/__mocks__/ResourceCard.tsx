@@ -4,6 +4,6 @@
 
 import dummy from "./DummyComponent"
 
-export default function ResourceCard(params: any) {
+export default function ResourceCard(params: unknown) {
 	return dummy("ResourceCard", params)
 }

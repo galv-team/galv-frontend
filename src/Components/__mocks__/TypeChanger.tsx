@@ -4,6 +4,6 @@
 
 import dummy from "./DummyComponent"
 
-export default function TypeChanger(params: any) {
+export default function TypeChanger(params: unknown) {
 	return dummy("TypeChanger", params)
 }

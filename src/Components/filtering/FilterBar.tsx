@@ -76,7 +76,7 @@ function FilterCreateForm({onCreate, onCancel}: FilterCreateFormProps) {
         const field_info = field[k] as Field
         const type = is_autocomplete_key(field_info.type)? "string" : field_info.type
 
-        return family.applies_to.includes(type as any)
+        return family.applies_to.includes(type as unknown as "string" | "number" | "boolean" | "array")
     }
 
     return <Stack spacing={0.5} className={clsx(classes.filterCreate)}>
@@ -106,8 +106,8 @@ function FilterCreateForm({onCreate, onCancel}: FilterCreateFormProps) {
                             k,
                             {...v, type: is_autocomplete_key(v.type)? "string" : v.type}
                         ] as [string, Field])
-                        .filter(([k, v]) => isFilterableField(v))
-                        .map(([k, _]) => k)
+                        .filter((e) => isFilterableField(e[1]))
+                        .map((e) => e[0])
                 }
                 renderInput={(params) => <TextField {...params} label="X" />}
                 onChange={(_, v) => setKey(v || "")}
@@ -117,7 +117,7 @@ function FilterCreateForm({onCreate, onCancel}: FilterCreateFormProps) {
             <Select
                 key="family"
                 value={family === ""? "" : FILTER_FUNCTIONS.findIndex(f => f === family)}
-                onChange={(e, v) => {
+                onChange={(e) => {
                     try {
                         setFamily(FILTER_FUNCTIONS[Number(e.target.value)])
                     } catch {

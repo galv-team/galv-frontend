@@ -4,10 +4,10 @@
 
 import dummy from "../../__mocks__/DummyComponent"
 
-export function PrettyObjectFromQuery(props: any) {
+export function PrettyObjectFromQuery(props: unknown) {
     return PrettyObject({...props, via: "PrettyObjectFromQuery"})
 }
 
-export default function PrettyObject(props: any) {
+export default function PrettyObject(props: unknown) {
     return dummy('PrettyObject', props)
 }

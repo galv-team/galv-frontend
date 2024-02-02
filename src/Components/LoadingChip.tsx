@@ -15,13 +15,13 @@ export default function LoadingChip(props: {url?: string, icon: JSX.Element} & C
         icon={props.icon}
         to={props.url}
         clickable={true}
-        {...props as ChipProps as any}
+        {...props as ChipProps}
     /> : <Chip
         className={clsx(classes.itemChip)}
         disabled={true}
         variant="outlined"
         label={<CircularProgress size="1.5em" sx={{color: (t) => t.palette.text.disabled}}/>}
         icon={props.icon}
-        {...props as ChipProps as any}
+        {...props as ChipProps}
     />
 }

@@ -50,10 +50,10 @@ export default function PrettyArray(
     >
         {
             _edit_mode?
-                // @ts-ignore // types are not correctly exported by react-smooth-dnd
+                // @ts-expect-error // types are not correctly exported by react-smooth-dnd
                 <Container dragHandleSelector=".drag-handle" lockAxis="y" onDrop={onDrop}>
                     {items.map((item, i) => (
-                        // @ts-ignore // types are not correctly exported by react-smooth-dnd
+                        // @ts-expect-error // types are not correctly exported by react-smooth-dnd
                         <Draggable key={i}>
                             <ListItem alignItems="flex-start">
                                 <ListItemIcon key={`action_${i}`} className="drag-handle">

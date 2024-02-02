@@ -171,7 +171,7 @@ export function Core() {
 
     function get_lookup_key_from_pathname(pathname: string|undefined): LookupKey | undefined {
         return (
-            (Object.entries(PATHS).find(([k, v]) => v === `/${pathname}`)?.[0] as keyof typeof PATHS)
+            (Object.entries(PATHS).find((e) => e[1] === `/${pathname}`)?.[0] as keyof typeof PATHS)
         ) as LookupKey
     }
 

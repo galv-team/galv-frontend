@@ -33,20 +33,8 @@ export function ResourceChip<T extends Family>(
 
     const icon = <LookupKeyIcon lookupKey={lookup_key}/>
 
-    return <QueryWrapper
-        queries={apiQuery? [apiQuery] : []}
-        loading={loading || <LoadingChip url={`/${PATHS[lookup_key]}/${resource_id}`} icon={icon} {...chipProps}/>}
-        error={error? error : (queries) => <ErrorChip
-            status={queries[0].error?.response?.status}
-            target={`${PATHS[lookup_key]}/${resource_id}`}
-            detail={queries[0].error?.response?.data?.toString()}
-            key={resource_id}
-            icon={icon}
-            variant="outlined"
-            {...chipProps as ChipProps as any}
-        />
-        }
-        success={success || <Chip
+    const content = success || passes?
+        <Chip
             key={resource_id}
             className={clsx(classes.itemChip, {'filter_failed': !passes})}
             icon={icon}
@@ -63,10 +51,42 @@ export function ResourceChip<T extends Family>(
                 }
             />}
             clickable={true}
-            component={passes? Link : undefined}
-            to={passes? `${PATHS[lookup_key]}/${resource_id}` : undefined}
-            {...chipProps as ChipProps as any}
+            component={Link}
+            to={`${PATHS[lookup_key]}/${resource_id}`}
+            {...chipProps as ChipProps}
+        /> : <Chip
+            key={resource_id}
+            className={clsx(classes.itemChip, {'filter_failed': !passes})}
+            icon={icon}
+            variant="outlined"
+            label={<Representation
+                resource_id={resource_id}
+                lookup_key={lookup_key}
+                prefix={(!short_name && family) ?
+                    <Representation
+                        resource_id={family.uuid as string}
+                        lookup_key={FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS]}
+                        suffix=" "
+                    /> : undefined
+                }
+            />}
+            clickable={true}
+            {...chipProps as ChipProps}
+        />
+
+    return <QueryWrapper
+        queries={apiQuery? [apiQuery] : []}
+        loading={loading || <LoadingChip url={`/${PATHS[lookup_key]}/${resource_id}`} icon={icon} {...chipProps}/>}
+        error={error? error : (queries) => <ErrorChip
+            status={queries[0].error?.response?.status}
+            target={`${PATHS[lookup_key]}/${resource_id}`}
+            detail={queries[0].error?.response?.data?.toString()}
+            key={resource_id}
+            icon={icon}
+            variant="outlined"
+            {...chipProps as ChipProps}
         />}
+        success={content}
     />
 }
 

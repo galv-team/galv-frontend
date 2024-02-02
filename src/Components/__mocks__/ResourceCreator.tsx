@@ -4,6 +4,6 @@
 
 import dummy from "./DummyComponent"
 
-export default function ResourceCreator(params: any) {
+export default function ResourceCreator(params: unknown) {
 	return dummy("ResourceCreator", params)
 }

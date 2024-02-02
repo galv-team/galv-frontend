@@ -22,7 +22,7 @@ export const useSelectionManagement = () => {
     return context
 }
 
-export default function SelectionManagementContextProvider({children}: PropsWithChildren<{}>) {
+export default function SelectionManagementContextProvider({children}: PropsWithChildren) {
     const [selected, setSelected] = useState<string[]>([])
 
     const to_url = (resource: Selectable) => typeof resource === 'string' ? resource : resource.url

@@ -65,7 +65,7 @@ export function DatasetChart({file_uuid}: {file_uuid: string}) {
 
     const time_column = columns_query.data?.data.results?.findIndex((col) => col.type_name === "Time")
 
-    const stream_to_numbers = (stream: any): (number|null)[] => {
+    const stream_to_numbers = (stream: unknown): (number|null)[] => {
         if (typeof stream !== "string") return []
         try {
             const lines = (stream as string).split("\n")
@@ -73,7 +73,9 @@ export function DatasetChart({file_uuid}: {file_uuid: string}) {
                 try {
                     const n = Number(line)
                     if (!isNaN(n)) return n
-                } catch {}
+                } catch {
+                    // Do nothing
+                }
                 return null
             })
             out.pop()   // Remove last element, which is always empty

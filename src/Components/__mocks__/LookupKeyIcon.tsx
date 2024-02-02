@@ -4,6 +4,6 @@
 
 import dummy from "./DummyComponent"
 
-export default function LookupKeyIcon(params: any) {
+export default function LookupKeyIcon(params: unknown) {
 	return dummy("LookupKeyIcon", params)
 }

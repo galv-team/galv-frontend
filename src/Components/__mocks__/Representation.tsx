@@ -4,6 +4,6 @@
 
 import dummy from "./DummyComponent";
 
-export default function Representation(params: any) {
+export default function Representation(params: unknown) {
     return dummy('Representation', params)
 }

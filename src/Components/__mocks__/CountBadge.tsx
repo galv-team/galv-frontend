@@ -4,6 +4,6 @@
 
 import dummy from "./DummyComponent"
 
-export default function CountBadge(params: any) {
+export default function CountBadge(params: unknown) {
 	return dummy("CountBadge", params)
 }

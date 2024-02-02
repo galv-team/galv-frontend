@@ -4,6 +4,6 @@
 
 import dummy from "./DummyComponent"
 
-export default function CardActionBar(params: any) {
+export default function CardActionBar(params: unknown) {
 	return dummy("CardActionBar", params)
 }
