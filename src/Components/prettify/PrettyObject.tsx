@@ -35,6 +35,7 @@ export type PrettyObjectProps = {
     creating?: boolean
     extractPermissions?: boolean  // Extract *_access_level properties; defaults to nest_level == 0
     onEdit?: (value: SerializableObject) => void
+    allowNewKeys?: boolean
 }
 
 export function PermissionsTable({permissions, query, edit_fun_factory, is_path}: PermissionsTableProps) {
@@ -128,7 +129,7 @@ export function PrettyObjectFromQuery<T extends BaseResource>(
 }
 
 export default function PrettyObject(
-    {target, lookup_key, nest_level, edit_mode, creating, onEdit, extractPermissions, ...table_props}:
+    {target, lookup_key, nest_level, edit_mode, creating, onEdit, extractPermissions, allowNewKeys, ...table_props}:
         PrettyObjectProps & TableContainerProps) {
 
     const {classes} = useStyles()
@@ -152,6 +153,7 @@ export default function PrettyObject(
     const _onEdit = onEdit || (() => {})
     const _nest_level = nest_level || 0
     const _extractPermissions = extractPermissions || _nest_level === 0
+    const _allowNewKeys = allowNewKeys || _nest_level !== 0
 
     const get_metadata = (key: string) => {
         if (lookup_key !== undefined && _nest_level === 0) {
@@ -236,7 +238,7 @@ export default function PrettyObject(
                                 </Stack>
                             </TableCell>
                         </TableRow>})}
-                    {_edit_mode && <TableRow key="add_new">
+                    {_edit_mode && _allowNewKeys && <TableRow key="add_new">
                         <TableCell component="th" scope="row" key="add_key" align="right">
                             <Prettify
                                 nest_level={_nest_level}

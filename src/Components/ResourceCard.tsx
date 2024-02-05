@@ -244,10 +244,21 @@ function ResourceCard<T extends BaseResource>(
             <Divider key="write-props-header">Editable properties</Divider>
             {UndoRedo.current && <PrettyObject
                 key="write-props"
-                target={UndoRedo.current}
+                target={Object.fromEntries(
+                    Object.entries(UndoRedo.current).filter((e) => e[0] !== "custom_properties")
+                ) as SerializableObject}
                 edit_mode={isEditMode}
                 lookup_key={lookup_key}
-                onEdit={UndoRedo.update}
+                onEdit={(v) => UndoRedo.update({...v, custom_properties: UndoRedo.current.custom_properties})}
+            />}
+            <Divider key="custom-props-header">Custom properties</Divider>
+            {UndoRedo.current && <PrettyObject
+                key="custom-props"
+                target={{...UndoRedo.current.custom_properties}}
+                edit_mode={isEditMode}
+                lookup_key={lookup_key}
+                onEdit={(v) => UndoRedo.update({...UndoRedo.current, custom_properties: {...v}})}
+                allowNewKeys
             />}
             {family && <Divider key="family-props-header">
                 Inherited from
