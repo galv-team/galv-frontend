@@ -1,0 +1,61 @@
+# https://www.codingwiththomas.com/blog/my-sphinx-best-practice-for-a-multiversion-documentation-in-different-languages
+name: Build docs
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      deploy_docs:
+        type: boolean
+        description: 'Run the deploy-to-gh-pages step'
+        required: false
+        default: false
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pages: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+
+      - name: setup
+        run: |
+          # ... installation of all tools ...
+          sudo apt-get install -y python3-sphinx
+          sudo pip3 install sphinx-rtd-theme
+
+      - name: build
+        run: |
+          # get all tags, and run a python script
+          # which you find below to build all documents
+          git fetch --tags
+          cd docs
+          mkdir _build
+          python3 build_docs.py
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          # Upload entire repository
+          path: './pages'
+
+      - name: Deploy to GitHub Pages
+        if: (github.ref_name == 'main' && github.event_name == 'push') || (github.event_name == 'workflow_dispatch' && inputs.deploy_docs)
+        id: deployment
+        uses: actions/deploy-pages@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -5,7 +5,7 @@
 import dummy from "../../__mocks__/DummyComponent"
 
 export function PrettyObjectFromQuery(props: unknown) {
-    return PrettyObject({...props, via: "PrettyObjectFromQuery"})
+    return dummy('PrettyObjectFromQuery', props)
 }
 
 export default function PrettyObject(props: unknown) {
