@@ -12,6 +12,7 @@ import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {FilterContextProvider} from "../Components/filtering/FilterContext";
 import {MemoryRouter} from "react-router-dom";
 import userEvent from "@testing-library/user-event";
+import FetchResourceContextProvider from "../Components/FetchResourceContext";
 
 jest.mock('../Components/CardActionBar')
 jest.mock('../Components/prettify/PrettyObject')
@@ -36,11 +37,13 @@ it('renders', async () => {
 
     render(
         <MemoryRouter initialEntries={["/"]}>
-            <FilterContextProvider>
-                <QueryClientProvider client={queryClient}>
-                    <ResourceCreator lookup_key={LOOKUP_KEYS.CELL} />
-                </QueryClientProvider>
-            </FilterContextProvider>
+            <QueryClientProvider client={queryClient}>
+                <FetchResourceContextProvider>
+                    <FilterContextProvider>
+                        <ResourceCreator lookup_key={LOOKUP_KEYS.CELL} />
+                    </FilterContextProvider>
+                </FetchResourceContextProvider>
+            </QueryClientProvider>
         </MemoryRouter>
     )
     await userEvent.click(screen.getByRole('button'))

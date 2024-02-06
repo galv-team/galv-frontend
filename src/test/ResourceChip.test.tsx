@@ -11,6 +11,7 @@ import axios from 'axios';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {FilterContextProvider} from "../Components/filtering/FilterContext";
 import {MemoryRouter} from "react-router-dom";
+import FetchResourceContextProvider from "../Components/FetchResourceContext";
 
 jest.mock('../Components/Representation')
 
@@ -48,11 +49,13 @@ it('renders', async () => {
 
     render(
         <MemoryRouter initialEntries={["/"]}>
-            <FilterContextProvider>
-                <QueryClientProvider client={queryClient}>
-                    <ResourceChip lookup_key={LOOKUP_KEYS.CELL} resource_id="0001-0001-0001-0001" />
-                </QueryClientProvider>
-            </FilterContextProvider>
+            <QueryClientProvider client={queryClient}>
+                <FetchResourceContextProvider>
+                    <FilterContextProvider>
+                        <ResourceChip lookup_key={LOOKUP_KEYS.CELL} resource_id="0001-0001-0001-0001" />
+                    </FilterContextProvider>
+                </FetchResourceContextProvider>
+            </QueryClientProvider>
         </MemoryRouter>
     )
     await screen.findByText(/DummyRepresentation/)

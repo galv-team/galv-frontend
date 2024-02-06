@@ -11,6 +11,7 @@ import axios from 'axios';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {FilterContextProvider} from "../Components/filtering/FilterContext";
 import {MemoryRouter} from "react-router-dom";
+import FetchResourceContextProvider from "../Components/FetchResourceContext";
 
 jest.mock('../Components/Representation')
 jest.mock('../Components/ResourceChip')
@@ -51,11 +52,13 @@ it('renders', async () => {
 
     render(
         <MemoryRouter initialEntries={["/"]}>
-            <FilterContextProvider>
-                <QueryClientProvider client={queryClient}>
-                    <ResourceCard lookup_key={LOOKUP_KEYS.CELL} resource_id="0001-0001-0001-0001" expanded />
-                </QueryClientProvider>
-            </FilterContextProvider>
+            <QueryClientProvider client={queryClient}>
+                <FetchResourceContextProvider>
+                    <FilterContextProvider>
+                        <ResourceCard lookup_key={LOOKUP_KEYS.CELL} resource_id="0001-0001-0001-0001" expanded />
+                    </FilterContextProvider>
+                </FetchResourceContextProvider>
+            </QueryClientProvider>
         </MemoryRouter>
     )
     await screen.findAllByText(/PrettyObject/)

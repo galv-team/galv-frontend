@@ -156,7 +156,7 @@ export default function PrettyObject(
     const _allowNewKeys = allowNewKeys || _nest_level !== 0
 
     const get_metadata = (key: string) => {
-        if (lookup_key !== undefined && _nest_level === 0) {
+        if (lookup_key !== undefined && _nest_level === 0 && !_allowNewKeys) {
             const fields = FIELDS[lookup_key]
             if (Object.keys(fields).includes(key))
                 return FIELDS[lookup_key][key as keyof typeof fields] as Field
