@@ -81,6 +81,13 @@ The unit test container can be run with the following command:
 
   docker-compose run --rm --build frontend_test
 
+When testing components, the :ref:`contexts <Custom context hooks>` they
+use should *not* be mocked, while the :ref:`components <Custom components>` they
+use should be mocked.
+
+Any new custom component should have a corresponding mock in the ``src/Components/__mocks__`` directory.
+This component can use the pattern from other mocks of extending ``DummyComponent``.
+
 End-to-end tests
 ================================================================================
 
