@@ -44,6 +44,7 @@ import {Modal} from "@mui/material";
 import {ResourceCreator, get_modal_title} from "./ResourceCreator";
 import {Configuration} from "@battery-intelligence-lab/galv-backend";
 import {useCurrentUser} from "./CurrentUserContext";
+import ClientCodeDemo from "../ClientCodeDemo";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
@@ -315,7 +316,10 @@ function ResourceCard<T extends BaseResource>(
                 .filter((e) => e[1].priority === PRIORITY_LEVELS.SUMMARY)
                 .map(([k, v]) => <Grid key={k}>{summarise(apiResource[k], v.many, k, v.type)}</Grid>)
         }</Grid>}
-        {lookup_key === LOOKUP_KEYS.FILE && <DatasetChart file_uuid={resource_id as string} />}
+        {lookup_key === LOOKUP_KEYS.FILE && <Stack spacing={2}>
+            <DatasetChart file_uuid={resource_id as string} />
+            <ClientCodeDemo dataset_ids={[resource_id as string]} />
+        </Stack>}
     </CardContent>
 
     const forkModal = passesFilters({apiResource, family}, lookup_key) &&
