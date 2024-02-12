@@ -320,12 +320,12 @@ const autocomplete_fields: {[key: string]: Field} = {
 export const FIELDS = {
     [LOOKUP_KEYS.HARVESTER]: {
         ...generic_fields,
-        name: {readonly: true, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         lab: {readonly: true, type: "string", priority: PRIORITY_LEVELS.CONTEXT},
         last_check_in: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        sleep_time: {readonly: true, type: "string"},
+        sleep_time: {readonly: false, type: "string"},
         environment_variables: {readonly: true, type: "string"},
-        active: {readonly: true, type: "string", priority: PRIORITY_LEVELS.CONTEXT},
+        active: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.CONTEXT},
     },
     [LOOKUP_KEYS.PATH]: {
         ...generic_fields,
