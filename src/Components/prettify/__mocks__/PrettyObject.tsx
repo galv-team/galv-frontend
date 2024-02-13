@@ -3,11 +3,12 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "../../__mocks__/DummyComponent"
+import {PrettyObjectFromQueryProps, PrettyObjectProps} from "../PrettyObject";
 
-export function PrettyObjectFromQuery(props: unknown) {
+export function PrettyObjectFromQuery(props: PrettyObjectProps) {
     return dummy('PrettyObjectFromQuery', props)
 }
 
-export default function PrettyObject(props: unknown) {
+export default function PrettyObject(props: PrettyObjectFromQueryProps) {
     return dummy('PrettyObject', props)
 }

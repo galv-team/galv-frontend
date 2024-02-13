@@ -21,12 +21,16 @@ export function representation({data, lookup_key}: {data: BaseResource, lookup_k
     return String(data.uuid ?? data.id ?? 'unknown')
 }
 
-export default function Representation<T extends BaseResource>({resource_id, lookup_key, prefix, suffix}: {
+export type RepresentationProps = {
     resource_id: string|number
     lookup_key: LookupKey
     prefix?: ReactNode
     suffix?: ReactNode
-}) {
+}
+
+export default function Representation<T extends BaseResource>(
+    {resource_id, lookup_key, prefix, suffix}: RepresentationProps
+) {
     const {useRetrieveQuery} = useFetchResource()
     const query = useRetrieveQuery<T>(
         lookup_key,

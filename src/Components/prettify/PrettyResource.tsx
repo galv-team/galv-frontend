@@ -14,9 +14,12 @@ import {representation} from "../Representation";
 import {useFetchResource} from "../FetchResourceContext";
 import {BaseResource} from "../ResourceCard";
 
+export type PrettyResourceSelectProps = {
+    lookup_key: LookupKey
+} & PrettyComponentProps & Partial<ChipProps>
+
 export const PrettyResourceSelect = <T extends BaseResource>(
-    {value, onChange, lookup_key}:
-        { lookup_key: LookupKey } & PrettyComponentProps & Partial<Omit<ChipProps, "onChange">>
+    {value, onChange, lookup_key}: PrettyResourceSelectProps
 ) => {
     const { useListQuery } = useFetchResource();
 
@@ -107,11 +110,13 @@ export const PrettyResourceSelect = <T extends BaseResource>(
     />
 }
 
+export type PrettyResourceProps = {
+    lookup_key?: LookupKey
+    resource_id?: string|number
+} & PrettyComponentProps & Partial<ChipProps>
+
 export default function PrettyResource(
-    {value, onChange, edit_mode, lookup_key, resource_id, ...childProps}:
-        {lookup_key?: LookupKey, resource_id?: string|number} &
-        PrettyComponentProps &
-        Partial<ChipProps & { component: React.ElementType }>
+    {value, onChange, edit_mode, lookup_key, resource_id, ...childProps}: PrettyResourceProps
 ) {
     const url_components = get_url_components(value)
     lookup_key = lookup_key ?? url_components?.lookup_key

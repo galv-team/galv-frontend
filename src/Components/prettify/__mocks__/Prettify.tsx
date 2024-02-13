@@ -3,8 +3,9 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "../../__mocks__/DummyComponent"
+import {ReactNode} from "react";
 
-const f = (v: unknown) => (props: unknown) => dummy(v, props)
+const f = <T extends { children?: ReactNode}>(v: string) => (props: T) => dummy(v, props)
 
 export const PrettyString = f("PrettyString")
 export const PrettyNumber = f("PrettyNumber")

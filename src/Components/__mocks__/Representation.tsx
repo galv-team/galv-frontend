@@ -3,7 +3,8 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "./DummyComponent";
+import {RepresentationProps} from "../Representation";
 
-export default function Representation(params: unknown) {
+export default function Representation(params: RepresentationProps) {
     return dummy('Representation', params)
 }

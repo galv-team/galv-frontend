@@ -3,7 +3,8 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "./DummyComponent"
+import {CountBadgeProps} from "../CountBadge";
 
-export default function CountBadge(params: unknown) {
+export default function CountBadge(params: CountBadgeProps) {
 	return dummy("CountBadge", params)
 }

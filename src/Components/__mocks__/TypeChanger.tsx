@@ -3,7 +3,8 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "./DummyComponent"
+import {TypeChangerPopoverProps, TypeChangerProps} from "../TypeChanger";
 
-export default function TypeChanger(params: unknown) {
+export default function TypeChanger(params: TypeChangerProps & Partial<TypeChangerPopoverProps>) {
 	return dummy("TypeChanger", params)
 }

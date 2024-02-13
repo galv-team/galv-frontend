@@ -172,10 +172,15 @@ export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: 
     </Card>
 }
 
+export type ResourceCreatorProps = {
+    lookup_key: LookupKey
+    initial_data?: object
+    onCreate: (error?: unknown) => void
+    onDiscard: () => void
+} & CardProps
+
 export function ResourceCreator<T extends BaseResource>(
-    { lookup_key, initial_data, onCreate, onDiscard, ...cardProps}:
-        {lookup_key: LookupKey, initial_data?: object, onCreate: (error?: unknown) => void, onDiscard: () => void} &
-        CardProps
+    { lookup_key, initial_data, onCreate, onDiscard, ...cardProps}: ResourceCreatorProps
 ) {
     const { classes } = useStyles();
 

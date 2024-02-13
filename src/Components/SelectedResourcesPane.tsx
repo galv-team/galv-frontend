@@ -83,6 +83,8 @@ export function DownloadButton({target_urls, ...props}: {target_urls: string|str
     />
 }
 
+export type SelectedResourcesPaneProps = {}
+
 export function SelectedResourcesPane() {
     const { classes } = useStyles();
     const {resource_urls, deselect, clearSelections} = useSelectionManagement()

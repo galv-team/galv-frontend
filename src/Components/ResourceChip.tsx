@@ -14,7 +14,7 @@ import {FilterContext} from "./filtering/FilterContext";
 import ApiResourceContextProvider, {useApiResource} from "./ApiResourceContext";
 import LookupKeyIcon from "./LookupKeyIcon";
 
-type ResourceFamilyChipProps = {
+export type ResourceFamilyChipProps = {
     resource_id: string|number
     lookup_key: LookupKey
     short_name?: boolean

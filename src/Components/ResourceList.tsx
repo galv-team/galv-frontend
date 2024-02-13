@@ -20,7 +20,11 @@ import {useCurrentUser} from "./CurrentUserContext";
 import {useFetchResource} from "./FetchResourceContext";
 import IntroText from "./IntroText";
 
-export function ResourceList<T extends BaseResource>({lookup_key}: {lookup_key: LookupKey}) {
+export type ResourceListProps = {
+    lookup_key: LookupKey
+}
+
+export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListProps) {
     const { classes } = useStyles();
     const { useListQuery } = useFetchResource();
 

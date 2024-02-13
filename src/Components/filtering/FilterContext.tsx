@@ -16,28 +16,31 @@ const value_to_string = (value: Serializable): string => {
 export class FilterFamily<T, VS = T> {
     public name: string
     public applies_to: readonly FilterableKeyType[]
-    public get_name: (filter: Filter<T, VS>, short_name: boolean) => string
+    public get_description: (key: string, test_versus: VS|string, short: boolean) => string
     public fun: FilterFunction<T, VS>
 
-    constructor({name, applies_to, get_name, fun}: {
+    constructor({name, applies_to, get_description, fun}: {
         name: string,
         applies_to: readonly FilterableKeyType[],
-        get_name: (filter: Filter<T, VS>, short_name: boolean) => string,
+        get_description: (key: string, test_versus: VS|string, short: boolean) => string,
         fun: FilterFunction<T, VS>
     }) {
         this.name = name
         this.applies_to = applies_to
-        this.get_name = get_name
+        this.get_description = get_description
         this.fun = fun
     }
 }
+export type FilterFromFamily<FF> = FF extends FilterFamily<infer T, infer VS> ? Filter<T, VS> : never
+export type FF_T<FF> = FF extends FilterFamily<infer T, never> ? T : null
+export type FF_VS<FF> = FF extends FilterFamily<never, infer VS>? VS : null
 
 export const FILTER_FUNCTIONS = [
     new FilterFamily<string|number|boolean>({
         name: "is",
         applies_to: ["string", "number", "boolean"],
-        get_name: (filter, short_name) => short_name ?
-            `${filter.key} = ${filter.test_versus}` : `${filter.key} is ${filter.test_versus}`,
+        get_description: (key, test_versus, short) => short ?
+            `${key} = ${test_versus}` : `${key} is ${test_versus}`,
         fun: (value, test_versus) => {
             switch(typeof value) {
                 case "string": return value_to_string(value) === value_to_string(test_versus)
@@ -48,70 +51,70 @@ export const FILTER_FUNCTIONS = [
             throw new Error(`'is' filter can only be used for strings, numbers, and booleans`)
         }
     }),
-    new FilterFamily<Array<unknown>, (string|boolean|number)>({
+    new FilterFamily<(string|boolean|number)[], (string|boolean|number)>({
         name: "includes",
         applies_to: ["array"],
-        get_name: (filter, short_name) => short_name ?
-            `${filter.test_versus} ∈ ${filter.key}` : `${filter.key} includes ${filter.test_versus}`,
+        get_description: (key, test_versus, short) => short ?
+            `${test_versus} ∈ ${key}` : `${key} includes ${test_versus}`,
         fun: (value, test_versus) => value instanceof Array && value.includes(value_to_string(test_versus))
     }),
     new FilterFamily<string>({
         name: "starts with",
         applies_to: ["string"],
-        get_name: (filter, short_name) => short_name ?
-            `${filter.key} = ${filter.test_versus}...` : `${filter.key} starts with ${filter.test_versus}`,
+        get_description: (key, test_versus, short) => short ?
+            `${key} = ${test_versus}...` : `${key} starts with ${test_versus}`,
         fun: (value, test_versus) =>
             typeof value_to_string(value) === "string" && value_to_string(value).startsWith(value_to_string(test_versus))
     }),
     new FilterFamily<string>({
         name: "has substring",
         applies_to: ["string"],
-        get_name: (filter, short_name) => short_name ?
-            `${filter.key} = ...${filter.test_versus}...` : `${filter.key} has substring ${filter.test_versus}`,
+        get_description: (key, test_versus, short) => short ?
+            `${key} = ...${test_versus}...` : `${key} has substring ${test_versus}`,
         fun: (value, test_versus) =>
             typeof value_to_string(value) === "string" && value_to_string(value).includes(value_to_string(test_versus))
     }),
     new FilterFamily<string>({
         name: "ends with",
         applies_to: ["string"],
-        get_name: (filter, short_name) => short_name ?
-            `${filter.key} = ...${filter.test_versus}` : `${filter.key} ends with ${filter.test_versus}`,
+        get_description: (key, test_versus, short) => short ?
+            `${key} = ...${test_versus}` : `${key} ends with ${test_versus}`,
         fun: (value, test_versus) =>
             typeof value_to_string(value) === "string" && value_to_string(value).endsWith(value_to_string(test_versus))
     }),
     new FilterFamily<number>({
         name: "less than",
         applies_to: ["number"],
-        get_name: (filter, short_name) => short_name ?
-            `${filter.key} < ${filter.test_versus}` : `${filter.key} less than ${filter.test_versus}`,
+        get_description: (key, test_versus, short) => short ?
+            `${key} < ${test_versus}` : `${key} less than ${test_versus}`,
         fun: (value, test_versus) => typeof value === 'number' && value < test_versus
     }),
     new FilterFamily<number>({
         name: "greater than",
         applies_to: ["number"],
-        get_name: (filter, short_name) => short_name ?
-            `${filter.key} > ${filter.test_versus}` : `${filter.key} greater than ${filter.test_versus}`,
+        get_description: (key, test_versus, short) => short ?
+            `${key} > ${test_versus}` : `${key} greater than ${test_versus}`,
         fun: (value, test_versus) => typeof value === 'number' && value > test_versus
     }),
     new FilterFamily<number>({
         name: "less than or equal to",
         applies_to: ["number"],
-        get_name: (filter, short_name) => short_name ?
-            `${filter.key} <= ${filter.test_versus}` : `${filter.key} less than or equal to ${filter.test_versus}`,
+        get_description: (key, test_versus, short) => short ?
+            `${key} <= ${test_versus}` : `${key} less than or equal to ${test_versus}`,
         fun: (value, test_versus) => typeof value === 'number' && value <= test_versus
     }),
     new FilterFamily<number>({
         name: "greater than or equal to",
         applies_to: ["number"],
-        get_name: (filter, short_name) => short_name ?
-            `${filter.key} >= ${filter.test_versus}` : `${filter.key} greater than or equal to ${filter.test_versus}`,
+        get_description: (key, test_versus, short) => short ?
+            `${key} >= ${test_versus}` : `${key} greater than or equal to ${test_versus}`,
         fun: (value, test_versus) => typeof value === 'number' && value >= test_versus
     }),
     new FilterFamily<number>({
         name: "not equal to",
         applies_to: ["number"],
-        get_name: (filter, short_name) => short_name ?
-            `${filter.key} != ${filter.test_versus}` : `${filter.key} not equal to ${filter.test_versus}`,
+        get_description: (key, test_versus, short) => short ?
+            `${key} != ${test_versus}` : `${key} not equal to ${test_versus}`,
         fun: (value, test_versus) => typeof value === 'number' && value !== test_versus
     })
 ] as const

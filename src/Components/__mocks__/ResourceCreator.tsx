@@ -3,7 +3,8 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "./DummyComponent"
+import {ResourceCreatorProps} from "../ResourceCreator";
 
-export default function ResourceCreator(params: unknown) {
+export default function ResourceCreator(params: ResourceCreatorProps) {
 	return dummy("ResourceCreator", params)
 }

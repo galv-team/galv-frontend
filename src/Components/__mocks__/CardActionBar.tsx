@@ -3,7 +3,8 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "./DummyComponent"
+import {CardActionBarProps} from "../CardActionBar";
 
-export default function CardActionBar(params: unknown) {
+export default function CardActionBar(params: CardActionBarProps) {
 	return dummy("CardActionBar", params)
 }

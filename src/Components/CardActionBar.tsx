@@ -32,7 +32,7 @@ import {useSelectionManagement} from "./SelectionManagementContext";
 import Checkbox from "@mui/material/Checkbox";
 import {representation} from "./Representation";
 
-type CardActionBarProps = {
+export type CardActionBarProps = {
     lookup_key: LookupKey
     selectable?: boolean
     resource_id?: string|number
@@ -198,7 +198,7 @@ export default function CardActionBar(props: CardActionBarProps) {
     return <Stack direction="row" spacing={1} alignItems="center">
         {!props.excludeContext && context_section}
         {props.editable && edit_section}
-        {props.onFork && <Tooltip
+        {props.onFork && apiResource && <Tooltip
             title={`
             Create your own copy of ${representation({data: apiResource, lookup_key: props.lookup_key})}
             `}

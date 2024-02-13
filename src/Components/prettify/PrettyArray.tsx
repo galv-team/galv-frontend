@@ -13,7 +13,7 @@ import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
 import {detect_type, Serializable, TypeChangerSupportedTypeName} from "../TypeChanger";
 
-type PrettyArrayProps = Pick<PrettyObjectProps, "nest_level" | "edit_mode"> & {
+export type PrettyArrayProps = Pick<PrettyObjectProps, "nest_level" | "edit_mode"> & {
     target: Serializable[]
     child_type?: TypeChangerSupportedTypeName
     onEdit?: (v: Serializable[]) => void

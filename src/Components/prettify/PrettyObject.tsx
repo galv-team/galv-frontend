@@ -100,13 +100,14 @@ function rename_key_in_place(
     return new_obj
 }
 
+export type PrettyObjectFromQueryProps = {
+    resource_id: string|number,
+    lookup_key: LookupKey,
+    filter?: (d: SerializableObject, lookup_key: LookupKey) => SerializableObject
+} & Omit<PrettyObjectProps, "target">
+
 export function PrettyObjectFromQuery<T extends BaseResource>(
-    { resource_id, lookup_key, filter, ...prettyObjectProps}:
-        {
-            resource_id: string|number,
-            lookup_key: LookupKey,
-            filter?: (d: SerializableObject, lookup_key: LookupKey) => SerializableObject
-        } & Omit<PrettyObjectProps, "target">
+    { resource_id, lookup_key, filter, ...prettyObjectProps}: PrettyObjectFromQueryProps
 ) {
     const config = new Configuration({
         basePath: process.env.VITE_GALV_API_BASE_URL,

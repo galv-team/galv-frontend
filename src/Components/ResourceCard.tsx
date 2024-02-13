@@ -64,7 +64,7 @@ export type ResourceCardProps = {
     lookup_key: LookupKey
     editing?: boolean
     expanded?: boolean
-}
+} & CardProps
 
 function ResourceCard<T extends BaseResource>(
     {
@@ -73,7 +73,7 @@ function ResourceCard<T extends BaseResource>(
         editing,
         expanded,
         ...cardProps
-    }: ResourceCardProps & CardProps
+    }: ResourceCardProps
 ) {
     const { classes } = useStyles();
     const navigate = useNavigate()
