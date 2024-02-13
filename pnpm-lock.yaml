@@ -5,9 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@battery-intelligence-lab/galv-backend':
-    specifier: 2.1.8
-    version: 2.1.8
+  '@battery-intelligence-lab/galv':
+    specifier: 2.1.16
+    version: 2.1.16
   '@canvasjs/charts':
     specifier: ^3.7.27
     version: 3.7.30
@@ -515,8 +515,8 @@ packages:
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
 
-  /@battery-intelligence-lab/galv-backend@2.1.8:
-    resolution: {integrity: sha512-J5WtP91PwI6Js8zo3dPlPxgx7WMl0R8/pIRvZz6Fzvvn/1Uo19iJPygDu0uxDke2Vxev9n93P/qv7tyvDzWvBQ==}
+  /@battery-intelligence-lab/galv@2.1.16:
+    resolution: {integrity: sha512-ofcM0a+1P7FiI2OdSJQ93CU00GFqO2S1TOI+wqF5k3lI7X0mUqB+lZfX39DwbGKwwipq2dFjHX+adWAT/9ES+Q==}
     dependencies:
       axios: 0.21.4
     transitivePeerDependencies:
