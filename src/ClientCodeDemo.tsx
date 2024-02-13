@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import {CopyBlock, a11yDark} from "react-code-blocks";
 import {useCurrentUser} from "./Components/CurrentUserContext";
-import python from "./client_templates/python.py?raw";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
@@ -12,10 +11,14 @@ import Stack from "@mui/material/Stack";
 import FormControl from '@mui/material/FormControl';
 import InputLabel from "@mui/material/InputLabel";
 
+import python from "./client_templates/python.py?raw";
+import matlab from "./client_templates/matlab.m?raw";
+import julia from "./client_templates/julia.jl?raw";
+
 export type ClientCodeSupportedLanguage =
     "python" |
-    "typescript" |
-    "javascript"
+    "matlab" |
+    "julia"
 
 export type ClientCodeDemoProps = {
     dataset_ids: string[]
@@ -23,8 +26,8 @@ export type ClientCodeDemoProps = {
 
 const templates: Record<ClientCodeSupportedLanguage, string> = {
     "python": python,
-    "typescript": "Not yet implemented",
-    "javascript": "Not yet implemented"
+    "matlab": matlab,
+    "julia": julia
 }
 
 export default function ClientCodeDemo({dataset_ids}: ClientCodeDemoProps) {
@@ -56,7 +59,7 @@ export default function ClientCodeDemo({dataset_ids}: ClientCodeDemoProps) {
                             onChange={(e) => setLanguage(e.target.value as ClientCodeSupportedLanguage)}
                         >
                             {
-                                ["Python", "TypeScript", "JavaScript"].map((lang) => (
+                                ["Python", "Julia", "Matlab"].map((lang) => (
                                     <MenuItem value={lang.toLowerCase()} key={lang}>{lang}</MenuItem>
                                 ))
                             }
