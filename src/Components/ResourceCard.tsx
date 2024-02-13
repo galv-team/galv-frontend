@@ -42,7 +42,7 @@ import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import DatasetChart from "../DatasetChart";
 import {Modal} from "@mui/material";
 import {ResourceCreator, get_modal_title} from "./ResourceCreator";
-import {Configuration} from "@battery-intelligence-lab/galv-backend";
+import {Configuration}from "@battery-intelligence-lab/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import ClientCodeDemo from "../ClientCodeDemo";
 

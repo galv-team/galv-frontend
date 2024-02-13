@@ -13,7 +13,7 @@ import {API_HANDLERS, API_SLUGS, Field, FIELDS, LOOKUP_KEYS, LookupKey, PRIORITY
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery} from "@tanstack/react-query";
 import {BaseResource} from "../ResourceCard";
-import {AccessLevelsApi, Configuration, PermittedAccessLevels} from "@battery-intelligence-lab/galv-backend";
+import {AccessLevelsApi, Configuration, PermittedAccessLevels}from "@battery-intelligence-lab/galv";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import {useCurrentUser} from "../CurrentUserContext";

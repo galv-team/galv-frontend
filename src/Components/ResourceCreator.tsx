@@ -33,7 +33,7 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
-import {Configuration, CreateTokenApi, type CreateKnoxTokenRequest, type KnoxTokenFull} from "@battery-intelligence-lab/galv-backend";
+import {Configuration, CreateTokenApi, type CreateKnoxTokenRequest, type KnoxTokenFull}from "@battery-intelligence-lab/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";

@@ -10,7 +10,7 @@ import {
     UseQueryResult
 } from "@tanstack/react-query";
 import {get_select_function} from "./ApiResourceContext";
-import {Configuration} from "@battery-intelligence-lab/galv-backend"
+import {Configuration}from "@battery-intelligence-lab/galv"
 import {BaseResource} from "./ResourceCard";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 

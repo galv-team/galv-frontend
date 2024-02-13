@@ -33,7 +33,7 @@ import {
     FilesApi, HarvestersApi, LabsApi, MonitoredPathsApi,
     ScheduleFamiliesApi, ScheduleIdentifiersApi, SchedulesApi,
     TeamsApi, TokensApi, UsersApi, ValidationSchemasApi
-} from "@battery-intelligence-lab/galv-backend";
+}from "@battery-intelligence-lab/galv";
 import {Serializable, TypeChangerSupportedTypeName} from "./Components/TypeChanger";
 
 /**

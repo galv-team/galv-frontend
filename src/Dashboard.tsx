@@ -8,7 +8,7 @@ import {
     PaginatedSchemaValidationList,
     SchemaValidation,
     SchemaValidationsApi
-} from "@battery-intelligence-lab/galv-backend";
+}from "@battery-intelligence-lab/galv";
 import {get_url_components, id_from_ref_props} from "./Components/misc";
 import LookupKeyIcon from "./Components/LookupKeyIcon";
 import ListItemIcon from "@mui/material/ListItemIcon";

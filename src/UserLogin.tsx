@@ -24,7 +24,7 @@ import {useSnackbarMessenger} from "./Components/SnackbarMessengerContext";
 import {SerializableObject} from "./Components/TypeChanger";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import Stack from "@mui/material/Stack";
-import {Configuration, User, UserRequest, UsersApi, ActivateApi} from "@battery-intelligence-lab/galv-backend";
+import {Configuration, User, UserRequest, UsersApi, ActivateApi}from "@battery-intelligence-lab/galv";
 import {AxiosError, AxiosResponse} from "axios";
 import Alert, {AlertColor} from "@mui/material/Alert";
 
