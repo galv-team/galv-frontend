@@ -662,10 +662,10 @@ using a variety of different schedules that seek to characterise different prope
 
 Experiments will group together the metadata (e.g. 
 [authors](${PATHS[LOOKUP_KEYS.USER]}), 
-[cells](${PATHS[LOOKUP_KEYS.CELL]})}, 
+[cells](${PATHS[LOOKUP_KEYS.CELL]}), 
 [schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}), 
-[equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}),
-) of the tests they contain,
+[equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]})) 
+of the tests they contain,
 alongside the actual data produced (see [files](${PATHS[LOOKUP_KEYS.FILE]})).
     `,
     [LOOKUP_KEYS.CYCLER_TEST]: `

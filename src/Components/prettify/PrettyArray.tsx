@@ -102,6 +102,7 @@ export default function PrettyArray(
                         target={item}
                         nest_level={_nest_level}
                         edit_mode={false}
+                        lock_type_to={child_type}
                     />
                 </ListItem>)
         }

@@ -1,4 +1,4 @@
-import React, {PropsWithChildren, SyntheticEvent, useEffect, useState} from "react";
+import React, {PropsWithChildren, SyntheticEvent, useCallback, useEffect, useState} from "react";
 import TextField, {TextFieldProps} from "@mui/material/TextField";
 import Typography, {TypographyProps} from "@mui/material/Typography";
 import {SvgIconProps} from "@mui/material/SvgIcon"
@@ -111,12 +111,12 @@ export function Pretty(
 ) {
     const denull = (t: Serializable) => t ?? ''
     const [value, _setValue] = useState<NonNullSerializable>(denull(target))
-    const setValue = (v: Serializable) => {
+    const setValue = useCallback((v: Serializable) => {
         if (is_custom_property(target))
-            setValue({_type: target._type, _value: v})
+            _setValue({_type: target._type, _value: v})
         else
             _setValue(denull(v))
-    }
+    }, [target, _setValue]);
     useEffect(() => setValue(denull(target)), [setValue, target])
     const triggerEdit = () => {
         if (edit_mode && onEdit && value !== denull(target)) {
