@@ -147,6 +147,14 @@ export const PATHS = {
     [LOOKUP_KEYS.USER]: "/users",
     [LOOKUP_KEYS.TOKEN]: "/tokens",
     PROFILE: "/profile",
+    [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: "/cell_manufacturers",
+    [AUTOCOMPLETE_KEYS.CELL_MODEL]: "/cell_models",
+    [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: "/cell_form_factors",
+    [AUTOCOMPLETE_KEYS.CELL_CHEMISTRY]: "/cell_chemistries",
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE]: "/equipment_types",
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: "/equipment_manufacturers",
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: "/equipment_models",
+    [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: "/schedule_identifiers",
 } as const
 
 /**
@@ -301,7 +309,7 @@ const always_fields: {[key: string]: Field} = {
     permissions: {readonly: true, type: "object"},
 }
 const team_fields: {[key: string]: Field} = {
-    team: {readonly: true, type: "TEAM", createonly: true},
+    team: {readonly: true, type: "galv_TEAM", createonly: true},
     validation_results: {readonly: true, type: "object", many: true},
 }
 const generic_fields: {[key: string]: Field} = {
@@ -522,7 +530,6 @@ export const FIELDS = {
  * filter names are employed in the correct context --
  * cell, equipment, and schedule all share the 'family' filter,
  * so the url path must also be appropriate.
- */
 export const FILTER_NAMES = {
     [LOOKUP_KEYS.CELL_FAMILY]: "family_uuid",
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "family_uuid",
@@ -532,6 +539,7 @@ export const FILTER_NAMES = {
     [LOOKUP_KEYS.SCHEDULE]: "schedule_uuid",
     [LOOKUP_KEYS.TEAM]: "team_id",
 } as const
+ */
 
 /**
  * Lookup map to get the family lookup key for each resource type.

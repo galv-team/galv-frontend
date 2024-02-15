@@ -17,10 +17,9 @@ import clsx from "clsx";
 import useStyles from "../styles/UseStyles";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import {build_placeholder_url, get_url_components} from "./misc";
+import {build_placeholder_url} from "./misc";
 import {
     API_HANDLERS,
-    AutocompleteKey,
     DISPLAY_NAMES,
     ICONS,
     is_autocomplete_key,
@@ -30,13 +29,13 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {OverridableComponent} from "@mui/material/OverridableComponent";
 
-const str = (v: any) => {
+const str = (v: unknown) => {
     try {return JSON.stringify(v)} catch(e) {
         console.warn(`Could not stringify value: ${v}`, e)
         return ""
     }
 }
-const num = (v: any) => {
+const num = (v: unknown) => {
     const n = Number(v)
     if (isNaN(n)) {
         console.warn(`Could not numberify value: ${v}`)
@@ -44,10 +43,10 @@ const num = (v: any) => {
     }
     return n
 }
-const obj = (v: any) => {
+const obj = (v: unknown) => {
     try {
         if (v instanceof Array) {
-            const o: {[key: number]: any} = {}
+            const o: {[key: number]: unknown} = {}
             v.forEach((vv, i) => o[i] = vv)
             return o
         }
@@ -59,9 +58,10 @@ const obj = (v: any) => {
     }
     return {0: v}
 }
-const arr = (v: any) => {
+const arr = (v: unknown) => {
     try {
         if (v instanceof Array) return v
+        if (v === null) return []
         if (typeof v === 'object') return Object.values(v)
         if (typeof v === 'string' && (v.startsWith('[') && v.endsWith(']')))
             return JSON.parse(v)
@@ -94,19 +94,40 @@ const type_map = {
     }
 } as const
 
+export type CustomProperty = {
+    _type: "string"|"number"|"boolean"|"null"|"object"|"array"|TypeChangerLookupKey|TypeChangerAutocompleteKey
+    _value: Serializable
+}
+
+export function is_custom_property(v: unknown): v is CustomProperty {
+    if (v instanceof Object) {
+        const keys = Object.keys(v)
+        return keys.length === 2 && keys.includes('_type') && keys.includes('_value')
+    }
+    return false
+}
+
 export type Serializable =
     string |
     number |
     boolean |
+    CustomProperty |
     SerializableObject |
     Serializable[] |
     undefined |
     null
 
 export type SerializableObject = {[key: string]: Serializable}
+export type NonNullSerializable = Exclude<Serializable, null|undefined>
 
-export type TypeChangerDetectableTypeName = (keyof typeof type_map & string) | LookupKey
-export type TypeChangerSupportedTypeName = TypeChangerDetectableTypeName | AutocompleteKey
+export type TypeChangerLookupKey = `galv_${LookupKey}`
+export type TypeChangerAutocompleteKey = `autocomplete_${LookupKey}`
+
+export type TypeChangerDetectableTypeName =
+    (keyof typeof type_map & string) |
+    TypeChangerLookupKey |
+    TypeChangerAutocompleteKey
+export type TypeChangerSupportedTypeName = TypeChangerDetectableTypeName
 
 export type TypeChangerProps = {
     currentValue?: Serializable
@@ -213,30 +234,37 @@ function TypeChangePopover({value, onTypeChange, ...props}: TypeChangerPopoverPr
 }
 
 export const detect_type = (v: Serializable): TypeChangerDetectableTypeName => {
+    if (is_custom_property(v)) {
+        if (v._type === "null")
+            throw new Error(`CustomProperty with _type=null is not yet supported`)
+        return v._type
+    }
     if (v instanceof Array) return 'array'
-    if (typeof v === 'string')
-        return get_url_components(v)?.lookup_key ?? 'string'
     if (Object.keys(type_map).includes(typeof v))
         return typeof v as keyof typeof type_map
+
     console.error(`Could not detect type`, v)
     throw new Error(`Could not detect type for ${v}`)
 }
 
-export const get_conversion_fun = (type: string) => {
+export const get_conversion_fun = (type: TypeChangerDetectableTypeName) => {
     switch (type) {
         case 'string': return str
         case 'number': return num
-        case 'boolean': return (v: any) => !!v
+        case 'boolean': return (v: unknown) => !!v
         case 'object': return obj
         case 'array': return arr
     }
-    if (is_lookup_key(type))
-        return (v: any) => {
-            const clean = (s: string): string => s.replace(/[^a-zA-Z0-9-_]/g, '')
-            const page = type
-            const entry = clean(v) || 'new'
-            return build_placeholder_url(page, entry)
-        }
+    if (type.startsWith('galv_')) {
+        const key = type.replace('galv_', '')
+        if (is_lookup_key(key) || is_autocomplete_key(key))
+            return (v: unknown) => {
+                const clean = (s: string): string => s.replace(/[^a-zA-Z0-9-_]/g, '')
+                const page = key
+                const entry = clean(str(v)) || 'new'
+                return build_placeholder_url(page, entry)
+            }
+    }
     console.error(`Could not get conversion function for ${type}`, type)
     throw new Error(`Could not get conversion function for ${type}`)
 }

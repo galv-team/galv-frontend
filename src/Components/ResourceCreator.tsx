@@ -11,7 +11,7 @@ import Button from "@mui/material/Button";
 import NumberInput from './NumberInput';
 import {CopyBlock, a11yDark} from "react-code-blocks";
 import Avatar from "@mui/material/Avatar";
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ErrorCard from "./error/ErrorCard";
 import {AxiosError, AxiosResponse} from "axios";
 import {Serializable, SerializableObject} from "./TypeChanger";
@@ -26,7 +26,7 @@ import {
     PRIORITY_LEVELS
 } from "../constants";
 import ErrorBoundary from "./ErrorBoundary";
-import UndoRedoProvider, {UndoRedoContext} from "./UndoRedoContext";
+import UndoRedoProvider, {useUndoRedoContext} from "./UndoRedoContext";
 import {BaseResource} from "./ResourceCard";
 import {Modal} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
@@ -185,7 +185,7 @@ export function ResourceCreator<T extends BaseResource>(
     const { classes } = useStyles();
 
     // Ref wrapper for updating UndoRedo in useEffect
-    const UndoRedo = useContext(UndoRedoContext)
+    const UndoRedo = useUndoRedoContext<SerializableObject>()
     const UndoRedoRef = useRef(UndoRedo)
 
     useEffect(() => {

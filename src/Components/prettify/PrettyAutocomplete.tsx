@@ -14,7 +14,7 @@ export type AutcompleteEntry = BaseResource & {
 export default function PrettyAutocomplete(
     {value, onChange, edit_mode, autocomplete_key, ...childProps}:
         {autocomplete_key: AutocompleteKey} &
-        PrettyComponentProps &
+        PrettyComponentProps<string> &
         Omit<Partial<AutocompleteProps<string, boolean|undefined, true, boolean|undefined>|TypographyProps>, "onChange">
 ) {
 
@@ -25,7 +25,7 @@ export default function PrettyAutocomplete(
         return <PrettyString
             value={value}
             onChange={onChange}
-            {...childProps as Partial<TypographyProps>}
+            {...childProps as Partial<Omit<TypographyProps, "onChange">>}
             edit_mode={false}
         />
 
@@ -33,7 +33,7 @@ export default function PrettyAutocomplete(
         value={value}
         freeSolo
         options={query.results? query.results.map(r => r.value) : []}
-        onChange={(e, value) => onChange(value)}
+        onChange={(e, value) => value instanceof Array? value.map(onChange) : onChange(value)}
         renderInput={(params) => (
             <TextField
                 {...params}
@@ -50,6 +50,6 @@ export default function PrettyAutocomplete(
             />
         )}
         fullWidth={true}
-        {...childProps as Partial<AutocompleteProps<string, boolean|undefined, true, boolean|undefined>>}
+        {...childProps as Partial<Omit<AutocompleteProps<string, boolean|undefined, true, boolean|undefined>, "onChange">>}
     />
 }

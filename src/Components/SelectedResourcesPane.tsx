@@ -83,7 +83,7 @@ export function DownloadButton({target_urls, ...props}: {target_urls: string|str
     />
 }
 
-export type SelectedResourcesPaneProps = {}
+export type SelectedResourcesPaneProps = Record<string, never>
 
 export function SelectedResourcesPane() {
     const { classes } = useStyles();

@@ -1,5 +1,5 @@
 import {Serializable} from "./TypeChanger";
-import { is_lookup_key, LookupKey, PATHS} from "../constants";
+import {AutocompleteKey, is_lookup_key, LookupKey, PATHS} from "../constants";
 
 export type ObjectReferenceProps =
     { uuid: string } |
@@ -54,8 +54,8 @@ export function get_url_components(url: string):
     return undefined
 }
 
-export function build_placeholder_url(lookup_key: keyof typeof PATHS, uuid: string = 'new') {
-    return `https://galv${PATHS[lookup_key]}/${uuid}`
+export function build_placeholder_url(key: LookupKey|AutocompleteKey, uuid: string|number = 'new') {
+    return `${process.env.VITE_GALV_API_BASE_URL}/${PATHS[key]}/${uuid}`
 }
 
 export function deep_copy<T extends Serializable>(obj: T): T {

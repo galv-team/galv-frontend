@@ -1,13 +1,14 @@
 import {UseQueryResult} from "@tanstack/react-query";
 import {AxiosError, AxiosResponse} from "axios";
+import {ReactNode} from "react";
 
-export type QueryDependentElement = (queries: UseQueryResult<AxiosResponse, AxiosError>[]) => JSX.Element;
+export type QueryDependentElement = (queries: UseQueryResult<AxiosResponse, AxiosError>[]) => ReactNode;
 
 export type QueryWrapperProps = {
     queries: UseQueryResult<AxiosResponse, AxiosError>[];
-    loading: JSX.Element;
-    error: QueryDependentElement | JSX.Element;
-    success: QueryDependentElement | JSX.Element;
+    loading: ReactNode;
+    error: QueryDependentElement | ReactNode;
+    success: QueryDependentElement | ReactNode;
 }
 
 export default function QueryWrapper(props: QueryWrapperProps) {

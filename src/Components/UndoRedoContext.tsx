@@ -1,25 +1,35 @@
-import {createContext, PropsWithChildren} from "react";
+import {createContext, PropsWithChildren, useContext, Context} from "react";
 import {useImmer} from "use-immer";
 
-type UndoRedoState = {
-    history: any[]
+type UndoRedoState<T = unknown> = {
+    history: T[]
     current_index: number
 }
 
-interface IUndoRedo {
-    current: any
+interface IUndoRedo<T = unknown> {
+    current: T
     can_undo: boolean
     can_redo: boolean
     undo: () => void
     redo: () => void
-    set: (payload: any) => void
+    set: (payload: T) => void
     reset: () => void
-    update: (payload: any) => void
+    update: (payload: T) => void
 }
 
-export const UndoRedoContext = createContext({} as IUndoRedo)
+const UndoRedoContext = createContext({} as IUndoRedo)
 
-export default function UndoRedoProvider({children}: PropsWithChildren<any>) {
+export function useUndoRedoContext<T>() {
+  const context = useContext<IUndoRedo<T>>(
+    (UndoRedoContext) as Context<IUndoRedo<T>>
+  );
+  if (!context) {
+    throw new Error('useUndoRedoContext must be used under UndoRedoProvider');
+  }
+  return context;
+}
+
+export default function UndoRedoProvider({children}: PropsWithChildren) {
     const [state, setState] = useImmer<UndoRedoState>({
         history: [],
         current_index: 0
@@ -37,7 +47,7 @@ export default function UndoRedoProvider({children}: PropsWithChildren<any>) {
             ...state,
             current_index: state.current_index + 1
         }),
-        set: (payload: any) => setState({
+        set: (payload: unknown) => setState({
             history: [payload],
             current_index: 0
         }),
@@ -45,7 +55,7 @@ export default function UndoRedoProvider({children}: PropsWithChildren<any>) {
             history: [state.history.length? state.history[0] : []],
             current_index: 0
         }),
-        update: (payload: any) => setState({
+        update: (payload: unknown) => setState({
             history: [...state.history.slice(0, state.current_index + 1), payload],
             current_index: state.current_index + 1
         })

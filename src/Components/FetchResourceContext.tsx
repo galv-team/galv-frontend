@@ -1,4 +1,4 @@
-import {createContext, useContext} from "react";
+import {createContext, ReactNode, useContext} from "react";
 import {useCurrentUser} from "./CurrentUserContext";
 import {API_HANDLERS, API_SLUGS, AutocompleteKey, DISPLAY_NAMES, is_lookup_key, LookupKey} from "../constants";
 import {AxiosError, AxiosResponse} from "axios";
@@ -45,7 +45,7 @@ export const FetchResourceContext = createContext({} as IFetchResourceContext)
 
 export const useFetchResource = () => useContext(FetchResourceContext)
 
-export default function FetchResourceContextProvider({children}: {children: React.ReactNode}) {
+export default function FetchResourceContextProvider({children}: {children: ReactNode}) {
     const extract_limit_offset = (url: string|null|undefined) => {
         const safe_number = (n: string | null) => n && !isNaN(parseInt(n))? parseInt(n) : undefined
         if (!url) return undefined

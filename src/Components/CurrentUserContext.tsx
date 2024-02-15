@@ -1,4 +1,4 @@
-import {createContext, useContext, useState} from "react";
+import {createContext, ReactNode, useContext, useState} from "react";
 import {Configuration, KnoxUser, LoginApi, User}from "@battery-intelligence-lab/galv";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {AxiosResponse} from "axios";
@@ -21,7 +21,7 @@ export const CurrentUserContext = createContext({} as ICurrentUserContext)
 
 export const useCurrentUser = () => useContext(CurrentUserContext)
 
-export default function CurrentUserContextProvider({children}: {children: React.ReactNode}) {
+export default function CurrentUserContextProvider({children}: {children: ReactNode}) {
     const local_user_string = window.localStorage.getItem('user')
     const local_user: LoginUser|null = JSON.parse(local_user_string || 'null')
 

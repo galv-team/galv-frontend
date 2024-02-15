@@ -33,7 +33,7 @@ import {
 } from "../constants";
 import ResourceChip from "./ResourceChip";
 import ErrorBoundary from "./ErrorBoundary";
-import UndoRedoProvider, {UndoRedoContext} from "./UndoRedoContext";
+import UndoRedoProvider, {useUndoRedoContext} from "./UndoRedoContext";
 import Representation from "./Representation";
 import {FilterContext} from "./filtering/FilterContext";
 import ApiResourceContextProvider, {useApiResource} from "./ApiResourceContext";
@@ -83,7 +83,7 @@ function ResourceCard<T extends BaseResource>(
     const {passesFilters} = useContext(FilterContext)
     const {apiResource, family, apiQuery} = useApiResource<T>()
     // useContext is wrapped in useRef because we update the context in our useEffect API data hook
-    const UndoRedo = useContext(UndoRedoContext)
+    const UndoRedo = useUndoRedoContext<SerializableObject>()
     const UndoRedoRef = useRef(UndoRedo)
 
     const [forking, setForking] = useState<boolean>(false)
@@ -255,7 +255,7 @@ function ResourceCard<T extends BaseResource>(
             <Divider key="custom-props-header">Custom properties</Divider>
             {UndoRedo.current && <PrettyObject
                 key="custom-props"
-                target={{...UndoRedo.current.custom_properties}}
+                target={{...(UndoRedo.current.custom_properties as SerializableObject)}}
                 edit_mode={isEditMode}
                 lookup_key={lookup_key}
                 onEdit={(v) => UndoRedo.update({...UndoRedo.current, custom_properties: {...v}})}
