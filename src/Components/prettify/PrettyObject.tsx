@@ -8,7 +8,13 @@ import TableCell from "@mui/material/TableCell";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Prettify from "./Prettify";
-import {SerializableObject, Serializable} from "../TypeChanger";
+import {
+    SerializableObject,
+    Serializable,
+    is_custom_property,
+    CustomProperty,
+    TypeChangerSupportedTypeName
+} from "../TypeChanger";
 import {API_HANDLERS, API_SLUGS, Field, FIELDS, LOOKUP_KEYS, LookupKey, PRIORITY_LEVELS} from "../../constants";
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery} from "@tanstack/react-query";
@@ -147,6 +153,7 @@ export default function PrettyObject(
         console.error("PrettyObject: target is undefined", {target, lookup_key, nest_level, edit_mode, creating, onEdit, ...table_props})
         return <></>
     }
+    const custom_properties = Object.entries(target).every((e) => is_custom_property(e[1]))
 
     // Type coercion for optional props
     const _target = target || {}  // for tsLint
@@ -157,10 +164,21 @@ export default function PrettyObject(
     const _allowNewKeys = allowNewKeys || _nest_level !== 0
 
     const get_metadata = (key: string) => {
+        if (custom_properties) {
+            const t = (_target[key] as CustomProperty)._type
+            return {
+                type: t === "null"? "string": t,
+                lock_type: false,
+                readonly: false,
+                createonly: false,
+                priority: PRIORITY_LEVELS.DETAIL,
+                many: false
+            }
+        }
         if (lookup_key !== undefined && _nest_level === 0 && !_allowNewKeys) {
             const fields = FIELDS[lookup_key]
             if (Object.keys(fields).includes(key))
-                return FIELDS[lookup_key][key as keyof typeof fields] as Field
+                return {...FIELDS[lookup_key][key as keyof typeof fields] as Field, lock_type: true}
         }
         return undefined
     }
@@ -182,6 +200,19 @@ export default function PrettyObject(
         }
         keys = base_keys.filter(key => !Object.keys(permissions_query.data?.data).includes(key))
     }
+
+    const get_type = (key: string): TypeChangerSupportedTypeName => {
+        const metadata = get_metadata(key)
+        if (metadata)
+            return metadata.many? "array": metadata.type
+        if (custom_properties)
+            throw new Error("PrettyObject: custom_properties should have metadata")
+        const type = typeof _target[key]
+        if (["number", "boolean", "object"].includes(type))
+            return type as "number" | "boolean" | "object"
+        return "string"
+    }
+
     return <>
         <PermissionsTable
             permissions={permissions}
@@ -217,6 +248,7 @@ export default function PrettyObject(
                                                 _onEdit(rename_key_in_place(_target, key, new_key))
                                             }}
                                             target={key}
+                                            type="string"
                                             label="key"
                                             fullWidth={true}
                                         /> :
@@ -233,7 +265,8 @@ export default function PrettyObject(
                                         edit_mode={_edit_mode}
                                         onEdit={edit_fun_factory(key)}
                                         target={_target[key]}
-                                        lock_type_to={get_metadata(key)?.many ? "array" : get_metadata(key)?.type}
+                                        type={get_type(key)}
+                                        lock_type={!custom_properties}
                                         lock_child_type_to={get_metadata(key)?.many ? get_metadata(key)?.type : undefined}
                                     />
                                 </Stack>
@@ -246,6 +279,7 @@ export default function PrettyObject(
                                 edit_mode={_edit_mode}
                                 hide_type_changer={true}
                                 target=""
+                                type="string"
                                 placeholder="new_object_key"
                                 label="+ KEY"
                                 multiline={false}
@@ -254,7 +288,7 @@ export default function PrettyObject(
                                     try {new_key = String(new_key)} catch (e) {return ""}
                                     const new_obj = {..._target}
                                     if (new_key !== "")
-                                        new_obj[new_key] = ""
+                                        new_obj[new_key] = custom_properties? {_type: "string", _value: ""} : ""
                                     _onEdit!(new_obj)
                                     return ""
                                 }}

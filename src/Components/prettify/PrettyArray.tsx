@@ -11,20 +11,27 @@ import {ListProps} from "@mui/material";
 import Prettify from "./Prettify";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
-import {detect_type, Serializable, TypeChangerSupportedTypeName} from "../TypeChanger";
+import {
+    is_custom_property,
+    Serializable,
+    to_custom_property,
+    TypeChangerSupportedTypeName
+} from "../TypeChanger";
 
 export type PrettyArrayProps = Pick<PrettyObjectProps, "nest_level" | "edit_mode"> & {
     target: Serializable[]
+    custom_property:  boolean
     child_type?: TypeChangerSupportedTypeName
     onEdit?: (v: Serializable[]) => void
 }
 
 export default function PrettyArray(
-    {target, nest_level, edit_mode, onEdit, child_type, ...childProps}: PrettyArrayProps & ListProps
+    {target, custom_property, nest_level, edit_mode, onEdit, child_type, ...childProps}: PrettyArrayProps & ListProps
 ) {
     const _nest_level = nest_level || 0
     const _edit_mode = edit_mode || false
     const _onEdit = onEdit || (() => {})
+    const _custom_property = custom_property || false
 
     const {classes} = useStyles()
 
@@ -39,6 +46,20 @@ export default function PrettyArray(
 
     // Required to update the items in response to Undo/Redo
     useEffect(() => {setItems([...target])}, [target])
+
+    const get_type = () => {
+        if (!_custom_property) {
+            if (!child_type) {
+                console.error("PrettyArray: child_type is required when custom_property is false")
+                throw new Error("PrettyArray: child_type is required when custom_property is false")
+            }
+            return child_type
+        }
+        if (items.length === 0) return "string"
+        const last_item = items[items.length - 1]
+        if (is_custom_property(last_item) && last_item._type !== "null") return last_item._type
+        return "string"
+    }
 
     return <List
         className={clsx(
@@ -66,11 +87,15 @@ export default function PrettyArray(
                                     edit_mode={true}
                                     onEdit={(v) => {
                                         const newItems = [...items]
-                                        newItems[i] = v
+                                        newItems[i] = _custom_property? to_custom_property(v) : v
                                         setItems(newItems)
                                         _onEdit(newItems)
                                     }}
-                                    lock_type_to={child_type}
+                                    lock_type={!!child_type}
+                                    type={
+                                        child_type ??
+                                        (is_custom_property(item) && item._type !== "null"? item._type : "string")
+                                    }
                                 />
                             </ListItem>
                         </Draggable>
@@ -89,7 +114,8 @@ export default function PrettyArray(
                                 _onEdit(newItems)
                                 return ""
                             }}
-                            lock_type_to={child_type ?? detect_type(items[items.length - 1] ?? "")}
+                            lock_type={!!child_type}
+                            type={get_type()}
                         />
                     </ListItem>
                 </Container> :
@@ -102,7 +128,8 @@ export default function PrettyArray(
                         target={item}
                         nest_level={_nest_level}
                         edit_mode={false}
-                        lock_type_to={child_type}
+                        lock_type={!!child_type}
+                        type={get_type()}
                     />
                 </ListItem>)
         }

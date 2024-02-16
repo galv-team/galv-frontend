@@ -307,7 +307,7 @@ function ResourceCard<T extends BaseResource>(
                 resource_id={id_from_ref_props<string>(data as string|number)}
                 lookup_key={lookup}
                 short_name={is_family_child(lookup, lookup_key)}
-            /> : <Prettify target={data} />
+            /> : <Prettify target={data} type="object" />
     }
 
     const cardSummary = <CardContent>
