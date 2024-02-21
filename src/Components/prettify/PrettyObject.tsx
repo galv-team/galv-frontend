@@ -7,13 +7,14 @@ import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import Prettify from "./Prettify";
+import Prettify, {PrettyError} from "./Prettify";
 import {
     SerializableObject,
-    Serializable,
-    is_custom_property,
-    CustomProperty,
-    TypeChangerSupportedTypeName
+    TypeValueNotation,
+    TypeChangerSupportedTypeName,
+    is_type_value_notation_wrapper,
+    TypeValueNotationWrapper,
+    to_type_value_notation_wrapper
 } from "../TypeChanger";
 import {API_HANDLERS, API_SLUGS, Field, FIELDS, LOOKUP_KEYS, LookupKey, PRIORITY_LEVELS} from "../../constants";
 import {AxiosError, AxiosResponse} from "axios";
@@ -23,24 +24,25 @@ import {AccessLevelsApi, Configuration, PermittedAccessLevels}from "@battery-int
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import {useCurrentUser} from "../CurrentUserContext";
+import {useState} from "react";
 
-export type AccessLevels = Partial<{[key in keyof PermittedAccessLevels]: Serializable}>
+export type AccessLevels = Partial<{[key in keyof PermittedAccessLevels]: { _type: "number", _value: number }}>
 
 export type PermissionsTableProps = {
     permissions: AccessLevels
     query: ReturnType<typeof useQuery<AxiosResponse>>
-    edit_fun_factory?: (key: string) => (value: Serializable) => Serializable|void
+    edit_fun_factory?: (key: string) => (value: TypeValueNotation) => TypeValueNotation|void
     is_path?: boolean
 }
 
-export type PrettyObjectProps = {
-    target?: SerializableObject
+export type PrettyObjectProps<T extends TypeValueNotation|TypeValueNotationWrapper = TypeValueNotation> = {
+    target?: T
     lookup_key?: LookupKey
     nest_level?: number
     edit_mode?: boolean
     creating?: boolean
     extractPermissions?: boolean  // Extract *_access_level properties; defaults to nest_level == 0
-    onEdit?: (value: SerializableObject) => void
+    onEdit?: (value: T) => void
     allowNewKeys?: boolean
 }
 
@@ -73,10 +75,11 @@ export function PermissionsTable({permissions, query, edit_fun_factory, is_path}
                             <TableCell key={`value_${i}`} align="left">
                                 <Stack alignItems="stretch" justifyContent="flex-start">
                                     <Select
-                                        value={v}
+                                        value={v._value}
                                         disabled={edit_fun_factory === undefined}
                                         onChange={(e) => {
-                                            edit_fun_factory && edit_fun_factory(k)(e.target.value)
+                                            edit_fun_factory &&
+                                            edit_fun_factory(k)({_type: "number", _value: e.target.value})
                                         }}
                                     >
                                         {Object.entries(query_data[k as keyof PermittedAccessLevels] || {})
@@ -92,11 +95,11 @@ export function PermissionsTable({permissions, query, edit_fun_factory, is_path}
 }
 
 function rename_key_in_place(
-    obj: SerializableObject,
+    obj: TypeValueNotationWrapper,
     old_key: string,
     new_key: string
-): SerializableObject {
-    const new_obj: PrettyObjectProps["target"] = {}
+) {
+    const new_obj: typeof obj = {}
     Object.entries(obj).forEach(([k, v]) => {
         if (k === old_key) {
             if (new_key !== "")
@@ -110,7 +113,7 @@ export type PrettyObjectFromQueryProps = {
     resource_id: string|number,
     lookup_key: LookupKey,
     filter?: (d: SerializableObject, lookup_key: LookupKey) => SerializableObject
-} & Omit<PrettyObjectProps, "target">
+} & Omit<PrettyObjectProps<TypeValueNotationWrapper>, "target">
 
 export function PrettyObjectFromQuery<T extends BaseResource>(
     { resource_id, lookup_key, filter, ...prettyObjectProps}: PrettyObjectFromQueryProps
@@ -129,17 +132,28 @@ export function PrettyObjectFromQuery<T extends BaseResource>(
         queryFn: () => target_get.bind(target_api_handler)(String(resource_id))
     })
 
-    return <PrettyObject
+    const target_after_filter = filter?
+        filter(target_query.data?.data ?? {}, lookup_key) :
+        target_query.data?.data
+
+    return <PrettyObject<TypeValueNotationWrapper>
         {...prettyObjectProps}
-        target={filter? filter(target_query.data?.data ?? {}, lookup_key) : target_query.data?.data}
+        lookup_key={lookup_key}
+        target={to_type_value_notation_wrapper(target_after_filter ?? {}, lookup_key)}
     />
 }
 
-export default function PrettyObject(
+export default function PrettyObject<
+    T extends {_type: "object", _value: TypeValueNotationWrapper} | TypeValueNotationWrapper
+        = {_type: "object", _value: TypeValueNotationWrapper}
+>(
     {target, lookup_key, nest_level, edit_mode, creating, onEdit, extractPermissions, allowNewKeys, ...table_props}:
-        PrettyObjectProps & TableContainerProps) {
+        PrettyObjectProps<T> & TableContainerProps) {
 
     const {classes} = useStyles()
+
+    const [newKeyUpdateCount, setNewKeyUpdateCount] = useState(0)
+
     const config = new Configuration({
         basePath: process.env.VITE_GALV_API_BASE_URL,
         accessToken: useCurrentUser().user?.token
@@ -150,45 +164,40 @@ export default function PrettyObject(
     })
 
     if (typeof target === 'undefined') {
-        console.error("PrettyObject: target is undefined", {target, lookup_key, nest_level, edit_mode, creating, onEdit, ...table_props})
-        return <></>
+        return <PrettyError
+            error={new Error("PrettyObject: target is undefined")}
+            details={{target, lookup_key, nest_level, edit_mode, creating, onEdit, ...table_props}}
+        />
     }
-    const custom_properties = Object.entries(target).every((e) => is_custom_property(e[1]))
 
     // Type coercion for optional props
     const _target = target || {}  // for tsLint
+    const is_wrapper = is_type_value_notation_wrapper(_target)
+    const _value = (is_wrapper? _target : _target._value) ?? {}
     const _edit_mode = edit_mode || false
-    const _onEdit = onEdit || (() => {})
+    const _onEdit = onEdit?
+        (values: TypeValueNotationWrapper) => is_wrapper? onEdit(values as T) :
+            onEdit({_type: "object", _value: values} as T) :
+        (() => {})
     const _nest_level = nest_level || 0
     const _extractPermissions = extractPermissions || _nest_level === 0
     const _allowNewKeys = allowNewKeys || _nest_level !== 0
 
     const get_metadata = (key: string) => {
-        if (custom_properties) {
-            const t = (_target[key] as CustomProperty)._type
-            return {
-                type: t === "null"? "string": t,
-                lock_type: false,
-                readonly: false,
-                createonly: false,
-                priority: PRIORITY_LEVELS.DETAIL,
-                many: false
-            }
-        }
         if (lookup_key !== undefined && _nest_level === 0 && !_allowNewKeys) {
             const fields = FIELDS[lookup_key]
             if (Object.keys(fields).includes(key))
                 return {...FIELDS[lookup_key][key as keyof typeof fields] as Field, lock_type: true}
         }
-        return undefined
     }
     const is_readonly = (key: string) => get_metadata(key)?.readonly && (!creating || !get_metadata(key)?.createonly)
 
     // Edit function factory produces a function that edits the object with a new value for key k
-    const edit_fun_factory = (k: string) => (v: Serializable) => _onEdit({..._target, [k]: v})
+    const edit_fun_factory = (k: string) => (v: TypeValueNotation) => _onEdit({..._value, [k]: v})
 
     // Build a list of Prettify'd contents
-    const base_keys = Object.keys(_target).filter(key => get_metadata(key)?.priority !== PRIORITY_LEVELS.HIDDEN)
+    const base_keys = Object.keys(_value)
+        .filter(key => get_metadata(key)?.priority !== PRIORITY_LEVELS.HIDDEN)
     let keys = base_keys;
     let permissions_keys: typeof base_keys = [];
     const permissions: AccessLevels = {};
@@ -196,21 +205,17 @@ export default function PrettyObject(
         permissions_keys = base_keys.filter(key => Object.keys(permissions_query.data?.data).includes(key))
         // Include values from _target in permissions
         for (const key of permissions_keys) {
-            permissions[key as keyof PermittedAccessLevels] = _target[key]
+            const existing_permission = _value[key]
+            permissions[key as keyof PermittedAccessLevels] = existing_permission as { _type: "number", _value: number }
         }
         keys = base_keys.filter(key => !Object.keys(permissions_query.data?.data).includes(key))
     }
 
-    const get_type = (key: string): TypeChangerSupportedTypeName => {
+    const get_child_type = (key: string): TypeChangerSupportedTypeName|undefined => {
         const metadata = get_metadata(key)
-        if (metadata)
-            return metadata.many? "array": metadata.type
-        if (custom_properties)
-            throw new Error("PrettyObject: custom_properties should have metadata")
-        const type = typeof _target[key]
-        if (["number", "boolean", "object"].includes(type))
-            return type as "number" | "boolean" | "object"
-        return "string"
+        if (metadata && metadata.many)
+            return metadata.type
+        return undefined
     }
 
     return <>
@@ -240,14 +245,15 @@ export default function PrettyObject(
                                             hide_type_changer={true}
                                             onEdit={(new_key) => {
                                                 // Rename key (or delete if new_key is empty)
+                                                let new_key_str: string
                                                 try {
-                                                    new_key = String(new_key)
+                                                    new_key_str = String(new_key._value)
                                                 } catch (e) {
-                                                    new_key = ""
+                                                    new_key_str = ""
                                                 }
-                                                _onEdit(rename_key_in_place(_target, key, new_key))
+                                                _onEdit(rename_key_in_place(_value, key, new_key_str))
                                             }}
-                                            target={key}
+                                            target={{_type: "string", _value: key}}
                                             type="string"
                                             label="key"
                                             fullWidth={true}
@@ -264,10 +270,9 @@ export default function PrettyObject(
                                         nest_level={_nest_level}
                                         edit_mode={_edit_mode}
                                         onEdit={edit_fun_factory(key)}
-                                        target={_target[key]}
-                                        type={get_type(key)}
-                                        lock_type={!custom_properties}
-                                        lock_child_type_to={get_metadata(key)?.many ? get_metadata(key)?.type : undefined}
+                                        target={_value[key]}
+                                        lock_type={get_metadata(key)?.lock_type}
+                                        lock_child_type_to={get_child_type(key)}
                                     />
                                 </Stack>
                             </TableCell>
@@ -275,22 +280,24 @@ export default function PrettyObject(
                     {_edit_mode && _allowNewKeys && <TableRow key="add_new">
                         <TableCell component="th" scope="row" key="add_key" align="right">
                             <Prettify
+                                key={`add_key_${newKeyUpdateCount}`}
                                 nest_level={_nest_level}
                                 edit_mode={_edit_mode}
                                 hide_type_changer={true}
-                                target=""
-                                type="string"
+                                target={{_type: "string", _value: ""}}
                                 placeholder="new_object_key"
                                 label="+ KEY"
                                 multiline={false}
-                                onEdit={(new_key: Serializable) => {
+                                onEdit={(new_key: TypeValueNotation) => {
                                     // Add new key
-                                    try {new_key = String(new_key)} catch (e) {return ""}
-                                    const new_obj = {..._target}
-                                    if (new_key !== "")
-                                        new_obj[new_key] = custom_properties? {_type: "string", _value: ""} : ""
+                                    let new_key_str: string
+                                    try {new_key_str = String(new_key._value)} catch (e) {return}
+                                    const new_obj = {..._value}
+                                    if (new_key_str !== "")
+                                        new_obj[new_key_str] = {_type: "string", _value: ""}
                                     _onEdit!(new_obj)
-                                    return ""
+                                    setNewKeyUpdateCount(newKeyUpdateCount + 1)
+                                    return
                                 }}
                             />
                         </TableCell>

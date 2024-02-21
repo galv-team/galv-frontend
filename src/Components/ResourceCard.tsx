@@ -19,7 +19,14 @@ import ErrorCard from "./error/ErrorCard";
 import QueryWrapper, {QueryDependentElement} from "./QueryWrapper";
 import {AxiosError, AxiosResponse} from "axios";
 import Divider from "@mui/material/Divider";
-import {Serializable, SerializableObject} from "./TypeChanger";
+import {
+    Serializable,
+    SerializableObject,
+    to_type_value_notation_wrapper,
+    from_type_value_notation,
+    TypeValueNotationWrapper,
+    to_type_value_notation
+} from "./TypeChanger";
 import {
     API_HANDLERS,
     API_SLUGS,
@@ -243,22 +250,34 @@ function ResourceCard<T extends BaseResource>(
                 }}
             />}
             <Divider key="write-props-header">Editable properties</Divider>
-            {UndoRedo.current && <PrettyObject
+            {UndoRedo.current && <PrettyObject<TypeValueNotationWrapper>
                 key="write-props"
-                target={Object.fromEntries(
-                    Object.entries(UndoRedo.current).filter((e) => e[0] !== "custom_properties")
-                ) as SerializableObject}
+                target={
+                    // All Pretty* components expect a TypeValue notated target
+                    to_type_value_notation_wrapper(
+                        // Drop custom_properties from the target (custom properties are handled below)
+                        Object.fromEntries(
+                            Object.entries(UndoRedo.current)
+                                .filter((e) => e[0] !== "custom_properties")
+                        ) as SerializableObject,
+                        lookup_key
+                    )
+                }
                 edit_mode={isEditMode}
                 lookup_key={lookup_key}
-                onEdit={(v) => UndoRedo.update({...v, custom_properties: UndoRedo.current.custom_properties})}
+                onEdit={(v) => UndoRedo.update({
+                    ...from_type_value_notation(v) as SerializableObject,
+                    custom_properties: UndoRedo.current.custom_properties
+                })}
             />}
             <Divider key="custom-props-header">Custom properties</Divider>
-            {UndoRedo.current && <PrettyObject
+            {UndoRedo.current && <PrettyObject<TypeValueNotationWrapper>
                 key="custom-props"
-                target={{...(UndoRedo.current.custom_properties as SerializableObject)}}
+                // custom_properties are already TypeValue notated
+                target={{...(UndoRedo.current.custom_properties as TypeValueNotationWrapper)}}
                 edit_mode={isEditMode}
                 lookup_key={lookup_key}
-                onEdit={(v) => UndoRedo.update({...UndoRedo.current, custom_properties: {...v}})}
+                onEdit={(v) => UndoRedo.update({...UndoRedo.current, custom_properties: v})}
                 allowNewKeys
             />}
             {family && <Divider key="family-props-header">
@@ -307,7 +326,7 @@ function ResourceCard<T extends BaseResource>(
                 resource_id={id_from_ref_props<string>(data as string|number)}
                 lookup_key={lookup}
                 short_name={is_family_child(lookup, lookup_key)}
-            /> : <Prettify target={data} type="object" />
+            /> : <Prettify target={to_type_value_notation(data)} />
     }
 
     const cardSummary = <CardContent>

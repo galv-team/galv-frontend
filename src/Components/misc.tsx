@@ -54,10 +54,6 @@ export function get_url_components(url: string):
     return undefined
 }
 
-export function build_placeholder_url(key: LookupKey|AutocompleteKey, uuid: string|number = 'new') {
-    return `${process.env.VITE_GALV_API_BASE_URL}${PATHS[key]}/${uuid}`
-}
-
 export function deep_copy<T extends Serializable>(obj: T): T {
     return JSON.parse(JSON.stringify(obj))
 }

@@ -17,7 +17,7 @@ import ListItem from "@mui/material/ListItem";
 import Tooltip from "@mui/material/Tooltip";
 import {ResourceChip} from "./Components/ResourceChip";
 import Stack from "@mui/material/Stack";
-import React, {ReactNode, useState} from "react";
+import React, {ReactNode, useEffect, useState} from "react";
 import Button from "@mui/material/Button";
 import {useCurrentUser} from "./Components/CurrentUserContext";
 import List from "@mui/material/List";
@@ -34,6 +34,8 @@ import IntroText from "./Components/IntroText";
 import Box from "@mui/material/Box";
 import clsx from "clsx";
 import UseStyles from "./styles/UseStyles";
+import {is_type_value_notation, NonNullSerializable, Serializable} from "./Components/TypeChanger";
+import TextField from "@mui/material/TextField";
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -299,6 +301,57 @@ export function DatasetStatus() {
     </Container>
 }
 
+function Playground() {
+    const [target, setTarget] = useState({
+    "_type": "array",
+    "_value": [
+        {
+            "_type": "galv_CELL_FAMILY",
+            "_value": "http://localhost:8082/cell_families/42fc4c44-efbb-4457-a734-f68ee28de617/"
+        }
+    ]
+})
+    const custom_property = is_type_value_notation(target)
+    const denull = (t: Serializable) => {
+        const out = t ?? ''
+        console.log({in: t, out})
+        return out
+    }
+    const [value, setValue] = useState<NonNullSerializable>(
+        denull(custom_property? target._value : target)
+    )
+
+    useEffect(() => {
+        console.log("update value from target", {target, value})
+        setValue(denull(custom_property? target._value : target))
+    }, [target]);
+
+    console.log({target, value, wanted_value: denull(custom_property? target._value : target)})
+
+    return <Box>
+        <Stack spacing={1}>
+            <Typography variant={"h6"} sx={{paddingLeft: "1em"}}>Playground</Typography>
+            <Typography sx={{paddingLeft: "1em"}}>value</Typography>
+            <Typography>{JSON.stringify(value)}</Typography>
+            <Typography sx={{paddingLeft: "1em"}}>expected value</Typography>
+            <Typography>{JSON.stringify(denull(custom_property? target._value : target))}</Typography>
+            <TextField
+                label="target"
+                variant="filled"
+                size="small"
+                value={JSON.stringify(target)}
+                onChange={(e) => {
+                    let v
+                    try {v = JSON.parse(e.target.value)} catch (e) {
+                        return
+                    }
+                    setTarget(v)
+                }}
+            />
+        </Stack>
+    </Box>
+}
+
 export default function Dashboard() {
     const {classes} = UseStyles()
     return <Stack spacing={2}>
@@ -316,5 +369,6 @@ export default function Dashboard() {
         <DatasetStatus />
         <Typography variant={"h6"} sx={{paddingLeft: "1em"}}>Metadata Validations</Typography>
         <SchemaValidationList />
+        <Playground />
     </Stack>
 }

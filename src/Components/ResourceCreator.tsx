@@ -14,7 +14,12 @@ import Avatar from "@mui/material/Avatar";
 import React, {useEffect, useRef, useState} from "react";
 import ErrorCard from "./error/ErrorCard";
 import {AxiosError, AxiosResponse} from "axios";
-import {Serializable, SerializableObject} from "./TypeChanger";
+import {
+    Serializable,
+    SerializableObject,
+    to_type_value_notation_wrapper,
+    TypeValueNotationWrapper
+} from "./TypeChanger";
 import {
     API_HANDLERS,
     API_SLUGS,
@@ -305,8 +310,8 @@ export function ResourceCreator<T extends BaseResource>(
         "& li": {marginTop: (t) => t.spacing(0.5)},
         "& table": {borderCollapse: "separate", borderSpacing: (t) => t.spacing(0.5)},
     }}>
-        {UndoRedo.current && <PrettyObject
-            target={UndoRedo.current}
+        {UndoRedo.current && <PrettyObject<TypeValueNotationWrapper>
+            target={to_type_value_notation_wrapper(UndoRedo.current)}
             lookup_key={lookup_key}
             edit_mode={true}
             creating={true}

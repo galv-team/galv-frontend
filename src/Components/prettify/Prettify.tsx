@@ -1,4 +1,4 @@
-import React, {PropsWithChildren, SyntheticEvent, useEffect, useState} from "react";
+import React, {PropsWithChildren, SyntheticEvent, useState} from "react";
 import TextField, {TextFieldProps} from "@mui/material/TextField";
 import Typography, {TypographyProps} from "@mui/material/Typography";
 import {SvgIconProps} from "@mui/material/SvgIcon"
@@ -8,27 +8,29 @@ import PrettyObject from "./PrettyObject";
 import Checkbox, {CheckboxProps} from "@mui/material/Checkbox";
 import PrettyArray from "./PrettyArray";
 import TypeChanger, {
-    CustomProperty,
-    is_custom_property, NonNullSerializable,
-    Serializable, type_as_key,
+    TypeValueNotation,
+    type_as_key,
     TypeChangerProps,
-    TypeChangerSupportedTypeName
+    TypeChangerSupportedTypeName,
+    TypeChangerLookupKey,
+    TypeChangerAutocompleteKey,
+    is_type_changer_supported_tv_notation
 } from "../TypeChanger";
 import Stack from "@mui/material/Stack";
 import {ChipProps} from "@mui/material/Chip";
-import {AutocompleteKey, is_autocomplete_key, is_lookup_key, LookupKey} from "../../constants";
+import {is_autocomplete_key, is_lookup_key} from "../../constants";
 import PrettyResource from "./PrettyResource";
 import PrettyAutocomplete from "./PrettyAutocomplete";
 import {AutocompleteProps} from "@mui/material/Autocomplete";
+import {useImmer} from "use-immer";
+import Skeleton from "@mui/material/Skeleton";
 
 type PrettifyProps = {
-    target: Serializable
+    target: TypeValueNotation
     nest_level: number
     edit_mode: boolean
     // onEdit is called when the user leaves the field
-    // If it returns a value, the value is set as the new value for the field
-    onEdit?: (value: Serializable) => Serializable|void
-    type: TypeChangerSupportedTypeName
+    onEdit?: (value: TypeValueNotation) => void
     // When type is an array, we can lock the type of the array's children.
     // This only works for one level of nesting, but that's all we need for official fields
     // which are the only fields where types are locked.
@@ -37,31 +39,30 @@ type PrettifyProps = {
     lock_type?: boolean
 }
 
-export type PrettyComponentProps<T = Serializable> = {
-    value: T
-    type: TypeChangerSupportedTypeName
-    onChange: (value: T) => void
+export type PrettyComponentProps<T = unknown> = {
+    target: TypeValueNotation & {_value: T}
+    onChange: (new_target: TypeValueNotation & {_value: T}) => void
     edit_mode: boolean
 }
 
 export const PrettyString = (
-    {value, onChange, edit_mode, ...childProps}:
-        PrettyComponentProps<string> & Partial<Omit<ChipProps | TextFieldProps | TypographyProps, "onChange">>
+    {target, onChange, edit_mode, ...childProps}:
+        PrettyComponentProps<string|null> & Partial<Omit<ChipProps | TextFieldProps | TypographyProps, "onChange">>
 ) => edit_mode ?
     <TextField
         label="value"
         variant="filled"
         size="small"
         multiline={false} // TODO fix error spam
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={target._value ?? ""}
+        onChange={(e) => onChange({_type: "string", _value: e.target.value})}
         {...childProps as TextFieldProps}
     /> :
-    <Typography component="span" variant="body1" {...childProps as TypographyProps}>{value}</Typography>
+    <Typography component="span" variant="body1" {...childProps as TypographyProps}>{target._value}</Typography>
 
 const PrettyNumber = (
-    {value, onChange, edit_mode, ...childProps}:
-        PrettyComponentProps<number> & Partial<Omit<TextFieldProps | TypographyProps, "onChange">>
+    {target, onChange, edit_mode, ...childProps}:
+        PrettyComponentProps<number|null> & Partial<Omit<TextFieldProps | TypographyProps, "onChange">>
 ) => {
     const [error, setError] = useState<boolean>(false)
     return edit_mode ?
@@ -72,7 +73,7 @@ const PrettyNumber = (
             size="small"
             inputProps={{inputMode: 'numeric', pattern: '-?[0-9]*[.,]?[0-9]*'}}
             error={error}
-            value={value}
+            value={target._value ?? ""}
             onChange={(e) => {
                 let v: number
                 try {v = parseFloat(e.target.value)} catch (e) {
@@ -80,26 +81,26 @@ const PrettyNumber = (
                     return
                 }
                 setError(false)
-                onChange(v)
+                onChange({_type: "number", _value: v})
             }}
             {...childProps as TextFieldProps}
         /> :
         <Typography component="span" variant="overline" sx={{fontSize: "1.1em"}} {...childProps as TypographyProps}>
-            {value}
+            {target._value}
         </Typography>
 }
 
 const PrettyBoolean = (
-    {value, onChange, edit_mode, ...childProps}:
-        PrettyComponentProps<boolean> & Partial<Omit<CheckboxProps | SvgIconProps, "onChange">>
+    {target, onChange, edit_mode, ...childProps}:
+        PrettyComponentProps<boolean|null> & Partial<Omit<CheckboxProps | SvgIconProps, "onChange">>
 ) => edit_mode?
     <Checkbox
         sx={{fontSize: "1.1em"}}
-        checked={value}
-        onChange={(e) => onChange(e.currentTarget.checked)}
+        checked={!!target._value}
+        onChange={(e) => onChange({_type: "boolean", _value: e.currentTarget.checked})}
         {...childProps as CheckboxProps}
     /> :
-    value? <CheckIcon {...childProps as SvgIconProps} /> : <ClearIcon {...childProps as SvgIconProps} />
+    target._value? <CheckIcon {...childProps as SvgIconProps} /> : <ClearIcon {...childProps as SvgIconProps} />
 
 const TypeChangeWrapper = ({children, ...props}: PropsWithChildren<TypeChangerProps>) =>
     <Stack direction="row" spacing={0.5}>
@@ -107,30 +108,29 @@ const TypeChangeWrapper = ({children, ...props}: PropsWithChildren<TypeChangerPr
         {children}
     </Stack>
 
+export function PrettyError({error, ...log_items}: {error: Error, [key: string]: unknown}) {
+    console.error("PrettyError", log_items)
+    return <Typography variant="body1" color="error">{error.message}</Typography>
+}
+
 export function Pretty(
-    {target, type, nest_level, edit_mode, onEdit, lock_child_type_to, ...childProps}: PrettifyProps &
+    {target, nest_level, edit_mode, onEdit, lock_child_type_to, ...childProps}: PrettifyProps &
         Partial<Omit<TextFieldProps | TypographyProps | CheckboxProps, "onChange"> | SvgIconProps | ChipProps>
 ) {
-    const custom_property = is_custom_property(target)
-    const denull = (t: Serializable) => t ?? ''
-    const [value, setValue] = useState<NonNullSerializable>(
-        denull(custom_property? target._value : target)
-    )
+    const [tempTarget, setTempTarget] = useImmer<typeof target>(target)
 
-    useEffect(() => setValue(denull(custom_property? target._value : target)), [setValue, target])
-    const triggerEdit = (_?: unknown, override_value?: typeof value) => {
-        const v = override_value ?? value
-        if (edit_mode && onEdit && v !== denull(target)) {
-            const wrapped_value = custom_property? {_type: target._type, _value: v} : v
-            const write_value = onEdit(wrapped_value)
-            console.log("triggerEdit", {value, wrapped_value: wrapped_value, write_value: write_value, target})
-            if (write_value !== undefined && write_value !== null) setValue(write_value)
-        }
+    // When updating type to a simple type, we need to wait until tempTarget is updated
+    if (target._type !== tempTarget._type) {
+        setTempTarget(target)
+        return <Skeleton />
     }
+
+    const triggerEdit = () => edit_mode && onEdit && onEdit(tempTarget)
+
     const props = {
-        value,
-        type,
-        onChange: setValue,
+        target: tempTarget,
+        // If the type of the target changes, we need to update tempTarget
+        onChange: setTempTarget,
         edit_mode: edit_mode,
         onBlur: triggerEdit,
         onKeyDown: (e: SyntheticEvent<unknown, KeyboardEvent>) => {
@@ -139,48 +139,67 @@ export function Pretty(
     }
 
     if (edit_mode && typeof onEdit !== 'function')
-        throw new Error(`onEdit must be a function if edit_mode=true`)
+        return <PrettyError error={new Error(`onEdit must be a function if edit_mode=true`)} edit_mode={edit_mode} onEdit={onEdit} target={target} />
 
-    if (type === 'string')
+    if (target._type === 'string') {
+        if (props.target._value !== null && typeof props.target._value !== "string")
+            return <PrettyError error={new Error(`Pretty -> PrettyString: target._value '${props.target._value}' is not a string`)} target={target} tempTarget={tempTarget} />
         return <PrettyString
-            {...props as typeof props & {value: string}}
-            {...childProps as Partial<Omit<TextFieldProps | TypographyProps | CheckboxProps, "onChange">> }
+            {...props as typeof props & { target: TypeValueNotation & {_value: string|null} }}
+            {...childProps as Partial<Omit<TextFieldProps | TypographyProps | CheckboxProps, "onChange">>}
         />
-    if (type === 'number')
+    }
+    if (target._type === 'number') {
+        if (props.target._value !== null && typeof props.target._value !== "number")
+            return <PrettyError error={new Error(`Pretty -> PrettyNumber: target._value '${props.target._value}' is not a number`)} target={target} tempTarget={tempTarget} />
         return <PrettyNumber
-            {...props as typeof props & {value: number}}
+            {...props as typeof props & { target: TypeValueNotation & {_value: number|null} }}
             {...childProps as Partial<Omit<TextFieldProps | TypographyProps, "onChange">>}
         />
-    if (type === 'boolean')
+    }
+    if (target._type === 'boolean') {
+        if (props.target._value !== null && typeof props.target._value !== "boolean")
+            return <PrettyError error={new Error(`Pretty -> PrettyBoolean: target._value '${props.target._value}' is not a boolean`)} target={target} tempTarget={tempTarget} />
         return <PrettyBoolean
-            {...props as typeof props & {value: boolean}}
-            onChange={(v: boolean) => onEdit && onEdit(v)}
+            {...props as typeof props & { target: TypeValueNotation & {_value: boolean|null} }}
+            onChange={(v) => onEdit && onEdit(v)}
             {...childProps as Partial<Omit<CheckboxProps | SvgIconProps, "onChange">>}
         />
-    if (type === 'array') {
+    }
+
+    // These object-based types manipulate the target directly, rather than routing through tempTarget
+    if (target._type === 'array') {
         return <PrettyArray
             nest_level={nest_level + 1}
             edit_mode={edit_mode}
-            target={value as Serializable[]}
-            custom_property={custom_property}
+            target={target as TypeValueNotation & {_value: TypeValueNotation[]}}
             onEdit={onEdit}
             child_type={lock_child_type_to}
         />
     }
-    if (type === 'object') {
+    if (target._type === 'object') {
         return <PrettyObject
             nest_level={nest_level + 1}
             edit_mode={edit_mode}
             onEdit={onEdit}
-            target={value as CustomProperty}
+            target={target as {_type: "object", _value: Record<string, TypeValueNotation>}}
         />
     }
-    const key = type_as_key(type)
+    if (target._type === 'null') {
+        return <Typography component="span" variant="overline" {...childProps as TypographyProps}>null</Typography>
+    }
+    const key = type_as_key(target._type)
+    if (typeof target._value !== "string" && target._value !== null) {
+        return <PrettyError
+            error={new Error(`Prettify: PrettyResource/PrettyAutocomplete value is not a string: ${target._value}`)}
+            target={target}
+            tempTarget={tempTarget}
+        />
+    }
     if (is_lookup_key(key)) {
         return <PrettyResource
-            value={value as LookupKey}
-            type={type}
-            onChange={(v: string) => triggerEdit(undefined, v)}
+            target={target as {_type: TypeChangerLookupKey, _value: string}}
+            onChange={onEdit ?? (() => {})}
             edit_mode={edit_mode}
             lookup_key={key}
             {...childProps as Partial<Omit<ChipProps,"onChange">>}
@@ -188,9 +207,8 @@ export function Pretty(
     }
     if (is_autocomplete_key(key)) {
         return <PrettyAutocomplete
-            value={value as AutocompleteKey}
-            type={type}
-            onChange={(v) => triggerEdit(undefined, v)}
+            target={target as {_type: TypeChangerAutocompleteKey, _value: string}}
+            onChange={onEdit ?? (() => {})}
             edit_mode={edit_mode}
             autocomplete_key={key}
             {...childProps as
@@ -201,9 +219,9 @@ export function Pretty(
 
     console.error(
         "Prettify failure",
-        {target, nest_level, edit_mode, onEdit, lock_child_type_to, type, ...childProps}
+        {target, tempTarget, nest_level, edit_mode, onEdit, lock_child_type_to, ...childProps}
     )
-    throw new Error(`Could not prettify value: ${value}`)
+    return <PrettyError error={new Error(`Could not prettify value: ${target._value} of type ${target._type}`)} target={target} />
 }
 
 export default function Prettify(
@@ -216,12 +234,13 @@ export default function Prettify(
         edit_mode={props.edit_mode ?? false}
         nest_level={props.nest_level ?? 0}
     />
+    if (!is_type_changer_supported_tv_notation(props.target))
+        throw new Error("Prettify: target._type='null' is not supported")
     return props.edit_mode && props.onEdit && !hide_type_changer?
         <TypeChangeWrapper
-            onTypeChange={props.onEdit}
-            currentValue={props.target}
+            onTypeChange={(nv) => props.onEdit && props.onEdit(nv)}
+            target={props.target}
             lock_type={lock_type ?? false}
-            type={props.type}
         >
             {pretty}
         </TypeChangeWrapper> :

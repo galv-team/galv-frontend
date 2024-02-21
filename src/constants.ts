@@ -34,7 +34,14 @@ import {
     ScheduleFamiliesApi, ScheduleIdentifiersApi, SchedulesApi,
     TeamsApi, TokensApi, UsersApi, ValidationSchemasApi
 }from "@battery-intelligence-lab/galv";
-import {Serializable, TypeChangerSupportedTypeName, key_as_type} from "./Components/TypeChanger";
+import {
+    Serializable,
+    TypeChangerSupportedTypeName,
+    TypeChangerAutocompleteKey, TypeChangerLookupKey
+} from "./Components/TypeChanger";
+
+export const key_as_type = <T,>(k: AutocompleteKey|LookupKey|T): TypeChangerAutocompleteKey|TypeChangerLookupKey|T =>
+    (is_autocomplete_key(k) || is_lookup_key(k))? `galv_${k}` : k
 
 /**
  * This is a list of various resources grouped under a common name for each
@@ -415,10 +422,10 @@ export const FIELDS = {
     [LOOKUP_KEYS.CELL_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        manufacturer: {readonly: false, type: AUTOCOMPLETE_KEYS.CELL_MANUFACTURER, priority: PRIORITY_LEVELS.IDENTITY},
-        model: {readonly: false, type: AUTOCOMPLETE_KEYS.CELL_MODEL, priority: PRIORITY_LEVELS.IDENTITY},
-        form_factor: {readonly: false, type: AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR, priority: PRIORITY_LEVELS.CONTEXT},
-        chemistry: {readonly: false, type: AUTOCOMPLETE_KEYS.CELL_CHEMISTRY, priority: PRIORITY_LEVELS.CONTEXT},
+        manufacturer: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.CELL_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
+        model: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.CELL_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
+        form_factor: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR), priority: PRIORITY_LEVELS.CONTEXT},
+        chemistry: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.CELL_CHEMISTRY), priority: PRIORITY_LEVELS.CONTEXT},
         cells: {readonly: true, type: "CELL", many: true, priority: PRIORITY_LEVELS.SUMMARY},
         nominal_voltage: {readonly: false, type: "number"},
         nominal_capacity: {readonly: false, type: "number"},
@@ -431,16 +438,16 @@ export const FIELDS = {
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        manufacturer: {readonly: false, type: AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER, priority: PRIORITY_LEVELS.IDENTITY},
-        model: {readonly: false, type: AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL, priority: PRIORITY_LEVELS.IDENTITY},
-        type: {readonly: false, type: AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE, priority: PRIORITY_LEVELS.CONTEXT},
+        manufacturer: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
+        model: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
+        type: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE), priority: PRIORITY_LEVELS.CONTEXT},
         equipment: {readonly: true, type: key_as_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         in_use: {readonly: true, type: "boolean"},
     },
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        identifier: {readonly: false, type: AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER, priority: PRIORITY_LEVELS.IDENTITY},
+        identifier: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER), priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string"},
         ambient_temperature: {readonly: false, type: "number"},
         pybamm_template: {readonly: false, type: "object"},

@@ -98,6 +98,7 @@ export default function FetchResourceContextProvider({children}: {children: Reac
                 queryFn,
                 getNextPageParam: (lastPage) => extract_limit_offset(lastPage?.data.next),
                 getPreviousPageParam: (firstPage) => extract_limit_offset(firstPage?.data.previous),
+                enabled: useCurrentUser().user !== null
             })
             const out: ListQueryResult<T> = {...query, results: undefined}
             if (query.data === undefined) return out
@@ -153,6 +154,7 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         const query_options: UseQueryOptions<AxiosResponse<T>, AxiosError> = {
             queryKey: [lookup_key, resource_id],
             queryFn,
+            enabled: useCurrentUser().user !== null,
             ...options?.extra_query_options
         }
         return useQuery<AxiosResponse<T>, AxiosError>(query_options)

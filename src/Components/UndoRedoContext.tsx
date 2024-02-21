@@ -55,10 +55,13 @@ export default function UndoRedoProvider({children}: PropsWithChildren) {
             history: [state.history.length? state.history[0] : []],
             current_index: 0
         }),
-        update: (payload: unknown) => setState({
-            history: [...state.history.slice(0, state.current_index + 1), payload],
-            current_index: state.current_index + 1
-        })
+        update: (payload: unknown) => {
+            setState({
+                history: [...state.history.slice(0, state.current_index + 1), payload],
+                current_index: state.current_index + 1
+            })
+            console.log("update UndoRedoContext", payload, state.history, state.current_index)
+        }
     }}>
         {children}
     </UndoRedoContext.Provider>
