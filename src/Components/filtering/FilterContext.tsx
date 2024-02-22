@@ -1,6 +1,6 @@
 import React, {createContext, PropsWithChildren, useEffect, useState} from "react";
-import {Serializable, TypeChangerSupportedTypeName} from "../TypeChanger";
-import {FAMILY_LOOKUP_KEYS, FIELDS, get_has_family, LookupKey} from "../../constants";
+import {TypeChangerSupportedTypeName} from "../prettify/TypeChanger";
+import {FAMILY_LOOKUP_KEYS, FIELDS, get_has_family, LookupKey, Serializable} from "../../constants";
 import {useImmer} from "use-immer";
 import {IApiResourceContext} from "../ApiResourceContext";
 

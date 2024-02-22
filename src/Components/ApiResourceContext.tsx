@@ -73,9 +73,7 @@ function ApiResourceContextWithFamilyProvider<T extends BaseResource>(
         query.data?.data?.family? id_from_ref_props(query.data?.data?.family) : "never",
         {extra_query_options: {
                 enabled: !!query.data?.data?.family,
-                select
-                    :
-                    get_select_function(family_lookup_key),
+                select: get_select_function(family_lookup_key),
             }}
     )
 

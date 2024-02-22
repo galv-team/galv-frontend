@@ -13,9 +13,10 @@ import Prettify from "./Prettify";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
 import {
-    TypeChangerSupportedTypeName, TypeValueNotation
-} from "../TypeChanger";
+    TypeChangerSupportedTypeName
+} from "./TypeChanger";
 import {useImmer} from "use-immer";
+import {TypeValueNotation} from "../TypeValueNotation";
 
 export type PrettyArrayProps = Pick<PrettyObjectProps, "nest_level" | "edit_mode"> & {
     target: TypeValueNotation & {_value: TypeValueNotation[]}

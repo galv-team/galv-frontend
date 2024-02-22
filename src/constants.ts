@@ -28,19 +28,74 @@ import ForkRightIcon from '@mui/icons-material/ForkRight';
 
 import {
     CellChemistriesApi,
-    CellFamiliesApi, CellFormFactorsApi, CellManufacturersApi, CellModelsApi, CellsApi, CyclerTestsApi, EquipmentApi,
-    EquipmentFamiliesApi, EquipmentManufacturersApi, EquipmentModelsApi, EquipmentTypesApi, ExperimentsApi,
-    FilesApi, HarvestersApi, LabsApi, MonitoredPathsApi,
-    ScheduleFamiliesApi, ScheduleIdentifiersApi, SchedulesApi,
-    TeamsApi, TokensApi, UsersApi, ValidationSchemasApi
-}from "@battery-intelligence-lab/galv";
+    CellFamiliesApi,
+    CellFormFactorsApi,
+    CellManufacturersApi,
+    CellModelsApi,
+    CellsApi,
+    CyclerTestsApi,
+    EquipmentApi,
+    EquipmentFamiliesApi,
+    EquipmentManufacturersApi,
+    EquipmentModelsApi,
+    EquipmentTypesApi,
+    ExperimentsApi,
+    FilesApi,
+    HarvestersApi,
+    LabsApi,
+    MonitoredPathsApi,
+    ScheduleFamiliesApi,
+    ScheduleIdentifiersApi,
+    SchedulesApi,
+    TeamsApi,
+    TokensApi,
+    UsersApi,
+    ValidationSchemasApi
+} from "@battery-intelligence-lab/galv";
 import {
-    Serializable,
-    TypeChangerSupportedTypeName,
-    TypeChangerAutocompleteKey, TypeChangerLookupKey
-} from "./Components/TypeChanger";
+    TypeChangerAutocompleteKey,
+    TypeChangerLookupKey,
+    TypeChangerSupportedTypeName
+} from "./Components/prettify/TypeChanger";
+import {TypeValueNotation} from "./Components/TypeValueNotation";
 
-export const key_as_type = <T,>(k: AutocompleteKey|LookupKey|T): TypeChangerAutocompleteKey|TypeChangerLookupKey|T =>
+/**
+ * The basic unit of data passed around the frontend is a Serializable.
+ * This is a type that can be serialized to JSON.
+ */
+export type Serializable =
+    string |
+    number |
+    boolean |
+    TypeValueNotation |
+    SerializableObject |
+    Serializable[] |
+    undefined |
+    null
+export type SerializableObject = { [key: string]: Serializable }
+export type NonNullSerializable = Exclude<Serializable, null | undefined>
+
+/**
+ * Resources are identified by their lookup key.
+ * When used as a TypeValueNotation type, they are prefixed with "galv_".
+ * @param t - TypeValueNotation type name
+ */
+export const type_to_key = (t: TypeChangerSupportedTypeName): AutocompleteKey | LookupKey | undefined => {
+    if (t.startsWith('galv_')) {
+        const k = t.replace('galv_', '')
+        if (is_autocomplete_key(k) || is_lookup_key(k)) return k
+        console.error(`Type ${t} starts with galv_ but is not a LookupKey or AutocompleteKey`)
+    }
+    return undefined
+}
+
+/**
+ * Resources are identified by their lookup key.
+ * When used as a TypeValueNotation type, they are prefixed with "galv_".
+ *
+ * @param k - AutocompleteKey or LookupKey
+ */
+export const key_to_type = <T,>(k: AutocompleteKey|LookupKey|T): TypeChangerAutocompleteKey|TypeChangerLookupKey|T =>
     (is_autocomplete_key(k) || is_lookup_key(k))? `galv_${k}` : k
 
 /**
@@ -299,6 +354,7 @@ export const PRIORITY_LEVELS = {
     CONTEXT: 2,
     IDENTITY: 3
 } as const
+
 export type Field = {
     readonly: boolean
     type: TypeChangerSupportedTypeName
@@ -350,11 +406,11 @@ export const FIELDS = {
         active: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
         harvester: {
             readonly: true,
-            type: key_as_type(LOOKUP_KEYS.HARVESTER),
+            type: key_to_type(LOOKUP_KEYS.HARVESTER),
             priority: PRIORITY_LEVELS.CONTEXT,
             createonly: true
         },
-        files: {readonly: true, type: key_as_type(LOOKUP_KEYS.FILE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        files: {readonly: true, type: key_to_type(LOOKUP_KEYS.FILE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         ...team_fields,
     },
     [LOOKUP_KEYS.FILE]: {
@@ -363,7 +419,7 @@ export const FIELDS = {
         state: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         path: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         parser: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        harvester: {readonly: true, type: key_as_type(LOOKUP_KEYS.HARVESTER), priority: PRIORITY_LEVELS.CONTEXT},
+        harvester: {readonly: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), priority: PRIORITY_LEVELS.CONTEXT},
         last_observed_size: {readonly: true, type: "number"},
         last_observed_time: {readonly: true, type: "string"},
         data_generation_date: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
@@ -381,39 +437,39 @@ export const FIELDS = {
     [LOOKUP_KEYS.EXPERIMENT]: {
         title: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string"},
-        authors: {readonly: false, type: key_as_type(LOOKUP_KEYS.USER), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        authors: {readonly: false, type: key_to_type(LOOKUP_KEYS.USER), many: true, priority: PRIORITY_LEVELS.CONTEXT},
         protocol: {readonly: true, type: "string"},
         protocol_file: {readonly: true, type: "string"},
-        cycler_tests: {readonly: true, type: key_as_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        cycler_tests: {readonly: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         ...team_fields,
     },
     [LOOKUP_KEYS.CYCLER_TEST]: {
         ...generic_fields,
-        cell: {readonly: false, type: key_as_type(LOOKUP_KEYS.CELL), priority: PRIORITY_LEVELS.SUMMARY},
-        schedule: {readonly: false, type: key_as_type(LOOKUP_KEYS.SCHEDULE), priority: PRIORITY_LEVELS.SUMMARY},
-        equipment: {readonly: false, type: key_as_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        cell: {readonly: false, type: key_to_type(LOOKUP_KEYS.CELL), priority: PRIORITY_LEVELS.SUMMARY},
+        schedule: {readonly: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE), priority: PRIORITY_LEVELS.SUMMARY},
+        equipment: {readonly: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         rendered_schedule: {readonly: true, type: "string", many: true},
         ...team_fields,
     },
     [LOOKUP_KEYS.CELL]: {
         ...generic_fields,
         identifier: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        family: {readonly: false, type: key_as_type(LOOKUP_KEYS.CELL_FAMILY), priority: PRIORITY_LEVELS.CONTEXT},
+        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.CELL_FAMILY), priority: PRIORITY_LEVELS.CONTEXT},
         ...team_fields,
-        cycler_tests: {readonly: true, type: key_as_type(LOOKUP_KEYS.CYCLER_TEST), many: true},
+        cycler_tests: {readonly: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true},
         in_use: {readonly: true, type: "boolean"},
     },
     [LOOKUP_KEYS.EQUIPMENT]: {
         ...generic_fields,
         identifier: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        family: {readonly: false, type: key_as_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), priority: PRIORITY_LEVELS.CONTEXT},
+        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), priority: PRIORITY_LEVELS.CONTEXT},
         ...team_fields,
         calibration_date: {readonly: false, type: "string"},
         in_use: {readonly: true, type: "boolean"},
     },
     [LOOKUP_KEYS.SCHEDULE]: {
         ...generic_fields,
-        family: {readonly: false, type: key_as_type(LOOKUP_KEYS.SCHEDULE_FAMILY), priority: PRIORITY_LEVELS.CONTEXT},
+        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY), priority: PRIORITY_LEVELS.CONTEXT},
         ...team_fields,
         schedule_file: {readonly: false, type: "string"},
         pybamm_schedule_variables: {readonly: false, type: "object"},
@@ -422,10 +478,10 @@ export const FIELDS = {
     [LOOKUP_KEYS.CELL_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        manufacturer: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.CELL_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
-        model: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.CELL_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
-        form_factor: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR), priority: PRIORITY_LEVELS.CONTEXT},
-        chemistry: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.CELL_CHEMISTRY), priority: PRIORITY_LEVELS.CONTEXT},
+        manufacturer: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
+        model: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
+        form_factor: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR), priority: PRIORITY_LEVELS.CONTEXT},
+        chemistry: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_CHEMISTRY), priority: PRIORITY_LEVELS.CONTEXT},
         cells: {readonly: true, type: "CELL", many: true, priority: PRIORITY_LEVELS.SUMMARY},
         nominal_voltage: {readonly: false, type: "number"},
         nominal_capacity: {readonly: false, type: "number"},
@@ -438,48 +494,48 @@ export const FIELDS = {
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        manufacturer: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
-        model: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
-        type: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE), priority: PRIORITY_LEVELS.CONTEXT},
-        equipment: {readonly: true, type: key_as_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        manufacturer: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
+        model: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
+        type: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE), priority: PRIORITY_LEVELS.CONTEXT},
+        equipment: {readonly: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         in_use: {readonly: true, type: "boolean"},
     },
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        identifier: {readonly: false, type: key_as_type(AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER), priority: PRIORITY_LEVELS.IDENTITY},
+        identifier: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER), priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string"},
         ambient_temperature: {readonly: false, type: "number"},
         pybamm_template: {readonly: false, type: "object"},
-        schedules: {readonly: true, type: key_as_type(LOOKUP_KEYS.SCHEDULE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        schedules: {readonly: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         in_use: {readonly: true, type: "boolean"},
     },
     [LOOKUP_KEYS.TEAM]: {
         ...always_fields,
         id: {readonly: true, type: "number"},
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        lab: {readonly: true, type: key_as_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
+        lab: {readonly: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
         member_group: {
             readonly: false,
-            type: key_as_type(LOOKUP_KEYS.USER),
+            type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
             priority: PRIORITY_LEVELS.SUMMARY
         },
         admin_group: {
             readonly: false,
-            type: key_as_type(LOOKUP_KEYS.USER),
+            type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
             priority: PRIORITY_LEVELS.SUMMARY
         },
-        monitored_paths: {readonly: true, type: key_as_type(LOOKUP_KEYS.PATH), many: true},
-        cellfamily_resources: {readonly: true, type: key_as_type(LOOKUP_KEYS.CELL_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        cell_resources: {readonly: true, type: key_as_type(LOOKUP_KEYS.CELL), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        equipmentfamily_resources: {readonly: true, type: key_as_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        equipment_resources: {readonly: true, type: key_as_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        schedulefamily_resources: {readonly: true, type: key_as_type(LOOKUP_KEYS.SCHEDULE_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        schedule_resources: {readonly: true, type: key_as_type(LOOKUP_KEYS.SCHEDULE), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        cyclertest_resources: {readonly: true, type: key_as_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        experiment_resources: {readonly: true, type: key_as_type(LOOKUP_KEYS.EXPERIMENT), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        monitored_paths: {readonly: true, type: key_to_type(LOOKUP_KEYS.PATH), many: true},
+        cellfamily_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.CELL_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        cell_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.CELL), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        equipmentfamily_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        equipment_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        schedulefamily_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        schedule_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        cyclertest_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        experiment_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.EXPERIMENT), many: true, priority: PRIORITY_LEVELS.CONTEXT},
     },
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: {
         ...generic_fields,
@@ -494,12 +550,12 @@ export const FIELDS = {
         description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         admin_group: {
             readonly: false,
-            type: key_as_type(LOOKUP_KEYS.USER),
+            type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
             priority: PRIORITY_LEVELS.SUMMARY
         },
-        teams: {readonly: true, type: key_as_type(LOOKUP_KEYS.TEAM), many: true, priority: PRIORITY_LEVELS.SUMMARY},
-        harvesters: {readonly: true, type: key_as_type(LOOKUP_KEYS.HARVESTER), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        teams: {readonly: true, type: key_to_type(LOOKUP_KEYS.TEAM), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        harvesters: {readonly: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), many: true, priority: PRIORITY_LEVELS.SUMMARY},
     },
     [LOOKUP_KEYS.USER]: {
         ...always_fields,

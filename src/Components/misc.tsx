@@ -1,5 +1,4 @@
-import {Serializable} from "./TypeChanger";
-import {AutocompleteKey, is_lookup_key, LookupKey, PATHS} from "../constants";
+import {AutocompleteKey, is_lookup_key, LookupKey, PATHS, Serializable} from "../constants";
 
 export type ObjectReferenceProps =
     { uuid: string } |

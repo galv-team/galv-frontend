@@ -8,22 +8,21 @@ import PrettyObject from "./PrettyObject";
 import Checkbox, {CheckboxProps} from "@mui/material/Checkbox";
 import PrettyArray from "./PrettyArray";
 import TypeChanger, {
-    TypeValueNotation,
-    type_as_key,
     TypeChangerProps,
     TypeChangerSupportedTypeName,
     TypeChangerLookupKey,
     TypeChangerAutocompleteKey,
     is_type_changer_supported_tv_notation
-} from "../TypeChanger";
+} from "./TypeChanger";
 import Stack from "@mui/material/Stack";
 import {ChipProps} from "@mui/material/Chip";
-import {is_autocomplete_key, is_lookup_key} from "../../constants";
+import {is_autocomplete_key, is_lookup_key, type_to_key} from "../../constants";
 import PrettyResource from "./PrettyResource";
 import PrettyAutocomplete from "./PrettyAutocomplete";
 import {AutocompleteProps} from "@mui/material/Autocomplete";
 import {useImmer} from "use-immer";
 import Skeleton from "@mui/material/Skeleton";
+import {TypeValueNotation} from "../TypeValueNotation";
 
 type PrettifyProps = {
     target: TypeValueNotation
@@ -188,7 +187,7 @@ export function Pretty(
     if (target._type === 'null') {
         return <Typography component="span" variant="overline" {...childProps as TypographyProps}>null</Typography>
     }
-    const key = type_as_key(target._type)
+    const key = type_to_key(target._type)
     if (typeof target._value !== "string" && target._value !== null) {
         return <PrettyError
             error={new Error(`Prettify: PrettyResource/PrettyAutocomplete value is not a string: ${target._value}`)}

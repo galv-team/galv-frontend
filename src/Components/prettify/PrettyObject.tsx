@@ -9,14 +9,18 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Prettify, {PrettyError} from "./Prettify";
 import {
-    SerializableObject,
-    TypeValueNotation,
-    TypeChangerSupportedTypeName,
-    is_type_value_notation_wrapper,
-    TypeValueNotationWrapper,
-    to_type_value_notation_wrapper
-} from "../TypeChanger";
-import {API_HANDLERS, API_SLUGS, Field, FIELDS, LOOKUP_KEYS, LookupKey, PRIORITY_LEVELS} from "../../constants";
+    TypeChangerSupportedTypeName
+} from "./TypeChanger";
+import {
+    API_HANDLERS,
+    API_SLUGS,
+    Field,
+    FIELDS,
+    LOOKUP_KEYS,
+    LookupKey,
+    PRIORITY_LEVELS,
+    SerializableObject
+} from "../../constants";
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery} from "@tanstack/react-query";
 import {BaseResource} from "../ResourceCard";
@@ -25,6 +29,11 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import {useCurrentUser} from "../CurrentUserContext";
 import {useState} from "react";
+import {
+    is_tvn_wrapper,
+    to_type_value_notation_wrapper, TypeValueNotation,
+    TypeValueNotationWrapper
+} from "../TypeValueNotation";
 
 export type AccessLevels = Partial<{[key in keyof PermittedAccessLevels]: { _type: "number", _value: number }}>
 
@@ -43,7 +52,7 @@ export type PrettyObjectProps<T extends TypeValueNotation|TypeValueNotationWrapp
     creating?: boolean
     extractPermissions?: boolean  // Extract *_access_level properties; defaults to nest_level == 0
     onEdit?: (value: T) => void
-    allowNewKeys?: boolean
+    canEditKeys?: boolean
 }
 
 export function PermissionsTable({permissions, query, edit_fun_factory, is_path}: PermissionsTableProps) {
@@ -147,7 +156,7 @@ export default function PrettyObject<
     T extends {_type: "object", _value: TypeValueNotationWrapper} | TypeValueNotationWrapper
         = {_type: "object", _value: TypeValueNotationWrapper}
 >(
-    {target, lookup_key, nest_level, edit_mode, creating, onEdit, extractPermissions, allowNewKeys, ...table_props}:
+    {target, lookup_key, nest_level, edit_mode, creating, onEdit, extractPermissions, canEditKeys, ...table_props}:
         PrettyObjectProps<T> & TableContainerProps) {
 
     const {classes} = useStyles()
@@ -172,7 +181,7 @@ export default function PrettyObject<
 
     // Type coercion for optional props
     const _target = target || {}  // for tsLint
-    const is_wrapper = is_type_value_notation_wrapper(_target)
+    const is_wrapper = is_tvn_wrapper(_target)
     const _value = (is_wrapper? _target : _target._value) ?? {}
     const _edit_mode = edit_mode || false
     const _onEdit = onEdit?
@@ -181,10 +190,10 @@ export default function PrettyObject<
         (() => {})
     const _nest_level = nest_level || 0
     const _extractPermissions = extractPermissions || _nest_level === 0
-    const _allowNewKeys = allowNewKeys || _nest_level !== 0
+    const _canEditKeys = canEditKeys || _nest_level !== 0
 
     const get_metadata = (key: string) => {
-        if (lookup_key !== undefined && _nest_level === 0 && !_allowNewKeys) {
+        if (lookup_key !== undefined && _nest_level === 0 && !_canEditKeys) {
             const fields = FIELDS[lookup_key]
             if (Object.keys(fields).includes(key))
                 return {...FIELDS[lookup_key][key as keyof typeof fields] as Field, lock_type: true}
@@ -218,6 +227,17 @@ export default function PrettyObject<
         return undefined
     }
 
+    // return <div>
+    //     target: {JSON.stringify(target)}
+    //     <ul>
+    //         {
+    //             keys.map((key, i) => <li key={i}>
+    //                 <span key="key" data-type="key">{key}</span>:
+    //                 <span key="value" data-type="value">{JSON.stringify(_value[key])}</span>
+    //             </li>)
+    //         }
+    //     </ul>
+    // </div>
     return <>
         <PermissionsTable
             permissions={permissions}
@@ -238,7 +258,7 @@ export default function PrettyObject<
                         return <TableRow key={i}>
                             <TableCell component="th" scope="row" key={`key_${i}`} align="right">
                                 <Stack alignItems="stretch" justifyContent="flex-end">
-                                    {_edit_mode && onEdit && !is_readonly(key) ?
+                                    {_canEditKeys && _edit_mode && onEdit && !is_readonly(key) ?
                                         <Prettify
                                             nest_level={_nest_level}
                                             edit_mode={true}
@@ -277,7 +297,7 @@ export default function PrettyObject<
                                 </Stack>
                             </TableCell>
                         </TableRow>})}
-                    {_edit_mode && _allowNewKeys && <TableRow key="add_new">
+                    {_canEditKeys && _edit_mode && <TableRow key="add_new">
                         <TableCell component="th" scope="row" key="add_key" align="right">
                             <Prettify
                                 key={`add_key_${newKeyUpdateCount}`}

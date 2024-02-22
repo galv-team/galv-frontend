@@ -14,19 +14,11 @@ import LoadingChip from "./LoadingChip";
 import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Unstable_Grid2";
 import Avatar from "@mui/material/Avatar";
-import React, {Fragment, ReactNode, useContext, useEffect, useRef, useState} from "react";
+import React, {Fragment, PropsWithChildren, ReactNode, useContext, useEffect, useRef, useState} from "react";
 import ErrorCard from "./error/ErrorCard";
 import QueryWrapper, {QueryDependentElement} from "./QueryWrapper";
 import {AxiosError, AxiosResponse} from "axios";
-import Divider from "@mui/material/Divider";
-import {
-    Serializable,
-    SerializableObject,
-    to_type_value_notation_wrapper,
-    from_type_value_notation,
-    TypeValueNotationWrapper,
-    to_type_value_notation
-} from "./TypeChanger";
+import Divider, {DividerProps} from "@mui/material/Divider";
 import {
     API_HANDLERS,
     API_SLUGS,
@@ -36,7 +28,7 @@ import {
     FAMILY_LOOKUP_KEYS,
     FIELDS,
     ICONS, is_lookup_key,
-    PATHS, PRIORITY_LEVELS, LookupKey, get_has_family, get_is_family, LOOKUP_KEYS
+    PATHS, PRIORITY_LEVELS, LookupKey, get_has_family, get_is_family, LOOKUP_KEYS, SerializableObject, Serializable
 } from "../constants";
 import ResourceChip from "./ResourceChip";
 import ErrorBoundary from "./ErrorBoundary";
@@ -52,6 +44,13 @@ import {ResourceCreator, get_modal_title} from "./ResourceCreator";
 import {Configuration}from "@battery-intelligence-lab/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import ClientCodeDemo from "../ClientCodeDemo";
+import {
+    from_type_value_notation,
+    to_type_value_notation,
+    to_type_value_notation_wrapper,
+    TypeValueNotationWrapper
+} from "./TypeValueNotation";
+import Typography from "@mui/material/Typography";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
@@ -72,6 +71,16 @@ export type ResourceCardProps = {
     editing?: boolean
     expanded?: boolean
 } & CardProps
+
+function PropertiesDivider({children, ...props}: PropsWithChildren<DividerProps>) {
+    return <Divider
+        component='div'
+        role='presentation'
+        {...props}
+    >
+        <Typography variant="h5">{children}</Typography>
+    </Divider>
+}
 
 function ResourceCard<T extends BaseResource>(
     {
@@ -230,7 +239,7 @@ function ResourceCard<T extends BaseResource>(
             undefined,
     }}>
         <Stack spacing={1}>
-            <Divider key="read-props-header">Read-only properties</Divider>
+            <PropertiesDivider>Read-only properties</PropertiesDivider>
             {apiResource && <PrettyObjectFromQuery
                 resource_id={resource_id}
                 lookup_key={lookup_key}
@@ -249,7 +258,7 @@ function ResourceCard<T extends BaseResource>(
                     return data
                 }}
             />}
-            <Divider key="write-props-header">Editable properties</Divider>
+            <PropertiesDivider>Editable properties</PropertiesDivider>
             {UndoRedo.current && <PrettyObject<TypeValueNotationWrapper>
                 key="write-props"
                 target={
@@ -270,7 +279,7 @@ function ResourceCard<T extends BaseResource>(
                     custom_properties: UndoRedo.current.custom_properties
                 })}
             />}
-            <Divider key="custom-props-header">Custom properties</Divider>
+            <PropertiesDivider>Custom properties</PropertiesDivider>
             {UndoRedo.current && <PrettyObject<TypeValueNotationWrapper>
                 key="custom-props"
                 // custom_properties are already TypeValue notated
@@ -278,16 +287,16 @@ function ResourceCard<T extends BaseResource>(
                 edit_mode={isEditMode}
                 lookup_key={lookup_key}
                 onEdit={(v) => UndoRedo.update({...UndoRedo.current, custom_properties: v})}
-                allowNewKeys
+                canEditKeys
             />}
-            {family && <Divider key="family-props-header">
+            {family && <PropertiesDivider>
                 Inherited from
                 {family?
                     <ResourceChip
                         resource_id={family.uuid as string}
                         lookup_key={family_key!}
                     /> : FAMILY_ICON && <LoadingChip icon={<FAMILY_ICON/>}/> }
-            </Divider>}
+            </PropertiesDivider>}
             {family && family_key && <PrettyObjectFromQuery
                 resource_id={family.uuid as string}
                 lookup_key={family_key}

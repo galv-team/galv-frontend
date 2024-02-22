@@ -15,12 +15,6 @@ import React, {useEffect, useRef, useState} from "react";
 import ErrorCard from "./error/ErrorCard";
 import {AxiosError, AxiosResponse} from "axios";
 import {
-    Serializable,
-    SerializableObject,
-    to_type_value_notation_wrapper,
-    TypeValueNotationWrapper
-} from "./TypeChanger";
-import {
     API_HANDLERS,
     API_SLUGS,
     DISPLAY_NAMES,
@@ -28,7 +22,7 @@ import {
     ICONS,
     LOOKUP_KEYS,
     LookupKey,
-    PRIORITY_LEVELS
+    PRIORITY_LEVELS, Serializable, SerializableObject
 } from "../constants";
 import ErrorBoundary from "./ErrorBoundary";
 import UndoRedoProvider, {useUndoRedoContext} from "./UndoRedoContext";
@@ -45,6 +39,7 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
+import {to_type_value_notation_wrapper, TypeValueNotationWrapper} from "./TypeValueNotation";
 
 export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: boolean) => void} & CardProps) {
     const { classes } = useStyles()
