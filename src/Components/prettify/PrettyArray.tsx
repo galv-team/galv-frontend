@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Container, Draggable, DropResult, OnDropCallback} from "react-smooth-dnd";
 import {arrayMoveImmutable} from "array-move";
 import List from "@mui/material/List";
@@ -35,6 +35,10 @@ export default function PrettyArray(
 
     const [items, setItems] = useImmer(target._value ?? []);
     const [newItemCounter, setNewItemCounter] = useState(0)
+
+    useEffect(() => {
+        setItems(target._value)
+    }, [target._value, setItems]);
 
     const onDrop: OnDropCallback = ({ removedIndex, addedIndex }: DropResult) => {
         if (removedIndex === null || addedIndex === null) return

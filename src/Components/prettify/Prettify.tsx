@@ -1,4 +1,4 @@
-import React, {PropsWithChildren, SyntheticEvent, useState} from "react";
+import React, {PropsWithChildren, useState} from "react";
 import TextField, {TextFieldProps} from "@mui/material/TextField";
 import Typography, {TypographyProps} from "@mui/material/Typography";
 import {SvgIconProps} from "@mui/material/SvgIcon"
@@ -20,9 +20,8 @@ import {is_autocomplete_key, is_lookup_key, type_to_key} from "../../constants";
 import PrettyResource from "./PrettyResource";
 import PrettyAutocomplete from "./PrettyAutocomplete";
 import {AutocompleteProps} from "@mui/material/Autocomplete";
-import {useImmer} from "use-immer";
-import Skeleton from "@mui/material/Skeleton";
 import {TypeValueNotation} from "../TypeValueNotation";
+import {useDebounceCallback} from "usehooks-ts";
 
 type PrettifyProps = {
     target: TypeValueNotation
@@ -116,25 +115,16 @@ export function Pretty(
     {target, nest_level, edit_mode, onEdit, lock_child_type_to, ...childProps}: PrettifyProps &
         Partial<Omit<TextFieldProps | TypographyProps | CheckboxProps, "onChange"> | SvgIconProps | ChipProps>
 ) {
-    const [tempTarget, setTempTarget] = useImmer<typeof target>(target)
-
-    // When updating type to a simple type, we need to wait until tempTarget is updated
-    if (target._type !== tempTarget._type) {
-        setTempTarget(target)
-        return <Skeleton />
-    }
-
-    const triggerEdit = () => edit_mode && onEdit && onEdit(tempTarget)
+    const triggerEdit = useDebounceCallback(
+        (new_value) => edit_mode && onEdit && onEdit(new_value),
+        500,
+        {leading: true, trailing: true}
+    )
 
     const props = {
-        target: tempTarget,
-        // If the type of the target changes, we need to update tempTarget
-        onChange: setTempTarget,
-        edit_mode: edit_mode,
-        onBlur: triggerEdit,
-        onKeyDown: (e: SyntheticEvent<unknown, KeyboardEvent>) => {
-            if (e.nativeEvent.code === 'Enter') triggerEdit()
-        }
+        target: target,
+        onChange: (new_value: typeof target) => triggerEdit(new_value),
+        edit_mode: edit_mode
     }
 
     if (edit_mode && typeof onEdit !== 'function')
@@ -142,7 +132,7 @@ export function Pretty(
 
     if (target._type === 'string') {
         if (props.target._value !== null && typeof props.target._value !== "string")
-            return <PrettyError error={new Error(`Pretty -> PrettyString: target._value '${props.target._value}' is not a string`)} target={target} tempTarget={tempTarget} />
+            return <PrettyError error={new Error(`Pretty -> PrettyString: target._value '${props.target._value}' is not a string`)} target={target} />
         return <PrettyString
             {...props as typeof props & { target: TypeValueNotation & {_value: string|null} }}
             {...childProps as Partial<Omit<TextFieldProps | TypographyProps | CheckboxProps, "onChange">>}
@@ -150,7 +140,7 @@ export function Pretty(
     }
     if (target._type === 'number') {
         if (props.target._value !== null && typeof props.target._value !== "number")
-            return <PrettyError error={new Error(`Pretty -> PrettyNumber: target._value '${props.target._value}' is not a number`)} target={target} tempTarget={tempTarget} />
+            return <PrettyError error={new Error(`Pretty -> PrettyNumber: target._value '${props.target._value}' is not a number`)} target={target} />
         return <PrettyNumber
             {...props as typeof props & { target: TypeValueNotation & {_value: number|null} }}
             {...childProps as Partial<Omit<TextFieldProps | TypographyProps, "onChange">>}
@@ -158,7 +148,7 @@ export function Pretty(
     }
     if (target._type === 'boolean') {
         if (props.target._value !== null && typeof props.target._value !== "boolean")
-            return <PrettyError error={new Error(`Pretty -> PrettyBoolean: target._value '${props.target._value}' is not a boolean`)} target={target} tempTarget={tempTarget} />
+            return <PrettyError error={new Error(`Pretty -> PrettyBoolean: target._value '${props.target._value}' is not a boolean`)} target={target} />
         return <PrettyBoolean
             {...props as typeof props & { target: TypeValueNotation & {_value: boolean|null} }}
             onChange={(v) => onEdit && onEdit(v)}
@@ -192,7 +182,7 @@ export function Pretty(
         return <PrettyError
             error={new Error(`Prettify: PrettyResource/PrettyAutocomplete value is not a string: ${target._value}`)}
             target={target}
-            tempTarget={tempTarget}
+            // tempTarget={tempTarget}
         />
     }
     if (is_lookup_key(key)) {
@@ -218,7 +208,7 @@ export function Pretty(
 
     console.error(
         "Prettify failure",
-        {target, tempTarget, nest_level, edit_mode, onEdit, lock_child_type_to, ...childProps}
+        {target, nest_level, edit_mode, onEdit, lock_child_type_to, ...childProps}
     )
     return <PrettyError error={new Error(`Could not prettify value: ${target._value} of type ${target._type}`)} target={target} />
 }
@@ -230,6 +220,10 @@ export default function Prettify(
 ) {
     const pretty = <Pretty
         {...props}
+        onEdit={props.onEdit && ((new_value) => {
+            if (props.target._type !== new_value._type || props.target._value !== new_value._value)
+                return props.onEdit && props.onEdit(new_value)
+        })}
         edit_mode={props.edit_mode ?? false}
         nest_level={props.nest_level ?? 0}
     />
