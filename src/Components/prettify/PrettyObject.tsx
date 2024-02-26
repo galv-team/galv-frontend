@@ -227,17 +227,6 @@ export default function PrettyObject<
         return undefined
     }
 
-    // return <div>
-    //     target: {JSON.stringify(target)}
-    //     <ul>
-    //         {
-    //             keys.map((key, i) => <li key={i}>
-    //                 <span key="key" data-type="key">{key}</span>:
-    //                 <span key="value" data-type="value">{JSON.stringify(_value[key])}</span>
-    //             </li>)
-    //         }
-    //     </ul>
-    // </div>
     return <>
         <PermissionsTable
             permissions={permissions}

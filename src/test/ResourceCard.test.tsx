@@ -32,6 +32,7 @@ const ResourceCard = jest.requireActual('../Components/ResourceCard').default;
 const api_data: {
     cell: Cell,
     cell_family: CellFamily,
+    cell_family_2: CellFamily,
     team: Team,
     access_levels: PermittedAccessLevels
 } = {
@@ -58,6 +59,7 @@ const api_data: {
             exists: {_type: "boolean", _value: true},
             "key with space": {_type: "string", _value: "this works too!"},
             value: {_type: "string", _value: "custom"},
+            PI: {_type: "number", _value: 3.14159},
             nested: {
                 _type: "object",
                 _value: {
@@ -72,7 +74,25 @@ const api_data: {
                         ]
                     }
                 }
-            }
+            },
+            str: {_type: "string", _value: "custom"},
+            num: {_type: "number", _value: 3.14159},
+            bool: {_type: "boolean", _value: true},
+            arr: {
+                _type: "array",
+                _value: [
+                    {_type: "string", _value: "element 1"},
+                    {_type: "string", _value: "element 2"}
+                ]
+            },
+            obj: {
+                _type: "object",
+                _value: {
+                    key1: {_type: "string", _value: "value1"},
+                    key2: {_type: "string", _value: "value2"}
+                }
+            },
+            cf: {_type: "galv_CELL_FAMILY", _value: "http://example.com/cell_families/1000-1000-1000-1000"}
         }
     },
     cell_family: {
@@ -91,6 +111,23 @@ const api_data: {
             create: false
         },
         nominal_voltage: 3.7
+    },
+    cell_family_2: {
+        url: "http://example.com/cell_families/1200-1200-1200-1200",
+        uuid: "1200-1200-1200-1200",
+        model: "Value Cell",
+        manufacturer: "BudgetCorp",
+        team: "http://example.com/teams/1",
+        chemistry: "",
+        form_factor: "",
+        cells: [],
+        in_use: false,
+        permissions: {
+            read: true,
+            write: true,
+            create: false
+        },
+        nominal_voltage: 3.1
     },
     team: {
         url: "http://example.com/teams/1",
@@ -151,10 +188,12 @@ const do_render = async () => {
                 return make_axios_response(api_data.cell, {config})
             if (url.endsWith(api_data.cell_family.uuid))
                 return make_axios_response(api_data.cell_family, {config})
+            if (url.endsWith(api_data.cell_family_2.uuid))
+                return make_axios_response(api_data.cell_family_2, {config})
             if (/access_levels/.test(url))
                 return make_axios_response(access_levels_response, {config})
             if (/cell_families$/.test(url))
-                return make_paged_axios_response([api_data.cell_family], {config})
+                return make_paged_axios_response([api_data.cell_family, api_data.cell_family_2], {config})
             if (/teams$/.test(url))
                 return make_paged_axios_response([api_data.team], {config})
             // handle cell_models etc
@@ -183,6 +222,18 @@ const do_render = async () => {
     // console.log(mockedAxios.request.mock.calls)
     // screen.debug(undefined, 1000000)
 }
+
+/**
+ * Wait for a certain amount of time
+ *
+ * Used to ensure that React has actually updated the DOM before we check it
+ * @param ms
+ */
+function wait(ms: number = 100) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+jest.setTimeout(30000)
 
 describe('ResourceCard', () => {
     beforeEach(async () => await do_render())
@@ -220,7 +271,7 @@ describe('ResourceCard', () => {
                 .getByRole("rowheader", {name:/nominal_voltage/});
             within(nominal_voltage_heading.parentElement! as HTMLElement)
                 .getByRole("cell", {name: api_data.cell_family.nominal_voltage!.toString()});
-        }, 30000)
+        })
 
         it('expands and collapses', () => {
             act(() => screen.getByRole('button', {name: /Hide details/i}).click());
@@ -252,7 +303,7 @@ describe('ResourceCard', () => {
                 mockedAxios.request.mock.lastCall[0] : undefined;
             expect(last_call).toHaveProperty("method", "PATCH");
             expect(JSON.parse(last_call?.data).identifier === new_value).toBeTruthy();
-        }, 30000)
+        })
 
         it('supports undo and redo', async () => {
             const user = userEvent.setup();
@@ -286,7 +337,7 @@ describe('ResourceCard', () => {
             await waitFor(() => expect(input).toHaveValue(""), {timeout: 1000});
             expect(undo_button).toBeEnabled();
             expect(redo_button).toBeDisabled();
-        }, 30000)
+        })
 
         it('supports resetting', async () => {
             const confirmSpy = jest.spyOn(window, 'confirm');
@@ -314,7 +365,7 @@ describe('ResourceCard', () => {
                 expect(screen.queryByRole('button', {name: /Edit this /i})).not.toBe(null);
                 within(id_label.parentElement! as HTMLElement).getByRole('cell', {name: old_value!});
             }, {timeout: 1000});
-        }, 30000)
+        })
 
         it('prevents editing non-editable properties', async () => {
             const user = userEvent.setup();
@@ -324,7 +375,7 @@ describe('ResourceCard', () => {
             const value = within(id_label.parentElement! as HTMLElement)
                 .queryByRole('cell', {name: api_data.cell.url});
             expect(within(value!).queryByRole('textbox')).toBeNull();
-        }, 30000)
+        })
 
         it('allows editing custom properties', async () => {
             const user = userEvent.setup();
@@ -348,7 +399,7 @@ describe('ResourceCard', () => {
                 mockedAxios.request.mock.lastCall[0] : undefined;
             expect(last_call).toHaveProperty("method", "PATCH");
             expect(JSON.parse(last_call?.data).custom_properties["key with space"]._value === new_value).toBeTruthy();
-        }, 30000)
+        })
 
         it('allows editing nested custom properties', async () => {
             const user = userEvent.setup();
@@ -374,7 +425,7 @@ describe('ResourceCard', () => {
                 mockedAxios.request.mock.lastCall[0] : undefined;
             expect(last_call).toHaveProperty("method", "PATCH");
             expect(JSON.parse(last_call?.data).custom_properties.nested._value.str_key._value === new_value).toBeTruthy();
-        }, 30000)
+        })
 
         it('prevents adding new properties', async () => {
             const user = userEvent.setup();
@@ -385,11 +436,11 @@ describe('ResourceCard', () => {
             ]) {
                 const heading = await screen.findByRole('heading', { name: heading_name });
                 const table = heading.parentElement!.parentElement!.nextElementSibling!;
-                const adjusted_table = heading_name.test("Editable properties")? table?.nextElementSibling! : table;
+                const adjusted_table = heading_name.test("Editable properties")? table.nextElementSibling! : table;
                 const add_button = within(adjusted_table! as HTMLElement).queryByRole('rowheader', {name: /\+ KEY/i});
                 expect(add_button).toBeNull();
             }
-        }, 30000)
+        })
         it('allows adding new custom_properties', async () => {
             const user = userEvent.setup();
             await user.click(screen.getByRole('button', {name: /^Edit this /i}));
@@ -411,52 +462,295 @@ describe('ResourceCard', () => {
                 mockedAxios.request.mock.lastCall[0] : undefined;
             expect(last_call).toHaveProperty("method", "PATCH");
             expect(JSON.parse(last_call?.data).custom_properties.x).toStrictEqual({_type: "string", _value: ""});
-        }, 30000)
+        })
     })
 
     describe('ResourceCard advanced editing', () => {
-        it('allows strings to be changed', async () => {})
-        it('allows booleans to be changed', async () => {})
-        it('allows numbers to be changed', async () => {})
-        it('allows array elements to be changed', async () => {})
-        it('allows adding new array elements', async () => {})
-        it('allows removing array elements', async () => {})
-        it('allows array elements to be reordered', async () => {})
-        it('allows object keys to be changed', async () => {})
-        it('allows object values to be changed', async () => {})
-        it('allows adding new object keys', async () => {})
-        it('allows removing object keys', async () => {})
-        it('allows resources to be changed', async () => {})
+        it('allows booleans to be changed', async () => {
+            const user = userEvent.setup();
+            await user.click(screen.getByRole('button', {name: /^Edit this /i}));
+            const id_label = screen.getByRole("rowheader", {name: /^key bool$/});
+            const input = within(id_label.parentElement! as HTMLElement).getByRole('checkbox');
+            expect(input).toBeChecked();
+            await user.click(input)
+            await wait()
+            expect(input).not.toBeChecked();
+        })
+        it('allows strings to be changed', async () => {
+            const user = userEvent.setup();
+            await user.click(screen.getByRole('button', {name: /^Edit this /i}));
+            const id_label = screen.getByRole("rowheader", {name: /^key str$/});
+            const input = within(id_label.parentElement! as HTMLElement)
+                .getAllByRole('textbox').pop()!;
+            expect(input).toHaveValue("custom");
+            await user.click(input)
+            await user.clear(input)
+            await user.keyboard("X")
+            await user.keyboard("{Enter}")
+            await wait()
+            expect(input).toHaveValue("X");
+        })
+        it('allows numbers to be changed', async () => {
+            console.log("allows numbers to be changed")
+            const user = userEvent.setup();
+            await user.click(screen.getByRole('button', {name: /^Edit this /i}));
+            const id_label = screen.getByRole("rowheader", {name: /^key num$/});
+            const input = within(id_label.parentElement! as HTMLInputElement).getByRole('spinbutton');
+            expect(input).toHaveValue(3.14159);
+            await user.click(input)
+            await user.clear(input)
+            await user.keyboard("9");
+            await user.click(id_label)
+            await wait()
+            expect(input).toHaveValue(9);
+        })
+        async function get_array() {
+            const user = userEvent.setup();
+            await user.click(screen.getByRole('button', {name: /^Edit this /i}));
+            return {user, row: screen.getByRole('rowheader', {name: /^key arr$/}).parentElement! as HTMLElement};
+        }
+        it('allows array elements to be changed', async () => {
+            const {user, row} = await get_array();
+            const input = within(row).getAllByRole('textbox').splice(1, 1)![0];
+            expect(input).toHaveValue("element 1")
+            await user.click(input)
+            await user.clear(input)
+            await user.keyboard("X")
+            await user.keyboard("{Enter}")
+            await wait()
+            expect(input).toHaveValue("X");
+        })
+        it('allows adding new array elements', async () => {
+            const {user, row} = await get_array();
+            const old_element_count = within(row).getAllByRole('textbox').length;
+            const last_input = within(row).getAllByRole('textbox').pop()!;
+            expect(last_input).toHaveValue("");
+            await user.click(last_input);
+            await user.keyboard("Y");
+            await user.keyboard("{Enter}");
+            await wait();
+            const new_element_count = within(row).getAllByRole('textbox').length;
+            expect(new_element_count).toBe(old_element_count + 1);
+        })
+        it('allows removing array elements', async () => {
+            const {user, row} = await get_array();
+            const old_element_count = within(row).getAllByRole('textbox').length;
+            console.log("allows removing array elements")
+            screen.debug(row, 1000000)
+            const first_remove_button = within(row).getAllByTestId('RemoveIcon').shift()!;
+            await user.click(first_remove_button);
+            await wait();
+            const new_element_count = within(row).getAllByRole('textbox').length;
+            expect(new_element_count).toBe(old_element_count - 1);
+        })
+        async function get_object() {
+            const user = userEvent.setup();
+            await user.click(screen.getByRole('button', {name: /^Edit this /i}));
+            return {user, row: screen.getByRole('rowheader', {name: /^key obj$/}).parentElement! as HTMLElement};
+        }
+        it('allows object keys to be changed', async () => {
+            const {user, row} = await get_object();
+            const input = within(row).getAllByRole('textbox', {name: "key"}).splice(1, 1)![0];
+            expect(input).toHaveValue("key1");
+            await user.click(input)
+            await user.clear(input)
+            await user.keyboard("X")
+            await user.keyboard("{Enter}")
+            await wait()
+            expect(input).toHaveValue("X");
+        })
+        it('allows object values to be changed', async () => {
+            const {user, row} = await get_object();
+            const input = within(row).getAllByRole('textbox', {name: "value"}).shift()!;
+            expect(input).toHaveValue("value1");
+            await user.click(input)
+            await user.clear(input)
+            await user.keyboard("X")
+            await user.keyboard("{Enter}")
+            await wait()
+            expect(input).toHaveValue("X");
+        })
+        it('allows adding new object keys', async () => {
+            const {user, row} = await get_object();
+            const old_element_count = within(row).getAllByRole('textbox').length;
+            const input = within(row).getByRole('textbox', {name: /\+ KEY/i});
+            expect(input).toHaveValue("");
+            await user.click(input);
+            await user.keyboard("X");
+            await user.keyboard("{Enter}");
+            await wait();
+            const new_element_count = within(row).getAllByRole('textbox').length;
+            expect(new_element_count).toBe(old_element_count + 2);  // 1 key, 1 value
+        })
+        it('allows removing object keys', async () => {
+            const {user, row} = await get_object();
+            const old_element_count = within(row).getAllByRole('textbox').length;
+            const input = within(row).getAllByRole('textbox', {name: "key"}).splice(1, 1)![0];
+            expect(input).toHaveValue("key1");
+            await user.click(input)
+            await user.clear(input)
+            await user.keyboard("{Enter}")
+            await wait()
+            const new_element_count = within(row).getAllByRole('textbox').length;
+            expect(new_element_count).toBe(old_element_count - 2);  // 1 key, 1 value
+        })
+        it('allows resources to be changed', async () => {
+            const user = userEvent.setup();
+            await user.click(screen.getByRole('button', {name: /^Edit this /i}));
+            const id_label = screen.getByRole("rowheader", {name: /^key cf$/});
+            const input = within(id_label.parentElement! as HTMLElement).getByRole('combobox');
+            expect(input).toHaveValue(`representation: CELL_FAMILY [${api_data.cell_family.uuid}]`);
+            await user.click(input)
+            console.log("allows resources to be changed")
+            screen.debug(input, 1000000)
+            await user.clear(input)
+            await user.keyboard("2")  // should match the second cell family
+            const autocomplete = await screen.findByRole('listbox');
+            const option = within(autocomplete).getByText(`representation: CELL_FAMILY [${api_data.cell_family_2.uuid}]`);
+            await user.click(option);
+            await wait()
+            expect(input).toHaveValue(`representation: CELL_FAMILY [${api_data.cell_family_2.uuid}]`);
+        })
     })
 
     describe('ResourceCard type changing', () => {
-        it('forbids changing the type of properties', async () => {})
-        it('allows changing the type of custom properties', async () => {})
+        async function setup(
+            rowheader_name: string,
+            new_type: string
+        ) {
+            const user = userEvent.setup();
+            await user.click(screen.getByRole('button', {name: /^Edit this /i}));
+            const row = screen.getByRole("rowheader", {name: rowheader_name}).parentElement!;
+            const changer = within(row as HTMLElement).getAllByRole('button').shift()!;
+            await user.click(changer);
+            await wait(300);
+
+            if (new_type.startsWith("galv_")) {
+                const dots = document.querySelector(`[title="Resource types"]`);
+                expect(dots).not.toBeNull();
+                await user.click(dots!);
+                await wait(300);
+            }
+
+            const button = document.querySelector(`button[value="${new_type}"]`);
+            expect(button).not.toBeNull();
+            await user.click(button!);
+            await wait();
+            return row
+        }
+
+        it('forbids changing the type of properties', async () => {
+            const user = userEvent.setup();
+            await user.click(screen.getByRole('button', {name: /^Edit this /i}));
+            const id_label = screen.getByRole("rowheader", {name: /^identifier$/});
+            const changer = within(id_label.parentElement! as HTMLElement).queryByRole('button');
+            expect(changer).toBeDisabled();
+        })
         // Mapping specific type changes
-        it('allows changing the type of a string to a boolean', async () => {})
-        it('allows changing the type of a string to a number', async () => {})
-        it('allows changing the type of a string to an array', async () => {})
-        it('allows changing the type of a string to an object', async () => {})
-        it('allows changing the type of a string to a resource', async () => {})
-        it('allows changing the type of a boolean to a string', async () => {})
-        it('allows changing the type of a boolean to a number', async () => {})
-        it('allows changing the type of a boolean to an array', async () => {})
-        it('allows changing the type of a boolean to an object', async () => {})
+        it('allows changing the type of a string to a boolean', async () => {
+            const row = await setup("key str", "boolean");
+            expect(within(row).getByRole('checkbox')).toBeChecked()
+        })
+        it('allows changing the type of a string to a number', async () => {
+            const row = await setup("key str", "number");
+            expect(within(row).getByRole('spinbutton')).toHaveValue(null)
+        })
+        it('allows changing the type of a string to an array', async () => {
+            const row = await setup("key str", "array");
+            // Expect the length to be 3: key, value, and add new element
+            expect(within(row).getAllByRole('textbox').length).toBe(3)
+        })
+        it('allows changing the type of a string to an object', async () => {
+            const row = await setup("key str", "object");
+            // Expect the length to be 4: key, key, value, and add new key
+            expect(within(row).getAllByRole('textbox').length).toBe(4)
+        })
+        it('allows changing the type of a boolean to a string', async () => {
+            const row = await setup("key bool", "string");
+            // Expect the length to be 4: key, key, value, and add new key
+            expect(within(row).getAllByRole('textbox').pop()).toHaveValue("true");
+        })
+        it('allows changing the type of a boolean to a number', async () => {
+            const row = await setup("key bool", "number");
+            expect(within(row).getByRole('spinbutton')).toHaveValue(1)
+        })
+        it('allows changing the type of a boolean to an array', async () => {
+            const row = await setup("key bool", "array");
+            // Value and add new element are present as checkboxes
+            expect(within(row).getAllByRole('checkbox').length).toBe(2)
+        })
+        it('allows changing the type of a boolean to an object', async () => {
+            const row = await setup("key bool", "object");
+            // Expect the length to be 4: key, key, value, and add new key
+            expect(within(row).getAllByRole('textbox').length).toBe(3)
+        })
+        it('allows changing the type of a number to a string', async () => {
+            const row = await setup("key num", "string");
+            // Expect the length to be 4: key, key, value, and add new key
+            expect(within(row).getAllByRole('textbox').pop())
+                .toHaveValue(api_data.cell.custom_properties?.num._value.toString());
+        })
+        it('allows changing the type of a number to a boolean', async () => {
+            const row = await setup("key num", "boolean");
+            expect(within(row).getByRole('checkbox')).toBeChecked()
+        })
+        it('allows changing the type of a number to an array', async () => {
+            const row = await setup("key num", "array");
+            // value, and add new element
+            expect(within(row).getAllByRole('spinbutton').length).toBe(2)
+        })
+        it('allows changing the type of a number to an object', async () => {
+            const row = await setup("key num", "object");
+            // Expect the length to be 4: key, key, value, and add new key
+            expect(within(row).getAllByRole('textbox').length).toBe(3)
+        })
+        it('allows changing the type of an array to a string', async () => {
+            const row = await setup("key arr", "string");
+            // Expect the length to be 4: key, key, value, and add new key
+            expect(within(row).getAllByRole('textbox').pop())
+                .toHaveValue(`["element 1","element 2"]`)
+        })
+        it('allows changing the type of an array to a boolean', async () => {
+            const row = await setup("key arr", "boolean");
+            expect(within(row).getByRole('checkbox')).toBeChecked()
+        })
+        it('allows changing the type of an array to a number', async () => {
+            const row = await setup("key arr", "number");
+            expect(within(row).getByRole('spinbutton')).toHaveValue(null)
+        })
+        it('allows changing the type of an array to an object', async () => {
+            const row = await setup("key arr", "object");
+            // Expect the length to be 4: key, key, value, and add new key
+            expect(within(row).getAllByRole('textbox').length).toBe(6)
+        })
+        it('allows changing the type of an object to a string', async () => {
+            const row = await setup("key obj", "string");
+            // Expect the length to be 4: key, key, value, and add new key
+            expect(within(row).getAllByRole('textbox').pop())
+                .toHaveValue(`{"key1":"value1","key2":"value2"}`)
+        })
+        it('allows changing the type of an object to a boolean', async () => {
+            const row = await setup("key obj", "boolean");
+            expect(within(row).getByRole('checkbox')).toBeChecked()
+        })
+        it('allows changing the type of an object to a number', async () => {
+            const row = await setup("key obj", "number");
+            expect(within(row).getByRole('spinbutton')).toHaveValue(null)
+        })
+        it('allows changing the type of an object to an array', async () => {
+            const row = await setup("key obj", "array");
+            // Expect the length to be 4: key, value, value, and add new element
+            expect(within(row).getAllByRole('textbox').length).toBe(4)
+        })
+
+        it('allows changing the type of a string to a resource', async () => {
+            // const row = await setup("key str", "galv_CELL");
+            // await wait(1500)
+            // expect(within(row).getByRole('listbox')).toHaveValue("undefined/cells/custom")
+        })
         it('allows changing the type of a boolean to a resource', async () => {})
-        it('allows changing the type of a number to a string', async () => {})
-        it('allows changing the type of a number to a boolean', async () => {})
-        it('allows changing the type of a number to an array', async () => {})
-        it('allows changing the type of a number to an object', async () => {})
         it('allows changing the type of a number to a resource', async () => {})
-        it('allows changing the type of an array to a string', async () => {})
-        it('allows changing the type of an array to a boolean', async () => {})
-        it('allows changing the type of an array to a number', async () => {})
-        it('allows changing the type of an array to an object', async () => {})
         it('allows changing the type of an array to a resource', async () => {})
-        it('allows changing the type of an object to a string', async () => {})
-        it('allows changing the type of an object to a boolean', async () => {})
-        it('allows changing the type of an object to a number', async () => {})
-        it('allows changing the type of an object to an array', async () => {})
         it('allows changing the type of an object to a resource', async () => {})
         it('allows changing the type of a resource to a string', async () => {})
         it('allows changing the type of a resource to a boolean', async () => {})

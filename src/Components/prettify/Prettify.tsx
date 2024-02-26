@@ -1,4 +1,4 @@
-import React, {PropsWithChildren, useState} from "react";
+import React, {PropsWithChildren, useEffect, useState} from "react";
 import TextField, {TextFieldProps} from "@mui/material/TextField";
 import Typography, {TypographyProps} from "@mui/material/Typography";
 import {SvgIconProps} from "@mui/material/SvgIcon"
@@ -46,18 +46,40 @@ export type PrettyComponentProps<T = unknown> = {
 export const PrettyString = (
     {target, onChange, edit_mode, ...childProps}:
         PrettyComponentProps<string|null> & Partial<Omit<ChipProps | TextFieldProps | TypographyProps, "onChange">>
-) => edit_mode ?
-    <TextField
-        label="value"
-        variant="filled"
-        size="small"
-        multiline={false} // TODO fix error spam
-        value={target._value ?? ""}
-        onChange={(e) => onChange({_type: "string", _value: e.target.value})}
-        {...childProps as TextFieldProps}
-    /> :
-    <Typography component="span" variant="body1" {...childProps as TypographyProps}>{target._value}</Typography>
+) => {
+    // Build in a buffer to prevent strange behaviours on object keys
+    const [currentValue, setCurrentValue] = useState<string>(target._value ?? "")
+    const [changeTimeout, setChangeTimeout] = useState<NodeJS.Timeout|undefined>()
+    useEffect(() => setCurrentValue(target._value ?? ""), [target])
 
+    const commit = () => {
+        clearTimeout(changeTimeout)
+        if (currentValue !== (target._value ?? ""))
+            onChange({_type: "string", _value: currentValue})
+    }
+
+    // This weird useEffect is to prevent commit missing the last character of the input. Don't know why it happens.
+    useEffect(() => {
+        clearTimeout(changeTimeout)
+        setChangeTimeout(setTimeout(commit, 500))
+    }, [currentValue])
+
+    return edit_mode ?
+        <TextField
+            label="value"
+            variant="filled"
+            size="small"
+            multiline={false} // TODO fix error spam
+            value={currentValue}
+            onChange={(e) => {
+                setCurrentValue(e.target.value)
+            }}
+            onBlur={commit}
+            onKeyDown={(e) => e.key === "Enter" && commit()}
+            {...childProps as TextFieldProps}
+        /> :
+        <Typography component="span" variant="body1" {...childProps as TypographyProps}>{target._value}</Typography>
+}
 const PrettyNumber = (
     {target, onChange, edit_mode, ...childProps}:
         PrettyComponentProps<number|null> & Partial<Omit<TextFieldProps | TypographyProps, "onChange">>
@@ -73,6 +95,7 @@ const PrettyNumber = (
             error={error}
             value={target._value ?? ""}
             onChange={(e) => {
+                if (e.target.value === "") return onChange({_type: "number", _value: null})
                 let v: number
                 try {v = parseFloat(e.target.value)} catch (e) {
                     setError(true)
@@ -115,11 +138,12 @@ export function Pretty(
     {target, nest_level, edit_mode, onEdit, lock_child_type_to, ...childProps}: PrettifyProps &
         Partial<Omit<TextFieldProps | TypographyProps | CheckboxProps, "onChange"> | SvgIconProps | ChipProps>
 ) {
-    const triggerEdit = useDebounceCallback(
-        (new_value) => edit_mode && onEdit && onEdit(new_value),
-        500,
-        {leading: true, trailing: true}
-    )
+    // const triggerEdit = useDebounceCallback(
+    //     (new_value) => edit_mode && onEdit && onEdit(new_value),
+    //     500,
+    //     {leading: true, trailing: true}
+    // )
+    const triggerEdit = (new_value: TypeValueNotation) => edit_mode && onEdit && onEdit(new_value)
 
     const props = {
         target: target,

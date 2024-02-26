@@ -40,8 +40,6 @@ export default function UndoRedoProvider({children}: PropsWithChildren) {
         can_undo: state.current_index > 0,
         can_redo: state.current_index < state.history.length - 1,
         undo: () => {
-            console.log(`undo UndoRedoContext from ${state.current_index} to ${state.current_index - 1}`)
-            console.log("New current value", state.history[state.current_index - 1])
             return setState({
                 ...state,
                 current_index: state.current_index - 1 >= 0 ? state.current_index - 1 : 0
@@ -60,7 +58,6 @@ export default function UndoRedoProvider({children}: PropsWithChildren) {
             current_index: 0
         }),
         update: (payload: unknown) => {
-            console.log("update UndoRedoContext", payload, `Update index from ${state.current_index} to ${state.current_index + 1}`)
             setState({
                 history: [...state.history.slice(0, state.current_index + 1), payload],
                 current_index: state.current_index + 1

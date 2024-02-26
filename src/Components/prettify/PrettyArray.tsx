@@ -70,7 +70,7 @@ export default function PrettyArray(
                         <Draggable key={i}>
                             <ListItem alignItems="flex-start">
                                 <ListItemIcon key={`action_${i}`} className="drag-handle">
-                                    <DragHandleIcon />
+                                    <DragHandleIcon aria-label="Reorder" />
                                 </ListItemIcon>
                                 <Prettify
                                     key={`item_${i}`}
@@ -88,6 +88,7 @@ export default function PrettyArray(
                                 <ListItemIcon key={`remove_${i}`}>
                                     <RemoveIcon
                                         sx={{cursor: "pointer", color: "error"}}
+                                        aria-label="Remove item"
                                         onClick={() => {
                                             const newItems = [...items]
                                             newItems.splice(i, 1)
