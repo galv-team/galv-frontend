@@ -743,19 +743,54 @@ describe('ResourceCard', () => {
             expect(within(row).getAllByRole('textbox').length).toBe(4)
         })
 
-        it('allows changing the type of a string to a resource', async () => {
-            // const row = await setup("key str", "galv_CELL");
-            // await wait(1500)
-            // expect(within(row).getByRole('listbox')).toHaveValue("undefined/cells/custom")
+        /**
+         * TODO: Fix the console error spam about wrapping updates in `act()`
+         */
+        it('allows changing the type of a resource to a string', async () => {
+            const row = await setup("key cf", "string");
+            expect(within(row).getAllByRole('textbox').pop())
+                .toHaveValue(`http://example.com/cell_families/1000-1000-1000-1000`)
         })
-        it('allows changing the type of a boolean to a resource', async () => {})
-        it('allows changing the type of a number to a resource', async () => {})
-        it('allows changing the type of an array to a resource', async () => {})
-        it('allows changing the type of an object to a resource', async () => {})
-        it('allows changing the type of a resource to a string', async () => {})
-        it('allows changing the type of a resource to a boolean', async () => {})
-        it('allows changing the type of a resource to a number', async () => {})
-        it('allows changing the type of a resource to an array', async () => {})
-        it('allows changing the type of a resource to an object', async () => {})
+        it('allows changing the type of a resource to a boolean', async () => {
+            const row = await setup("key cf", "boolean");
+            expect(within(row).getByRole('checkbox')).toBeChecked()
+        })
+        it('allows changing the type of a resource to a number', async () => {
+            const row = await setup("key cf", "number");
+            expect(within(row).getByRole('spinbutton')).toHaveValue(null)
+        })
+        it('allows changing the type of a resource to an array', async () => {
+            const row = await setup("key cf", "array");
+            // Expect the length to be 2: value, and add new element
+            expect(within(row).getAllByRole('combobox').length).toBe(2)
+        })
+        it('allows changing the type of a resource to an object', async () => {
+            const row = await setup("key cf", "object");
+            // Expect the length to be 1: value
+            expect(within(row).getAllByRole('combobox').length).toBe(1)
+        })
+
+        // TODO: Fix these tests - can't get them to actually change the type
+        // The button registers as clicked, but the type update rerender doesn't seem to happen.
+        // it('allows changing the type of a string to a resource', async () => {
+        //     const row = await setup("key str", "galv_CELL");
+        //     expect(within(row).getByRole('combobox')).toHaveValue("undefined/cells/custom")
+        // })
+        // it('allows changing the type of a boolean to a resource', async () => {
+        //     const row = await setup("key bool", "galv_CELL");
+        //     expect(within(row).getByRole('combobox')).toHaveValue("")
+        // })
+        // it('allows changing the type of a number to a resource', async () => {
+        //     const row = await setup("key num", "galv_CELL");
+        //     expect(within(row).getByRole('combobox')).toHaveValue("")
+        // })
+        // it('allows changing the type of an array to a resource', async () => {
+        //     const row = await setup("key arr", "galv_CELL");
+        //     expect(within(row).getByRole('combobox')).toHaveValue("")
+        // })
+        // it('allows changing the type of an object to a resource', async () => {
+        //     const row = await setup("key obj", "galv_CELL");
+        //     expect(within(row).getByRole('combobox')).toHaveValue("")
+        // })
     })
 })
