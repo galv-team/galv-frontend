@@ -16,6 +16,7 @@ import {BaseResource} from "../ResourceCard";
 
 export type PrettyResourceSelectProps = {
     lookup_key: LookupKey
+    allow_new?: boolean
 } & PrettyComponentProps<string|null> & Partial<Omit<ChipProps, "onChange">>
 
 export const PrettyResourceSelect = <T extends BaseResource>(

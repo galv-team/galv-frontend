@@ -38,6 +38,7 @@ import {
     TypeValueNotation,
     TypeValueNotationWrapper
 } from "../TypeValueNotation";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 
 export const is_type_changer_supported_tv_notation = (v: TypeValueNotation): v is TypeValueNotation & {_type: TypeChangerSupportedTypeName} => {
@@ -118,6 +119,10 @@ const type_map = {
         icon: PowerSettingsNewIcon,
         tooltip: "Boolean"
     },
+    attachment: {
+        icon: AttachFileIcon,
+        tooltip: "Attachment"
+    },
     object: {
         icon: DataObjectIcon,
         tooltip: "Object (JSON strings will be parsed)"
@@ -134,6 +139,7 @@ const get_conversion_fun = (type: TypeChangerSupportedTypeName):
         case 'string': return str
         case 'number': return num
         case 'boolean': return (v: TypeValueNotation) => ({_type: "boolean", _value: !!v._value})
+        case 'attachment': return () => ({_type: "attachment", _value: null})
         case 'object': return obj
         case 'array': return arr
     }

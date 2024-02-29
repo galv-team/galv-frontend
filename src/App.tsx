@@ -92,6 +92,7 @@ export function Core() {
                 LOOKUP_KEYS.CELL,
                 LOOKUP_KEYS.EQUIPMENT,
                 LOOKUP_KEYS.SCHEDULE,
+                LOOKUP_KEYS.ARBITRARY_FILE
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
             <Divider component="li" key="div2" />
             {[

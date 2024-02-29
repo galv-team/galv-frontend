@@ -39,7 +39,7 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
-import {to_type_value_notation_wrapper, TypeValueNotationWrapper} from "./TypeValueNotation";
+import {from_type_value_notation, to_type_value_notation_wrapper, TypeValueNotationWrapper} from "./TypeValueNotation";
 
 export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: boolean) => void} & CardProps) {
     const { classes } = useStyles()
@@ -197,7 +197,7 @@ export function ResourceCreator<T extends BaseResource>(
                     if (initial_data?.[k as keyof typeof initial_data] !== undefined)
                         template_object[k] = initial_data[k as keyof typeof initial_data]
                     else
-                        template_object[k] = v.many? [] : ""
+                        template_object[k] = v.many? [] : null
                 }
             })
         if (initial_data !== undefined) {
@@ -306,11 +306,11 @@ export function ResourceCreator<T extends BaseResource>(
         "& table": {borderCollapse: "separate", borderSpacing: (t) => t.spacing(0.5)},
     }}>
         {UndoRedo.current && <PrettyObject<TypeValueNotationWrapper>
-            target={to_type_value_notation_wrapper(UndoRedo.current)}
+            target={to_type_value_notation_wrapper(UndoRedo.current, lookup_key)}
             lookup_key={lookup_key}
             edit_mode={true}
             creating={true}
-            onEdit={UndoRedo.update}
+            onEdit={(v) => UndoRedo.update(from_type_value_notation(v) as SerializableObject)}
         />}
     </CardContent>
 

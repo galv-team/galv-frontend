@@ -25,6 +25,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import DownloadIcon from '@mui/icons-material/Download';
 import ForkRightIcon from '@mui/icons-material/ForkRight';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 import {
     CellChemistriesApi,
@@ -50,7 +51,8 @@ import {
     TeamsApi,
     TokensApi,
     UsersApi,
-    ValidationSchemasApi
+    ValidationSchemasApi,
+    ArbitraryFilesApi
 } from "@battery-intelligence-lab/galv";
 import {
     TypeChangerAutocompleteKey,
@@ -119,6 +121,7 @@ export const LOOKUP_KEYS = {
     SCHEDULE: "SCHEDULE",
     EXPERIMENT: "EXPERIMENT",
     CYCLER_TEST: "CYCLER_TEST",
+    ARBITRARY_FILE: "ARBITRARY_FILE",
     VALIDATION_SCHEMA: "VALIDATION_SCHEMA",
     LAB: "LAB",
     TEAM: "TEAM",
@@ -161,6 +164,7 @@ export const ICONS = {
     [LOOKUP_KEYS.CELL]: BatteryFullIcon,
     [LOOKUP_KEYS.EQUIPMENT]: PrecisionManufacturingIcon,
     [LOOKUP_KEYS.SCHEDULE]: AssignmentIcon,
+    [LOOKUP_KEYS.ARBITRARY_FILE]: AttachFileIcon,
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: SchemaIcon,
     [LOOKUP_KEYS.LAB]: HolidayVillageIcon,
     [LOOKUP_KEYS.TEAM]: PeopleAltIcon,
@@ -203,6 +207,7 @@ export const PATHS = {
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "/equipment_families",
     [LOOKUP_KEYS.SCHEDULE]: "/schedules",
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: "/schedule_families",
+    [LOOKUP_KEYS.ARBITRARY_FILE]: "/arbitrary_files",
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: "/validation_schemas",
     [LOOKUP_KEYS.LAB]: "/labs",
     [LOOKUP_KEYS.TEAM]: "/teams",
@@ -236,6 +241,7 @@ export const DISPLAY_NAMES = {
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "Equipment Family",
     [LOOKUP_KEYS.SCHEDULE]: "Schedule",
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: "Schedule Family",
+    [LOOKUP_KEYS.ARBITRARY_FILE]: "Attachment",
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: "Validation Schema",
     [LOOKUP_KEYS.LAB]: "Lab",
     [LOOKUP_KEYS.TEAM]: "Team",
@@ -260,6 +266,7 @@ export const DISPLAY_NAMES_PLURAL = {
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "Equipment Families",
     [LOOKUP_KEYS.SCHEDULE]: "Schedules",
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: "Schedule Families",
+    [LOOKUP_KEYS.ARBITRARY_FILE]: "Attachments",
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: "Validation Schemas",
     [LOOKUP_KEYS.LAB]: "Labs",
     [LOOKUP_KEYS.TEAM]: "Teams",
@@ -283,6 +290,7 @@ export const API_HANDLERS = {
     [LOOKUP_KEYS.CELL]: CellsApi,
     [LOOKUP_KEYS.EQUIPMENT]: EquipmentApi,
     [LOOKUP_KEYS.SCHEDULE]: SchedulesApi,
+    [LOOKUP_KEYS.ARBITRARY_FILE]: ArbitraryFilesApi,
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: ValidationSchemasApi,
     [LOOKUP_KEYS.LAB]: LabsApi,
     [LOOKUP_KEYS.TEAM]: TeamsApi,
@@ -321,6 +329,7 @@ export const API_SLUGS = {
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: "scheduleFamilies",
     [LOOKUP_KEYS.EXPERIMENT]: "experiments",
     [LOOKUP_KEYS.CYCLER_TEST]: "cyclerTests",
+    [LOOKUP_KEYS.ARBITRARY_FILE]: "arbitraryFiles",
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: "validationSchemas",
     [LOOKUP_KEYS.LAB]: "labs",
     [LOOKUP_KEYS.TEAM]: "teams",
@@ -536,6 +545,19 @@ export const FIELDS = {
         schedule_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE), many: true, priority: PRIORITY_LEVELS.CONTEXT},
         cyclertest_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.CONTEXT},
         experiment_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.EXPERIMENT), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+    },
+    [LOOKUP_KEYS.ARBITRARY_FILE]: {
+        ...generic_fields,
+        team: team_fields.team,
+        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        is_public: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        file: {
+            readonly: true,
+            createonly: true,
+            type: "attachment",
+            priority: PRIORITY_LEVELS.SUMMARY
+        },
     },
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: {
         ...generic_fields,

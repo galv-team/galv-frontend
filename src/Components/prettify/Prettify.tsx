@@ -138,11 +138,6 @@ export function Pretty(
     {target, nest_level, edit_mode, onEdit, lock_child_type_to, ...childProps}: PrettifyProps &
         Partial<Omit<TextFieldProps | TypographyProps | CheckboxProps, "onChange"> | SvgIconProps | ChipProps>
 ) {
-    // const triggerEdit = useDebounceCallback(
-    //     (new_value) => edit_mode && onEdit && onEdit(new_value),
-    //     500,
-    //     {leading: true, trailing: true}
-    // )
     const triggerEdit = (new_value: TypeValueNotation) => edit_mode && onEdit && onEdit(new_value)
 
     const props = {
@@ -153,6 +148,15 @@ export function Pretty(
 
     if (edit_mode && typeof onEdit !== 'function')
         return <PrettyError error={new Error(`onEdit must be a function if edit_mode=true`)} edit_mode={edit_mode} onEdit={onEdit} target={target} />
+
+    if (target._type === 'file') {
+        if (props.target._value !== null && typeof props.target._value !== "string")
+            return <PrettyError error={new Error(`Pretty -> PrettyFile: target._value '${props.target._value}' is not a string`)} target={target} />
+        return <PrettyAttachment
+            {...props as typeof props & { target: TypeValueNotation & {_value: string|null} }}
+            {...childProps as Partial<Omit<TextFieldProps | TypographyProps, "onChange">>}
+        />
+    }
 
     if (target._type === 'string') {
         if (props.target._value !== null && typeof props.target._value !== "string")
