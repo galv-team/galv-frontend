@@ -371,6 +371,8 @@ export type Field = {
     priority?: number
     // createonly fields are required at create time, but otherwise readonly
     createonly?: boolean
+    // default_value is used when creating a new resource
+    default_value?: Serializable
     // If field data need transforming from API to frontend, provide a function here.
     // It is called in ApiResourceContextProvider, and may be called multiple times,
     // so it should handle receiving already transformed data.
@@ -548,7 +550,6 @@ export const FIELDS = {
     },
     [LOOKUP_KEYS.ARBITRARY_FILE]: {
         ...generic_fields,
-        team: team_fields.team,
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         is_public: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
@@ -558,6 +559,7 @@ export const FIELDS = {
             type: "attachment",
             priority: PRIORITY_LEVELS.SUMMARY
         },
+        team: team_fields.team,
     },
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: {
         ...generic_fields,
@@ -615,15 +617,15 @@ export const FIELDS = {
  * filter names are employed in the correct context --
  * cell, equipment, and schedule all share the 'family' filter,
  * so the url path must also be appropriate.
-export const FILTER_NAMES = {
-    [LOOKUP_KEYS.CELL_FAMILY]: "family_uuid",
-    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "family_uuid",
-    [LOOKUP_KEYS.SCHEDULE_FAMILY]: "family_uuid",
-    [LOOKUP_KEYS.CELL]: "cell_uuid",
-    [LOOKUP_KEYS.EQUIPMENT]: "equipment_uuid",
-    [LOOKUP_KEYS.SCHEDULE]: "schedule_uuid",
-    [LOOKUP_KEYS.TEAM]: "team_id",
-} as const
+ export const FILTER_NAMES = {
+ [LOOKUP_KEYS.CELL_FAMILY]: "family_uuid",
+ [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "family_uuid",
+ [LOOKUP_KEYS.SCHEDULE_FAMILY]: "family_uuid",
+ [LOOKUP_KEYS.CELL]: "cell_uuid",
+ [LOOKUP_KEYS.EQUIPMENT]: "equipment_uuid",
+ [LOOKUP_KEYS.SCHEDULE]: "schedule_uuid",
+ [LOOKUP_KEYS.TEAM]: "team_id",
+ } as const
  */
 
 /**
@@ -760,6 +762,10 @@ The test may also use multiple pieces of [equipment](${PATHS[LOOKUP_KEYS.EQUIPME
 The tests describe the conditions under which the cell was tested, and the data produced by the test.
 
 Cycler tests can be grouped into [experiments](${PATHS[LOOKUP_KEYS.EXPERIMENT]}).
+    `,
+    [LOOKUP_KEYS.ARBITRARY_FILE]: `
+Attachments are files that are relevant to the battery testing process, but are not produced by the cycler.
+They may be used to store the protocol for an experiment, or the datasheet for a piece of equipment.
     `,
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: `
 Validation schemas are used to validate the data in [files](${PATHS[LOOKUP_KEYS.FILE]}).

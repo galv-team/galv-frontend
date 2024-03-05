@@ -81,6 +81,12 @@ export function is_tvn(
         const keys = Object.keys(v)
         if (keys.length === 2 && keys.includes('_type') && keys.includes('_value')) {
             const unknown = v as { _type: unknown, _value: unknown }
+
+            if (unknown._value === null) {
+                // null is always valid
+                return true
+            }
+
             if (typeof unknown._type !== 'string' || unknown._type.length === 0) {
                 if (verbose)
                     console.warn(
@@ -153,6 +159,13 @@ export function is_tvn(
                 return false
             }
             return true
+        }
+        if (verbose) {
+            console.warn(
+                `TypeValueNotation check found object but it does not have {_type, _value}`,
+                {candidate: v, context}
+            )
+            return false
         }
     }
     if (verbose)

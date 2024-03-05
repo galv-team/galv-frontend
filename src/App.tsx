@@ -47,6 +47,7 @@ import {SelectedResourcesPane} from "./Components/SelectedResourcesPane";
 
 import {useState} from "react";
 import FetchResourceContextProvider from "./Components/FetchResourceContext";
+import AttachmentUploadContextProvider from "./Components/AttachmentUploadContext";
 
 export const pathMatches = (path: string, pathname: string) => matchPath({path: path, end: true}, pathname) !== null
 
@@ -229,7 +230,9 @@ export default function WrappedCore() {
         <CurrentUserContextProvider>
             <FetchResourceContextProvider>
                 <SelectionManagementContextProvider>
-                    <Core />
+                    <AttachmentUploadContextProvider>
+                        <Core />
+                    </AttachmentUploadContextProvider>
                 </SelectionManagementContextProvider>
             </FetchResourceContextProvider>
         </CurrentUserContextProvider>

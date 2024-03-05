@@ -251,6 +251,7 @@ export default function PrettyObject<
                                         <Prettify
                                             nest_level={_nest_level}
                                             edit_mode={true}
+                                            create_mode={!!creating}
                                             hide_type_changer={true}
                                             onEdit={(new_key) => {
                                                 // Rename key (or delete if new_key is empty)
@@ -278,6 +279,7 @@ export default function PrettyObject<
                                     <Prettify
                                         nest_level={_nest_level}
                                         edit_mode={_edit_mode}
+                                        create_mode={!!creating}
                                         onEdit={edit_fun_factory(key)}
                                         target={_value[key]}
                                         lock_type={get_metadata(key)?.lock_type}
@@ -292,6 +294,7 @@ export default function PrettyObject<
                                 key={`add_key_${newKeyUpdateCount}`}
                                 nest_level={_nest_level}
                                 edit_mode={_edit_mode}
+                                create_mode={!!creating}
                                 hide_type_changer={true}
                                 target={{_type: "string", _value: ""}}
                                 placeholder="new_object_key"

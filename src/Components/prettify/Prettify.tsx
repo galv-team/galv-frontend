@@ -21,12 +21,14 @@ import PrettyResource from "./PrettyResource";
 import PrettyAutocomplete from "./PrettyAutocomplete";
 import {AutocompleteProps} from "@mui/material/Autocomplete";
 import {TypeValueNotation} from "../TypeValueNotation";
-import {useDebounceCallback} from "usehooks-ts";
+import PrettyAttachment from "./PrettyAttachment";
+import {Link} from "react-router-dom";
 
 type PrettifyProps = {
     target: TypeValueNotation
     nest_level: number
     edit_mode: boolean
+    create_mode?: boolean
     // onEdit is called when the user leaves the field
     onEdit?: (value: TypeValueNotation) => void
     // When type is an array, we can lock the type of the array's children.
@@ -44,8 +46,10 @@ export type PrettyComponentProps<T = unknown> = {
 }
 
 export const PrettyString = (
-    {target, onChange, edit_mode, ...childProps}:
-        PrettyComponentProps<string|null> & Partial<Omit<ChipProps | TextFieldProps | TypographyProps, "onChange">>
+    {target, onChange, edit_mode, prevent_anchor_conversion, ...childProps}:
+        PrettyComponentProps<string|null> &
+        Partial<Omit<ChipProps | TextFieldProps | TypographyProps, "onChange">> &
+        {prevent_anchor_conversion?: boolean}
 ) => {
     // Build in a buffer to prevent strange behaviours on object keys
     const [currentValue, setCurrentValue] = useState<string>(target._value ?? "")
@@ -64,8 +68,8 @@ export const PrettyString = (
         setChangeTimeout(setTimeout(commit, 500))
     }, [currentValue])
 
-    return edit_mode ?
-        <TextField
+    if (edit_mode)
+        return <TextField
             label="value"
             variant="filled"
             size="small"
@@ -77,8 +81,11 @@ export const PrettyString = (
             onBlur={commit}
             onKeyDown={(e) => e.key === "Enter" && commit()}
             {...childProps as TextFieldProps}
-        /> :
-        <Typography component="span" variant="body1" {...childProps as TypographyProps}>{target._value}</Typography>
+        />
+    if (!prevent_anchor_conversion && target._value?.startsWith("http"))
+        return <Typography component={Link} variant="overline" to={target._value}>{target._value}</Typography>
+
+    return <Typography component="span" variant="body1" {...childProps as TypographyProps}>{target._value}</Typography>
 }
 const PrettyNumber = (
     {target, onChange, edit_mode, ...childProps}:
@@ -135,7 +142,7 @@ export function PrettyError({error, ...log_items}: {error: Error, [key: string]:
 }
 
 export function Pretty(
-    {target, nest_level, edit_mode, onEdit, lock_child_type_to, ...childProps}: PrettifyProps &
+    {target, nest_level, edit_mode, create_mode, onEdit, lock_child_type_to, ...childProps}: PrettifyProps &
         Partial<Omit<TextFieldProps | TypographyProps | CheckboxProps, "onChange"> | SvgIconProps | ChipProps>
 ) {
     const triggerEdit = (new_value: TypeValueNotation) => edit_mode && onEdit && onEdit(new_value)
@@ -149,11 +156,12 @@ export function Pretty(
     if (edit_mode && typeof onEdit !== 'function')
         return <PrettyError error={new Error(`onEdit must be a function if edit_mode=true`)} edit_mode={edit_mode} onEdit={onEdit} target={target} />
 
-    if (target._type === 'file') {
+    if (target._type === 'attachment') {
         if (props.target._value !== null && typeof props.target._value !== "string")
             return <PrettyError error={new Error(`Pretty -> PrettyFile: target._value '${props.target._value}' is not a string`)} target={target} />
         return <PrettyAttachment
             {...props as typeof props & { target: TypeValueNotation & {_value: string|null} }}
+            creating={create_mode}
             {...childProps as Partial<Omit<TextFieldProps | TypographyProps, "onChange">>}
         />
     }
