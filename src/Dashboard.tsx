@@ -1,4 +1,4 @@
-import {DISPLAY_NAMES_PLURAL, ICONS, LOOKUP_KEYS, LookupKey, NonNullSerializable, Serializable} from "./constants";
+import {DISPLAY_NAMES_PLURAL, ICONS, LOOKUP_KEYS, LookupKey} from "./constants";
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {
@@ -17,7 +17,7 @@ import ListItem from "@mui/material/ListItem";
 import Tooltip from "@mui/material/Tooltip";
 import {ResourceChip} from "./Components/ResourceChip";
 import Stack from "@mui/material/Stack";
-import React, {ReactNode, useEffect, useState} from "react";
+import React, {ReactNode, useState} from "react";
 import Button from "@mui/material/Button";
 import {useCurrentUser} from "./Components/CurrentUserContext";
 import List from "@mui/material/List";
@@ -34,8 +34,6 @@ import IntroText from "./Components/IntroText";
 import Box from "@mui/material/Box";
 import clsx from "clsx";
 import UseStyles from "./styles/UseStyles";
-import TextField from "@mui/material/TextField";
-import {is_tvn} from "./Components/TypeValueNotation";
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
