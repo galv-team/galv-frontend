@@ -191,15 +191,16 @@ Custom context hooks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The frontend has a number of custom hooks that are used to manage state and side effects.
-The most important of these are:
 
+* ``ApiResourceContext``
+	* Provides a consistent interface for resources whether or not they have a 'family' parent resource
+* ``AttachmentUploadContext``
+	* Provides a rerender-resistant file object while choosing a file to upload
+* ``CurrentUserContext``
+	* Provides a consistent way to access the current user, login, and open the login dialog
 * ``FetchResourceContext``
 	* Wraps the ``useQuery`` and ``useInfiniteQuery`` hooks from ``react-query`` to provide a consistent way to fetch resources from the backend
 	* Covers both ``list`` and ``detail`` views
-* ``ApiResourceContext``
-	* Provides a consistent interface for resources whether or not they have a 'family' parent resource
-* ``CurrentUserContext``
-	* Provides a consistent way to access the current user, login, and open the login dialog
 * ``SnackbarContext``
 	* Provides a consistent way to queue and show snackbar messages
 * ``SelectionManagementContext``
@@ -207,12 +208,37 @@ The most important of these are:
 * ``FilterContext``
 	* Provides a unified way to filter resources
 * ``UndoRedoContext``
-	* Provides a way to manage undo and redo actions
+	* Provides a way to manage undo and redo edits
+
+Custom properties and Type-Value notation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Custom properties are stored with their types explicitly recorded.
+This is a verbose way to store information, but it ensures that the information can be understood.
+
+The format is called Type-Value notation, and it looks like this:
+
+```typescript
+type TypeValueNotation = {
+    _type: "string" | "number" | "boolean" | "null" | "attachment" | "object" | "array" |
+        TypeChangerLookupKey | TypeChangerAutocompleteKey
+    _value: string | number | boolean | null | TypeValueNotation[] | TypeValueNotationWrapper
+}
+
+type TypeValueNotationWrapper = Record<string, TypeValueNotation>
+```
+
+This format means that data represented in Type-Value notation can be serialized to JSON,
+which is used in the backend.
+
+The frontend has to deal with two different data formats: the Type-Value notation, and standard objects.
+To handle this, all data passed to the display components is converted to Type-Value notation,
+and non-custom properties are converted back to standard objects when communicating with the backend.
 
 Custom components
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The frontend has a limited number of custom components.
+The frontend has several custom components.
 The behaviour of these components is manipulated by values in ``constants.ts``,
 allowing for a reduction in repetition of code across many otherwise similar components.
 
