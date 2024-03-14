@@ -4,10 +4,9 @@
 [![Jest CI](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test.yml/badge.svg)](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test.yml)
 [![Cypress CI](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test_e2e.yml/badge.svg)](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test_e2e.yml)
 
-The Galv frontend is a user-friendly web interface for interacting with the [Galv REST API](/Battery-Intelligence-Lab/galv-backend/).
+The Galv frontend is a user-friendly web interface for interacting with the [Galv REST API](https://github.com/Battery-Intelligence-Lab/galv-backend).
 
 ## Galv Project
-- [Specification](https://github.com/Battery-Intelligence-Lab/galv-spec)
 - [Backend](https://github.com/Battery-Intelligence-Lab/galv-backend)
 - [**Frontend**](https://github.com/Battery-Intelligence-Lab/galv-frontend)
 - [Harvester](https://github.com/Battery-Intelligence-Lab/galv-harvester)
@@ -26,7 +25,7 @@ If you're using `docker-compose`, you can set them in the `environment` section 
 ## Development
 
 Development is most easily done by using the provided Dockerfile and docker-compose.yml files.  The docker-compose.yml file will start a postgres database and the Django server.  The Django server will automatically reload when changes are made to the code.
-This will create three containers:
+This will create four containers:
 - a `backend` container that runs a copy of the latest version of the Galv backend
 - a `postgres` container that runs a postgres database for the backend
 - the `frontend` container that runs the frontend
@@ -39,14 +38,6 @@ docker-compose up frontend
 
 The server will be available at http://localhost:8002. 
 If you need access to the backend, it will be available at http://localhost:8081.
-
-### Expectations
-
-The expectations are set up by the `setup-expectations` container. 
-This tries to read from the `glav-spec.json` file in the [galv-spec](/Battery-Intelligence-Lab/galv-spec) repository.
-If you're developing without internet access, you can modify the `docker-compose.yml` file to mount a local copy of 
-the spec file into the `mockserver` container and modify the `setup-expectations` container to instruct
-mockserver to use that file instead.
 
 ### Gotchas
 

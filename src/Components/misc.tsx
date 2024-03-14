@@ -1,5 +1,4 @@
-import {Serializable} from "./TypeChanger";
-import { is_lookup_key, LookupKey, PATHS} from "../constants";
+import {is_lookup_key, LookupKey, PATHS, Serializable} from "../constants";
 
 export type ObjectReferenceProps =
     { uuid: string } |
@@ -52,10 +51,6 @@ export function get_url_components(url: string):
         return {lookup_key: lookup_key as LookupKey, resource_id: resource_id}
     }
     return undefined
-}
-
-export function build_placeholder_url(lookup_key: keyof typeof PATHS, uuid: string = 'new') {
-    return `https://galv${PATHS[lookup_key]}/${uuid}`
 }
 
 export function deep_copy<T extends Serializable>(obj: T): T {

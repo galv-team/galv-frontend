@@ -3,25 +3,31 @@ import useStyles from "../styles/UseStyles";
 import clsx from "clsx";
 import CircularProgress from "@mui/material/CircularProgress";
 import {Link} from "react-router-dom";
+import {ReactNode} from "react";
 
-export default function LoadingChip(props: {url?: string, icon: JSX.Element} & ChipProps) {
+export type LoadingChipProps = {
+    url?: string,
+    icon: ReactNode
+} & ChipProps
+
+export default function LoadingChip({url, icon, ...chipProps}: LoadingChipProps) {
     const { classes } = useStyles();
-    return props.url? <Chip
-        key={props.url}
+    return url? <Chip
+        key={url}
         className={clsx(classes.itemChip)}
         variant="outlined"
         label={<CircularProgress size="1.5em" sx={{color: (t) => t.palette.text.disabled}}/>}
         component={Link}
-        icon={props.icon}
-        to={props.url}
+        icon={icon}
+        to={url}
         clickable={true}
-        {...props as ChipProps as any}
+        {...chipProps as ChipProps}
     /> : <Chip
         className={clsx(classes.itemChip)}
         disabled={true}
         variant="outlined"
         label={<CircularProgress size="1.5em" sx={{color: (t) => t.palette.text.disabled}}/>}
-        icon={props.icon}
-        {...props as ChipProps as any}
+        icon={icon}
+        {...chipProps as ChipProps}
     />
 }

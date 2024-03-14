@@ -14,12 +14,11 @@ import LoadingChip from "./LoadingChip";
 import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Unstable_Grid2";
 import Avatar from "@mui/material/Avatar";
-import React, {Fragment, ReactNode, useContext, useEffect, useRef, useState} from "react";
+import React, {Fragment, PropsWithChildren, ReactNode, useContext, useEffect, useRef, useState} from "react";
 import ErrorCard from "./error/ErrorCard";
 import QueryWrapper, {QueryDependentElement} from "./QueryWrapper";
 import {AxiosError, AxiosResponse} from "axios";
-import Divider from "@mui/material/Divider";
-import {Serializable, SerializableObject} from "./TypeChanger";
+import Divider, {DividerProps} from "@mui/material/Divider";
 import {
     API_HANDLERS,
     API_SLUGS,
@@ -29,11 +28,11 @@ import {
     FAMILY_LOOKUP_KEYS,
     FIELDS,
     ICONS, is_lookup_key,
-    PATHS, PRIORITY_LEVELS, LookupKey, get_has_family, get_is_family, LOOKUP_KEYS
+    PATHS, PRIORITY_LEVELS, LookupKey, get_has_family, get_is_family, LOOKUP_KEYS, SerializableObject, Serializable
 } from "../constants";
 import ResourceChip from "./ResourceChip";
 import ErrorBoundary from "./ErrorBoundary";
-import UndoRedoProvider, {UndoRedoContext} from "./UndoRedoContext";
+import UndoRedoProvider, {useUndoRedoContext} from "./UndoRedoContext";
 import Representation from "./Representation";
 import {FilterContext} from "./filtering/FilterContext";
 import ApiResourceContextProvider, {useApiResource} from "./ApiResourceContext";
@@ -42,8 +41,16 @@ import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import DatasetChart from "../DatasetChart";
 import {Modal} from "@mui/material";
 import {ResourceCreator, get_modal_title} from "./ResourceCreator";
-import {Configuration} from "@battery-intelligence-lab/galv-backend";
+import {Configuration}from "@battery-intelligence-lab/galv";
 import {useCurrentUser} from "./CurrentUserContext";
+import ClientCodeDemo from "../ClientCodeDemo";
+import {
+    from_type_value_notation,
+    to_type_value_notation,
+    to_type_value_notation_wrapper,
+    TypeValueNotationWrapper
+} from "./TypeValueNotation";
+import Typography from "@mui/material/Typography";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
@@ -63,6 +70,16 @@ export type ResourceCardProps = {
     lookup_key: LookupKey
     editing?: boolean
     expanded?: boolean
+} & CardProps
+
+function PropertiesDivider({children, ...props}: PropsWithChildren<DividerProps>) {
+    return <Divider
+        component='div'
+        role='presentation'
+        {...props}
+    >
+        <Typography variant="h5">{children}</Typography>
+    </Divider>
 }
 
 function ResourceCard<T extends BaseResource>(
@@ -72,7 +89,7 @@ function ResourceCard<T extends BaseResource>(
         editing,
         expanded,
         ...cardProps
-    }: ResourceCardProps & CardProps
+    }: ResourceCardProps
 ) {
     const { classes } = useStyles();
     const navigate = useNavigate()
@@ -82,7 +99,7 @@ function ResourceCard<T extends BaseResource>(
     const {passesFilters} = useContext(FilterContext)
     const {apiResource, family, apiQuery} = useApiResource<T>()
     // useContext is wrapped in useRef because we update the context in our useEffect API data hook
-    const UndoRedo = useContext(UndoRedoContext)
+    const UndoRedo = useUndoRedoContext<SerializableObject>()
     const UndoRedoRef = useRef(UndoRedo)
 
     const [forking, setForking] = useState<boolean>(false)
@@ -222,7 +239,7 @@ function ResourceCard<T extends BaseResource>(
             undefined,
     }}>
         <Stack spacing={1}>
-            <Divider key="read-props-header">Read-only properties</Divider>
+            <PropertiesDivider>Read-only properties</PropertiesDivider>
             {apiResource && <PrettyObjectFromQuery
                 resource_id={resource_id}
                 lookup_key={lookup_key}
@@ -241,22 +258,45 @@ function ResourceCard<T extends BaseResource>(
                     return data
                 }}
             />}
-            <Divider key="write-props-header">Editable properties</Divider>
-            {UndoRedo.current && <PrettyObject
+            <PropertiesDivider>Editable properties</PropertiesDivider>
+            {UndoRedo.current && <PrettyObject<TypeValueNotationWrapper>
                 key="write-props"
-                target={UndoRedo.current}
+                target={
+                    // All Pretty* components expect a TypeValue notated target
+                    to_type_value_notation_wrapper(
+                        // Drop custom_properties from the target (custom properties are handled below)
+                        Object.fromEntries(
+                            Object.entries(UndoRedo.current)
+                                .filter((e) => e[0] !== "custom_properties")
+                        ) as SerializableObject,
+                        lookup_key
+                    )
+                }
                 edit_mode={isEditMode}
                 lookup_key={lookup_key}
-                onEdit={UndoRedo.update}
+                onEdit={(v) => UndoRedo.update({
+                    ...from_type_value_notation(v) as SerializableObject,
+                    custom_properties: UndoRedo.current.custom_properties
+                })}
             />}
-            {family && <Divider key="family-props-header">
+            <PropertiesDivider>Custom properties</PropertiesDivider>
+            {UndoRedo.current && <PrettyObject<TypeValueNotationWrapper>
+                key="custom-props"
+                // custom_properties are already TypeValue notated
+                target={{...(UndoRedo.current.custom_properties as TypeValueNotationWrapper)}}
+                edit_mode={isEditMode}
+                lookup_key={lookup_key}
+                onEdit={(v) => UndoRedo.update({...UndoRedo.current, custom_properties: v})}
+                canEditKeys
+            />}
+            {family && <PropertiesDivider>
                 Inherited from
                 {family?
                     <ResourceChip
                         resource_id={family.uuid as string}
                         lookup_key={family_key!}
                     /> : FAMILY_ICON && <LoadingChip icon={<FAMILY_ICON/>}/> }
-            </Divider>}
+            </PropertiesDivider>}
             {family && family_key && <PrettyObjectFromQuery
                 resource_id={family.uuid as string}
                 lookup_key={family_key}
@@ -295,7 +335,7 @@ function ResourceCard<T extends BaseResource>(
                 resource_id={id_from_ref_props<string>(data as string|number)}
                 lookup_key={lookup}
                 short_name={is_family_child(lookup, lookup_key)}
-            /> : <Prettify target={data} />
+            /> : <Prettify target={to_type_value_notation(data)} />
     }
 
     const cardSummary = <CardContent>
@@ -304,7 +344,10 @@ function ResourceCard<T extends BaseResource>(
                 .filter((e) => e[1].priority === PRIORITY_LEVELS.SUMMARY)
                 .map(([k, v]) => <Grid key={k}>{summarise(apiResource[k], v.many, k, v.type)}</Grid>)
         }</Grid>}
-        {lookup_key === LOOKUP_KEYS.FILE && <DatasetChart file_uuid={resource_id as string} />}
+        {lookup_key === LOOKUP_KEYS.FILE && <Stack spacing={2}>
+            <DatasetChart file_uuid={resource_id as string} />
+            <ClientCodeDemo dataset_ids={[resource_id as string]} />
+        </Stack>}
     </CardContent>
 
     const forkModal = passesFilters({apiResource, family}, lookup_key) &&

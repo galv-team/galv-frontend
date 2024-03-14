@@ -6,20 +6,20 @@ import UseStyles from "../styles/UseStyles";
 import Tooltip from "@mui/material/Tooltip";
 import {ReactNode} from "react";
 
-type CountBadgeProps = {
+export type CountBadgeProps = {
     icon: ReactNode
     url?: string
     tooltip?: ReactNode
-}
+} & BadgeProps
 
-export default function CountBadge(props: CountBadgeProps & BadgeProps) {
+export default function CountBadge({icon, url, tooltip, ...props}: CountBadgeProps) {
     const {classes} = UseStyles();
     let content =
         <Badge overlap="circular" className={clsx(classes.countBadge)} {...props as BadgeProps}>
-        <IconButton disabled={!props.url || props.badgeContent === 0}>
-            {props.icon}
+        <IconButton disabled={!url || props.badgeContent === 0}>
+            {icon}
         </IconButton>
     </Badge>
-    if (props.tooltip) {content = <Tooltip title={props.tooltip} describeChild={true}>{content}</Tooltip>}
-    return props.url && props.badgeContent !== 0? <Link to={props.url}>{content}</Link> : content
+    if (tooltip) {content = <Tooltip title={tooltip} describeChild={true}>{content}</Tooltip>}
+    return url && props.badgeContent !== 0? <Link to={url}>{content}</Link> : content
 }

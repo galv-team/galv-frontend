@@ -5,9 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@battery-intelligence-lab/galv-backend':
-    specifier: 2.1.7
-    version: 2.1.7
+  '@battery-intelligence-lab/galv':
+    specifier: 2.1.20
+    version: 2.1.20
   '@canvasjs/charts':
     specifier: ^3.7.27
     version: 3.7.30
@@ -77,6 +77,9 @@ dependencies:
   use-immer:
     specifier: ^0.9.0
     version: 0.9.0(immer@10.0.3)(react@18.2.0)
+  usehooks-ts:
+    specifier: ^2.15.1
+    version: 2.15.1(react@18.2.0)
   web-vitals:
     specifier: ^3.5.0
     version: 3.5.0
@@ -515,8 +518,8 @@ packages:
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
 
-  /@battery-intelligence-lab/galv-backend@2.1.7:
-    resolution: {integrity: sha512-nqm+StcjVKgD1obdS35gRVXua8Ec6dG4f4sy2edv/lslFrNtPB5knYeAKRLF6NJ+LP0FNTRrHYyTz/3CBck8BA==}
+  /@battery-intelligence-lab/galv@2.1.20:
+    resolution: {integrity: sha512-+iZY+2c2bPAo3BKnzr16ypHYfvhH73y1/MnT1ux7SHMuoec+D07Le5Oa92qp3qxbkY22D1Iu9bwb/VRIpRqGug==}
     dependencies:
       axios: 0.21.4
     transitivePeerDependencies:
@@ -5114,6 +5117,10 @@ packages:
       p-locate: 5.0.0
     dev: true
 
+  /lodash.debounce@4.0.8:
+    resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
+    dev: false
+
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
@@ -6823,6 +6830,16 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
+
+  /usehooks-ts@2.15.1(react@18.2.0):
+    resolution: {integrity: sha512-AK29ODCt4FT9XleILNbkbjjmkRCNaQrgxQEkvqHjlnT76iPXzTFGvK2Y/s83JEdSxRp43YEnSa3bYBEV6HZ26Q==}
+    engines: {node: '>=16.15.0'}
+    peerDependencies:
+      react: ^16.8.0  || ^17 || ^18
+    dependencies:
+      lodash.debounce: 4.0.8
+      react: 18.2.0
+    dev: false
 
   /uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}

@@ -3,7 +3,8 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "../../__mocks__/DummyComponent"
+import {PrettyArrayProps} from "../PrettyArray";
 
-export default function PrettyArray(props: any) {
+export default function PrettyArray(props: PrettyArrayProps) {
     return dummy("PrettyArray", props)
 }

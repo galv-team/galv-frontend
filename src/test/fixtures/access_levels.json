@@ -1,0 +1,23 @@
+{
+  "read_access_level": {
+    "Team Admin": 4,
+    "Team Member": 3,
+    "Lab Member": 2,
+    "Registered User": 1,
+    "Anonymous": 0
+  },
+  "edit_access_level": {
+    "Team Admin": 4,
+    "Team Member": 3,
+    "Lab Member": 2,
+    "Registered User": 1
+  },
+  "delete_access_level": {
+    "Team Admin": 4,
+    "Team Member": 3
+  },
+  "path.edit_access_level": {
+    "Team Admin": 4,
+    "Team Member": 3
+  }
+}

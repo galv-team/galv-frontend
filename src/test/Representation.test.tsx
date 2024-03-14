@@ -9,6 +9,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import axios from 'axios';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import FetchResourceContextProvider from "../Components/FetchResourceContext";
 
 // Mock jest and set the type
 jest.mock('axios');
@@ -28,7 +29,9 @@ it('renders', async () => {
 
   render(
       <QueryClientProvider client={queryClient}>
-        <Representation lookup_key={LOOKUP_KEYS.TEAM} resource_id={1} prefix="T" suffix="!" />
+        <FetchResourceContextProvider>
+          <Representation lookup_key={LOOKUP_KEYS.TEAM} resource_id={1} prefix="T" suffix="!" />
+        </FetchResourceContextProvider>
       </QueryClientProvider>
   )
   expect(screen.getByText('T1!')).toBeInTheDocument();

@@ -1,4 +1,4 @@
-import {DISPLAY_NAMES_PLURAL, ICONS, INTRODUCTIONS, LOOKUP_KEYS, LookupKey} from "./constants";
+import {DISPLAY_NAMES_PLURAL, ICONS, LOOKUP_KEYS, LookupKey} from "./constants";
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {
@@ -8,7 +8,7 @@ import {
     PaginatedSchemaValidationList,
     SchemaValidation,
     SchemaValidationsApi
-} from "@battery-intelligence-lab/galv-backend";
+}from "@battery-intelligence-lab/galv";
 import {get_url_components, id_from_ref_props} from "./Components/misc";
 import LookupKeyIcon from "./Components/LookupKeyIcon";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -30,7 +30,6 @@ import Container from "@mui/material/Container";
 import Chip from "@mui/material/Chip";
 import Representation from "./Components/Representation";
 import ListSubheader from "@mui/material/ListSubheader";
-import Markdown from "react-markdown";
 import IntroText from "./Components/IntroText";
 import Box from "@mui/material/Box";
 import clsx from "clsx";

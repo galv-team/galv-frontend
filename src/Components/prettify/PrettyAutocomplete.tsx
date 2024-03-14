@@ -5,35 +5,39 @@ import Autocomplete, {AutocompleteProps} from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 import {TypographyProps} from "@mui/material/Typography";
 import {BaseResource} from "../ResourceCard";
-import {useResourceList} from "../ResourceListContext";
+import {useFetchResource} from "../FetchResourceContext";
 
 export type AutcompleteEntry = BaseResource & {
     value: string
 }
 
 export default function PrettyAutocomplete(
-    {value, onChange, edit_mode, autocomplete_key, ...childProps}:
+    {target, onChange, edit_mode, autocomplete_key, ...childProps}:
         {autocomplete_key: AutocompleteKey} &
-        PrettyComponentProps &
+        PrettyComponentProps<string|null> &
         Omit<Partial<AutocompleteProps<string, boolean|undefined, true, boolean|undefined>|TypographyProps>, "onChange">
 ) {
 
-    const { useListQuery } = useResourceList();
+    const { useListQuery } = useFetchResource();
     const query = useListQuery<AutcompleteEntry>(autocomplete_key)
 
     if (!edit_mode)
         return <PrettyString
-            value={value}
+            target={target}
             onChange={onChange}
-            {...childProps as Partial<TypographyProps>}
+            {...childProps as Partial<Omit<TypographyProps, "onChange">>}
             edit_mode={false}
         />
 
     return <Autocomplete
-        value={value}
+        value={target._value ?? ""}
         freeSolo
         options={query.results? query.results.map(r => r.value) : []}
-        onChange={(e, value) => onChange(value)}
+        onChange={(e, value) =>
+            value instanceof Array?
+                value.map(v => onChange({_type: target._type, _value: v})) :
+                onChange({_type: target._type, _value: value})
+        }
         renderInput={(params) => (
             <TextField
                 {...params}
@@ -50,6 +54,6 @@ export default function PrettyAutocomplete(
             />
         )}
         fullWidth={true}
-        {...childProps as Partial<AutocompleteProps<string, boolean|undefined, true, boolean|undefined>>}
+        {...childProps as Partial<Omit<AutocompleteProps<string, boolean|undefined, true, boolean|undefined>, "onChange">>}
     />
 }

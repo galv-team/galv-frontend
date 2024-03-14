@@ -45,9 +45,9 @@ import Dashboard from "./Dashboard";
 import SelectionManagementContextProvider from "./Components/SelectionManagementContext";
 import {SelectedResourcesPane} from "./Components/SelectedResourcesPane";
 
-import * as AxiosConfig from "./AxiosConfig"
 import {useState} from "react";
-import ResourceListContextProvider from "./Components/ResourceListContext";
+import FetchResourceContextProvider from "./Components/FetchResourceContext";
+import AttachmentUploadContextProvider from "./Components/AttachmentUploadContext";
 
 export const pathMatches = (path: string, pathname: string) => matchPath({path: path, end: true}, pathname) !== null
 
@@ -93,6 +93,7 @@ export function Core() {
                 LOOKUP_KEYS.CELL,
                 LOOKUP_KEYS.EQUIPMENT,
                 LOOKUP_KEYS.SCHEDULE,
+                LOOKUP_KEYS.ARBITRARY_FILE
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
             <Divider component="li" key="div2" />
             {[
@@ -172,7 +173,7 @@ export function Core() {
 
     function get_lookup_key_from_pathname(pathname: string|undefined): LookupKey | undefined {
         return (
-            (Object.entries(PATHS).find(([k, v]) => v === `/${pathname}`)?.[0] as keyof typeof PATHS)
+            (Object.entries(PATHS).find((e) => e[1] === `/${pathname}`)?.[0] as keyof typeof PATHS)
         ) as LookupKey
     }
 
@@ -227,11 +228,13 @@ export default function WrappedCore() {
     // the user is logged out by the server
     return <SnackbarMessengerContextProvider>
         <CurrentUserContextProvider>
-            <ResourceListContextProvider>
+            <FetchResourceContextProvider>
                 <SelectionManagementContextProvider>
-                    <Core />
+                    <AttachmentUploadContextProvider>
+                        <Core />
+                    </AttachmentUploadContextProvider>
                 </SelectionManagementContextProvider>
-            </ResourceListContextProvider>
+            </FetchResourceContextProvider>
         </CurrentUserContextProvider>
     </SnackbarMessengerContextProvider>
 }

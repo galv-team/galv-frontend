@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Container, Draggable, DropResult, OnDropCallback} from "react-smooth-dnd";
 import {arrayMoveImmutable} from "array-move";
 import List from "@mui/material/List";
@@ -6,17 +6,22 @@ import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import RemoveIcon from '@mui/icons-material/Remove';
 import {PrettyObjectProps} from "./PrettyObject";
 import {ListProps} from "@mui/material";
 import Prettify from "./Prettify";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
-import {detect_type, Serializable, TypeChangerSupportedTypeName} from "../TypeChanger";
+import {
+    TypeChangerSupportedTypeName
+} from "./TypeChanger";
+import {useImmer} from "use-immer";
+import {TypeValueNotation} from "../TypeValueNotation";
 
-type PrettyArrayProps = Pick<PrettyObjectProps, "nest_level" | "edit_mode"> & {
-    target: Serializable[]
+export type PrettyArrayProps = Pick<PrettyObjectProps, "nest_level" | "edit_mode"> & {
+    target: TypeValueNotation & {_value: TypeValueNotation[]}
     child_type?: TypeChangerSupportedTypeName
-    onEdit?: (v: Serializable[]) => void
+    onEdit?: (v: PrettyArrayProps["target"]) => void
 }
 
 export default function PrettyArray(
@@ -28,17 +33,25 @@ export default function PrettyArray(
 
     const {classes} = useStyles()
 
-    const [items, setItems] = React.useState([...target]);
+    const [items, setItems] = useImmer(target._value ?? []);
+    const [newItemCounter, setNewItemCounter] = useState(0)
+
+    useEffect(() => {
+        setItems(target._value)
+    }, [target._value, setItems]);
 
     const onDrop: OnDropCallback = ({ removedIndex, addedIndex }: DropResult) => {
         if (removedIndex === null || addedIndex === null) return
         const newItems = arrayMoveImmutable(items, removedIndex, addedIndex)
         setItems(newItems);
-        _onEdit(newItems)
+        _onEdit({_type: "array", _value: newItems})
     };
 
-    // Required to update the items in response to Undo/Redo
-    useEffect(() => {setItems([...target])}, [target])
+    const get_type = () => {
+        if (child_type) return child_type
+        if (items.length === 0) return "string"
+        return items[items.length - 1]._type
+    }
 
     return <List
         className={clsx(
@@ -50,14 +63,14 @@ export default function PrettyArray(
     >
         {
             _edit_mode?
-                // @ts-ignore // types are not correctly exported by react-smooth-dnd
+                // @ts-expect-error // types are not correctly exported by react-smooth-dnd
                 <Container dragHandleSelector=".drag-handle" lockAxis="y" onDrop={onDrop}>
                     {items.map((item, i) => (
-                        // @ts-ignore // types are not correctly exported by react-smooth-dnd
+                        // @ts-expect-error // types are not correctly exported by react-smooth-dnd
                         <Draggable key={i}>
                             <ListItem alignItems="flex-start">
                                 <ListItemIcon key={`action_${i}`} className="drag-handle">
-                                    <DragHandleIcon />
+                                    <DragHandleIcon aria-label="Reorder" />
                                 </ListItemIcon>
                                 <Prettify
                                     key={`item_${i}`}
@@ -68,16 +81,28 @@ export default function PrettyArray(
                                         const newItems = [...items]
                                         newItems[i] = v
                                         setItems(newItems)
-                                        _onEdit(newItems)
+                                        _onEdit({_type: "array", _value: newItems})
                                     }}
-                                    lock_type_to={child_type}
+                                    lock_type={!!child_type}
                                 />
+                                <ListItemIcon key={`remove_${i}`}>
+                                    <RemoveIcon
+                                        sx={{cursor: "pointer", color: "error"}}
+                                        aria-label="Remove item"
+                                        onClick={() => {
+                                            const newItems = [...items]
+                                            newItems.splice(i, 1)
+                                            setItems(newItems)
+                                            _onEdit({_type: "array", _value: newItems})
+                                        }} />
+                                </ListItemIcon>
                             </ListItem>
                         </Draggable>
                     ))}
                     <ListItem key="new_item" alignItems="flex-start">
                         <Prettify
-                            target=""
+                            key={`new_item_${newItemCounter}`}
+                            target={{_type: get_type(), _value: null}}
                             label="+ ITEM"
                             placeholder="enter new value"
                             nest_level={_nest_level}
@@ -86,10 +111,10 @@ export default function PrettyArray(
                                 const newItems = [...items]
                                 newItems.push(v)
                                 setItems(newItems)
-                                _onEdit(newItems)
-                                return ""
+                                _onEdit({_type: "array", _value: newItems})
+                                setNewItemCounter(newItemCounter + 1)
                             }}
-                            lock_type_to={child_type ?? detect_type(items[items.length - 1] ?? "")}
+                            lock_type={!!child_type}
                         />
                     </ListItem>
                 </Container> :
@@ -102,6 +127,7 @@ export default function PrettyArray(
                         target={item}
                         nest_level={_nest_level}
                         edit_mode={false}
+                        lock_type={!!child_type}
                     />
                 </ListItem>)
         }

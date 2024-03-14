@@ -33,7 +33,7 @@ export const SnackbarMessengerContextProvider = ({children}: {children: ReactEle
 export const SnackbarMessenger = (props: Omit<SnackbarProps, "message"|"action"|"key"|"open"|"onClose">) => {
     const {snackbarMessages, markRead} = useSnackbarMessenger()
     const [open, setOpen] = useState<boolean>(snackbarMessages.length > 0)
-    const handleClose = (_: any, reason?: string) => {
+    const handleClose = (_: unknown, reason?: string) => {
         if (reason === 'clickaway') return
         markRead()
     }

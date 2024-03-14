@@ -66,7 +66,7 @@ services:
       dockerfile: Dockerfile_dev
     env_file:
       - .env.vite
-    restart: "on-failure"
+    restart: "no"
     command: "pnpm test"
 
   frontend_test_e2e:
@@ -75,7 +75,7 @@ services:
       dockerfile: Dockerfile_cypress
     env_file:
       - .env.vite
-    restart: "on-failure"
+    restart: "no"
     command: "pnpm cypress:e2e"
 
   frontend_build:
@@ -88,3 +88,13 @@ services:
       - .env.vite
     restart: "no"
     command: "tree /usr/share/nginx/html"
+
+  docs:
+    build:
+      dockerfile: Dockerfile
+      context: ./docs
+    volumes:
+      - ./docs/source:/source
+      - ./docs/build-dev:/build
+    ports:
+      - "8003:80"

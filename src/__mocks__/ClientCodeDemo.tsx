@@ -2,11 +2,11 @@
 // Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
-export default function DummyGetDatasetPython({dataset}) {
+export default function DummyClientCodeDemo({dataset_ids}: {dataset_ids: string[]}) {
     return (
         <div>
-            <p>GetDatasetPython</p>
-            <p>{JSON.stringify({dataset})}</p>
+            <p>ClientCodeDemo</p>
+            <p>{JSON.stringify({dataset_ids})}</p>
         </div>
     )
 }

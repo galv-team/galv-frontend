@@ -1,37 +1,4 @@
-import React, {useState, useEffect} from "react";
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { docco } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
-import Typography from '@mui/material/Typography';
-import {CircularProgress} from "@mui/material";
-import {useCurrentUser} from "./Components/CurrentUserContext";
-
-
-export default function GetDatasetJulia({dataset}) {
-    const {user} = useCurrentUser()
-    const [columns, setColumns] = useState("")
-    const [code, setCode] = useState(<CircularProgress/>)
-
-    let domain = window.location.href.split('/')[2];
-    domain = domain.split(':')[0]
-
-    const host = `http://api.${domain}`
-
-    useEffect(() => {
-        // Promise.all(dataset.columns.map(column =>
-        //     Connection.fetch(column)
-        //         .then(r => r.content)
-        //         .then(col => `      '${col.name}': ${col.id},`)
-        // ))
-        //     .then(cols => setColumns(cols.join('\n')))
-    }, [dataset])
-
-    useEffect(() => {
-        if (!columns)
-            setCode(<CircularProgress/>)
-        else
-            setCode(
-                <SyntaxHighlighter language="julia" style={docco}>{
-                    `# SPDX-License-Identifier: BSD-2-Clause
+# SPDX-License-Identifier: BSD-2-Clause
 # Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 # of Oxford, and the 'Galv' Developers. All rights reserved.
 
@@ -51,16 +18,19 @@ using HTTP
 using JSON
 using DataFrames
 
-host = "${host}"
-headers = Dict{String, String}("Authorization" => "Bearer ${user?.token ?? 'your_token_here'}")
+host = "GALV_API_HOST"
+token = "GALV_USER_TOKEN"
+headers = Dict{String, String}("Authorization" => "Bearer $token")
 
 # Configuration
 verbose = true
 
-dataset_ids = [${dataset.id}]
-dataset_metadata = Dict{Int64, Dict{String, Any}}()
-column_metadata = Dict{Int64, Dict{Int64, Any}}()
-datasets = Dict{Int64, DataFrame}()
+dataset_ids = String[
+    "GALV_DATASET_IDS"
+]
+dataset_metadata = Dict{String, Dict{String, Any}}()
+column_metadata = Dict{String, Dict{Int64, Any}}()
+datasets = Dict{String, DataFrame}()
 
 function vprintln(s)
     if verbose
@@ -83,17 +53,18 @@ function get_column_values(dataset_id, column)
     
     try
         body = String(response.body)
-        str_values = split(body, '\\n')
+        str_values = split(body, '\n')
         values = Vector{String}(str_values[begin:end-1])
         if dtype == "float"
             return map((x -> parse(Float64, x)), values)
         elseif dtype == "int"
             return map((x -> parse(Int64, x)), values)
         else
-            return convert(String, values)
+            return map((x -> convert(String, x)), values)
         end
-    catch
+    catch e
         println("Error parsing values $dataset_id:$column_name [$url]")
+        throw(e)
         return
     end
 
@@ -116,7 +87,7 @@ function get_column(dataset_id, url)
     values = get_column_values(dataset_id, column)
     pop!(column, "values", "")
 
-    datasets[dataset_id][!, column["name"]] = values
+    datasets[dataset_id][!, column["name_in_file"]] = values
 
     return column
 end
@@ -124,7 +95,7 @@ end
 function get_dataset(id)
     vprintln("Downloading dataset $id")
     
-    response = HTTP.request("GET", "$host/datasets/$id", headers)
+    response = HTTP.request("GET", "$host/files/$id/", headers)
     body = Dict{String, Any}()
 
     try
@@ -161,19 +132,3 @@ for id in dataset_ids
 end
 
 vprintln("All datasets complete.")
-
-`
-                }</SyntaxHighlighter>
-            )
-    }, [columns, dataset.id, host, user])
-
-    return (
-        <React.Fragment>
-            <Typography>
-                Julia Code
-            </Typography>
-
-            {code}
-        </React.Fragment>
-    )
-}

@@ -17,12 +17,16 @@ import {DISPLAY_NAMES_PLURAL, LookupKey} from "../constants";
 import ErrorBoundary from "./ErrorBoundary";
 import Button from "@mui/material/Button";
 import {useCurrentUser} from "./CurrentUserContext";
-import {useResourceList} from "./ResourceListContext";
+import {useFetchResource} from "./FetchResourceContext";
 import IntroText from "./IntroText";
 
-export function ResourceList<T extends BaseResource>({lookup_key}: {lookup_key: LookupKey}) {
+export type ResourceListProps = {
+    lookup_key: LookupKey
+}
+
+export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListProps) {
     const { classes } = useStyles();
-    const { useListQuery } = useResourceList();
+    const { useListQuery } = useFetchResource();
 
     const query = useListQuery<T>(lookup_key)
 

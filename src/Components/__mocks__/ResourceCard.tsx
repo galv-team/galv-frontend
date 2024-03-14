@@ -3,7 +3,8 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "./DummyComponent"
+import {ResourceCardProps} from "../ResourceCard";
 
-export default function ResourceCard(params: any) {
+export default function ResourceCard(params: ResourceCardProps) {
 	return dummy("ResourceCard", params)
 }

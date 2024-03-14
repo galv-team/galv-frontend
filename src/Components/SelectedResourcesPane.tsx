@@ -11,11 +11,10 @@ import Grid from "@mui/material/Unstable_Grid2";
 import {useState} from "react";
 import Stack from "@mui/material/Stack";
 import Button, {ButtonProps} from "@mui/material/Button";
-import { ICONS } from "../constants";
+import {ICONS, SerializableObject} from "../constants";
 import {useQueryClient} from "@tanstack/react-query";
 import {AxiosResponse} from "axios";
 import {BaseResource} from "./ResourceCard";
-import {SerializableObject} from "./TypeChanger";
 import CircularProgress from "@mui/material/CircularProgress";
 import CardHeader from "@mui/material/CardHeader";
 import Card from "@mui/material/Card";
@@ -82,6 +81,8 @@ export function DownloadButton({target_urls, ...props}: {target_urls: string|str
         {...props}
     />
 }
+
+export type SelectedResourcesPaneProps = Record<string, never>
 
 export function SelectedResourcesPane() {
     const { classes } = useStyles();

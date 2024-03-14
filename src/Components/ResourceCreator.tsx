@@ -11,10 +11,9 @@ import Button from "@mui/material/Button";
 import NumberInput from './NumberInput';
 import {CopyBlock, a11yDark} from "react-code-blocks";
 import Avatar from "@mui/material/Avatar";
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ErrorCard from "./error/ErrorCard";
 import {AxiosError, AxiosResponse} from "axios";
-import {Serializable, SerializableObject} from "./TypeChanger";
 import {
     API_HANDLERS,
     API_SLUGS,
@@ -23,23 +22,31 @@ import {
     ICONS,
     LOOKUP_KEYS,
     LookupKey,
-    PRIORITY_LEVELS
+    PRIORITY_LEVELS, Serializable, SerializableObject
 } from "../constants";
 import ErrorBoundary from "./ErrorBoundary";
-import UndoRedoProvider, {UndoRedoContext} from "./UndoRedoContext";
+import UndoRedoProvider, {useUndoRedoContext} from "./UndoRedoContext";
 import {BaseResource} from "./ResourceCard";
 import {Modal} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
-import {Configuration, CreateTokenApi, type CreateKnoxTokenRequest, type KnoxTokenFull} from "@battery-intelligence-lab/galv-backend";
+import {
+    Configuration,
+    CreateTokenApi,
+    type CreateKnoxTokenRequest,
+    type KnoxTokenFull,
+    ArbitraryFile
+} from "@battery-intelligence-lab/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
+import {from_type_value_notation, to_type_value_notation_wrapper, TypeValueNotationWrapper} from "./TypeValueNotation";
+import {useAttachmentUpload} from "./AttachmentUploadContext";
 
 export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: boolean) => void} & CardProps) {
     const { classes } = useStyles()
@@ -172,15 +179,22 @@ export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: 
     </Card>
 }
 
+export type ResourceCreatorProps = {
+    lookup_key: LookupKey
+    initial_data?: object
+    onCreate: (error?: unknown) => void
+    onDiscard: () => void
+} & CardProps
+
 export function ResourceCreator<T extends BaseResource>(
-    { lookup_key, initial_data, onCreate, onDiscard, ...cardProps}:
-        {lookup_key: LookupKey, initial_data?: object, onCreate: (error?: unknown) => void, onDiscard: () => void} &
-        CardProps
+    { lookup_key, initial_data, onCreate, onDiscard, ...cardProps}: ResourceCreatorProps
 ) {
     const { classes } = useStyles();
 
+    const {file, UploadMutation} = useAttachmentUpload()
+
     // Ref wrapper for updating UndoRedo in useEffect
-    const UndoRedo = useContext(UndoRedoContext)
+    const UndoRedo = useUndoRedoContext<SerializableObject>()
     const UndoRedoRef = useRef(UndoRedo)
 
     useEffect(() => {
@@ -192,7 +206,9 @@ export function ResourceCreator<T extends BaseResource>(
                     if (initial_data?.[k as keyof typeof initial_data] !== undefined)
                         template_object[k] = initial_data[k as keyof typeof initial_data]
                     else
-                        template_object[k] = v.many? [] : ""
+                        template_object[k] = v.many?
+                            {_type: "array", _value: []} :
+                            {_type: v.type, _value: v.default_value ?? null}
                 }
             })
         if (initial_data !== undefined) {
@@ -259,6 +275,7 @@ export function ResourceCreator<T extends BaseResource>(
                     onCreate(error)
                 },
             })
+    const create_attachment_mutation = UploadMutation
 
     // The card action bar controls the expanded state and editing state
     const action = <CardActionBar
@@ -273,8 +290,37 @@ export function ResourceCreator<T extends BaseResource>(
         undoable={UndoRedo.can_undo}
         redoable={UndoRedo.can_redo}
         onEditSave={() => {
-            create_mutation.mutate(UndoRedo.current)
-            return true
+            let close = false;
+            if (lookup_key === LOOKUP_KEYS.ARBITRARY_FILE) {
+                let okay = true;
+                ['name', 'team'].forEach((k: string) => {
+                    if (UndoRedo.current[k as keyof typeof UndoRedo["current"]] === null) {
+                        postSnackbarMessage({
+                            message: `Cannot create a new file without a value for ${k}.`,
+                            severity: 'error'
+                        })
+                        okay = false
+                    }
+                })
+                if (okay) {
+                    if (!file) throw new Error("No file to upload")
+                    const d = UndoRedo.current as unknown as ArbitraryFile
+                    create_attachment_mutation.mutate({
+                        name: d.name,
+                        team: d.team,
+                        is_public: d.is_public ?? false,
+                        description: d.description ?? undefined
+                    })
+                    close = true
+                }
+            } else {
+                create_mutation.mutate(UndoRedo.current)
+                close = true
+            }
+            if (close) {
+                onCreate()
+            }
+            return close
         }}
         onEditDiscard={() => {
             if (UndoRedo.can_undo && !window.confirm("Discard all changes?"))
@@ -300,12 +346,12 @@ export function ResourceCreator<T extends BaseResource>(
         "& li": {marginTop: (t) => t.spacing(0.5)},
         "& table": {borderCollapse: "separate", borderSpacing: (t) => t.spacing(0.5)},
     }}>
-        {UndoRedo.current && <PrettyObject
-            target={UndoRedo.current}
+        {UndoRedo.current && <PrettyObject<TypeValueNotationWrapper>
+            target={to_type_value_notation_wrapper(UndoRedo.current, lookup_key)}
             lookup_key={lookup_key}
             edit_mode={true}
             creating={true}
-            onEdit={UndoRedo.update}
+            onEdit={(v) => UndoRedo.update(from_type_value_notation(v) as SerializableObject)}
         />}
     </CardContent>
 

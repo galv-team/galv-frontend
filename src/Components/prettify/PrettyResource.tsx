@@ -2,7 +2,7 @@ import {DISPLAY_NAMES, FAMILY_LOOKUP_KEYS, LookupKey} from "../../constants";
 import {ChipProps} from "@mui/material/Chip";
 import React, {useEffect, useState} from "react";
 import useStyles from "../../styles/UseStyles";
-import {build_placeholder_url, get_url_components, id_from_ref_props} from "../misc";
+import {get_url_components, id_from_ref_props} from "../misc";
 import TextField from "@mui/material/TextField";
 import clsx from "clsx";
 import ButtonBase from "@mui/material/ButtonBase";
@@ -11,14 +11,18 @@ import {PrettyComponentProps, PrettyString} from "./Prettify";
 import Autocomplete, {createFilterOptions} from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 import {representation} from "../Representation";
-import {useResourceList} from "../ResourceListContext";
+import {useFetchResource} from "../FetchResourceContext";
 import {BaseResource} from "../ResourceCard";
 
+export type PrettyResourceSelectProps = {
+    lookup_key: LookupKey
+    allow_new?: boolean
+} & PrettyComponentProps<string|null> & Partial<Omit<ChipProps, "onChange">>
+
 export const PrettyResourceSelect = <T extends BaseResource>(
-    {value, onChange, lookup_key}:
-        { lookup_key: LookupKey } & PrettyComponentProps & Partial<Omit<ChipProps, "onChange">>
+    {target, onChange, lookup_key}: PrettyResourceSelectProps
 ) => {
-    const { useListQuery } = useResourceList();
+    const { useListQuery } = useFetchResource();
 
     const query = useListQuery<T>(lookup_key)
 
@@ -30,7 +34,7 @@ export const PrettyResourceSelect = <T extends BaseResource>(
     const [open, setOpen] = React.useState(false);
     const loading = open && query?.isLoading;
 
-    useEffect(() => setUrl(value), [value])
+    useEffect(() => setUrl(target._value ?? ""), [target])
 
     const url_to_query_result = (url: string) => query.results?.find(o => o.url === url)
     const represent = (url: string) => {
@@ -55,13 +59,7 @@ export const PrettyResourceSelect = <T extends BaseResource>(
         onOpen={() => setOpen(true)}
         onChange={(e, v) => {
             // console.log(`onChange`, {e, v, value, url})
-            if (value_to_url(v || "") !== url) {
-                const new_url = value_to_url(v || "")
-                if (get_url_components(new_url))
-                    onChange(new_url)
-                else
-                    onChange(build_placeholder_url(lookup_key, new_url||'new'))
-            }
+            onChange({_type: target._type, _value: value_to_url(v ?? "")})
             setOpen(false)
         }}
         onClose={() => setOpen(false)}
@@ -107,26 +105,33 @@ export const PrettyResourceSelect = <T extends BaseResource>(
     />
 }
 
+export type PrettyResourceProps = {
+    lookup_key?: LookupKey
+    resource_id?: string|number
+} & PrettyComponentProps<string|null> & Partial<Omit<ChipProps, "onChange">>
+
 export default function PrettyResource(
-    {value, onChange, edit_mode, lookup_key, resource_id, ...childProps}:
-        {lookup_key?: LookupKey, resource_id?: string|number} &
-        PrettyComponentProps &
-        Partial<ChipProps & { component: React.ElementType }>
+    {target, onChange, edit_mode, lookup_key, resource_id, ...childProps}: PrettyResourceProps
 ) {
-    const url_components = get_url_components(value)
+    const url_components = get_url_components(target._value ?? "")
     lookup_key = lookup_key ?? url_components?.lookup_key
     resource_id = resource_id ?? url_components?.resource_id
 
-    const str_representation = <PrettyString value={value} onChange={onChange} {...childProps} edit_mode={false}/>
+    const str_representation = <PrettyString
+        target={target}
+        onChange={onChange}
+        {...childProps}
+        edit_mode={false}
+    />
 
     if (edit_mode) {
         if (!lookup_key)
-            throw new Error(`PrettyResource: lookup_key is undefined and unobtainable from value ${value}`)
+            throw new Error(`PrettyResource: lookup_key is undefined and unobtainable from value ${target._value}`)
         return <PrettyResourceSelect
             {...childProps as ChipProps}
             lookup_key={lookup_key}
             onChange={onChange}
-            value={value}
+            target={target}
             edit_mode={edit_mode}
         />
     }

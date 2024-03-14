@@ -3,7 +3,8 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "./DummyComponent"
+import {LookupKeyIconProps} from "../LookupKeyIcon";
 
-export default function LookupKeyIcon(params: any) {
+export default function LookupKeyIcon(params: LookupKeyIconProps) {
 	return dummy("LookupKeyIcon", params)
 }

@@ -3,7 +3,8 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "./DummyComponent"
+import {INTRODUCTIONS} from "../../constants";
 
-export default function TypeChanger(params: any) {
-	return dummy("TypeChanger", params)
+export default function LoadingChip(params: {k: keyof typeof INTRODUCTIONS}) {
+	return dummy("IntroText", params)
 }

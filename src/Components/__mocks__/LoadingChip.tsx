@@ -3,7 +3,8 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "./DummyComponent"
+import {LoadingChipProps} from "../LoadingChip";
 
-export default function LoadingChip(params: any) {
+export default function LoadingChip(params: LoadingChipProps) {
 	return dummy("LoadingChip", params)
 }

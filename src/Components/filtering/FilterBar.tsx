@@ -1,9 +1,9 @@
 import React, {Fragment, useContext, useState} from "react";
 import Stack from "@mui/material/Stack";
-import {Serializable} from "../TypeChanger";
 import Chip, {ChipProps} from "@mui/material/Chip";
 import Tooltip from "@mui/material/Tooltip";
 import {
+    FF_VS,
     Filter,
     FILTER_FUNCTIONS,
     FILTER_MODES,
@@ -38,17 +38,17 @@ import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
 
 type FilterChipProps = {
-    filter: Filter
+    filter: Filter<unknown>
 }
 
 function FilterChip({filter, ...chipProps}: FilterChipProps & ChipProps) {
-    return <Tooltip title={filter.family.get_name(filter, false)}>
-        <Chip label={filter.family.get_name(filter, true)} {...chipProps}/>
+    return <Tooltip title={filter.family.get_description(filter.key, filter.test_versus, false)}>
+        <Chip label={filter.family.get_description(filter.key, filter.test_versus, true)} {...chipProps}/>
     </Tooltip>
 }
 
 type FilterCreateFormProps = {
-    onCreate: (lookup_key: LookupKey, filter: Filter) => void
+    onCreate: (lookup_key: LookupKey, filter: Filter<unknown>) => void
     onCancel?: () => void
 }
 
@@ -56,11 +56,11 @@ const isFilterableField = (field: Field) => ["string", "number"].includes(field.
 
 function FilterCreateForm({onCreate, onCancel}: FilterCreateFormProps) {
     const {classes} = useStyles()
-    const [value, setValue] = useState<Serializable>("")
+    const [value, setValue] = useState<FF_VS<typeof family>>("")
     const [key, setKey] = useState<string>("")
     const [lookupKey, setLookupKey] =
         useState<LookupKey>(Object.keys(LOOKUP_KEYS)[0] as LookupKey)
-    const [family, setFamily] = useState<FilterFamily|"">("")
+    const [family, setFamily] = useState<typeof FILTER_FUNCTIONS[number]|"">("")
 
     const reset = () => {
         setValue("")
@@ -69,14 +69,14 @@ function FilterCreateForm({onCreate, onCancel}: FilterCreateFormProps) {
         setLookupKey(Object.keys(LOOKUP_KEYS)[0] as LookupKey)
     }
 
-    const is_family_appropriate = (family: FilterFamily, key: string): boolean => {
+    const is_family_appropriate = (family: typeof FILTER_FUNCTIONS[number], key: string): boolean => {
         const field = FIELDS[lookupKey]
         const k = key as keyof typeof field
         if (!field || !field[k]) return true
         const field_info = field[k] as Field
         const type = is_autocomplete_key(field_info.type)? "string" : field_info.type
 
-        return family.applies_to.includes(type as any)
+        return family.applies_to.includes(type as unknown as "string" | "number" | "boolean" | "array")
     }
 
     return <Stack spacing={0.5} className={clsx(classes.filterCreate)}>
@@ -106,8 +106,8 @@ function FilterCreateForm({onCreate, onCancel}: FilterCreateFormProps) {
                             k,
                             {...v, type: is_autocomplete_key(v.type)? "string" : v.type}
                         ] as [string, Field])
-                        .filter(([k, v]) => isFilterableField(v))
-                        .map(([k, _]) => k)
+                        .filter((e) => isFilterableField(e[1]))
+                        .map((e) => e[0])
                 }
                 renderInput={(params) => <TextField {...params} label="X" />}
                 onChange={(_, v) => setKey(v || "")}
@@ -117,7 +117,7 @@ function FilterCreateForm({onCreate, onCancel}: FilterCreateFormProps) {
             <Select
                 key="family"
                 value={family === ""? "" : FILTER_FUNCTIONS.findIndex(f => f === family)}
-                onChange={(e, v) => {
+                onChange={(e) => {
                     try {
                         setFamily(FILTER_FUNCTIONS[Number(e.target.value)])
                     } catch {
@@ -149,8 +149,8 @@ function FilterCreateForm({onCreate, onCancel}: FilterCreateFormProps) {
                 <Button
                     key="create"
                     onClick={() => {
-                        if (family === "" || value === "" || key === "") return
-                        onCreate(lookupKey, {key, family, test_versus: value})
+                        if (family === "" || value === "" || value === null || key === "") return
+                        onCreate(lookupKey, {key, family: family as FilterFamily<unknown>, test_versus: value})
                         reset()
                     }}
                     disabled={family === "" || value === "" || key === ""}
@@ -167,9 +167,9 @@ function FilterCreateForm({onCreate, onCancel}: FilterCreateFormProps) {
         </Stack>
         <Typography key="summary" className={clsx('summary-text')}>
             {
-                family !== "" &&
+                family !== "" && value !== null &&
                 `View ${DISPLAY_NAMES_PLURAL[lookupKey]} where 
-                    ${family.get_name({key: key || 'X', test_versus: value || 'Y', family}, false)}`
+                ${family.get_description(key || 'X', value as string || 'Y', false)}`
             }
         </Typography>
     </Stack>

@@ -32,7 +32,7 @@ import {useSelectionManagement} from "./SelectionManagementContext";
 import Checkbox from "@mui/material/Checkbox";
 import {representation} from "./Representation";
 
-type CardActionBarProps = {
+export type CardActionBarProps = {
     lookup_key: LookupKey
     selectable?: boolean
     resource_id?: string|number
@@ -131,7 +131,16 @@ export default function CardActionBar(props: CardActionBarProps) {
                 throw new Error(`onUndo must be a function if undoable=true`)
             if (props.redoable && typeof props.onRedo !== 'function')
                 throw new Error(`onRedo must be a function if redoable=true`)
-            const undo_buttons = <>
+
+            edit_section = <>
+                <Tooltip title={`Save changes`} arrow describeChild key="save">
+                    <IconButton onClick={() => {
+                        if (props.onEditSave!())
+                            props.setEditing!(false)
+                    }}>
+                        <SaveIcon {...iconProps} color="success"/>
+                    </IconButton>
+                </Tooltip>
                 {props.onUndo && <Tooltip title={`Undo`} arrow describeChild key="undo">
                 <span>
                 <IconButton onClick={props.onUndo!} disabled={!props.undoable}>
@@ -146,18 +155,6 @@ export default function CardActionBar(props: CardActionBarProps) {
                     </IconButton>
                     </span>
                 </Tooltip>}
-            </>
-
-            edit_section = <>
-                <Tooltip title={`Save changes`} arrow describeChild key="save">
-                    <IconButton onClick={() => {
-                        if (props.onEditSave!())
-                            props.setEditing!(false)
-                    }}>
-                        <SaveIcon {...iconProps} color="success"/>
-                    </IconButton>
-                </Tooltip>
-                {undo_buttons}
                 <Tooltip title={`Discard changes`} arrow describeChild key="discard">
                     <IconButton onClick={() => {
                         if (props.onEditDiscard!())
@@ -198,7 +195,7 @@ export default function CardActionBar(props: CardActionBarProps) {
     return <Stack direction="row" spacing={1} alignItems="center">
         {!props.excludeContext && context_section}
         {props.editable && edit_section}
-        {props.onFork && <Tooltip
+        {props.onFork && apiResource && <Tooltip
             title={`
             Create your own copy of ${representation({data: apiResource, lookup_key: props.lookup_key})}
             `}

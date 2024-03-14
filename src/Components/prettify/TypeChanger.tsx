@@ -1,8 +1,5 @@
 import Tooltip from "@mui/material/Tooltip";
-import React, {
-    useEffect,
-    useState
-} from "react";
+import React, {useEffect, useState} from "react";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 import AbcIcon from "@mui/icons-material/Abc";
@@ -14,10 +11,9 @@ import IconButton from "@mui/material/IconButton";
 import Popover, {PopoverProps} from "@mui/material/Popover";
 import {SvgIconTypeMap} from "@mui/material/SvgIcon";
 import clsx from "clsx";
-import useStyles from "../styles/UseStyles";
+import useStyles from "../../styles/UseStyles";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import {build_placeholder_url, get_url_components} from "./misc";
 import {
     API_HANDLERS,
     AutocompleteKey,
@@ -25,50 +21,89 @@ import {
     ICONS,
     is_autocomplete_key,
     is_lookup_key,
-    LookupKey
-} from "../constants";
+    key_to_type,
+    LOOKUP_KEYS,
+    LookupKey,
+    PATHS,
+    type_to_key
+} from "../../constants";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {OverridableComponent} from "@mui/material/OverridableComponent";
+import {
+    from_type_value_notation,
+    is_tvn,
+    is_tvn_wrapper,
+    to_type_value_notation,
+    to_type_value_notation_wrapper,
+    TypeValueNotation,
+    TypeValueNotationWrapper
+} from "../TypeValueNotation";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
-const str = (v: any) => {
-    try {return JSON.stringify(v)} catch(e) {
-        console.warn(`Could not stringify value: ${v}`, e)
-        return ""
-    }
+
+export const is_type_changer_supported_tv_notation = (v: TypeValueNotation): v is TypeValueNotation & {_type: TypeChangerSupportedTypeName} => {
+    return v._type !== "null"
 }
-const num = (v: any) => {
-    const n = Number(v)
-    if (isNaN(n)) {
-        console.warn(`Could not numberify value: ${v}`)
-        return 0
+
+export type TypeChangerLookupKey = `galv_${LookupKey}`
+export type TypeChangerAutocompleteKey = `galv_${AutocompleteKey}`
+
+export type TypeChangerSupportedTypeName =
+    (keyof typeof type_map & string) |
+    TypeChangerLookupKey |
+    TypeChangerAutocompleteKey
+
+const str = (v: TypeValueNotation): {_type: "string", _value: string} => {
+    if (["array", "object"].includes(v._type)) return {
+        _type: "string",
+        _value: JSON.stringify(from_type_value_notation(v))
     }
-    return n
+    return { _type: "string", _value: String(from_type_value_notation(v)) }
 }
-const obj = (v: any) => {
+const num = (v: TypeValueNotation): {_type: "number", _value: number|null} => {
+    const n = Number(v._value)
+    return isNaN(n)? {_type: "number", _value: null} : {_type: "number", _value: n}
+}
+const obj = (v: TypeValueNotation): {_type: "object", _value: TypeValueNotationWrapper}  => {
     try {
-        if (v instanceof Array) {
-            const o: {[key: number]: any} = {}
-            v.forEach((vv, i) => o[i] = vv)
-            return o
+        if (v._type === "array" && v._value instanceof Array) {
+            const o: TypeValueNotationWrapper = {}
+            v._value.forEach((vv, i) => o[String(i)] = vv)
+            return {_type: "object", _value: o}
         }
-        if (v instanceof Object) return v
-        if (typeof v === 'string' && (v.startsWith('{') && v.endsWith('}')))
-            return JSON.parse(v)
+        if (v._type === "object" &&
+            v._value instanceof Object &&
+            is_tvn_wrapper(v._value)
+        )
+            // The type assertion is purely for TS's benefit - there's no way _value will be 'null' here
+            return v._value === null? {_type: "object", _value: {}} : v as {_type: "object", _value: TypeValueNotationWrapper}
+        if (v._type === 'string' &&
+            typeof v._value === "string" &&
+            (v._value.startsWith('{') && v._value.endsWith('}'))
+        )
+            return {_type: "object", _value: to_type_value_notation_wrapper(JSON.parse(v._value))}
     } catch (e) {
         console.warn(`Could not objectify value: ${v}`, e)
     }
-    return {0: v}
+    return {_type: "object", _value: {0: v}}
 }
-const arr = (v: any) => {
+const arr = (v: TypeValueNotation): {_type: "array", _value: TypeValueNotation[]} => {
     try {
-        if (v instanceof Array) return v
-        if (typeof v === 'object') return Object.values(v)
-        if (typeof v === 'string' && (v.startsWith('[') && v.endsWith(']')))
-            return JSON.parse(v)
+        if (v._type === "array" && v._value instanceof Array && is_tvn(v))
+            return v as {_type: "array", _value: TypeValueNotation[]}
+        if (v._value === null)
+            return {_type: "array", _value: []}
+        if (v._type === 'object' && v._value instanceof Object && is_tvn_wrapper(v._value))
+            return {_type: "array", _value: Object.values(v._value)}
+        if (v._type === 'string' &&
+            typeof v._value === "string" &&
+            (v._value.startsWith('[') && v._value.endsWith(']'))
+        )
+            return {_type: "array", _value: JSON.parse(v._value).map(to_type_value_notation)}
     } catch (e) {
         console.warn(`Could not arrayify value: ${v}`, e)
     }
-    return [v]
+    return {_type: "array", _value: [v]}
 }
 
 const type_map = {
@@ -84,6 +119,10 @@ const type_map = {
         icon: PowerSettingsNewIcon,
         tooltip: "Boolean"
     },
+    attachment: {
+        icon: AttachFileIcon,
+        tooltip: "Attachment"
+    },
     object: {
         icon: DataObjectIcon,
         tooltip: "Object (JSON strings will be parsed)"
@@ -94,36 +133,58 @@ const type_map = {
     }
 } as const
 
-export type Serializable =
-    string |
-    number |
-    boolean |
-    SerializableObject |
-    Serializable[] |
-    undefined |
-    null
+const get_conversion_fun = (type: TypeChangerSupportedTypeName):
+    ((v: TypeValueNotation) => TypeValueNotation) => {
+    switch (type) {
+        case 'string': return str
+        case 'number': return num
+        case 'boolean': return (v: TypeValueNotation) => ({_type: "boolean", _value: !!v._value})
+        case 'attachment': return () => ({_type: "attachment", _value: null})
+        case 'object': return obj
+        case 'array': return arr
+    }
+    const key = type_to_key(type)
+    if (key) {
+        return (v: TypeValueNotation) => {
+            const current = str(v)._value
+            const page = `${process.env.VITE_GALV_API_BASE_URL}${PATHS[key]}`
+            if (current.startsWith(page)) {
+                return {_type: type, _value: page}
+            }
+            // if current looks like a uuid or id, use it
+            if (current.match(/^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$/) || current.match(/^\d+$/)) {
+                return {_type: type, _value: `${page}/${current}`}
+            }
+            return {_type: type, _value: null}
+        }
+    }
+    console.error(`Could not get conversion function for ${type}`, type)
+    throw new Error(`Could not get conversion function for ${type}`)
+}
+export const convert = (value: TypeValueNotation, new_type: TypeChangerSupportedTypeName): TypeValueNotation => {
+    if (value._value === null) return {_type: new_type, _value: null}
+    return get_conversion_fun(new_type)(value)
+}
 
-export type SerializableObject = {[key: string]: Serializable}
-
-export type TypeChangerDetectableTypeName = (keyof typeof type_map & string) | LookupKey
-export type TypeChangerSupportedTypeName = TypeChangerDetectableTypeName | AutocompleteKey
 
 export type TypeChangerProps = {
-    currentValue?: Serializable
-    onTypeChange: (newValue: Serializable) => void
+    target: TypeValueNotation & {_type: TypeChangerSupportedTypeName}
+    // Handler for when the type is changed. Converts _value and sets _type.
+    onTypeChange: (newValue: TypeValueNotation) => void
     // If true, the type changer will be disabled
     // If a TypeChangerSupportedTypeName, the type changer will be locked to that type
     // rather than detecting the type from currentValue
-    lock_type: boolean|TypeChangerSupportedTypeName
+    lock_type: boolean
 }
 
 export type TypeChangerPopoverProps = {
     value?: TypeChangerSupportedTypeName
-    onTypeChange: (newValue: TypeChangerDetectableTypeName) => void
+    onTypeChange: (newValue: TypeChangerSupportedTypeName) => void
 } & PopoverProps
 
 function TypeChangeResourcePopover({onTypeChange, ...props}: TypeChangerPopoverProps) {
     const {classes} = useStyles()
+    const value = key_to_type(props.value)
     return <Popover
         className={clsx(classes.typeChangerPopover, classes.typeChangerResourcePopover)}
         anchorOrigin={{
@@ -140,16 +201,17 @@ function TypeChangeResourcePopover({onTypeChange, ...props}: TypeChangerPopoverP
             size="small"
             exclusive
             value={props.value}
-            onChange={(_, v: TypeChangerDetectableTypeName) => onTypeChange(v)}
+            onChange={(_, v: TypeChangerSupportedTypeName) => onTypeChange(v)}
         >
-            {Object.keys(API_HANDLERS).map((lookup_key) => {
+            {Object.keys(LOOKUP_KEYS).map((lookup_key) => {
                 const ICON = ICONS[lookup_key as keyof typeof ICONS]
                 const display = DISPLAY_NAMES[lookup_key as keyof typeof DISPLAY_NAMES]
+                const lookup_key_value = key_to_type(lookup_key)
                 return <ToggleButton
-                    value={lookup_key}
-                    key={lookup_key}
-                    selected={props.value === lookup_key}
-                    disabled={props.value === lookup_key}
+                    value={lookup_key_value}
+                    key={lookup_key_value}
+                    selected={value === lookup_key_value}
+                    disabled={value === lookup_key_value}
                 >
                     <Tooltip title={display} arrow placement="bottom" describeChild={true}>
                         <ICON />
@@ -170,7 +232,7 @@ function TypeChangePopover({value, onTypeChange, ...props}: TypeChangerPopoverPr
     )
     // Reopen child popover if value is a resource type
     useEffect(() => {
-        if (props.open && value && Object.keys(API_HANDLERS).includes(value)) {
+        if (props.open && value && Object.keys(API_HANDLERS).map(key_to_type).includes(value)) {
             setResourcePopoverOpen(true)
         }
     }, [props.open, value]);
@@ -186,7 +248,7 @@ function TypeChangePopover({value, onTypeChange, ...props}: TypeChangerPopoverPr
                 size="small"
                 exclusive
                 value={value}
-                onChange={(_, v: TypeChangerDetectableTypeName) => onTypeChange(v)}
+                onChange={(_, v: TypeChangerSupportedTypeName) => onTypeChange(v)}
             >
                 {Object.entries(type_map).map(([type, ICON]) =>
                     <ToggleButton value={type} key={type} selected={value === type} disabled={value === type}>
@@ -212,48 +274,13 @@ function TypeChangePopover({value, onTypeChange, ...props}: TypeChangerPopoverPr
     </Popover>
 }
 
-export const detect_type = (v: Serializable): TypeChangerDetectableTypeName => {
-    if (v instanceof Array) return 'array'
-    if (typeof v === 'string')
-        return get_url_components(v)?.lookup_key ?? 'string'
-    if (Object.keys(type_map).includes(typeof v))
-        return typeof v as keyof typeof type_map
-    console.error(`Could not detect type`, v)
-    throw new Error(`Could not detect type for ${v}`)
-}
-
-export const get_conversion_fun = (type: string) => {
-    switch (type) {
-        case 'string': return str
-        case 'number': return num
-        case 'boolean': return (v: any) => !!v
-        case 'object': return obj
-        case 'array': return arr
-    }
-    if (is_lookup_key(type))
-        return (v: any) => {
-            const clean = (s: string): string => s.replace(/[^a-zA-Z0-9-_]/g, '')
-            const page = type
-            const entry = clean(v) || 'new'
-            return build_placeholder_url(page, entry)
-        }
-    console.error(`Could not get conversion function for ${type}`, type)
-    throw new Error(`Could not get conversion function for ${type}`)
-}
-
 export default function TypeChanger(
-    {currentValue, onTypeChange, lock_type, ...props}: TypeChangerProps & Partial<TypeChangerPopoverProps>
+    {target, onTypeChange, lock_type, ...props}: TypeChangerProps & Partial<Omit<TypeChangerPopoverProps, "onTypeChange">>
 ) {
     const {classes} = useStyles()
 
-    const [value, _setValue] =
-        useState<TypeChangerSupportedTypeName>(typeof lock_type === 'string'? lock_type : detect_type(currentValue))
     const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement|null>(null)
-
-    useEffect(
-        () => _setValue(typeof lock_type === 'string'? lock_type : detect_type(currentValue)),
-        [currentValue, lock_type]
-    )
+    const value = type_to_key(target._type) || target._type
 
     return <Tooltip
         key="string"
@@ -270,7 +297,7 @@ export default function TypeChanger(
                 {...props}
                 onTypeChange={(t) => {
                     setPopoverAnchor(null)
-                    return onTypeChange(get_conversion_fun(t)(currentValue))
+                    return onTypeChange(convert(target, t))
                 }}
                 value={value as TypeChangerSupportedTypeName}
                 open={!!popoverAnchor}
@@ -279,7 +306,7 @@ export default function TypeChanger(
             />
             <IconButton
                 onClick={(e) => setPopoverAnchor(e.currentTarget || null)}
-                disabled={lock_type !== false}
+                disabled={lock_type}
                 className={clsx(classes.typeChangerButton)}
             >
                 {
