@@ -218,9 +218,6 @@ const do_render = async () => {
     )
 
     await screen.findByRole('heading', { name: /^Read-only properties$/ });
-
-    // console.log(mockedAxios.request.mock.calls)
-    // screen.debug(undefined, 1000000)
 }
 
 /**
@@ -491,7 +488,6 @@ describe('ResourceCard', () => {
             expect(input).toHaveValue("X");
         })
         it('allows numbers to be changed', async () => {
-            console.log("allows numbers to be changed")
             const user = userEvent.setup();
             await user.click(screen.getByRole('button', {name: /^Edit this /i}));
             const id_label = screen.getByRole("rowheader", {name: /^key num$/});
@@ -535,8 +531,6 @@ describe('ResourceCard', () => {
         it('allows removing array elements', async () => {
             const {user, row} = await get_array();
             const old_element_count = within(row).getAllByRole('textbox').length;
-            console.log("allows removing array elements")
-            screen.debug(row, 1000000)
             const first_remove_button = within(row).getAllByTestId('RemoveIcon').shift()!;
             await user.click(first_remove_button);
             await wait();
@@ -601,8 +595,6 @@ describe('ResourceCard', () => {
             const input = within(id_label.parentElement! as HTMLElement).getByRole('combobox');
             expect(input).toHaveValue(`representation: CELL_FAMILY [${api_data.cell_family.uuid}]`);
             await user.click(input)
-            console.log("allows resources to be changed")
-            screen.debug(input, 1000000)
             await user.clear(input)
             await user.keyboard("2")  // should match the second cell family
             const autocomplete = await screen.findByRole('listbox');

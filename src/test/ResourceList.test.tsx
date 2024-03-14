@@ -11,6 +11,7 @@ import axios from 'axios';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import FetchResourceContextProvider from "../Components/FetchResourceContext";
 
+jest.mock('../Components/IntroText')
 jest.mock('../Components/ResourceCard')
 
 // Mock jest and set the type
