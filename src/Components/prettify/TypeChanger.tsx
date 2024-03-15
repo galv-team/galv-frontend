@@ -28,6 +28,7 @@ import {
     type_to_key
 } from "../../constants";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {OverridableComponent} from "@mui/material/OverridableComponent";
 import {
     from_type_value_notation,
@@ -308,6 +309,7 @@ export default function TypeChanger(
                 onClick={(e) => setPopoverAnchor(e.currentTarget || null)}
                 disabled={lock_type}
                 className={clsx(classes.typeChangerButton)}
+                sx={{borderRadius: "0.25em"}}
             >
                 {
                     is_lookup_key(value)?
@@ -316,6 +318,7 @@ export default function TypeChanger(
                             React.createElement(type_map.string.icon) :
                             React.createElement(type_map[value as keyof typeof type_map].icon)
                 }
+                { !lock_type && <ArrowDropDownIcon />}
             </IconButton>
         </span>
     </Tooltip>
