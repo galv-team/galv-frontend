@@ -13,6 +13,7 @@ import FetchResourceContextProvider from "../Components/FetchResourceContext";
 
 jest.mock('../Components/IntroText')
 jest.mock('../Components/ResourceCard')
+jest.mock('../ClientCodeDemo')
 
 // Mock jest and set the type
 jest.mock('axios');
