@@ -2,11 +2,10 @@
 // Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
-export default function DummyClientCodeDemo({dataset_ids}: {dataset_ids: string[]}) {
+export default function DummyClientCodeDemo() {
     return (
         <div>
             <p>ClientCodeDemo</p>
-            <p>{JSON.stringify({dataset_ids})}</p>
         </div>
     )
 }

@@ -43,7 +43,6 @@ import {Modal} from "@mui/material";
 import {ResourceCreator, get_modal_title} from "./ResourceCreator";
 import {Configuration}from "@battery-intelligence-lab/galv";
 import {useCurrentUser} from "./CurrentUserContext";
-import ClientCodeDemo from "../ClientCodeDemo";
 import {
     from_type_value_notation,
     to_type_value_notation,
@@ -346,7 +345,6 @@ function ResourceCard<T extends BaseResource>(
         }</Grid>}
         {lookup_key === LOOKUP_KEYS.FILE && <Stack spacing={2}>
             <DatasetChart file_uuid={resource_id as string} />
-            <ClientCodeDemo dataset_ids={[resource_id as string]} />
         </Stack>}
     </CardContent>
 
