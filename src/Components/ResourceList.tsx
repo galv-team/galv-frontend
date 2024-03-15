@@ -13,12 +13,13 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Skeleton from "@mui/material/Skeleton";
 import ResourceCard, {BaseResource} from "./ResourceCard";
 import ResourceCreator from "./ResourceCreator";
-import {DISPLAY_NAMES_PLURAL, LookupKey} from "../constants";
+import {DISPLAY_NAMES_PLURAL, LOOKUP_KEYS, LookupKey} from "../constants";
 import ErrorBoundary from "./ErrorBoundary";
 import Button from "@mui/material/Button";
 import {useCurrentUser} from "./CurrentUserContext";
 import {useFetchResource} from "./FetchResourceContext";
 import IntroText from "./IntroText";
+import ClientCodeDemo from "../ClientCodeDemo";
 
 export type ResourceListProps = {
     lookup_key: LookupKey
@@ -70,6 +71,7 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
             </Grid>
             <IntroText k={lookup_key} />
             <Stack spacing={2} key="body">
+                {lookup_key === LOOKUP_KEYS.FILE && <ClientCodeDemo />}
                 {content}
                 <ResourceCreator key={'creator'} lookup_key={lookup_key} />
             </Stack>
