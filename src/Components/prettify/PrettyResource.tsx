@@ -1,4 +1,4 @@
-import {DISPLAY_NAMES, FAMILY_LOOKUP_KEYS, LookupKey} from "../../constants";
+import {DISPLAY_NAMES, FAMILY_LOOKUP_KEYS, FIELDS, LookupKey} from "../../constants";
 import {ChipProps} from "@mui/material/Chip";
 import React, {useEffect, useState} from "react";
 import useStyles from "../../styles/UseStyles";
@@ -13,16 +13,23 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {representation} from "../Representation";
 import {useFetchResource} from "../FetchResourceContext";
 import {BaseResource} from "../ResourceCard";
+import {get_modal_title, ResourceCreator} from "../ResourceCreator";
+import Modal from "@mui/material/Modal";
+import UndoRedoProvider from "../UndoRedoContext";
 
 export type PrettyResourceSelectProps = {
     lookup_key: LookupKey
-    allow_new?: boolean
+    allow_new?: boolean  // defaults to true if the lookup_key has a 'team' field
 } & PrettyComponentProps<string|null> & Partial<Omit<ChipProps, "onChange">>
 
 export const PrettyResourceSelect = <T extends BaseResource>(
-    {target, onChange, lookup_key}: PrettyResourceSelectProps
+    {target, onChange, allow_new, lookup_key}: PrettyResourceSelectProps
 ) => {
     const { useListQuery } = useFetchResource();
+    const [modalOpen, setModalOpen] = useState(false)
+
+    if (allow_new === undefined)
+        allow_new = Object.keys(FIELDS[lookup_key]).includes('team')
 
     const query = useListQuery<T>(lookup_key)
 
@@ -51,67 +58,105 @@ export const PrettyResourceSelect = <T extends BaseResource>(
 
     const {classes} = useStyles()
 
-    return <Autocomplete
-        className={clsx(classes.prettySelect)}
-        freeSolo={true}
-        filterOptions={createFilterOptions({stringify: represent})}
-        open={open}
-        onOpen={() => setOpen(true)}
-        onChange={(e, v) => {
-            // console.log(`onChange`, {e, v, value, url})
-            onChange({_type: target._type, _value: value_to_url(v ?? "")})
-            setOpen(false)
-        }}
-        onClose={() => setOpen(false)}
-        value={url_to_value(url)}
-        options={query.results?.map(r => url_to_value(r.url)) || []}
-        loading={loading}
-        getOptionLabel={(option: string) => option}
-        groupBy={family_lookup_key?
-            (option) => {
-                const o = url_to_query_result(value_to_url(option) ?? "")
-                return o? o.family ?? "" : ""
-            } : () => ""
+    const new_item = `Create a new ${DISPLAY_NAMES[lookup_key]}`
+
+    const options = [
+        ...(allow_new? [new_item] : []),
+        ...(query.results?.map(r => url_to_value(r.url)) || [])
+    ]
+
+    return <>
+        {
+            allow_new &&
+            <Modal
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                aria-labelledby={get_modal_title(lookup_key, 'title')}
+                sx={{padding: (t) => t.spacing(4)}}
+            >
+                <>
+                    <UndoRedoProvider>
+                        <ResourceCreator<T>
+                            onCreate={(new_resource_url) => {
+                                setModalOpen(false)
+                                onChange({_type: target._type, _value: new_resource_url ?? ""})
+                            }}
+                            onDiscard={() => setModalOpen(false)}
+                            lookup_key={lookup_key}
+                        />
+                    </UndoRedoProvider>
+                </>
+            </Modal>
         }
-        renderInput={(params) => <TextField
-            {...params}
-            label={`Select ${DISPLAY_NAMES[lookup_key]}`}
-            InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                    <React.Fragment>
-                        {loading ? <CircularProgress color="inherit" size={20}/> : null}
-                        {params.InputProps.endAdornment}
-                    </React.Fragment>
-                ),
+        <Autocomplete
+            className={clsx(classes.prettySelect)}
+            freeSolo={true}
+            filterOptions={createFilterOptions({stringify: represent})}
+            open={open}
+            onOpen={() => setOpen(true)}
+            onChange={(e, v) => {
+                // console.log(`onChange`, {e, v, value, url})
+                if (v === new_item) {
+                    return setModalOpen(true)
+                }
+                onChange({_type: target._type, _value: value_to_url(v ?? "")})
+                setOpen(false)
+            }}
+            onClose={() => setOpen(false)}
+            options={options}
+            value={url_to_value(url)}
+            loading={loading}
+            getOptionLabel={(option: string) => option}
+            groupBy={family_lookup_key?
+                (option) => {
+                    if (option === new_item) return ""
+                    const o = url_to_query_result(value_to_url(option) ?? "")
+                    return o? o.family ?? "" : ""
+                } : () => ""
+            }
+            renderInput={(params) => <TextField
+                {...params}
+                label={`Select ${DISPLAY_NAMES[lookup_key]}`}
+                InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                        <React.Fragment>
+                            {loading ? <CircularProgress color="inherit" size={20}/> : null}
+                            {params.InputProps.endAdornment}
+                        </React.Fragment>
+                    ),
+                }}
+            />
+            }
+            renderGroup={(params) => {
+                const family = family_query.results?.find(f => f.url === params.group)
+                return <li key={params.key}>
+                    <div>{
+                        family ?
+                            <ResourceChip
+                                resource_id={id_from_ref_props<string>(family)}
+                                lookup_key={FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS]}
+                                component={ButtonBase}
+                                clickable={false}
+                                disabled={true}
+                            /> :
+                            params.group
+                    }</div>
+                    <ul>{params.children}</ul>
+                </li>
             }}
         />
-        }
-        renderGroup={(params) => <li key={params.key}>
-            <div>{
-                family_query.results?
-                    <ResourceChip
-                        resource_id={id_from_ref_props<string>(family_query.results.find(f => f.url === params.group) ?? "")}
-                        lookup_key={FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS]}
-                        component={ButtonBase}
-                        clickable={false}
-                        disabled={true}
-                    /> :
-                    params.group
-            }</div>
-            <ul>{params.children}</ul>
-        </li>
-        }
-    />
+    </>
 }
 
 export type PrettyResourceProps = {
     lookup_key?: LookupKey
     resource_id?: string|number
+    allow_new?: boolean  // defaults to true if the lookup_key has a 'team' field
 } & PrettyComponentProps<string|null> & Partial<Omit<ChipProps, "onChange">>
 
 export default function PrettyResource(
-    {target, onChange, edit_mode, lookup_key, resource_id, ...childProps}: PrettyResourceProps
+    {target, onChange, edit_mode, lookup_key, resource_id, allow_new, ...childProps}: PrettyResourceProps
 ) {
     const url_components = get_url_components(target._value ?? "")
     lookup_key = lookup_key ?? url_components?.lookup_key
@@ -133,6 +178,7 @@ export default function PrettyResource(
             onChange={onChange}
             target={target}
             edit_mode={edit_mode}
+            allow_new={allow_new}
         />
     }
     if (lookup_key && resource_id)

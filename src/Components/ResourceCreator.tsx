@@ -27,7 +27,7 @@ import {
 import ErrorBoundary from "./ErrorBoundary";
 import UndoRedoProvider, {useUndoRedoContext} from "./UndoRedoContext";
 import {BaseResource} from "./ResourceCard";
-import {Modal} from "@mui/material";
+import Modal from "@mui/material/Modal";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
@@ -182,7 +182,7 @@ export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: 
 export type ResourceCreatorProps = {
     lookup_key: LookupKey
     initial_data?: object
-    onCreate: (error?: unknown) => void
+    onCreate: (new_resource_url?: string, error?: unknown) => void
     onDiscard: () => void
 } & CardProps
 
@@ -257,7 +257,7 @@ export function ResourceCreator<T extends BaseResource>(
                     })
                     // Also invalidate autocomplete cache because we may have updated options
                     queryClient.invalidateQueries(['autocomplete'])
-                    onCreate()
+                    onCreate(data.data.url as string ?? undefined)
                 },
                 onError: (error, variables, context) => {
                     console.error(error, {variables, context})
@@ -272,7 +272,7 @@ export function ResourceCreator<T extends BaseResource>(
                         </Stack>,
                         severity: 'error'
                     })
-                    onCreate(error)
+                    onCreate(undefined, error)
                 },
             })
     const create_attachment_mutation = UploadMutation

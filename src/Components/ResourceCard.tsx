@@ -399,7 +399,7 @@ function ResourceCard<T extends BaseResource>(
                 </A>}
                 subheader={<Stack direction="row" spacing={1} alignItems="center">
                     <A component={Link} to={PATHS[lookup_key]}>{DISPLAY_NAMES[lookup_key]}</A>
-                    {apiResource?.team !== undefined && <ResourceChip
+                    {apiResource?.team !== undefined && apiResource?.team !== null && <ResourceChip
                         lookup_key="TEAM"
                         resource_id={id_from_ref_props<number>(apiResource?.team)}
                         sx={{fontSize: "smaller"}}

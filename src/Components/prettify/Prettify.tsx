@@ -227,6 +227,7 @@ export function Pretty(
             onChange={onEdit ?? (() => {})}
             edit_mode={edit_mode}
             lookup_key={key}
+            allow_new={create_mode? false : undefined}
             {...childProps as Partial<Omit<ChipProps,"onChange">>}
         />
     }

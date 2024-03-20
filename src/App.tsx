@@ -72,7 +72,7 @@ export function Core() {
         key={lookupKey}
     >
         <ListItemIcon key="icon">
-            <LookupKeyIcon lookupKey={lookupKey} tooltip={!open} tooltipProps={{placement: "right"}} />
+            <LookupKeyIcon lookupKey={lookupKey} tooltip={!open} tooltipProps={{placement: "right"}} plural />
         </ListItemIcon>
         <ListItemText key="text" primary={DISPLAY_NAMES_PLURAL[lookupKey]} />
     </ListItemButton>
@@ -90,18 +90,23 @@ export function Core() {
             <Divider component="li" key="div1" />
             {[
                 LOOKUP_KEYS.FILE,
+                LOOKUP_KEYS.COLUMN_FAMILY,
+                LOOKUP_KEYS.UNIT
+            ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
+            <Divider component="li" key="div2" />
+            {[
                 LOOKUP_KEYS.CELL,
                 LOOKUP_KEYS.EQUIPMENT,
                 LOOKUP_KEYS.SCHEDULE,
                 LOOKUP_KEYS.ARBITRARY_FILE
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
-            <Divider component="li" key="div2" />
+            <Divider component="li" key="div3" />
             {[
                 LOOKUP_KEYS.HARVESTER,
                 LOOKUP_KEYS.PATH,
                 LOOKUP_KEYS.VALIDATION_SCHEMA,
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
-            <Divider component="li" key="div3" />
+            <Divider component="li" key="div4" />
             {[
                 LOOKUP_KEYS.LAB,
                 LOOKUP_KEYS.TEAM,

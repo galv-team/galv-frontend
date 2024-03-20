@@ -26,6 +26,8 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import DownloadIcon from '@mui/icons-material/Download';
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import SubscriptIcon from '@mui/icons-material/Subscript';
+import SplitscreenIcon from '@mui/icons-material/Splitscreen';
 
 import {
     CellChemistriesApi,
@@ -52,7 +54,7 @@ import {
     TokensApi,
     UsersApi,
     ValidationSchemasApi,
-    ArbitraryFilesApi
+    ArbitraryFilesApi, ColumnsApi, ColumnTypesApi, UnitsApi
 } from "@battery-intelligence-lab/galv";
 import {
     TypeChangerAutocompleteKey,
@@ -127,6 +129,9 @@ export const LOOKUP_KEYS = {
     TEAM: "TEAM",
     USER: "USER",
     TOKEN: "TOKEN",
+    UNIT: "UNIT",
+    COLUMN_FAMILY: "COLUMN_FAMILY",
+    COLUMN: "COLUMN",
 } as const
 
 export const AUTOCOMPLETE_KEYS = {
@@ -156,6 +161,9 @@ export const ICONS = {
     [LOOKUP_KEYS.HARVESTER]: CloudSyncIcon,
     [LOOKUP_KEYS.PATH]: FolderIcon,
     [LOOKUP_KEYS.FILE]: PollIcon,
+    [LOOKUP_KEYS.UNIT]: SubscriptIcon,
+    [LOOKUP_KEYS.COLUMN_FAMILY]: SplitscreenIcon,
+    [LOOKUP_KEYS.COLUMN]: SplitscreenIcon,
     [LOOKUP_KEYS.CELL_FAMILY]: BatchPredictionIcon,
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: BatchPredictionIcon,
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: BatchPredictionIcon,
@@ -197,6 +205,9 @@ export const PATHS = {
     [LOOKUP_KEYS.HARVESTER]: "/harvesters",
     [LOOKUP_KEYS.PATH]: "/paths",
     [LOOKUP_KEYS.FILE]: "/files",
+    [LOOKUP_KEYS.COLUMN]: "/columns",
+    [LOOKUP_KEYS.COLUMN_FAMILY]: "/column_types",
+    [LOOKUP_KEYS.UNIT]: "/units",
     DASHBOARD: "/",
     [LOOKUP_KEYS.EXPERIMENT]: "/experiments",
     [LOOKUP_KEYS.CYCLER_TEST]: "/cycler_tests",
@@ -231,6 +242,9 @@ export const DISPLAY_NAMES = {
     [LOOKUP_KEYS.HARVESTER]: "Harvester",
     [LOOKUP_KEYS.PATH]: "Path",
     [LOOKUP_KEYS.FILE]: "File",
+    [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
+    [LOOKUP_KEYS.COLUMN]: "Column",
+    [LOOKUP_KEYS.UNIT]: "Unit",
     DASHBOARD: "Dashboard",
     [LOOKUP_KEYS.EXPERIMENT]: "Experiment",
     [LOOKUP_KEYS.CYCLER_TEST]: "Cycler Test",
@@ -256,6 +270,9 @@ export const DISPLAY_NAMES_PLURAL = {
     [LOOKUP_KEYS.HARVESTER]: "Harvesters",
     [LOOKUP_KEYS.PATH]: "Paths",
     [LOOKUP_KEYS.FILE]: "Files",
+    [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
+    [LOOKUP_KEYS.COLUMN]: "Columns",
+    [LOOKUP_KEYS.UNIT]: "Unit",
     DASHBOARD: "Dashboard",
     [LOOKUP_KEYS.EXPERIMENT]: "Experiments",
     [LOOKUP_KEYS.CYCLER_TEST]: "Cycler Tests",
@@ -282,6 +299,9 @@ export const API_HANDLERS = {
     [LOOKUP_KEYS.HARVESTER]: HarvestersApi,
     [LOOKUP_KEYS.PATH]: MonitoredPathsApi,
     [LOOKUP_KEYS.FILE]: FilesApi,
+    [LOOKUP_KEYS.COLUMN]: ColumnsApi,
+    [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnTypesApi,
+    [LOOKUP_KEYS.UNIT]: UnitsApi,
     [LOOKUP_KEYS.CELL_FAMILY]: CellFamiliesApi,
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: EquipmentFamiliesApi,
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: ScheduleFamiliesApi,
@@ -321,6 +341,9 @@ export const API_SLUGS = {
     [LOOKUP_KEYS.HARVESTER]: "harvesters",
     [LOOKUP_KEYS.PATH]: "monitoredPaths",
     [LOOKUP_KEYS.FILE]: "files",
+    [LOOKUP_KEYS.COLUMN]: "columns",
+    [LOOKUP_KEYS.COLUMN_FAMILY]: "columnTypes",
+    [LOOKUP_KEYS.UNIT]: "units",
     [LOOKUP_KEYS.CELL]: "cells",
     [LOOKUP_KEYS.EQUIPMENT]: "equipment",
     [LOOKUP_KEYS.SCHEDULE]: "schedules",
@@ -426,7 +449,7 @@ export const FIELDS = {
     },
     [LOOKUP_KEYS.FILE]: {
         ...generic_fields,
-        name: {readonly: true, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         state: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         path: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         parser: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
@@ -442,8 +465,36 @@ export const FIELDS = {
         has_required_columns: {readonly: true, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
         upload_errors: {readonly: true, type: "string", many: true},
         column_errors: {readonly: true, type: "string", many: true},
-        columns: {readonly: true, type: "string", many: true},
+        columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true},
         upload_info: {readonly: true, type: "string"},
+    },
+    [LOOKUP_KEYS.COLUMN]: {
+        ...always_fields,
+        id: {readonly: true, type: "number"},
+        name: {readonly: true, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        name_in_file: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        file: {readonly: true, type: key_to_type(LOOKUP_KEYS.FILE), priority: PRIORITY_LEVELS.CONTEXT},
+        type: {readonly: false, type: key_to_type(LOOKUP_KEYS.COLUMN_FAMILY), priority: PRIORITY_LEVELS.CONTEXT},
+        values: {readonly: true, type: "string"},
+    },
+    [LOOKUP_KEYS.COLUMN_FAMILY]: {
+        ...always_fields,
+        id: {readonly: true, type: "number"},
+        is_default: {readonly: true, type: "boolean"},
+        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        unit: {readonly: false, type: key_to_type(LOOKUP_KEYS.UNIT), priority: PRIORITY_LEVELS.SUMMARY},
+        columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        ...team_fields
+    },
+    [LOOKUP_KEYS.UNIT]: {
+        ...always_fields,
+        id: {readonly: true, type: "number"},
+        is_default: {readonly: true, type: "boolean"},
+        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        symbol: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        ...team_fields
     },
     [LOOKUP_KEYS.EXPERIMENT]: {
         title: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
@@ -635,6 +686,7 @@ export const FAMILY_LOOKUP_KEYS = {
     [LOOKUP_KEYS.CELL]: "CELL_FAMILY",
     [LOOKUP_KEYS.EQUIPMENT]: "EQUIPMENT_FAMILY",
     [LOOKUP_KEYS.SCHEDULE]: "SCHEDULE_FAMILY",
+    [LOOKUP_KEYS.COLUMN]: "COLUMN_FAMILY",
 } as const
 
 export const get_has_family = (key: string|number): key is keyof typeof FAMILY_LOOKUP_KEYS =>
@@ -646,6 +698,7 @@ export const CHILD_LOOKUP_KEYS = {
     [LOOKUP_KEYS.CELL_FAMILY]: "CELL",
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "EQUIPMENT",
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: "SCHEDULE",
+    [LOOKUP_KEYS.COLUMN_FAMILY]: "COLUMN",
 } as const
 
 /**
@@ -655,6 +708,7 @@ export const CHILD_PROPERTY_NAMES  = {
     [LOOKUP_KEYS.CELL_FAMILY]: "cells",
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "equipment",
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: "schedules",
+    [LOOKUP_KEYS.COLUMN_FAMILY]: "columns",
 } as const
 
 export const get_is_family = (key: string|number): key is keyof typeof CHILD_PROPERTY_NAMES =>
@@ -691,6 +745,19 @@ The data in each file is parsed and uploaded to the database.
 Files are required to have, at minimum, columns for "time", "potential difference", and "current".
 
 You can see all the files that have been collected on [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}) created by your team.
+    `,
+    [LOOKUP_KEYS.COLUMN_FAMILY]: `
+Column types identify the type of data in a column of a [file](${PATHS[LOOKUP_KEYS.FILE]}).
+
+They associate a column with a [unit](${PATHS[LOOKUP_KEYS.UNIT]}).
+    `,
+    [LOOKUP_KEYS.COLUMN]: `
+Columns are the individual data columns in a [file](${PATHS[LOOKUP_KEYS.FILE]}).
+
+Each column has a [column type](${PATHS[LOOKUP_KEYS.COLUMN_FAMILY]}), which defines the type of data in the column.
+    `,
+    [LOOKUP_KEYS.UNIT]: `
+Units are the units of measurement used in the data in a [file](${PATHS[LOOKUP_KEYS.FILE]}).
     `,
     [LOOKUP_KEYS.CELL_FAMILY]: `
 Cell families are collections of [cells](${PATHS[LOOKUP_KEYS.CELL]}) that share some common properties.
