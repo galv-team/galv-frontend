@@ -11,7 +11,7 @@ import Grid from "@mui/material/Unstable_Grid2";
 import {useState} from "react";
 import Stack from "@mui/material/Stack";
 import Button, {ButtonProps} from "@mui/material/Button";
-import {ICONS, SerializableObject} from "../constants";
+import {API_HANDLERS, API_SLUGS, FIELDS, ICONS, SerializableObject} from "../constants";
 import {useQueryClient} from "@tanstack/react-query";
 import {AxiosResponse} from "axios";
 import {BaseResource} from "./ResourceCard";
@@ -19,6 +19,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import CardHeader from "@mui/material/CardHeader";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import {Configuration} from "@battery-intelligence-lab/galv";
+import {useCurrentUser} from "./CurrentUserContext";
 
 export function DownloadButton({target_urls, ...props}: {target_urls: string|string[]} & ButtonProps) {
     const targets = typeof target_urls === 'string' ? [target_urls] : target_urls
@@ -27,6 +29,7 @@ export function DownloadButton({target_urls, ...props}: {target_urls: string|str
     const [error, setError] = useState(false)
     const [downloadLink, setDownloadLink] = useState<string>()
     const queryClient = useQueryClient()
+    const {user} = useCurrentUser()
 
     const downloadButton = <Button
         component="a"
@@ -47,22 +50,71 @@ export function DownloadButton({target_urls, ...props}: {target_urls: string|str
             setDownloadLink(undefined)
             setError(false)
             const data: SerializableObject[] = []
-            await Promise.all(
-                targets.map(url => get_url_components(url))
-                    .map(components => {
-                        if (!components || !components.resource_id || !components.lookup_key) {
-                            console.error(`Could not parse resource_id or lookup_key from ${components}`, {components, target_urls})
-                            throw new Error(`Error loading ${components}`)
+            const to_id = (c: ReturnType<typeof get_url_components>) => `${c?.lookup_key}/${c?.resource_id}`
+            const ids: string[] = []
+
+            // Actually does the fetching of data - falls back to API if not in cache
+            const fetch = async (url: string, raise: boolean = false) => {
+                const components = get_url_components(url)
+                if (!components || !components.resource_id || !components.lookup_key) {
+                    if (raise)
+                        throw new Error(`Could not parse resource_id or lookup_key from ${url}`)
+                    return
+                }
+                const data = queryClient.getQueryData([components.lookup_key, components.resource_id])
+
+                if (data) return data
+
+                const config = new Configuration({
+                    basePath: process.env.VITE_GALV_API_BASE_URL,
+                    accessToken: user?.token
+                })
+                const api_handler = new API_HANDLERS[components.lookup_key](config)
+                const get = api_handler[
+                    `${API_SLUGS[components.lookup_key]}Retrieve` as keyof typeof api_handler
+                    ] as (uuid: string) => Promise<AxiosResponse<unknown>>
+
+                return get.bind(api_handler)(components.resource_id)
+            }
+            // Parses response to a fetch and recursively fetches all linked resources
+            const fetch_if_not_already_fetched = async (url: unknown): Promise<void> => {
+                if (typeof url === 'string') {
+                    const components = get_url_components(url)
+                    const id = to_id(components)
+                    if (id && !ids.includes(id)) {
+                        ids.push(id)
+                        await recursive_fetch(url)
+                    }
+                }
+                if (url instanceof Array)
+                    await Promise.all(url.map(fetch_if_not_already_fetched));
+                return Promise.resolve()
+            }
+            // Recursively fetches all linked resources
+            const recursive_fetch = async (url: string, raise: boolean = false) => {
+                return fetch(url, raise)
+                    .then(d => {
+                        const r = d as AxiosResponse<BaseResource>
+                        if (!r || !r.data) {
+                            if (raise)
+                                throw new Error(`Could not get data for ${url}`)
+                            return
                         }
-                        return queryClient.ensureQueryData(
-                            {queryKey: [components.lookup_key, components.resource_id]}
-                        ).then(d => {
-                            const r = d as AxiosResponse<BaseResource>
-                            if (r.data) data.push(r.data)
-                            else console.error(`Could not get data for ${components}`, {components, d})
-                        })
+                        if (data.find(d => d.url === r.data.url)) return
+                        data.push(r.data)
+                        const components = get_url_components(url)
+                        if (!components || !components.lookup_key || !components.resource_id) return
+                        const fields = FIELDS[components.lookup_key]
+                        const links = Object.fromEntries(Object.entries(r.data)
+                            .filter(([k, v]) => {
+                                const field = fields[k as keyof typeof fields] as {fetch_in_download?: boolean}
+                                return field && field.fetch_in_download && (v instanceof Array || typeof v === 'string')
+                            }))
+                        return Promise.all(Object.values(links).map(fetch_if_not_already_fetched))
                     })
-            )
+            }
+            await Promise.all(targets.map(t => recursive_fetch(t, true)))
+
             // Make a blob and download it
             const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'})
             setDownloadLink(URL.createObjectURL(blob))

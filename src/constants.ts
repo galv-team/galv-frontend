@@ -400,6 +400,9 @@ export type Field = {
     // It is called in ApiResourceContextProvider, and may be called multiple times,
     // so it should handle receiving already transformed data.
     transformation?: (d: Serializable) => Serializable
+    // If field represents a resource that should be included in the download
+    // when the parent resource is downloaded, set this to true.
+    fetch_in_download?: boolean
 }
 const always_fields: {[key: string]: Field} = {
     url: {readonly: true, type: "string"},
@@ -443,7 +446,8 @@ export const FIELDS = {
             readonly: true,
             type: key_to_type(LOOKUP_KEYS.HARVESTER),
             priority: PRIORITY_LEVELS.SUMMARY,
-            createonly: true
+            createonly: true,
+            fetch_in_download: true
         },
         files: {readonly: true, type: key_to_type(LOOKUP_KEYS.FILE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         ...team_fields,
@@ -466,7 +470,7 @@ export const FIELDS = {
         has_required_columns: {readonly: true, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
         upload_errors: {readonly: true, type: "string", many: true},
         column_errors: {readonly: true, type: "string", many: true},
-        columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true},
+        columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true, fetch_in_download: true},
         upload_info: {readonly: true, type: "string"},
     },
     [LOOKUP_KEYS.COLUMN]: {
@@ -475,7 +479,7 @@ export const FIELDS = {
         name: {readonly: true, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         name_in_file: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         file: {readonly: true, type: key_to_type(LOOKUP_KEYS.FILE), priority: PRIORITY_LEVELS.CONTEXT},
-        type: {readonly: false, type: key_to_type(LOOKUP_KEYS.COLUMN_FAMILY), priority: PRIORITY_LEVELS.CONTEXT},
+        type: {readonly: false, type: key_to_type(LOOKUP_KEYS.COLUMN_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
         values: {readonly: true, type: "string"},
     },
     [LOOKUP_KEYS.COLUMN_FAMILY]: {
@@ -484,7 +488,7 @@ export const FIELDS = {
         is_default: {readonly: true, type: "boolean"},
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        unit: {readonly: false, type: key_to_type(LOOKUP_KEYS.UNIT), priority: PRIORITY_LEVELS.SUMMARY},
+        unit: {readonly: false, type: key_to_type(LOOKUP_KEYS.UNIT), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
         columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         ...team_fields
     },
@@ -500,24 +504,24 @@ export const FIELDS = {
     [LOOKUP_KEYS.EXPERIMENT]: {
         title: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string"},
-        authors: {readonly: false, type: key_to_type(LOOKUP_KEYS.USER), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        protocol: {readonly: true, type: "string"},
-        protocol_file: {readonly: true, type: "string"},
-        cycler_tests: {readonly: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        authors: {readonly: false, type: key_to_type(LOOKUP_KEYS.USER), many: true, priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
+        protocol: {readonly: false, type: "string"},
+        protocol_file: {readonly: false, type: "string"},
+        cycler_tests: {readonly: false, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
         ...team_fields,
     },
     [LOOKUP_KEYS.CYCLER_TEST]: {
         ...generic_fields,
-        cell: {readonly: false, type: key_to_type(LOOKUP_KEYS.CELL), priority: PRIORITY_LEVELS.SUMMARY},
-        schedule: {readonly: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE), priority: PRIORITY_LEVELS.SUMMARY},
-        equipment: {readonly: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        cell: {readonly: false, type: key_to_type(LOOKUP_KEYS.CELL), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
+        schedule: {readonly: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
+        equipment: {readonly: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
         rendered_schedule: {readonly: true, type: "string", many: true},
         ...team_fields,
     },
     [LOOKUP_KEYS.CELL]: {
         ...generic_fields,
         identifier: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.CELL_FAMILY), priority: PRIORITY_LEVELS.CONTEXT},
+        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.CELL_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
         ...team_fields,
         cycler_tests: {readonly: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true},
         in_use: {readonly: true, type: "boolean"},
@@ -525,14 +529,14 @@ export const FIELDS = {
     [LOOKUP_KEYS.EQUIPMENT]: {
         ...generic_fields,
         identifier: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), priority: PRIORITY_LEVELS.CONTEXT},
+        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
         ...team_fields,
         calibration_date: {readonly: false, type: "string"},
         in_use: {readonly: true, type: "boolean"},
     },
     [LOOKUP_KEYS.SCHEDULE]: {
         ...generic_fields,
-        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY), priority: PRIORITY_LEVELS.CONTEXT},
+        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
         ...team_fields,
         schedule_file: {readonly: false, type: "string"},
         pybamm_schedule_variables: {readonly: false, type: "object"},
@@ -577,18 +581,20 @@ export const FIELDS = {
         ...always_fields,
         id: {readonly: true, type: "number"},
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        lab: {readonly: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
+        lab: {readonly: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
         member_group: {
             readonly: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            priority: PRIORITY_LEVELS.SUMMARY
+            priority: PRIORITY_LEVELS.SUMMARY,
+            fetch_in_download: true
         },
         admin_group: {
             readonly: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            priority: PRIORITY_LEVELS.SUMMARY
+            priority: PRIORITY_LEVELS.SUMMARY,
+            fetch_in_download: true
         },
         monitored_paths: {readonly: true, type: key_to_type(LOOKUP_KEYS.PATH), many: true},
         cellfamily_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.CELL_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
@@ -628,7 +634,8 @@ export const FIELDS = {
             readonly: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            priority: PRIORITY_LEVELS.SUMMARY
+            priority: PRIORITY_LEVELS.SUMMARY,
+            fetch_in_download: true
         },
         teams: {readonly: true, type: key_to_type(LOOKUP_KEYS.TEAM), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         harvesters: {readonly: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), many: true, priority: PRIORITY_LEVELS.SUMMARY},

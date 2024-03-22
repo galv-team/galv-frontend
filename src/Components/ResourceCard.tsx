@@ -362,7 +362,7 @@ function ResourceCard<T extends BaseResource>(
             Object.entries(FIELDS[lookup_key])
                 .filter((e) => e[1].priority === PRIORITY_LEVELS.SUMMARY)
                 .map(([k, v]) => <Grid key={k} container xs={12} sx={{alignItems: "center"}}>
-                    <Grid xs={2} lg={1}><Typography variant="subtitle2">{k}</Typography></Grid>
+                    <Grid xs={2} lg={1}><Typography variant="subtitle2">{k.replace(/_/g, ' ')}</Typography></Grid>
                     <Grid xs={10} lg={11}>{summarise(apiResource[k], v.many, k, type_to_key(v.type))}</Grid>
                 </Grid>)
         }</Grid>}
