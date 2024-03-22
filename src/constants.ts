@@ -428,8 +428,9 @@ export const FIELDS = {
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         lab: {readonly: true, type: "string", priority: PRIORITY_LEVELS.CONTEXT},
         last_check_in: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        sleep_time: {readonly: false, type: "string"},
-        environment_variables: {readonly: true, type: "string"},
+        last_check_in_job: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        sleep_time: {readonly: false, type: "number"},
+        environment_variables: {readonly: true, type: "object"},
         active: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.CONTEXT},
     },
     [LOOKUP_KEYS.PATH]: {
