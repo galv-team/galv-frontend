@@ -442,7 +442,7 @@ export const FIELDS = {
         harvester: {
             readonly: true,
             type: key_to_type(LOOKUP_KEYS.HARVESTER),
-            priority: PRIORITY_LEVELS.CONTEXT,
+            priority: PRIORITY_LEVELS.SUMMARY,
             createonly: true
         },
         files: {readonly: true, type: key_to_type(LOOKUP_KEYS.FILE), many: true, priority: PRIORITY_LEVELS.SUMMARY},

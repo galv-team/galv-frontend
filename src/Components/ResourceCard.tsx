@@ -27,8 +27,17 @@ import {
     DISPLAY_NAMES,
     FAMILY_LOOKUP_KEYS,
     FIELDS,
-    ICONS, is_lookup_key,
-    PATHS, PRIORITY_LEVELS, LookupKey, get_has_family, get_is_family, LOOKUP_KEYS, SerializableObject, Serializable
+    ICONS,
+    is_lookup_key,
+    PATHS,
+    PRIORITY_LEVELS,
+    LookupKey,
+    get_has_family,
+    get_is_family,
+    LOOKUP_KEYS,
+    SerializableObject,
+    Serializable,
+    type_to_key, AutocompleteKey
 } from "../constants";
 import ResourceChip from "./ResourceChip";
 import ErrorBoundary from "./ErrorBoundary";
@@ -321,27 +330,41 @@ function ResourceCard<T extends BaseResource>(
         data: Serializable,
         many: boolean,
         key: string,
-        lookup?: LookupKey
+        lookup?: LookupKey|AutocompleteKey
     ): ReactNode => {
-        if (many)
-            return <Grid container>{data instanceof Array ?
-                data.map((d, i) => <Grid key={i}>{summarise(d, false, key, lookup)}</Grid>) :
-                <Grid>{summarise(data, false, key, lookup)}</Grid>
-            }</Grid>
-
-        return lookup && is_lookup_key(lookup)?
+        if (!data || data instanceof Array && data.length === 0)
+            return <Typography variant="body2">None</Typography>
+        if (many) {
+            const preview_count = 3
+            const items = data instanceof Array && data.length > preview_count?
+                data.slice(0, preview_count) : data
+            return <Grid container sx={{alignItems: "center"}}>
+                {
+                    items instanceof Array ?
+                        items.map((d, i) => <Grid key={i}>{summarise(d, false, key, lookup)}</Grid>) :
+                        <Grid>{summarise(data, false, key, lookup)}</Grid>
+                }
+                {
+                    data instanceof Array && data.length > preview_count && <Grid>+ {data.length - preview_count} more</Grid>
+                }
+            </Grid>
+        }
+        return lookup && is_lookup_key(lookup) ?
             <ResourceChip
-                resource_id={id_from_ref_props<string>(data as string|number)}
+                resource_id={id_from_ref_props<string>(data as string | number)}
                 lookup_key={lookup}
                 short_name={is_family_child(lookup, lookup_key)}
-            /> : <Prettify target={to_type_value_notation(data)} />
+            /> : <Prettify target={to_type_value_notation(data)}/>
     }
 
     const cardSummary = <CardContent>
         {apiResource && <Grid container spacing={1}>{
             Object.entries(FIELDS[lookup_key])
                 .filter((e) => e[1].priority === PRIORITY_LEVELS.SUMMARY)
-                .map(([k, v]) => <Grid key={k}>{summarise(apiResource[k], v.many, k, v.type)}</Grid>)
+                .map(([k, v]) => <Grid key={k} container xs={12} sx={{alignItems: "center"}}>
+                    <Grid xs={2} lg={1}><Typography variant="subtitle2">{k}</Typography></Grid>
+                    <Grid xs={10} lg={11}>{summarise(apiResource[k], v.many, k, type_to_key(v.type))}</Grid>
+                </Grid>)
         }</Grid>}
         {lookup_key === LOOKUP_KEYS.FILE && <Stack spacing={2}>
             <DatasetChart file_uuid={resource_id as string} />
