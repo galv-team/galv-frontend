@@ -367,7 +367,7 @@ function ResourceCard<T extends BaseResource>(
                 </Grid>)
         }</Grid>}
         {lookup_key === LOOKUP_KEYS.FILE && <Stack spacing={2}>
-            <DatasetChart file_uuid={resource_id as string} />
+            <DatasetChart parquet_urls={[]} />
         </Stack>}
     </CardContent>
 

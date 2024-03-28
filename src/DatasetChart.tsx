@@ -2,7 +2,7 @@
 // Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import CardHeader from "@mui/material/CardHeader";
@@ -16,101 +16,76 @@ import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 import CanvasJSReact from "@canvasjs/react-charts";
 import {useCurrentUser} from "./Components/CurrentUserContext";
+import { tableFromIPC } from "apache-arrow";
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
-const COL_KEYS = ["Time", "Amps", "Volts"]
-
-const KEY_COL_NAMES = {
-    [COL_KEYS[0]]: "Time",
-    [COL_KEYS[1]]: "Current",
-    [COL_KEYS[2]]: "Potential difference"
-}
-
-const COLORS = {
-    [COL_KEYS[1]]: "#de6565",
-    [COL_KEYS[2]]: "#5d5dab"
-}
+const COLORS = [
+    "#de6565",
+    "#5d5dab"
+]
 
 /**
  * TODO: handle incoming data stream and render in response to new data chunks
  */
-export function DatasetChart({file_uuid}: {file_uuid: string}) {
+export function DatasetChart({parquet_urls}: {parquet_urls: string[]}) {
     const {classes} = useStyles()
-    const maxDataPoints = 10000
     const [chartKey, setChartKey] = useState<number[]>([])
+    const s3_url = "https://galv.s3.eu-west-2.amazonaws.com/data/test-large.parquet/part.0.parquet"
+    const [fetching, setFetching] = useState(false)
+    const [wasmArrowTable, set_wasmArrowTable] = useState()
+    const [parquetModule, setParquetModule] = useState()
 
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const api_handler = new ColumnsApi(config)
-    const columns_query = useQuery({
-        queryKey: ["COLUMNS", file_uuid, "list"],
-        queryFn: () => api_handler.columnsList(
-            undefined,
-            file_uuid,
-            undefined,
-            undefined,
-            undefined,
-            true
-        )
-    })
-    const value_queries = useQueries({
-        queries: (columns_query.data?.data.results ?? []).map((col) => ({
-            queryKey: ["COLUMNS", file_uuid, col.id, "values"],
-            queryFn: () => api_handler.columnsValuesRetrieve(col.id, {params: {max: maxDataPoints}})
-        }))
-    })
-
-    const time_column = columns_query.data?.data.results?.findIndex((col) => col.type_name === "Time")
-
-    const stream_to_numbers = (stream: unknown): (number|null)[] => {
-        if (typeof stream !== "string") return []
-        try {
-            const lines = (stream as string).split("\n")
-            const out = lines.map((line) => {
-                try {
-                    const n = Number(line)
-                    if (!isNaN(n)) return n
-                } catch {
-                    // Do nothing
-                }
-                return null
-            })
-            out.pop()   // Remove last element, which is always empty
-            return out
-        } catch (e) {
-            console.error(`Error parsing stream to numbers`, {stream, e})
+    useEffect(() => {
+        // React advises to declare the async function directly inside useEffect
+        async function getParquetModule() {
+            const parquetModule = await import(
+                "https://unpkg.com/parquet-wasm@0.4.0-beta.5/esm/arrow2.js"
+                );
+            // Need to await the default export first to initialize the WebAssembly code
+            const {memory} = await parquetModule.default();
+            setParquetModule(parquetModule);
+            return [parquetModule, memory];
         }
-        return []
+
+        if (!parquetModule) {
+            getParquetModule()
+        }
+    }, []);
+
+    if (!fetching && wasmArrowTable === undefined && parquetModule !== undefined) {
+        setFetching(true)
+        fetch(s3_url, {method: "GET"})
+            .then(r => r.arrayBuffer())
+            .then(ab => new Uint8Array(ab))
+            .then(async arr => parquetModule.readParquet(arr))
+            .then(pq => new tableFromIPC(pq))
+            .then(set_wasmArrowTable)
+            .catch(e => console.error("Error fetching S3 file", e))
     }
-
-    const cols = columns_query.data?.data.results?.map((col) => col.type_name)
-
-    const chart_data = value_queries
-        .filter((_, i) => i !== time_column)
-        .map((query, i) => {
-            if (!query.data?.data || time_column === undefined) return {
-                id: `Col ${i}`,
-                data: []
-            }
+    const COL_KEYS = ["I/mA", "Ewe/V"]
+    const col_to_values = (col: string) => wasmArrowTable?.select([col]).batches[0].data.children[0].values
+    const x_values = wasmArrowTable && col_to_values('time/s')
+    const chart_data = wasmArrowTable && COL_KEYS
+        .map((key, i) => {
             if (!chartKey.includes(i)) setChartKey(prevState => [...prevState, i])
-            const values = stream_to_numbers(query.data?.data)
+            const values = col_to_values(key)
+            const dataPoints: {x: number, y: number|null}[] = []
+            x_values.forEach((t, n) => {
+                dataPoints.push({
+                    x: t,
+                    y: values[n] ?? null
+                })
+            })
             return {
                 type: "line",
-                name: KEY_COL_NAMES[cols?.[i] ?? ""] ?? `Col ${i}`,
+                name: key,
                 showInLegend: true,
                 xValueFormatString: "#,##0.0000 s",
-                yValueFormatString: `#,##0.0000 ${cols?.[i] ?? ""}`,
-                axisYType: cols?.[i] === COL_KEYS[2]? "secondary" : "primary",
-                color: COLORS[cols?.[i] ?? ""],
-                dataPoints: stream_to_numbers(value_queries[time_column]?.data?.data).map((t, n) => {
-                    return {
-                        x: t,
-                        y: values[n] ?? null
-                    }
-                })
+                yValueFormatString: `#,##0.0000 ${key.split('/')[1]}`,
+                axisYType: i? "secondary" : "primary",
+                color: COLORS[i],
+                dataPoints
             }
         }, {})
 
@@ -118,8 +93,7 @@ export function DatasetChart({file_uuid}: {file_uuid: string}) {
         <Stack spacing={1}>
             <Box className={clsx(classes.chart)}>
                 {
-                    value_queries.some(q => q.isLoading) ||
-                    columns_query.isLoading?
+                    !wasmArrowTable?
                         <Skeleton variant="rounded" height="300px"/> :
                         <CanvasJSChart
                             key={chartKey.reduce((a, b) => a + b, 0)}
@@ -134,17 +108,17 @@ export function DatasetChart({file_uuid}: {file_uuid: string}) {
                                 },
                                 axisY: {
                                     title: "Current (A)",
-                                    titleFontColor: COLORS[COL_KEYS[1]],
-                                    lineColor: COLORS[COL_KEYS[1]],
-                                    labelFontColor: COLORS[COL_KEYS[1]],
-                                    tickColor: COLORS[COL_KEYS[1]]
+                                    titleFontColor: COLORS[0],
+                                    lineColor: COLORS[0],
+                                    labelFontColor: COLORS[0],
+                                    tickColor: COLORS[0]
                                 },
                                 axisY2: {
                                     title: "Potential Difference (V)",
-                                    titleFontColor: COLORS[COL_KEYS[2]],
-                                    lineColor: COLORS[COL_KEYS[2]],
-                                    labelFontColor: COLORS[COL_KEYS[2]],
-                                    tickColor: COLORS[COL_KEYS[2]]
+                                    titleFontColor: COLORS[1],
+                                    lineColor: COLORS[1],
+                                    labelFontColor: COLORS[1],
+                                    tickColor: COLORS[1]
                                 },
                                 toolTip: {
                                     shared: true
@@ -157,7 +131,7 @@ export function DatasetChart({file_uuid}: {file_uuid: string}) {
     </CardContent>
 }
 
-export default function DatasetChartWrapper({file_uuid}: {file_uuid: string}) {
+export default function DatasetChartWrapper({parquet_urls}: {parquet_urls: string[]}) {
     const [open, setOpen] = useState<boolean>(false)
 
     return <Card>
@@ -167,6 +141,6 @@ export default function DatasetChartWrapper({file_uuid}: {file_uuid: string}) {
             onClick={() => setOpen(!open)}
             sx={{cursor: "pointer"}}
         />
-        {open && <DatasetChart file_uuid={file_uuid} />}
+        {open && <DatasetChart parquet_urls={parquet_urls} />}
     </Card>
 }
