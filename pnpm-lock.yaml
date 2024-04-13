@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@battery-intelligence-lab/galv':
-    specifier: 2.1.23
-    version: 2.1.23
+    specifier: 2.1.25
+    version: 2.1.25
   '@canvasjs/charts':
     specifier: ^3.7.27
     version: 3.7.30
@@ -57,8 +57,8 @@ dependencies:
     specifier: ^10.0.0
     version: 10.0.0
   parquet-wasm:
-    specifier: 0.6.0-beta.2
-    version: 0.6.0-beta.2
+    specifier: 0.5.0
+    version: 0.5.0
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -166,6 +166,12 @@ devDependencies:
   vite:
     specifier: ^5.0.0
     version: 5.0.5(@types/node@18.19.2)
+  vite-plugin-top-level-await:
+    specifier: ^1.4.1
+    version: 1.4.1(vite@5.0.5)
+  vite-plugin-wasm:
+    specifier: ^3.3.0
+    version: 3.3.0(vite@5.0.5)
 
 packages:
 
@@ -535,8 +541,8 @@ packages:
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
 
-  /@battery-intelligence-lab/galv@2.1.23:
-    resolution: {integrity: sha512-+JnSb+Lv9+3ZM5FIHqKsipNMGrsYyPQqAIGDO/ZJzLUMQ6gVe+U2PX06uufrAs/gvKtDDFTGwcX7gFApzOfzgQ==}
+  /@battery-intelligence-lab/galv@2.1.25:
+    resolution: {integrity: sha512-AEzmF2aRhuichd8JeU3c6stTozrdRZrLQIb8ik9vwExJRG10oymFFoHeWyYeOx4XSJMjnDO1BpuZylNUWU90qg==}
     dependencies:
       axios: 0.21.4
     transitivePeerDependencies:
@@ -1604,6 +1610,16 @@ packages:
     resolution: {integrity: sha512-so+DHzZKsoOcoXrILB4rqDkMDy7NLMErRdOxvzvOKb507YINKUP4Di+shbTZDhSE/pBZ+vr7XGIpcOO0VLSA+Q==}
     engines: {node: '>=14.0.0'}
     dev: false
+
+  /@rollup/plugin-virtual@3.0.2:
+    resolution: {integrity: sha512-10monEYsBp3scM4/ND4LNH5Rxvh3e/cVeL3jWTgZ2SrQ+BmUoQcopVQvnaMcOnykb1VkxUFuDAN+0FnpTFRy2A==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dev: true
 
   /@rollup/rollup-android-arm-eabi@4.6.1:
     resolution: {integrity: sha512-0WQ0ouLejaUCRsL93GD4uft3rOmB8qoQMU05Kb8CmMtMBe7XUDLAltxVZI1q6byNqEtU7N1ZX1Vw5lIpgulLQA==}
@@ -5800,8 +5816,8 @@ packages:
     dependencies:
       callsites: 3.1.0
 
-  /parquet-wasm@0.6.0-beta.2:
-    resolution: {integrity: sha512-RPJxap4+8nhKENDGtD+UAT62tD7bPZi1JbmUtYaqyDu2J2WBGdW2w+HMGo+WY7YKtF0/BD3ZTOU44FpuPr3e2w==}
+  /parquet-wasm@0.5.0:
+    resolution: {integrity: sha512-XN3EW+3xf915QgpxCvfCdVYsxDLXz+BckKLDlMo41cbipSYD8x+F/3lGcrWtxdY6uJgAmtb+SX3tS+9PPsplQA==}
     dev: false
 
   /parse-entities@2.0.0:
@@ -6994,6 +7010,11 @@ packages:
     hasBin: true
     dev: true
 
+  /uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    hasBin: true
+    dev: true
+
   /v8-to-istanbul@8.1.1:
     resolution: {integrity: sha512-FGtKtv3xIpR6BYhvgH8MI/y78oT7d8Au3ww4QIxymrCtZEh5b8gCw2siywE+puhEmuWKDtmfrvF5UlB298ut3w==}
     engines: {node: '>=10.12.0'}
@@ -7026,6 +7047,28 @@ packages:
       unist-util-stringify-position: 4.0.0
       vfile-message: 4.0.2
     dev: false
+
+  /vite-plugin-top-level-await@1.4.1(vite@5.0.5):
+    resolution: {integrity: sha512-hogbZ6yT7+AqBaV6lK9JRNvJDn4/IJvHLu6ET06arNfo0t2IsyCaon7el9Xa8OumH+ESuq//SDf8xscZFE0rWw==}
+    peerDependencies:
+      vite: '>=2.8'
+    dependencies:
+      '@rollup/plugin-virtual': 3.0.2
+      '@swc/core': 1.3.100
+      uuid: 9.0.1
+      vite: 5.0.5(@types/node@18.19.2)
+    transitivePeerDependencies:
+      - '@swc/helpers'
+      - rollup
+    dev: true
+
+  /vite-plugin-wasm@3.3.0(vite@5.0.5):
+    resolution: {integrity: sha512-tVhz6w+W9MVsOCHzxo6SSMSswCeIw4HTrXEi6qL3IRzATl83jl09JVO1djBqPSwfjgnpVHNLYcaMbaDX5WB/pg==}
+    peerDependencies:
+      vite: ^2 || ^3 || ^4 || ^5
+    dependencies:
+      vite: 5.0.5(@types/node@18.19.2)
+    dev: true
 
   /vite@5.0.5(@types/node@18.19.2):
     resolution: {integrity: sha512-OekeWqR9Ls56f3zd4CaxzbbS11gqYkEiBtnWFFgYR2WV8oPJRRKq0mpskYy/XaoCL3L7VINDhqqOMNDiYdGvGg==}

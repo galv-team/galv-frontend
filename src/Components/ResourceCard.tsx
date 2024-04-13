@@ -55,10 +55,11 @@ import {useCurrentUser} from "./CurrentUserContext";
 import {
     from_type_value_notation,
     to_type_value_notation,
-    to_type_value_notation_wrapper,
+    to_type_value_notation_wrapper, TypeValueNotation,
     TypeValueNotationWrapper
 } from "./TypeValueNotation";
 import Typography from "@mui/material/Typography";
+import {Theme} from "@mui/material/styles";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
@@ -242,8 +243,8 @@ function ResourceCard<T extends BaseResource>(
     const cardBody = <CardContent sx={{
         maxHeight: isEditMode? "80vh" : "unset",
         overflowY: "auto",
-        "& li": isEditMode? {marginTop: (t) => t.spacing(0.5)} : undefined,
-        "& table": isEditMode? {borderCollapse: "separate", borderSpacing: (t) => t.spacing(0.5)} :
+        "& li": isEditMode? {marginTop: (t: Theme) => t.spacing(0.5)} : undefined,
+        "& table": isEditMode? {borderCollapse: "separate", borderSpacing: (t: Theme) => t.spacing(0.5)} :
             undefined,
     }}>
         <Stack spacing={1}>
@@ -282,7 +283,7 @@ function ResourceCard<T extends BaseResource>(
                 }
                 edit_mode={isEditMode}
                 lookup_key={lookup_key}
-                onEdit={(v) => UndoRedo.update({
+                onEdit={(v: TypeValueNotation|TypeValueNotationWrapper) => UndoRedo.update({
                     ...from_type_value_notation(v) as SerializableObject,
                     custom_properties: UndoRedo.current.custom_properties
                 })}
@@ -294,7 +295,7 @@ function ResourceCard<T extends BaseResource>(
                 target={{...(UndoRedo.current.custom_properties as TypeValueNotationWrapper)}}
                 edit_mode={isEditMode}
                 lookup_key={lookup_key}
-                onEdit={(v) => UndoRedo.update({...UndoRedo.current, custom_properties: v})}
+                onEdit={(v: Serializable) => UndoRedo.update({...UndoRedo.current, custom_properties: v})}
                 canEditKeys
             />}
             {family && <PropertiesDivider>
@@ -367,7 +368,10 @@ function ResourceCard<T extends BaseResource>(
                 </Grid>)
         }</Grid>}
         {lookup_key === LOOKUP_KEYS.FILE && <Stack spacing={2}>
-            <DatasetChart parquet_urls={[]} />
+            <DatasetChart
+                parquet_partitions={apiResource?.parquet_partitions as string[]}
+                has_required_columns={apiResource?.has_required_columns as boolean}
+            />
         </Stack>}
     </CardContent>
 
@@ -376,7 +380,7 @@ function ResourceCard<T extends BaseResource>(
             open={forking}
             onClose={() => setForking(false)}
             aria-labelledby={get_modal_title(lookup_key, 'title')}
-            sx={{padding: (t) => t.spacing(4)}}
+            sx={{padding: (t: Theme) => t.spacing(4)}}
         >
             <div>
                 <ErrorBoundary
