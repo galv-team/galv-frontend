@@ -37,19 +37,11 @@ export function DatasetChartPanel({table}: {table: Table}) {
     // Check metadata for key columns.
     // If key columns are not present, show an error and suggest the user re-map the column types.
 
-    // TODO: Backend can keep track of column names in file <-> column names in data,
-    //  but the original datafile won't update column names just because user binds them to a known type.
-    //  We need to signal which columns are the key ones we care about so we know which ones to read here.
-    //  We should also consider how we'll enable better data sharing via the API.
-    //  Perhaps the API can have a utility function to rewrite the names of official columns
-    //  to match the expected names.
-    //  Don't know how we'd specify that function given the APIs are built automatically from the schema.
-
     const bytes_to_values = (bytes: Uint8Array) => Array.from(bytes)
     const col_to_values = (col: string) => bytes_to_values(
         table?.select([col]).batches[0].data.children[0].values
     )
-    const x_values = table && col_to_values('Elapsed_time_s')
+    const x_values = table && col_to_values('ElapsedTime_s')
     const chart_data = table && COL_KEYS
         .map((key, i) => {
             if (!chartKey.includes(i)) setChartKey(prevState => [...prevState, i])
@@ -66,7 +58,7 @@ export function DatasetChartPanel({table}: {table: Table}) {
                 name: key,
                 showInLegend: true,
                 xValueFormatString: "#,##0.0000 s",
-                yValueFormatString: `#,##0.0000 ${key.split('/')[1]}`,
+                yValueFormatString: `#,##0.0000000 ${key.split('_')[1]}`,
                 axisYType: i? "secondary" : "primary",
                 color: COLORS[i],
                 dataPoints
@@ -101,14 +93,12 @@ export function DatasetChartPanel({table}: {table: Table}) {
             toolTip: {
                 shared: true
             },
+            zoomEnabled: true,
             data: chart_data
         }}
     />
 }
 
-/**
- * TODO: handle incoming data stream and render in response to new data chunks
- */
 export function DatasetChart({parquet_partitions}: {parquet_partitions: string[]}) {
     const [fetching, setFetching] = useState(false)
     const [tables, setTables] = useState<ReactNode[]>([])
@@ -145,7 +135,7 @@ export function DatasetChart({parquet_partitions}: {parquet_partitions: string[]
             .then(ab => new Uint8Array(ab))
             .then(async arr => wasm.readParquet(arr))
             .then(pq => pq.intoIPCStream())
-            .then(ipc => new tableFromIPC(ipc))
+            .then(ipc => tableFromIPC(ipc))
             .then(t => setTables([...tables, <DatasetChartPanel table={t} />]))
             .then(() => setFetching(false))
             .catch(e => console.error("Error fetching S3 file", e))
@@ -153,7 +143,7 @@ export function DatasetChart({parquet_partitions}: {parquet_partitions: string[]
 
     return <CardContent>
         <Stack spacing={1}>
-            <Box sx={{ maxWidth: 400, flexGrow: 1 }}>
+            <Box>
                 <Paper
                     square
                     elevation={0}
@@ -167,12 +157,13 @@ export function DatasetChart({parquet_partitions}: {parquet_partitions: string[]
                 >
                     <Typography>Part {currentTableIndex}/{parquet_partitions.length - 1}</Typography>
                 </Paper>
-                <Box sx={{ height: 255, maxWidth: 400, width: '100%', p: 2 }}>
+                <Box sx={{ width: '100%', p: 2 }}>
                     {
                         !tables.length ?
                             <Skeleton variant="rounded" height="300px"/> : tables[currentTableIndex]
                     }
                 </Box>
+                <Typography variant="body1">Click and drag to zoom in on the chart</Typography>
                 <MobileStepper
                     variant="text"
                     steps={parquet_partitions.length}
