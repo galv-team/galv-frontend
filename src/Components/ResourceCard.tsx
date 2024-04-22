@@ -22,22 +22,23 @@ import Divider, {DividerProps} from "@mui/material/Divider";
 import {
     API_HANDLERS,
     API_SLUGS,
+    AutocompleteKey,
     CHILD_LOOKUP_KEYS,
     CHILD_PROPERTY_NAMES,
     DISPLAY_NAMES,
     FAMILY_LOOKUP_KEYS,
     FIELDS,
-    ICONS,
-    is_lookup_key,
-    PATHS,
-    PRIORITY_LEVELS,
-    LookupKey,
     get_has_family,
     get_is_family,
+    ICONS,
+    is_lookup_key,
     LOOKUP_KEYS,
-    SerializableObject,
+    LookupKey,
+    PATHS,
+    PRIORITY_LEVELS,
     Serializable,
-    type_to_key, AutocompleteKey
+    SerializableObject,
+    type_to_key
 } from "../constants";
 import ResourceChip from "./ResourceChip";
 import ErrorBoundary from "./ErrorBoundary";
@@ -49,17 +50,19 @@ import Prettify from "./prettify/Prettify";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import DatasetChart from "../DatasetChart";
 import {Modal} from "@mui/material";
-import {ResourceCreator, get_modal_title} from "./ResourceCreator";
-import {Configuration}from "@battery-intelligence-lab/galv";
+import {get_modal_title, ResourceCreator} from "./ResourceCreator";
+import {Configuration} from "@battery-intelligence-lab/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import {
     from_type_value_notation,
     to_type_value_notation,
-    to_type_value_notation_wrapper, TypeValueNotation,
+    to_type_value_notation_wrapper,
+    TypeValueNotation,
     TypeValueNotationWrapper
 } from "./TypeValueNotation";
 import Typography from "@mui/material/Typography";
 import {Theme} from "@mui/material/styles";
+import ResourceStatuses from "./ResourceStatuses";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
@@ -367,11 +370,8 @@ function ResourceCard<T extends BaseResource>(
                     <Grid xs={10} lg={11}>{summarise(apiResource[k], v.many, k, type_to_key(v.type))}</Grid>
                 </Grid>)
         }</Grid>}
-        {lookup_key === LOOKUP_KEYS.FILE && <Stack spacing={2}>
-            <DatasetChart
-                parquet_partitions={apiResource?.parquet_partitions as string[]}
-                has_required_columns={apiResource?.has_required_columns as boolean}
-            />
+        {lookup_key === LOOKUP_KEYS.FILE && apiResource?.has_required_columns && <Stack spacing={2}>
+            <DatasetChart parquet_partitions={apiResource?.parquet_partitions as string[]} />
         </Stack>}
     </CardContent>
 
@@ -436,6 +436,7 @@ function ResourceCard<T extends BaseResource>(
             />
             {isExpanded? cardBody : cardSummary}
             {forkModal}
+            <ResourceStatuses lookup_key={lookup_key}/>
         </Card>
 
     const getErrorBody: QueryDependentElement = (queries) => <ErrorCard

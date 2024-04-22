@@ -48,6 +48,7 @@ import {SelectedResourcesPane} from "./Components/SelectedResourcesPane";
 import {useState} from "react";
 import FetchResourceContextProvider from "./Components/FetchResourceContext";
 import AttachmentUploadContextProvider from "./Components/AttachmentUploadContext";
+import Mapping from "./Components/Mapping";
 
 export const pathMatches = (path: string, pathname: string) => matchPath({path: path, end: true}, pathname) !== null
 
@@ -220,6 +221,7 @@ export function Core() {
         <Routes>
             <Route path={PATHS.DASHBOARD} element={Layout}>
                 {/*<Route path={PATHS.GRAPH} element={<DatasetChart />} />*/}
+                <Route path={`${PATHS.MAPPING}/:id`} element={<Mapping/>}/>
                 <Route path="/:type/:id" element={<ResourceCardWrapper/>}/>  {/* Handles direct resource lookups */}
                 <Route path={"/:type"} element={<ResourceListWrapper/>}/>  {/* Handles resource lists */}
                 <Route index element={<Dashboard key="dashboard" />} />

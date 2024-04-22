@@ -54,6 +54,9 @@ export default makeStyles()((theme) => {
       width: '100%', // Fix IE 11 issue.
       marginTop: theme.spacing(1),
     },
+    statusAlert: {
+      '& .MuiAlert-message': {width: "100%"},
+    },
     submit: {
       margin: theme.spacing(3, 0, 2),
     },
@@ -265,6 +268,25 @@ export default makeStyles()((theme) => {
     typeChangerPopover: {
       zIndex: 5000,
     },
-    typeChangerResourcePopover: {}
+    typeChangerResourcePopover: {},
+    mappingTableHeadRow: {
+      '& th, & td': {
+        fontWeight: "bold",
+      }
+    },
+    mappingResetColumn: {
+      color: theme.palette.warning.light,
+    },
+    mappingRequiredColumn: {
+      color: theme.palette.success.main,
+    },
+    mappingDefaultColumn: {
+      '& span': {fontWeight: "bold"}
+    },
+    mappingRebase: {minWidth: "18em"},
+    mappingNumberInput: {
+      '& input': {padding: 0, paddingTop: 0, paddingBottom: 0, paddingLeft: 0, paddingRight: 0},
+      '& input, & div': {fontFamily: "math"}
+    },
   }
 });

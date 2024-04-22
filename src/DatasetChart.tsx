@@ -202,19 +202,8 @@ export function DatasetChart({parquet_partitions}: {parquet_partitions: string[]
     </CardContent>
 }
 
-export default function DatasetChartWrapper(
-    {parquet_partitions, has_required_columns}: {parquet_partitions: string[], has_required_columns: boolean}
-) {
+export default function DatasetChartWrapper({parquet_partitions}: {parquet_partitions: string[]}) {
     const [open, setOpen] = useState<boolean>(false)
-
-    if (!has_required_columns) return <Card>
-        <CardHeader
-            title={<Typography variant="h5">Required columns missing</Typography>}
-            subheader={<Typography variant="body1">
-                Link data columns to their correct Type for Time, Voltage, and Current to be able to see a plot of the data
-        </Typography>}
-        />
-    </Card>
 
     return <Card>
         <CardHeader

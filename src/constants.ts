@@ -19,7 +19,6 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import SchemaIcon from '@mui/icons-material/Schema';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingIcon from '@mui/icons-material/Pending';
-import ErrorIcon from '@mui/icons-material/Error';
 import HideSourceIcon from '@mui/icons-material/HideSource';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -29,6 +28,11 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SubscriptIcon from '@mui/icons-material/Subscript';
 import SplitscreenIcon from '@mui/icons-material/Splitscreen';
 import ExtensionIcon from '@mui/icons-material/Extension';
+import SuccessIcon from '@mui/icons-material/Done';
+import InfoIcon from '@mui/icons-material/Info';
+import WarningIcon from '@mui/icons-material/Warning';
+import ErrorIcon from '@mui/icons-material/Error';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 
 import {
     CellChemistriesApi,
@@ -56,7 +60,8 @@ import {
     TokensApi,
     UsersApi,
     ValidationSchemasApi,
-    ArbitraryFilesApi, ColumnsApi, ColumnTypesApi, UnitsApi
+    ArbitraryFilesApi, ColumnsApi, ColumnTypesApi, UnitsApi,
+    ColumnMappingsApi
 } from "@battery-intelligence-lab/galv";
 import {
     TypeChangerAutocompleteKey,
@@ -101,8 +106,11 @@ export const type_to_key = (t: TypeChangerSupportedTypeName): AutocompleteKey | 
  *
  * @param k - AutocompleteKey or LookupKey
  */
-export const key_to_type = <T,>(k: AutocompleteKey|LookupKey|T): TypeChangerAutocompleteKey|TypeChangerLookupKey|T =>
-    (is_autocomplete_key(k) || is_lookup_key(k))? `galv_${k}` : k
+export const key_to_type = (k: unknown): TypeChangerAutocompleteKey|TypeChangerLookupKey => {
+    if (is_autocomplete_key(k) || is_lookup_key(k))
+        return `galv_${k}`
+    throw new Error(`key_to_type: ${k} is not a valid key`)
+}
 
 /**
  * This is a list of various resources grouped under a common name for each
@@ -118,6 +126,7 @@ export const LOOKUP_KEYS = {
     PATH: "PATH",
     PARQUET_PARTITION: "PARQUET_PARTITION",
     FILE: "FILE",
+    MAPPING: "MAPPING",
     CELL_FAMILY: "CELL_FAMILY",
     CELL: "CELL",
     EQUIPMENT_FAMILY: "EQUIPMENT_FAMILY",
@@ -165,6 +174,7 @@ export const ICONS = {
     [LOOKUP_KEYS.PATH]: FolderIcon,
     [LOOKUP_KEYS.PARQUET_PARTITION]: ExtensionIcon,
     [LOOKUP_KEYS.FILE]: PollIcon,
+    [LOOKUP_KEYS.MAPPING]: CompareArrowsIcon,
     [LOOKUP_KEYS.UNIT]: SubscriptIcon,
     [LOOKUP_KEYS.COLUMN_FAMILY]: SplitscreenIcon,
     [LOOKUP_KEYS.COLUMN]: SplitscreenIcon,
@@ -197,6 +207,10 @@ export const ICONS = {
     validation_status_VALID: CheckCircleIcon,
     validation_status_INVALID: CancelIcon,
     validation_status_SKIPPED: HideSourceIcon,
+    SUCCESS: SuccessIcon,
+    INFO: InfoIcon,
+    WARNING: WarningIcon,
+    ERROR: ErrorIcon
 } as const
 
 /**
@@ -214,6 +228,7 @@ export const PATHS = {
     [LOOKUP_KEYS.COLUMN_FAMILY]: "/column_types",
     [LOOKUP_KEYS.UNIT]: "/units",
     DASHBOARD: "/",
+    [LOOKUP_KEYS.MAPPING]: "/mapping",
     [LOOKUP_KEYS.EXPERIMENT]: "/experiments",
     [LOOKUP_KEYS.CYCLER_TEST]: "/cycler_tests",
     GRAPH: "/graphs",
@@ -248,6 +263,7 @@ export const DISPLAY_NAMES = {
     [LOOKUP_KEYS.PATH]: "Path",
     [LOOKUP_KEYS.PARQUET_PARTITION]: "Parquet Partition",
     [LOOKUP_KEYS.FILE]: "File",
+    [LOOKUP_KEYS.MAPPING]: "Mapping",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
     [LOOKUP_KEYS.COLUMN]: "Column",
     [LOOKUP_KEYS.UNIT]: "Unit",
@@ -277,6 +293,7 @@ export const DISPLAY_NAMES_PLURAL = {
     [LOOKUP_KEYS.PATH]: "Paths",
     [LOOKUP_KEYS.PARQUET_PARTITION]: "Parquet Partitions",
     [LOOKUP_KEYS.FILE]: "Files",
+    [LOOKUP_KEYS.MAPPING]: "Mappings",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
     [LOOKUP_KEYS.COLUMN]: "Columns",
     [LOOKUP_KEYS.UNIT]: "Unit",
@@ -307,6 +324,7 @@ export const API_HANDLERS = {
     [LOOKUP_KEYS.PATH]: MonitoredPathsApi,
     [LOOKUP_KEYS.PARQUET_PARTITION]: ParquetPartitionsApi,
     [LOOKUP_KEYS.FILE]: FilesApi,
+    [LOOKUP_KEYS.MAPPING]: ColumnMappingsApi,
     [LOOKUP_KEYS.COLUMN]: ColumnsApi,
     [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnTypesApi,
     [LOOKUP_KEYS.UNIT]: UnitsApi,
@@ -350,6 +368,7 @@ export const API_SLUGS = {
     [LOOKUP_KEYS.PATH]: "monitoredPaths",
     [LOOKUP_KEYS.PARQUET_PARTITION]: "parquetPartitions",
     [LOOKUP_KEYS.FILE]: "files",
+    [LOOKUP_KEYS.MAPPING]: "columnMappings",
     [LOOKUP_KEYS.COLUMN]: "columns",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "columnTypes",
     [LOOKUP_KEYS.UNIT]: "units",
@@ -490,7 +509,17 @@ export const FIELDS = {
         column_errors: {readonly: true, type: "string", many: true},
         columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true, fetch_in_download: true},
         upload_info: {readonly: true, type: "string"},
-        parquet_partitions: {readonly: true, type: key_to_type(LOOKUP_KEYS.PARQUET_PARTITION), many: true}
+        parquet_partitions: {readonly: true, type: key_to_type(LOOKUP_KEYS.PARQUET_PARTITION), many: true},
+        applicable_mappings: {readonly: true, type: key_to_type(LOOKUP_KEYS.MAPPING), many: true},
+        mapping: {readonly: true, type: key_to_type(LOOKUP_KEYS.MAPPING)},
+    },
+    [LOOKUP_KEYS.MAPPING]: {
+        ...generic_fields,
+        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        is_valid: {readonly: true, type: "boolean", priority: PRIORITY_LEVELS.IDENTITY},
+        map: {readonly: false, type: "object"},
+        missing: {readonly: true, type: "number"},  // only appears as part of a FILE response
+        ...team_fields
     },
     [LOOKUP_KEYS.COLUMN]: {
         ...always_fields,
@@ -505,8 +534,10 @@ export const FIELDS = {
         ...always_fields,
         id: {readonly: true, type: "number"},
         is_default: {readonly: true, type: "boolean"},
+        is_required: {readonly: true, type: "boolean"},
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        data_type: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         unit: {readonly: false, type: key_to_type(LOOKUP_KEYS.UNIT), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
         columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         ...team_fields
@@ -779,7 +810,7 @@ Files are data files produced by battery cycler machines (or simulations of them
 Files are collected when [harvesters](${PATHS[LOOKUP_KEYS.HARVESTER]}) crawl [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}).
 
 The data in each file is parsed and uploaded to the database.
-Files are required to have, at minimum, columns for "time", "potential difference", and "current".
+Files are required to have, at minimum, columns for "ElapsedTime_s", "Voltage_V", and "Current_A".
 
 You can see all the files that have been collected on [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}) created by your team.
     `,
