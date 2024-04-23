@@ -21,9 +21,9 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const ResourceList = jest.requireActual('../Components/ResourceList').default;
 const results = [
-    {uuid: "0001-0001-0001-0001", identifier: 'Test Cell 1', family: "http://example.com/cell_families/1000-1000-1000-1000"},
-    {uuid: "0002-0002-0002-0002", identifier: 'Test Cell 2', family: "http://example.com/cell_families/1000-1000-1000-1000"},
-    {uuid: "0003-0003-0003-0003", identifier: 'Test Cell 3', family: "http://example.com/cell_families/2000-2000-2000-2000"},
+    {id: "0001-0001-0001-0001", identifier: 'Test Cell 1', family: "http://example.com/cell_families/1000-1000-1000-1000"},
+    {id: "0002-0002-0002-0002", identifier: 'Test Cell 2', family: "http://example.com/cell_families/1000-1000-1000-1000"},
+    {id: "0003-0003-0003-0003", identifier: 'Test Cell 3', family: "http://example.com/cell_families/2000-2000-2000-2000"},
 ]
 
 
@@ -39,7 +39,7 @@ it('renders', async () => {
             </FetchResourceContextProvider>
         </QueryClientProvider>
     )
-    await screen.findByText(t => t.includes(results[0].uuid))
+    await screen.findByText(t => t.includes(results[0].id))
 
     expect(screen.getByRole('heading', {name: 'Cells'})).toBeInTheDocument();
     expect(screen.getAllByText(/ResourceCard/)).toHaveLength(3);

@@ -42,7 +42,7 @@ export default function ResourceStatuses({lookup_key}: {lookup_key: LookupKey}) 
                 statuses.push(<StatusAlert
                     message="This file does not have the required columns."
                     fix_button={
-                        <Button component={Link} to={`${PATHS.MAPPING}/${apiResource.uuid ?? apiResource.id}`}>
+                        <Button component={Link} to={`${PATHS.MAPPING}/${apiResource.id ?? apiResource.id}`}>
                             Map columns
                         </Button>
                     }

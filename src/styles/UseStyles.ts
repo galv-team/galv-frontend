@@ -269,6 +269,9 @@ export default makeStyles()((theme) => {
       zIndex: 5000,
     },
     typeChangerResourcePopover: {},
+    mappingTable: {
+      '& td > svg': {verticalAlign: "middle"},
+    },
     mappingTableHeadRow: {
       '& th, & td': {
         fontWeight: "bold",

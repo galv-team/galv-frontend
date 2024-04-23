@@ -23,7 +23,7 @@ export type ResourceFamilyChipProps = {
 export function ResourceChip<T extends Family>(
     {resource_id, lookup_key, loading, error, success, short_name, ...chipProps}: ResourceFamilyChipProps
 ) {
-    // console.log(`ResourceChip`, {uuid, lookup_key, loading, error, success, chipProps})
+    // console.log(`ResourceChip`, {id, lookup_key, loading, error, success, chipProps})
     const { classes } = useStyles();
 
     const {passesFilters} = useContext(FilterContext)
@@ -44,7 +44,7 @@ export function ResourceChip<T extends Family>(
                 lookup_key={lookup_key}
                 prefix={(!short_name && family) ?
                     <Representation
-                        resource_id={family.uuid as string}
+                        resource_id={family.id as string}
                         lookup_key={FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS]}
                         suffix=" "
                     /> : undefined
@@ -64,7 +64,7 @@ export function ResourceChip<T extends Family>(
                 lookup_key={lookup_key}
                 prefix={(!short_name && family) ?
                     <Representation
-                        resource_id={family.uuid as string}
+                        resource_id={family.id as string}
                         lookup_key={FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS]}
                         suffix=" "
                     /> : undefined

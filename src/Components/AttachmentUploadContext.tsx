@@ -42,7 +42,7 @@ export default function AttachmentUploadContextProvider({children}: PropsWithChi
         },
         {
             onSuccess: (data: AxiosResponse<ArbitraryFile>) => {
-                queryClient.setQueryData([LOOKUP_KEYS.ARBITRARY_FILE, data.data.uuid], data.data)
+                queryClient.setQueryData([LOOKUP_KEYS.ARBITRARY_FILE, data.data.id], data.data)
                 queryClient.invalidateQueries([LOOKUP_KEYS.ARBITRARY_FILE, "list"])
             }
         }

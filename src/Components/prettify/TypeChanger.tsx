@@ -152,7 +152,7 @@ const get_conversion_fun = (type: TypeChangerSupportedTypeName):
             if (current.startsWith(page)) {
                 return {_type: type, _value: page}
             }
-            // if current looks like a uuid or id, use it
+            // if current looks like a id or id, use it
             if (current.match(/^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$/) || current.match(/^\d+$/)) {
                 return {_type: type, _value: `${page}/${current}`}
             }

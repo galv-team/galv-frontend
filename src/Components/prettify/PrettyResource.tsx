@@ -8,7 +8,7 @@ import clsx from "clsx";
 import ButtonBase from "@mui/material/ButtonBase";
 import ResourceChip from "../ResourceChip";
 import {PrettyComponentProps, PrettyString} from "./Prettify";
-import Autocomplete, {createFilterOptions} from "@mui/material/Autocomplete";
+import Autocomplete, {AutocompleteProps, createFilterOptions} from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 import {representation} from "../Representation";
 import {useFetchResource} from "../FetchResourceContext";
@@ -23,7 +23,8 @@ export type PrettyResourceSelectProps = {
 } & PrettyComponentProps<string|null> & Partial<Omit<ChipProps, "onChange">>
 
 export const PrettyResourceSelect = <T extends BaseResource>(
-    {target, onChange, allow_new, lookup_key}: PrettyResourceSelectProps
+    {target, onChange, allow_new, lookup_key, edit_mode, ...autocompleteProps}:
+        PrettyResourceSelectProps & Partial<Omit<AutocompleteProps<string, false, false, true>, "onChange">>
 ) => {
     const { useListQuery } = useFetchResource();
     const [modalOpen, setModalOpen] = useState(false)
@@ -90,6 +91,7 @@ export const PrettyResourceSelect = <T extends BaseResource>(
         }
         <Autocomplete
             className={clsx(classes.prettySelect)}
+            disabled={!edit_mode}
             freeSolo={true}
             filterOptions={createFilterOptions({stringify: represent})}
             open={open}
@@ -145,6 +147,7 @@ export const PrettyResourceSelect = <T extends BaseResource>(
                     <ul>{params.children}</ul>
                 </li>
             }}
+            {...autocompleteProps}
         />
     </>
 }
@@ -173,7 +176,6 @@ export default function PrettyResource(
         if (!lookup_key)
             throw new Error(`PrettyResource: lookup_key is undefined and unobtainable from value ${target._value}`)
         return <PrettyResourceSelect
-            {...childProps as ChipProps}
             lookup_key={lookup_key}
             onChange={onChange}
             target={target}

@@ -69,6 +69,8 @@ import {
     TypeChangerSupportedTypeName
 } from "./Components/prettify/TypeChanger";
 import {TypeValueNotation} from "./Components/TypeValueNotation";
+import SaveIcon from "@mui/icons-material/Save";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 /**
  * The basic unit of data passed around the frontend is a Serializable.
@@ -196,6 +198,8 @@ export const ICONS = {
     MANAGE_ACCOUNT: ManageAccountsIcon,
     LOGOUT: LogoutIcon,
     CREATE: AddCircleIcon,
+    DELETE: DeleteIcon,
+    SAVE: SaveIcon,
     FORK: ForkRightIcon,
     CANCEL: CancelIcon,
     CHECK: CheckCircleIcon,
@@ -360,7 +364,7 @@ export const API_HANDLERS = {
  * ```
  * const target_get = target_api_handler[
  *         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
- *         ] as (uuid: string) => Promise<AxiosResponse<T>>
+ *         ] as (id: string) => Promise<AxiosResponse<T>>
  * ```
  */
 export const API_SLUGS = {
@@ -441,7 +445,7 @@ const team_fields: {[key: string]: Field} = {
     validation_results: {readonly: true, type: "object", many: true},
 }
 const generic_fields: {[key: string]: Field} = {
-    uuid: {readonly: true, type: "string"},
+    id: {readonly: true, type: "string"},
     ...always_fields,
 }
 const autocomplete_fields: {[key: string]: Field} = {
@@ -727,18 +731,18 @@ export const FIELDS = {
 /**
  * Names used by the backend to filter by each resource type.
  * E.g. to look up all cells in a cell family, we would filter using
- * the querystring `?family_uuid=uuid`.
+ * the querystring `?family_id=id`.
  * It is the responsibility of the frontend to ensure that the
  * filter names are employed in the correct context --
  * cell, equipment, and schedule all share the 'family' filter,
  * so the url path must also be appropriate.
  export const FILTER_NAMES = {
- [LOOKUP_KEYS.CELL_FAMILY]: "family_uuid",
- [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "family_uuid",
- [LOOKUP_KEYS.SCHEDULE_FAMILY]: "family_uuid",
- [LOOKUP_KEYS.CELL]: "cell_uuid",
- [LOOKUP_KEYS.EQUIPMENT]: "equipment_uuid",
- [LOOKUP_KEYS.SCHEDULE]: "schedule_uuid",
+ [LOOKUP_KEYS.CELL_FAMILY]: "family_id",
+ [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "family_id",
+ [LOOKUP_KEYS.SCHEDULE_FAMILY]: "family_id",
+ [LOOKUP_KEYS.CELL]: "cell_id",
+ [LOOKUP_KEYS.EQUIPMENT]: "equipment_id",
+ [LOOKUP_KEYS.SCHEDULE]: "schedule_id",
  [LOOKUP_KEYS.TEAM]: "team_id",
  } as const
  */

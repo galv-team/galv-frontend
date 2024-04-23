@@ -46,7 +46,7 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
         content = query.results.map(
             (resource: T, i) => <ResourceCard
                 key={`resource_${i}`}
-                resource_id={resource.uuid as string ?? resource.id as number}
+                resource_id={resource.id as string ?? resource.id as number}
                 lookup_key={lookup_key}
             />
         )

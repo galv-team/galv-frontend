@@ -24,7 +24,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 const ResourceCreator = jest.requireActual('../Components/ResourceCreator').default;
 
 const family_data = {
-    uuid: "1000-1000-1000-1000",
+    id: "1000-1000-1000-1000",
     identifier: 'Test Cell Family 1',
     team: "http://example.com/teams/1"
 }

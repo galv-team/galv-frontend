@@ -231,7 +231,7 @@ export function DatasetStatus() {
             try {
                 // Update the cache for each resource
                 r.data.results?.forEach((resource: ObservedFile) => {
-                    queryClient.setQueryData([LOOKUP_KEYS.FILE, resource.uuid], {...r, data: resource})
+                    queryClient.setQueryData([LOOKUP_KEYS.FILE, resource.id], {...r, data: resource})
                 })
             } catch (e) {
                 console.error("Error updating cache from list data.", e)

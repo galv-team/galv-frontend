@@ -72,7 +72,7 @@ export function DownloadButton({target_urls, ...props}: {target_urls: string|str
                 const api_handler = new API_HANDLERS[components.lookup_key](config)
                 const get = api_handler[
                     `${API_SLUGS[components.lookup_key]}Retrieve` as keyof typeof api_handler
-                    ] as (uuid: string) => Promise<AxiosResponse<unknown>>
+                    ] as (id: string) => Promise<AxiosResponse<unknown>>
 
                 return get.bind(api_handler)(components.resource_id)
             }

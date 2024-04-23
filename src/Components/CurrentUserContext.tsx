@@ -1,7 +1,7 @@
 import {createContext, ReactNode, useContext, useState} from "react";
 import {Configuration, KnoxUser, LoginApi, User}from "@battery-intelligence-lab/galv";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {AxiosResponse} from "axios";
+import {AxiosError, AxiosResponse} from "axios";
 import axios from "axios";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import Button from "@mui/material/Button";
@@ -39,10 +39,10 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
         password
     })
     const api_handler = new LoginApi(get_config())
-    const Login = useMutation(
+    const Login = useMutation<AxiosResponse<KnoxUser>, AxiosError, void>(
         () => api_handler.loginCreate.bind(new LoginApi(get_config()))(),
         {
-            onSuccess: (data: AxiosResponse<KnoxUser>) => {
+            onSuccess: (data) => {
                 window.localStorage.setItem('user', JSON.stringify(data.data))
                 setUser(data.data as unknown as LoginUser)
                 queryClient.removeQueries({predicate: () => true})
