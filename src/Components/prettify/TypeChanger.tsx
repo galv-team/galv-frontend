@@ -231,9 +231,10 @@ function TypeChangePopover({value, onTypeChange, ...props}: TypeChangerPopoverPr
         (node: HTMLElement|null) => setResourcePopoverAnchorEl(node),
         []
     )
+    const is_resource_type = (v: typeof value) => Object.keys(type_map).reduce((acc, k) => acc || k === v, false)
     // Reopen child popover if value is a resource type
     useEffect(() => {
-        if (props.open && value && Object.keys(API_HANDLERS).map(key_to_type).includes(value)) {
+        if (props.open && value && is_resource_type(value)) {
             setResourcePopoverOpen(true)
         }
     }, [props.open, value]);

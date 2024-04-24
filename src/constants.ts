@@ -514,8 +514,9 @@ export const FIELDS = {
         columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true, fetch_in_download: true},
         upload_info: {readonly: true, type: "string"},
         parquet_partitions: {readonly: true, type: key_to_type(LOOKUP_KEYS.PARQUET_PARTITION), many: true},
-        applicable_mappings: {readonly: true, type: key_to_type(LOOKUP_KEYS.MAPPING), many: true},
-        mapping: {readonly: true, type: key_to_type(LOOKUP_KEYS.MAPPING)},
+        applicable_mappings: {readonly: true, type: 'object', many: true, priority: PRIORITY_LEVELS.HIDDEN},
+        mapping: {readonly: true, type: key_to_type(LOOKUP_KEYS.MAPPING), priority: PRIORITY_LEVELS.SUMMARY},
+        summary: {readonly: true, type: "object", priority: PRIORITY_LEVELS.HIDDEN},
     },
     [LOOKUP_KEYS.MAPPING]: {
         ...generic_fields,
@@ -963,5 +964,12 @@ You'll also see a list of the resources you are able to edit,
 alongside an indication of their validation status.
 
 If you see problems on your dashboard, you should check the relevant resource for more information.
+    `,
+    MAPPING: `
+Mappings are used to map the columns in a [file](${PATHS[LOOKUP_KEYS.FILE]}) to the columns in the database.
+
+This allows Galv to understand the data in the file, and to store it in the database.
+When a suite of files use the same column names to represent the same kind of data,
+analyses can be performed across all the files.
     `,
 } as const

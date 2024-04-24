@@ -49,6 +49,8 @@ import {useState} from "react";
 import FetchResourceContextProvider from "./Components/FetchResourceContext";
 import AttachmentUploadContextProvider from "./Components/AttachmentUploadContext";
 import Mapping from "./Components/Mapping";
+import {Theme} from "@mui/material/styles";
+import Paper from "@mui/material/Paper";
 
 export const pathMatches = (path: string, pathname: string) => matchPath({path: path, end: true}, pathname) !== null
 
@@ -86,28 +88,28 @@ export function Core() {
                 </ListItemIcon>
                 <ListItemText primary="Dashboard" />
             </ListItemButton>
-            <Divider component="li" key="div0" />
+            <Divider component="li" key="div0">{open && "Outputs"}</Divider>
             {[LOOKUP_KEYS.EXPERIMENT, LOOKUP_KEYS.CYCLER_TEST].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
-            <Divider component="li" key="div1" />
+            <Divider component="li" key="div1">{open && "Data"}</Divider>
             {[
                 LOOKUP_KEYS.FILE,
                 LOOKUP_KEYS.COLUMN_FAMILY,
                 LOOKUP_KEYS.UNIT
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
-            <Divider component="li" key="div2" />
+            <Divider component="li" key="div2">{open && "Resources"}</Divider>
             {[
                 LOOKUP_KEYS.CELL,
                 LOOKUP_KEYS.EQUIPMENT,
                 LOOKUP_KEYS.SCHEDULE,
                 LOOKUP_KEYS.ARBITRARY_FILE
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
-            <Divider component="li" key="div3" />
+            <Divider component="li" key="div3">{open && "Inputs"}</Divider>
             {[
                 LOOKUP_KEYS.HARVESTER,
                 LOOKUP_KEYS.PATH,
                 LOOKUP_KEYS.VALIDATION_SCHEMA,
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
-            <Divider component="li" key="div4" />
+            <Divider component="li" key="div4">{open && "Groups"}</Divider>
             {[
                 LOOKUP_KEYS.LAB,
                 LOOKUP_KEYS.TEAM,
@@ -161,7 +163,9 @@ export function Core() {
                 <FilterContextProvider>
                     <FilterBar key="filter_bar" />
                     <SelectedResourcesPane />
-                    <Outlet key="main_content" />
+                    <Paper className={clsx(classes.mainPaper)} elevation={0}>
+                        <Outlet key="main_content" />
+                    </Paper>
                 </FilterContextProvider>
             </main>
             <SnackbarMessenger autoHideDuration={6000} />
@@ -199,7 +203,6 @@ export function Core() {
             lookup_key={lookup_key ?? "CYCLER_TEST"}
             expanded={true}
             editing={searchParams.get('editing') === 'true'}
-            sx={{margin: (t) => t.spacing(1)}}
         />
     }
 

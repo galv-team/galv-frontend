@@ -16,8 +16,6 @@ import Collapse from "@mui/material/Collapse";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import Table from "@mui/material/Table";
-import TableHead from "@mui/material/TableHead";
-import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import QueryWrapper from "./QueryWrapper";
 import Skeleton from "@mui/material/Skeleton";
 import TableBody from "@mui/material/TableBody";
@@ -40,6 +38,9 @@ import Alert from "@mui/material/Alert";
 import {to_type_value_notation_wrapper, TypeValueNotation, TypeValueNotationWrapper} from "./TypeValueNotation";
 import PrettyObject from "./prettify/PrettyObject";
 import {Theme} from "@mui/material/styles";
+import IconButton from "@mui/material/IconButton";
+import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 
 type ColumnType = {
     url: string,
@@ -115,10 +116,10 @@ const map_to_db_map = (mapping: MappingResource): DB_MappingResource => {
     }
 }
 
-const convert = (v: (string|number|boolean)[], map: MapEntry) => {
-    if (!map.column_type) return v;
-    const rescale = (val: number) => (val + (map.addition ?? 0)) * (map.multiplier ?? 1)
-    switch(map.column_type.data_type) {
+const convert = (v: (string|number|boolean)[], map?: MapEntry) => {
+    const data_type = map?.column_type?.data_type ?? "float"
+    const rescale = (val: number) => (val + (map?.addition ?? 0)) * (map?.multiplier ?? 1)
+    switch(data_type) {
         case "bool":
             return v.map((val) => val === "true" || val === true || val === 1)
         case "float":
@@ -128,9 +129,8 @@ const convert = (v: (string|number|boolean)[], map: MapEntry) => {
         case "str":
             return v.map((val) => String(val))
         case "datetime64[ns]":
-            return v.map((val) => new Date(String(val)))
+            return v.map((val) => typeof val === "boolean"? new Date(String(val)) : new Date(val))
     }
-    throw new Error(`Unknown type ${map.column_type.data_type}`)
 }
 
 function CreateColumnType(
@@ -244,10 +244,14 @@ function MappingTable(
         }
 ) {
     const {classes} = useStyles()
+    const [dataRows, setDataRows] = useState<number>(Infinity)
+    const [recogniseOpen, setRecogniseOpen] = useState(true)
+    const [rescaleOpen, setRescaleOpen] = useState(true)
+    const [renameOpen, setRenameOpen] = useState(true)
     const map = mappingResource.map
-    let mapped_data: Record<string, (string|number|boolean|Date)[]> = {}
+    let mapped_data: Record<string, (string | number | boolean | Date)[]> = {}
 
-    const getName = (v?: MapEntry) => v? (v.name || v.column_type.name) : ""
+    const getName = (v?: MapEntry) => v ? (v.name || v.column_type.name) : ""
 
     const safeSetMapping = (new_mapping: typeof map) => {
         // Rename any duplicate column names.
@@ -275,201 +279,277 @@ function MappingTable(
 
     // Define mapped_data
     mapped_data = Object.fromEntries(
-        Object.entries(summary).map(([k, v]) => {
-            if (Object.keys(map).includes(k))
-                return [getName(map[k]), convert(v, map[k])]
-            return [k, v]
-        })
+        Object.entries(summary)
+            .map(([k, v]) => [getName(map[k]) || k, convert(v, map[k])])
     )
 
+    /* Any new column is int/float */
+    const has_numeric_columns = Object.values(map).reduce(
+        (prev, cur) => prev || ["int", "float"].includes(cur.column_type.data_type),
+        false
+    )
+    // Recognised columns can be renamed if they're not the core required columns
+    const has_renameable_columns = Object.values(map).filter(v => !v.column_type.is_required).length > 0
+
+    const longest_column = Object.values(mapped_data)
+        .reduce(
+            (prev, cur) => cur.length > prev.length ? cur : prev,
+            []
+        )
+
+    const RowCountSelector = <Box
+        className={clsx(classes.mappingHeaderComment, classes.mappingRowCountSelector)}
+        onClick={(e) => e.stopPropagation()}
+    >
+        View
+        <IconButton
+            onClick={() => setDataRows(Math.max(0, Math.min(dataRows, longest_column.length) - 1))}
+            disabled={!dataRows}
+            size="small"
+        >
+            <ArrowLeftIcon />
+        </IconButton>
+        {Math.min(dataRows, longest_column.length)}
+        <IconButton
+            onClick={() => setDataRows(Math.min(longest_column.length, dataRows + 1))}
+            disabled={dataRows >= longest_column.length}
+            size="small"
+        >
+            <ArrowRightIcon />
+        </IconButton>
+        rows
+    </Box>
+
+    const safe_date_representation = (d: Date) => {
+        try { return d.toISOString() } catch { return "NOT_A_DATE" }
+    }
+
     return <Table key="mapping-table" size="small" className={clsx(classes.mappingTable)}>
-        <TableHead>
-            <TableRow className={clsx(classes.mappingTableHeadRow)}>
+        <TableBody>
+
+            <TableRow key="divider-initial" className={clsx(classes.mappingInitial)}>
+                <TableCell
+                    colSpan={Object.keys(summary).length}
+                    className={clsx(classes.mappingSectionHeader)}
+                >
+                    <Typography variant="h6">Initial data</Typography>
+                    {RowCountSelector}
+                </TableCell>
+            </TableRow>
+            <TableRow className={clsx(classes.mappingTableHeadRow, classes.mappingInitial)}>
                 {Object.keys(summary).map((key, i) => {
                     return <TableCell key={i}>{key}</TableCell>
                 })}
             </TableRow>
-        </TableHead>
-        <TableBody>
-            {/* Initial data */}
             {
-                Object.values(summary).reduce((prev, cur) => {
-                    return cur.length > prev.length ? cur : prev
-                }, []).map((_arr, i) => {
-                    return <TableRow key={`old-${i}`}>
+                longest_column.map((_arr, i) => {
+                    if (i >= dataRows) return null
+                    return <TableRow key={`old-${i}`} className={clsx(classes.mappingInitial)}>
                         {Object.values(summary).map((col, n) => {
                             return <TableCell key={n}>{col[i]}</TableCell>
                         })}
                     </TableRow>
                 })
             }
-            {/* Divider */}
-            <TableRow key="divider-recognise">
-                <TableCell colSpan={Object.keys(summary).length} sx={{textAlign: "center"}}>
-                    <KeyboardDoubleArrowDownIcon /> Recognise <KeyboardDoubleArrowDownIcon />
+
+            <TableRow key="divider-recognise" className={clsx(classes.mappingProcess)}>
+                <TableCell
+                    colSpan={Object.keys(summary).length}
+                    className={clsx(classes.mappingSectionHeader, classes.mappingSectionHeaderClickable)}
+                    onClick={() => setRecogniseOpen(!recogniseOpen)}
+                >
+                    <Typography variant="h6">Recognise</Typography>
                 </TableCell>
             </TableRow>
-            {/* Recognise */}
-            <TableRow key="recognise" className={clsx(classes.mappingTableHeadRow)}>
-                {Object.keys(summary).map((key, i) => {
-                    if (!mappingResource.permissions?.write) return <TableCell key={i}>
-                        <Tooltip title={`You do not have permission to edit '${mappingResource.name}'`}>
-                            <Typography>{map[key]?.column_type.name ?? "-"}</Typography>
-                        </Tooltip>
-                    </TableCell>
-                    return <TableCell key={i}>{
-                        <SelectColumnType
-                            setSelected={(ct) => {
-                                const old = {...map}
-                                delete old[key]
-                                const value = ct ? {...old, [key]: {column_type: ct}} : old
-                                safeSetMapping(value)
-                            }}
-                            selected_id={map[key]?.column_type.id ?? null}
-                            reset_name={key}
-                        />
-                    }</TableCell>
-                })}
-            </TableRow>
-            {/* Rebase and Rescale */}
-            {/* Any new column is int/float */
-                Object.values(map).reduce(
-                    (prev, cur) => prev || ["int", "float"].includes(cur.column_type.data_type),
-                    false
-                ) && <>
-                    {/* Divider */}
-                    <TableRow key="divider-rescale">
-                        <TableCell colSpan={Object.keys(summary).length} sx={{textAlign: "center"}}>
-                            <KeyboardDoubleArrowDownIcon /> Rebase and Rescale <KeyboardDoubleArrowDownIcon />
+            {recogniseOpen &&
+                <TableRow key="recognise" className={clsx(classes.mappingTableHeadRow, classes.mappingProcess)}>
+                    {Object.keys(summary).map((key, i) => {
+                        if (!mappingResource.permissions?.write) return <TableCell key={i}>
+                            <Tooltip title={`You do not have permission to edit '${mappingResource.name}'`}>
+                                <Typography>{map[key]?.column_type.name ?? "-"}</Typography>
+                            </Tooltip>
                         </TableCell>
-                    </TableRow>
-                    <TableRow key="rebase-and-rescale">
-                        {Object.keys(summary).map((key, i) => {
-                                if (!mappingResource.permissions?.write) return <TableCell
-                                    key={i}
-                                    className={clsx(classes.mappingRebase)}
-                                >
+                        return <TableCell key={i}>{
+                            <SelectColumnType
+                                setSelected={(ct) => {
+                                    const old = {...map}
+                                    delete old[key]
+                                    const value = ct ? {...old, [key]: {column_type: ct}} : old
+                                    safeSetMapping(value)
+                                }}
+                                selected_id={map[key]?.column_type.id ?? null}
+                                reset_name={key}
+                            />
+                        }</TableCell>
+                    })}
+                </TableRow>
+            }
+
+            <TableRow key="divider-rescale" className={clsx(classes.mappingProcess)}>
+                <TableCell
+                    colSpan={Object.keys(summary).length}
+                    className={clsx(classes.mappingSectionHeader, classes.mappingSectionHeaderClickable)}
+                    onClick={() => setRescaleOpen(!rescaleOpen)}
+                >
+                    <Typography variant="h6">Rebase and Rescale</Typography>
+                </TableCell>
+            </TableRow>
+            {rescaleOpen &&
+                <TableRow key="rebase-and-rescale" className={clsx(classes.mappingProcess)}>
+                    {has_numeric_columns ?
+                        Object.keys(summary).map((key, i) => {
+                                if (!mappingResource.permissions?.write) return <TableCell key={i}>
                                     <Tooltip title={`You do not have permission to edit '${mappingResource.name}'`}>
-                                        <Typography>x' = (x + {map[key]?.addition}) x {map[key]?.multiplier}</Typography>
+                                        {["int", "float"].includes(map[key]?.column_type.data_type) ?
+                                            <Typography className={clsx(classes.mappingRebase)}>
+                                                x' = (x &#43; {map[key]?.addition ?? 0}) &#183; {map[key]?.multiplier ?? 1}
+                                            </Typography> :
+                                            <Typography>-</Typography>
+                                        }
                                     </Tooltip>
                                 </TableCell>
                                 const float = map[key]?.column_type.data_type === "float"
                                 if (!float && map[key]?.column_type.data_type !== "int")
-                                    return <TableCell key={i} />
-                                const pattern = float? "[0-9]*.?[0-9]*" : "[0-9]*"
+                                    return <TableCell key={i}/>
+                                const pattern = float ? "[0-9]*.?[0-9]*" : "[0-9]*"
                                 const width = (n: number) => {
                                     const digits = Math.floor(Math.log10(Math.max(1, Math.abs(n))))
                                     return `${digits + 2}em`
                                 }
-                                return <TableCell key={i} className={clsx(classes.mappingRebase)}>
-                                    x' = (x +
-                                    <FilledInput
-                                        value={map[key].addition ?? 0}
-                                        sx={{width: width(map[key].addition ?? 0)}}
-                                        type="number"
-                                        // @ts-expect-error MUI doesn't expose pattern property, but it does forward it
-                                        pattern={pattern}
-                                        aria-label="addition"
-                                        onChange={(e) => {
-                                            const v = float? parseFloat(e.target.value) : parseInt(e.target.value)
-                                            safeSetMapping({
-                                                ...map,
-                                                [key]: {...map[key], addition: v ?? 0}
-                                            })
-                                        }}
-                                        className={clsx(classes.mappingNumberInput)}
-                                    />) x
-                                    <FilledInput
-                                        value={map[key].multiplier ?? 1}
-                                        sx={{width: width(map[key].multiplier ?? 1)}}
-                                        type="number"
-                                        // @ts-expect-error MUI doesn't expose pattern property, but it does forward it
-                                        pattern={pattern}
-                                        aria-label="multiplier"
-                                        onChange={(e) => {
-                                            const v = float? parseFloat(e.target.value) : parseInt(e.target.value)
-                                            safeSetMapping({
-                                                ...map,
-                                                [key]: {...map[key], multiplier: v ?? 1}
-                                            })
-                                        }}
-                                        className={clsx(classes.mappingNumberInput)}
-                                    />
+                                return <TableCell key={i}>
+                                    <Box className={clsx(classes.mappingRebase, classes.mappingRebaseEdit)}>
+                                        x' = (x &#43;
+                                        <FilledInput
+                                            value={map[key].addition? Number(map[key].addition) : 0}
+                                            sx={{width: width(map[key].addition ?? 0)}}
+                                            type="number"
+                                            // @ts-expect-error MUI doesn't expose pattern property, but it does forward it
+                                            pattern={pattern}
+                                            aria-label="addition"
+                                            onChange={(e) => {
+                                                const v = float ? parseFloat(e.target.value) : parseInt(e.target.value)
+                                                safeSetMapping({
+                                                    ...map,
+                                                    [key]: {...map[key], addition: v ?? 0}
+                                                })
+                                            }}
+                                            className={clsx(classes.mappingNumberInput)}
+                                        />) &#183;
+                                        <FilledInput
+                                            value={map[key].multiplier !== undefined ? Number(map[key].multiplier) : 1}
+                                            sx={{width: width(map[key].multiplier ?? 1)}}
+                                            type="number"
+                                            // @ts-expect-error MUI doesn't expose pattern property, but it does forward it
+                                            pattern={pattern}
+                                            aria-label="multiplier"
+                                            onChange={(e) => {
+                                                const v = float ? parseFloat(e.target.value) : parseInt(e.target.value)
+                                                safeSetMapping({
+                                                    ...map,
+                                                    [key]: {...map[key], multiplier: v ?? 1}
+                                                })
+                                            }}
+                                            className={clsx(classes.mappingNumberInput)}
+                                        />
+                                    </Box>
                                 </TableCell>
                             }
-                        )}
-                    </TableRow>
-                </>
-            }
-            { Object.values(map).filter(v => !v.column_type.is_required).length > 0 &&
-                <>
-                    {/* Divider */}
-                    <TableRow key="divider-rename">
-                        <TableCell colSpan={Object.keys(summary).length} sx={{textAlign: "center"}}>
-                            <KeyboardDoubleArrowDownIcon /> Rename <KeyboardDoubleArrowDownIcon />
-                        </TableCell>
-                    </TableRow>
-                </>
-            }
-            {/* Rename */}
-            <TableRow key="rename">
-                {Object.keys(summary).map((key, i) => {
-                        if (!mappingResource.permissions?.write) return <TableCell key={i}>
-                            <Tooltip title={`You do not have permission to edit '${mappingResource.name}'`}>
-                                <Typography>{key}</Typography>
-                            </Tooltip>
-                        </TableCell>
-                        if (!map[key]) return <TableCell key={i}>
-                            <Tooltip title={`Only recognised columns can be renamed`}>
-                                <Typography>{key}</Typography>
-                            </Tooltip>
-                        </TableCell>
-                        if (map[key]?.column_type.is_required) return <TableCell key={i}>
-                            <Tooltip title={`Required columns cannot be renamed`}>
-                                <Typography>{getName(map[key])}</Typography>
-                            </Tooltip>
-                        </TableCell>
-                        return <TableCell key={i}>
-                            <TextField
-                                value={getName(map[key]) ?? key}
-                                onChange={(e) => {
-                                    safeSetMapping({
-                                        ...map, [key]: {...map[key], name: e.target.value}
-                                    })
-                                }}
-                            />
+                        ) : <TableCell colSpan={Object.keys(summary).length}>
+                            There are no columns recognised as containing numeric data.
                         </TableCell>
                     }
-                )}
+                </TableRow>
+            }
+
+            <TableRow key="divider-rename" className={clsx(classes.mappingProcess)}>
+                <TableCell
+                    colSpan={Object.keys(summary).length}
+                    className={clsx(classes.mappingSectionHeader, classes.mappingSectionHeaderClickable)}
+                    onClick={() => setRenameOpen(!renameOpen)}
+                >
+                    <Typography variant="h6">Rename</Typography>
+                </TableCell>
+            </TableRow>
+            {renameOpen && <TableRow key="rename" className={clsx(classes.mappingProcess)}>
+                {has_renameable_columns ?
+                    Object.keys(summary).map((key, i) => {
+                            if (!mappingResource.permissions?.write) return <TableCell key={i}>
+                                <Tooltip title={`You do not have permission to edit '${mappingResource.name}'`}>
+                                    <Typography>{key}</Typography>
+                                </Tooltip>
+                            </TableCell>
+                            if (!map[key]) return <TableCell key={i}>
+                                <Tooltip title={`Only recognised columns can be renamed`}>
+                                    <Typography>{key}</Typography>
+                                </Tooltip>
+                            </TableCell>
+                            if (map[key]?.column_type.is_required) return <TableCell key={i}>
+                                <Tooltip title={`Required columns cannot be renamed`}>
+                                    <Typography>{getName(map[key])}</Typography>
+                                </Tooltip>
+                            </TableCell>
+                            return <TableCell key={i}>
+                                <TextField
+                                    value={getName(map[key]) ?? key}
+                                    onChange={(e) => {
+                                        safeSetMapping({
+                                            ...map, [key]: {...map[key], name: e.target.value}
+                                        })
+                                    }}
+                                />
+                            </TableCell>
+                        }
+                    ) : <TableCell colSpan={Object.keys(summary).length}>
+                        There are no columns that can be renamed.
+                        Recognised columns can be renamed unless they are one of the required columns.
+                    </TableCell>
+                }
+            </TableRow>
+            }
+
+            <TableRow key="divider-result" className={clsx(classes.mappingResult)}>
+                <TableCell
+                    colSpan={Object.keys(summary).length}
+                    className={clsx(classes.mappingSectionHeader)}
+                >
+                    <Typography variant="h6">Result</Typography>
+                    {RowCountSelector}
+                </TableCell>
+            </TableRow>
+            <TableRow className={clsx(classes.mappingTableHeadRow, classes.mappingResult)}>
+                {Object.keys(summary).map((key, i) => {
+                    return <TableCell key={i}>{getName(map[key]) || key}</TableCell>
+                })}
             </TableRow>
             {
-                Object.values(mapped_data)
-                    .reduce(
-                        (prev, cur) => cur.length > prev.length ? cur : prev,
-                        []
-                    )
-                    .map((arr, i) => {
-                        return <TableRow key={`new-${i}`}>
-                            {
-                                Object.values(mapped_data).map(
-                                    (col, n) => <TableCell key={n}>
-                                        {String(col[i] ?? "")}
-                                    </TableCell>
-                                )
-                            }
-                        </TableRow>
-                    })
+                longest_column.map((arr, i) => {
+                    if (i >= dataRows) return null
+                    return <TableRow key={`new-${i}`} className={clsx(classes.mappingResult)}>
+                        {
+                            Object.values(mapped_data).map(
+                                (col, n) => <TableCell key={n}>
+                                    {
+                                        col[i] instanceof Date ?
+                                            safe_date_representation(col[i] as Date) :
+                                            String(col[i] ?? "")
+                                    }
+                                </TableCell>
+                            )
+                        }
+                    </TableRow>
+                })
             }
         </TableBody>
     </Table>
 }
 
-function MappingManager({file}: {file: ObservedFile}) {
+function MappingManager({file}: { file: ObservedFile }) {
     const blank_map = () => ({
         id: "", url: "", name: "", team: null, is_valid: false, map: {},
         permissions: {read: true, write: true, admin: true},
         read_access_level: 2, edit_access_level: 3, delete_access_level: 3
     })
+    const {classes} = useStyles()
     const {useListQuery, useCreateQuery, useUpdateQuery, useDeleteQuery} = useFetchResource()
     const {results: columns} = useListQuery<ColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
     const [more, setMore] = React.useState(false)
@@ -519,15 +599,21 @@ function MappingManager({file}: {file: ObservedFile}) {
 
     const mapping_can_be_saved = mapping_is_dirty &&
         mapping.name !== "" &&
-        mapping.team !== "" &&
+        mapping.team !== null && mapping.team !== "" &&
         (mapping.permissions?.write ?? false)
 
     const map_can_be_applied = mapping.id !== "" && file_mapping_has_changed && (file?.permissions?.write ?? false)
 
+    const missing_column_names = Object.values(columns ?? [])
+        .filter((c) => c.is_required)
+        .filter((c) => Object.values(mapping.map ?? {}).find((m) => m.column_type === c.id) === undefined)
+        .map(c => c.name)
+
     const safeSetMapping = (value?: string) => {
         const new_mapping = file?.applicable_mappings?.find((m) => m.id === value)
         // Check whether we need to warn about discarding changes.
-        if (mapping_is_dirty && !window.confirm(`Discard unsaved changes to mapping '${mapping.name}'?`))
+        if (mapping_is_dirty &&
+            !window.confirm(`Discard unsaved changes${mapping.name? ` to mapping '${mapping.name}'` : ""}?`))
             return
         setMapping(new_mapping? {...new_mapping} : blank_map())
     }
@@ -560,91 +646,133 @@ function MappingManager({file}: {file: ObservedFile}) {
                 All data should have at least the three key data columns 'ElapsedTime_s', 'Voltage_V', and 'Current_A'.
             </Typography>
             <Collapse in={more} key="collapse">
-                <Typography>
-                    You can associate this file with an existing mapping, or create a new mapping.
-                    When creating a new mapping, you will be able to assign existing columns from other mappings,
-                    or create new columns.
-                </Typography>
-                <Typography>
-                    Note: actual data transformation is done in Python via the `pandas` package.
-                    The preview below is for guidance only, and values are not guaranteed to match the final output.
-                </Typography>
+                <Stack spacing={1}>
+                    <Typography variant="body1">
+                        You can associate this file with an existing mapping, or create a new mapping.
+                        When creating a new mapping, you will be able to assign existing columns from other mappings,
+                        or create new columns.
+                    </Typography>
+                    <Typography variant="body1">
+                        Files can be associated with any <strong>applicable mapping</strong>.
+                        An <strong>applicable mapping</strong> is one where all of the columns of the mapping
+                        appear in the file.
+                        The applicable columns are then ranked whether they recognise all required columns,
+                        then by the number of columns that appear in the data file
+                        that do <em>not appear in the mapping</em>.
+                        Mappings with fewer missing columns are ranked higher.
+                        If there is one mapping that is ranked higher than all others, it will be automatically applied.
+                        If two or more mappings are tied, you will need to apply a mapping manually.
+                    </Typography>
+                    <Typography variant="body1">
+                        <em>Note</em>: columns that are not recognised will be imported as <strong>float</strong> data type.
+                        This is to reduce the storage required.
+                        If you need to store the data as a different type, specify a column type in the mapping.
+                    </Typography>
+                    <Typography variant="body1">
+                        <em>Note</em>: actual data transformation is done in Python via the `pandas` package.
+                        The preview below is for guidance only, and values are not guaranteed to match the final output.
+                    </Typography>
+                </Stack>
             </Collapse>
             <Button key="more" onClick={() => setMore(!more)}>{more ? "Less" : "More"}</Button>
             { !file?
                 <Typography>Failed to load file data, please try refreshing the page.</Typography> :
                 <>
-                    {/* Load mapping */
-                        file?.applicable_mappings &&
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                            <Tooltip title="Only mappings that are applicable to this file will be available.">
-                                <Typography>Mapping:</Typography>
-                            </Tooltip>
-                            <Select
-                                label="Load mapping"
-                                value={mapping?.id}
-                                onChange={(event) => safeSetMapping(event.target.value)}
-                            >
-                                <MenuItem key='reset' value=''><Typography>Create new mapping</Typography></MenuItem>
-                                {
-                                    file?.applicable_mappings
-                                        .sort((a, b) => {
-                                            if (a.is_valid && !b.is_valid) return -1
-                                            if (!a.is_valid && b.is_valid) return 1
-                                            if ((a.missing ?? Infinity) < (b.missing ?? Infinity)) return -1
-                                            if ((a.missing ?? Infinity) > (b.missing ?? Infinity)) return 1
-                                            return a.name.localeCompare(b.name)
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                        <Tooltip title="Only mappings that are applicable to this file will be available.">
+                            <Typography>Mapping:</Typography>
+                        </Tooltip>
+                        <Select
+                            label="Load mapping"
+                            value={mapping?.id || "new"}
+                            onChange={(event) => safeSetMapping(
+                                event.target.value === "new" ? "" : event.target.value
+                            )}
+                        >
+                            <MenuItem key='reset' value="new"><Typography>Create new mapping</Typography></MenuItem>
+                            {
+                                file?.applicable_mappings
+                                    .sort((a, b) => {
+                                        if (a.is_valid && !b.is_valid) return -1
+                                        if (!a.is_valid && b.is_valid) return 1
+                                        if ((a.missing ?? Infinity) < (b.missing ?? Infinity)) return -1
+                                        if ((a.missing ?? Infinity) > (b.missing ?? Infinity)) return 1
+                                        return a.name.localeCompare(b.name)
+                                    })
+                                    .map((m) => <MenuItem key={m.id} value={m.id}>{m.name}</MenuItem>)
+                            }
+                        </Select>
+                        <Button
+                            startIcon={<ICONS.SAVE color={mapping_can_be_saved ? "success" : undefined}/>}
+                            onClick={() => {
+                                let confirmed = false
+                                if (mapping_can_be_saved) {
+                                    if (!mapping.id) {
+                                        createMap({
+                                            name: mapping.name,
+                                            team: mapping.team,
+                                            map: mapping.map
                                         })
-                                        .map((m) => <MenuItem key={m.id} value={m.id}>{m.name}</MenuItem>)
-                                }
-                            </Select>
-                            <Button
-                                startIcon={<ICONS.SAVE color={mapping_can_be_saved ? "success" : undefined}/>}
-                                onClick={() => {
-                                    let confirmed = false
-                                    if (mapping_can_be_saved) {
-                                        if (!mapping.id) {
-                                            createMap({
-                                                name: mapping.name,
-                                                team: mapping.team,
-                                                map: mapping.map
-                                            })
-                                            return  // automatically applies on creation
-                                        } else {
-                                            if (mapping_map_has_changed && mapping.in_use) {
-                                                if (!window.confirm(`
+                                        return  // automatically applies on creation
+                                    } else {
+                                        if (mapping_map_has_changed && mapping.in_use) {
+                                            if (!window.confirm(`
 Mapping '${mapping.name}' is in use. 
 
 Updating its map will cause affected datafiles to be re-imported. This can be an long operation, especially where multiple files are affected.
 
 Do you wish to continue?`
-                                                ))
-                                                    return
-                                                confirmed = true
-                                            }
-                                            updateMap(mapping)
-                                        }
-                                    }
-                                    if (map_can_be_applied) {
-                                        if (!confirmed && file.state === "IMPORTED") {
-                                            if (!window.confirm("Apply new mapping to file? This will cause the data to be re-imported.")) {
+                                            ))
                                                 return
-                                            }
+                                            confirmed = true
                                         }
-                                        updateFile(mapping)
+                                        updateMap(mapping)
                                     }
-                                }}
-                                disabled={!mapping_can_be_saved && !map_can_be_applied}
-                            >
-                                {mapping_can_be_saved && (mapping.id?
-                                        map_can_be_applied?
-                                            "Update and apply mapping": "Update mapping" :
-                                        "Create"
-                                )}
-                                {!mapping_can_be_saved && "Apply mapping"}
-                            </Button>
-                        </Stack>
-                    }
+                                }
+                                if (map_can_be_applied) {
+                                    if (!confirmed && file.state === "IMPORTED") {
+                                        if (!window.confirm("Apply new mapping to file? This will cause the data to be re-imported.")) {
+                                            return
+                                        }
+                                    }
+                                    updateFile(mapping)
+                                }
+                            }}
+                            disabled={!mapping_can_be_saved && !map_can_be_applied}
+                        >
+                            {mapping_can_be_saved && (mapping.id?
+                                    map_can_be_applied?
+                                        "Update and apply mapping": "Update mapping" :
+                                    "Create"
+                            )}
+                            {!mapping_can_be_saved && "Apply mapping"}
+                        </Button>
+                    </Stack>
+                    <Stack className={clsx(classes.mappingWarnings)} spacing={1}>
+                        { !mapping_can_be_saved && mapping.permissions?.write &&
+                            <>
+                                {!mapping_is_dirty &&
+                                    <Alert severity="info">Mappings must recognise at least one column.</Alert>}
+                                {mapping.name === "" &&
+                                    <Alert severity="info">Mappings must have a name.</Alert>}
+                                {(mapping.team === null || mapping.team === "") &&
+                                    <Alert severity="info">Mappings must belong to a team.</Alert>}
+                            </>
+                        }
+                        { mapping.permissions?.write && missing_column_names.length > 0 &&
+                            <Alert severity="warning">
+                                Mapping should include required columns.
+                                Columns {missing_column_names.join(", ")} are not yet recognised.
+                                You can still save the mapping, but the data will not be suitable for meta-analysis.
+                            </Alert>
+                        }
+                        {
+                            mapping.in_use && mapping_map_has_changed &&
+                            <Alert severity="warning">
+                                Updating a map that is used for datafiles will cause those datafiles to be re-parsed.
+                            </Alert>
+                        }
+                    </Stack>
                     {
                         <Stack>
                             <Stack direction="row" alignItems="center" spacing={1}>
@@ -653,8 +781,6 @@ Do you wish to continue?`
                                         label="Mapping name"
                                         value={mapping.name}
                                         onChange={(e) => setMapping({...mapping, name: e.target.value})}
-                                        error={mapping_is_dirty && !mapping.name}
-                                        helperText={mapping_is_dirty && !mapping.name? "Name is required" : undefined}
                                     />
                                     <PrettyResource
                                         target={{_type: key_to_type(LOOKUP_KEYS.TEAM), _value: mapping.team}}
@@ -675,15 +801,6 @@ Do you wish to continue?`
                                     </Button>
                                 }
                             </Stack>
-                            <>
-                                {
-                                    mapping.in_use && mapping_map_has_changed &&
-                                    <Alert severity="warning">
-                                        Updating a map that is used for datafiles will cause those datafiles to be re-parsed.
-                                    </Alert>
-                                }
-                                {!mapping.team && mapping_can_be_saved && <Alert severity="info">Mapping must belong to a team.</Alert>}
-                            </>
                             <Collapse in={advancedPropertiesOpen}>
                                 <Stack spacing={1} sx={{
                                     paddingBottom: (t: Theme) => t.spacing(2),
