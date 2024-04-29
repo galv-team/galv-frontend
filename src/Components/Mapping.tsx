@@ -193,6 +193,8 @@ function SelectColumnType(
             }}
         />
         <Select
+            aria-label="Select column type"
+            data-testid="column-type-select"
             value={selected_id ?? ''}
             onChange={(event) => {
                 if (typeof event.target.value !== "number" || !sortedData)
@@ -423,8 +425,7 @@ function MappingTable(
                                             value={map[key].addition? Number(map[key].addition) : 0}
                                             sx={{width: width(map[key].addition ?? 0)}}
                                             type="number"
-                                            // @ts-expect-error MUI doesn't expose pattern property, but it does forward it
-                                            pattern={pattern}
+                                            inputProps={{pattern: pattern}}
                                             aria-label="addition"
                                             onChange={(e) => {
                                                 const v = float ? parseFloat(e.target.value) : parseInt(e.target.value)
@@ -439,8 +440,7 @@ function MappingTable(
                                             value={map[key].multiplier !== undefined ? Number(map[key].multiplier) : 1}
                                             sx={{width: width(map[key].multiplier ?? 1)}}
                                             type="number"
-                                            // @ts-expect-error MUI doesn't expose pattern property, but it does forward it
-                                            pattern={pattern}
+                                            inputProps={{pattern: pattern}}
                                             aria-label="multiplier"
                                             onChange={(e) => {
                                                 const v = float ? parseFloat(e.target.value) : parseInt(e.target.value)
@@ -683,7 +683,8 @@ function MappingManager({file}: { file: ObservedFile }) {
                             <Typography>Mapping:</Typography>
                         </Tooltip>
                         <Select
-                            label="Load mapping"
+                            aria-label="Load mapping"
+                            data-testid="load-mapping-select"
                             value={mapping?.id || "new"}
                             onChange={(event) => safeSetMapping(
                                 event.target.value === "new" ? "" : event.target.value
@@ -707,6 +708,12 @@ function MappingManager({file}: { file: ObservedFile }) {
                             onClick={() => {
                                 let confirmed = false
                                 if (mapping_can_be_saved) {
+                                    if (missing_column_names.length > 0 && !confirm(`
+Mapping '${mapping.name}' is missing columns ${missing_column_names.join(", ")}.
+
+You may still save the mapping, but the data may not be suitable for meta-analysis.
+                                    `))
+                                        return
                                     if (!mapping.id) {
                                         createMap({
                                             name: mapping.name,
@@ -751,25 +758,35 @@ Do you wish to continue?`
                     <Stack className={clsx(classes.mappingWarnings)} spacing={1}>
                         { !mapping_can_be_saved && mapping.permissions?.write &&
                             <>
-                                {!mapping_is_dirty &&
-                                    <Alert severity="info">Mappings must recognise at least one column.</Alert>}
+                                {Object.keys(mapping).length === 0 &&
+                                    <Alert severity="info"><Typography>
+                                        Mappings must recognise at least one column.
+                                    </Typography></Alert>}
                                 {mapping.name === "" &&
-                                    <Alert severity="info">Mappings must have a name.</Alert>}
+                                    <Alert severity="info"><Typography>
+                                        Mappings must have a name.
+                                    </Typography></Alert>}
                                 {(mapping.team === null || mapping.team === "") &&
-                                    <Alert severity="info">Mappings must belong to a team.</Alert>}
+                                    <Alert severity="info"><Typography>
+                                        Mappings must belong to a team.
+                                    </Typography></Alert>}
                             </>
                         }
                         { mapping.permissions?.write && missing_column_names.length > 0 &&
                             <Alert severity="warning">
-                                Mapping should include required columns.
-                                Columns {missing_column_names.join(", ")} are not yet recognised.
-                                You can still save the mapping, but the data will not be suitable for meta-analysis.
+                                <Typography>
+                                    Mapping should include required columns.
+                                    Columns {missing_column_names.join(", ")} are not yet recognised.
+                                    You can still save the mapping, but the data will not be suitable for meta-analysis.
+                                </Typography>
                             </Alert>
                         }
                         {
                             mapping.in_use && mapping_map_has_changed &&
                             <Alert severity="warning">
-                                Updating a map that is used for datafiles will cause those datafiles to be re-parsed.
+                                <Typography>
+                                    Updating a map that is used for datafiles will cause those datafiles to be re-parsed.
+                                </Typography>
                             </Alert>
                         }
                     </Stack>
