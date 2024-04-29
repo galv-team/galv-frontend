@@ -15,7 +15,6 @@ import useStyles from "../../styles/UseStyles";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import {
-    API_HANDLERS,
     AutocompleteKey,
     DISPLAY_NAMES,
     ICONS,

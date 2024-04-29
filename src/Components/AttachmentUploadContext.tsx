@@ -38,6 +38,8 @@ export default function AttachmentUploadContextProvider({children}: PropsWithChi
             description = description ?? undefined
             if (!file)
                 throw new Error("No file to upload")
+            if (!team)
+                throw new Error("Files must belong to a Team")
             return api_handler.arbitraryFilesCreate.bind(api_handler)(name, file, team, description, is_public)
         },
         {

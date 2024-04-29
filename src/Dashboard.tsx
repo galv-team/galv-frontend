@@ -17,7 +17,7 @@ import ListItem from "@mui/material/ListItem";
 import Tooltip from "@mui/material/Tooltip";
 import {ResourceChip} from "./Components/ResourceChip";
 import Stack from "@mui/material/Stack";
-import React, {ReactNode, useEffect, useState} from "react";
+import React, {ReactNode, useState} from "react";
 import Button from "@mui/material/Button";
 import {useCurrentUser} from "./Components/CurrentUserContext";
 import List from "@mui/material/List";
@@ -34,7 +34,6 @@ import IntroText from "./Components/IntroText";
 import Box from "@mui/material/Box";
 import clsx from "clsx";
 import UseStyles from "./styles/UseStyles";
-import { tableFromIPC } from "apache-arrow";
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -301,54 +300,7 @@ export function DatasetStatus() {
 }
 
 function Dev() {
-    const s3_url = "https://galv.s3.eu-west-2.amazonaws.com/data/test.tmp.parquet/part.0.parquet"
-    const [fetching, setFetching] = useState(false)
-    const [wasmArrowTable, set_wasmArrowTable] = useState()
-    const [parquetModule, setParquetModule] = useState()
-    //const WASM_MEMORY = wasmMemory();
-    const peek = <T,>(x: T) => {console.log(x); return x}
-    useEffect(() => {
-        // React advises to declare the async function directly inside useEffect
-        async function getParquetModule() {
-            const parquetModule = await import(
-                "https://unpkg.com/parquet-wasm@0.4.0-beta.5/esm/arrow2.js"
-                );
-            // Need to await the default export first to initialize the WebAssembly code
-            const {memory} = await parquetModule.default();
-            setParquetModule(parquetModule);
-            return [parquetModule, memory];
-        }
-
-        if (!parquetModule) {
-            getParquetModule()
-        }
-    }, []);
-    if (!fetching && wasmArrowTable === undefined && parquetModule !== undefined) {
-        setFetching(true)
-        fetch(s3_url, {method: "GET"})
-            .then(r => r.arrayBuffer())
-            .then(ab => new Uint8Array(ab))
-            .then(peek)
-            .then(async arr => parquetModule.readParquet(arr))
-            .then(peek)
-            .then(pq => new tableFromIPC(pq))
-            .then(peek)
-            .then(set_wasmArrowTable)
-            .catch(e => console.error("Error fetching S3 file", e))
-    }
-    return <Container maxWidth="lg">
-        <Card>
-            <CardHeader
-                title="Development"
-                subheader="This section is for development purposes only."
-            />
-            <CardContent>
-                <Stack spacing={1}>
-                    {wasmArrowTable}
-                </Stack>
-            </CardContent>
-        </Card>
-    </Container>
+    return <></>
 }
 
 export default function Dashboard() {

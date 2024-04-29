@@ -49,7 +49,6 @@ import {useState} from "react";
 import FetchResourceContextProvider from "./Components/FetchResourceContext";
 import AttachmentUploadContextProvider from "./Components/AttachmentUploadContext";
 import Mapping from "./Components/Mapping";
-import {Theme} from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 
 export const pathMatches = (path: string, pathname: string) => matchPath({path: path, end: true}, pathname) !== null

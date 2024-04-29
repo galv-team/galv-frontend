@@ -10,11 +10,7 @@ export function id_from_ref_props<T extends number | string>(props: ObjectRefere
     if (typeof props === 'number')
         return props as T
     if (typeof props === 'object') {
-        if ('id' in props) {
-            return props.id as T
-        } else if ('id' in props) {
-            return props.id as T
-        }
+        if ('id' in props) return props.id as T
     }
     const url = typeof props === 'string' ? props : props?.url
     try {
