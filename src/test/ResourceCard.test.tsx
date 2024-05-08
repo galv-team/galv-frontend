@@ -21,6 +21,7 @@ import userEvent from "@testing-library/user-event";
 
 jest.mock('../Components/Representation')
 jest.mock('../Components/ResourceChip')
+jest.mock('../DatasetChart')
 
 // Mock jest and set the type
 jest.mock('axios');
