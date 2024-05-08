@@ -137,11 +137,8 @@ function ResourceCard<T extends BaseResource>(
 
     // Mutations for saving edits
     const {postSnackbarMessage} = useSnackbarMessenger()
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const api_handler = new API_HANDLERS[lookup_key](config)
+    const api_config = useCurrentUser()
+    const api_handler = new API_HANDLERS[lookup_key](api_config)
     const patch = api_handler[
         `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
         ] as (id: string, data: SerializableObject) => Promise<AxiosResponse<T>>

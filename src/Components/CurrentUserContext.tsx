@@ -11,6 +11,7 @@ export type LoginUser = Pick<KnoxUser, "token"> & User
 
 export interface ICurrentUserContext {
     user: LoginUser|null
+    api_config: Configuration
     login: (username: string, password: string) => void
     logout: () => void
     loginFormOpen: boolean
@@ -64,6 +65,11 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
         setTimeout(() => Login.mutate(), 100)
     }
 
+    const api_config = new Configuration({
+        basePath: process.env.VITE_GALV_API_BASE_URL,
+        accessToken: user?.token
+    })
+
     axios.interceptors.response.use(
         undefined,
         // 401 should log the user out and display a message
@@ -82,7 +88,9 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
         }
     )
 
-    return <CurrentUserContext.Provider value={{user, login: do_login, logout: Logout, loginFormOpen, setLoginFormOpen}}>
+    return <CurrentUserContext.Provider
+        value={{user, login: do_login, logout: Logout, loginFormOpen, setLoginFormOpen, api_config}}
+    >
         {children}
     </CurrentUserContext.Provider>
 }

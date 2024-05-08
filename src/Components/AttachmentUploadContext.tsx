@@ -28,11 +28,8 @@ export default function AttachmentUploadContextProvider({children}: PropsWithChi
     const [file, setFile] = useState<File|null>(null)
 
     const queryClient = useQueryClient()
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const api_handler = new ArbitraryFilesApi(config)
+    const {api_config} = useCurrentUser()
+    const api_handler = new ArbitraryFilesApi(api_config)
     const UploadMutation = useMutation(
         ({name, team, is_public, description}: ArbitraryFileUpload) => {
             description = description ?? undefined

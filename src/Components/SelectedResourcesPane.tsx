@@ -65,11 +65,8 @@ export function DownloadButton({target_urls, ...props}: {target_urls: string|str
 
                 if (data) return data
 
-                const config = new Configuration({
-                    basePath: process.env.VITE_GALV_API_BASE_URL,
-                    accessToken: user?.token
-                })
-                const api_handler = new API_HANDLERS[components.lookup_key](config)
+                const {api_config} = useCurrentUser()
+                const api_handler = new API_HANDLERS[components.lookup_key](api_config)
                 const get = api_handler[
                     `${API_SLUGS[components.lookup_key]}Retrieve` as keyof typeof api_handler
                     ] as (id: string) => Promise<AxiosResponse<unknown>>

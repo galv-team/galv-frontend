@@ -53,17 +53,14 @@ export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: 
     const [name, setName] = useState<string>("")
     const [ttl, setTTL] = useState<number|undefined>(undefined)
     const [timeUnit, setTimeUnit] = useState<number>(1)
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
+    const {api_config} = useCurrentUser()
     const [err, setErr] = useState<string>("")
     const [responseData, setResponseData] = useState<KnoxTokenFull|null>(null)
     const queryClient = useQueryClient()
     const create_mutation = useMutation<
         AxiosResponse<KnoxTokenFull>, AxiosError, CreateKnoxTokenRequest
     >(
-        (data) => new CreateTokenApi(config).createTokenCreate(data),
+        (data) => new CreateTokenApi(api_config).createTokenCreate(data),
         {
             onSuccess: (data) => {
                 setErr("")
@@ -220,11 +217,8 @@ export function ResourceCreator<T extends BaseResource>(
         UndoRedoRef.current.set(template_object)
     }, [initial_data, lookup_key])
 
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const api_handler = new API_HANDLERS[lookup_key](config)
+    const {api_config} = useCurrentUser()
+    const api_handler = new API_HANDLERS[lookup_key](api_config)
     const post = api_handler[
         `${API_SLUGS[lookup_key]}Create` as keyof typeof api_handler
         ] as (data: SerializableObject) => Promise<AxiosResponse<T>>

@@ -155,11 +155,8 @@ export function SchemaValidationList() {
     const {setLoginFormOpen, user} = useCurrentUser()
 
     // API handler
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: user?.token
-    })
-    const api_handler = new SchemaValidationsApi(config)
+    const {api_config} = useCurrentUser()
+    const api_handler = new SchemaValidationsApi(api_config)
     // Queries
     const queryClient = useQueryClient()
     const query = useQuery<AxiosResponse<PaginatedSchemaValidationList>, AxiosError, SchemaValidationSummary[]>({
@@ -217,11 +214,8 @@ export function SchemaValidationList() {
 
 export function DatasetStatus() {
     // API handler
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const api_handler = new FilesApi(config)
+    const {api_config} = useCurrentUser()
+    const api_handler = new FilesApi(api_config)
     // Queries
     const queryClient = useQueryClient()
     const query = useQuery<AxiosResponse<PaginatedObservedFileList>, AxiosError>({

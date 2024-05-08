@@ -18,7 +18,6 @@ import {
     UseQueryResult
 } from "@tanstack/react-query";
 import {get_select_function} from "./ApiResourceContext";
-import {Configuration}from "@battery-intelligence-lab/galv"
 import {BaseResource} from "./ResourceCard";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 
@@ -104,15 +103,12 @@ export default function FetchResourceContextProvider({children}: {children: Reac
     const useListQuery: IFetchResourceContext["useListQuery"] =
         <T extends BaseResource,>(lookup_key: LookupKey|AutocompleteKey|undefined) => {
             // API handler
-            const config = new Configuration({
-                basePath: process.env.VITE_GALV_API_BASE_URL,
-                accessToken: useCurrentUser().user?.token
-            })
+            const {api_config} = useCurrentUser()
             const queryClient = useQueryClient()
             let queryFn: QueryFunction<AxiosResponse<PaginatedAPIResponse<T>>|null> = () => Promise.resolve(null)
 
             if (lookup_key !== undefined) {
-                const api_handler = new API_HANDLERS[lookup_key](config)
+                const api_handler = new API_HANDLERS[lookup_key](api_config)
                 const get = api_handler[
                     `${API_SLUGS[lookup_key]}List` as keyof typeof api_handler
                     ] as (limit?: number, offset?: number) => Promise<AxiosResponse<PaginatedAPIResponse<T>>>
@@ -167,11 +163,8 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         }
     ) => {
         const {postSnackbarMessage} = useSnackbarMessenger()
-        const config = new Configuration({
-            basePath: process.env.VITE_GALV_API_BASE_URL,
-            accessToken: useCurrentUser().user?.token
-        })
-        const api_handler = new API_HANDLERS[lookup_key](config)
+        const {api_config} = useCurrentUser()
+        const api_handler = new API_HANDLERS[lookup_key](api_config)
         const get = api_handler[
             `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof api_handler
             ] as (id: string) => Promise<AxiosResponse<T>>
@@ -211,11 +204,8 @@ export default function FetchResourceContextProvider({children}: {children: Reac
     ) => {
         const queryClient = useQueryClient()
         const {postSnackbarMessage} = useSnackbarMessenger()
-        const config = new Configuration({
-            basePath: process.env.VITE_GALV_API_BASE_URL,
-            accessToken: useCurrentUser().user?.token
-        })
-        const api_handler = new API_HANDLERS[lookup_key](config)
+        const {api_config} = useCurrentUser()
+        const api_handler = new API_HANDLERS[lookup_key](api_config)
         const partialUpdate = api_handler[
             `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
             ] as (id: string, data: Partial<T>) => Promise<AxiosResponse<T>>
@@ -267,11 +257,8 @@ export default function FetchResourceContextProvider({children}: {children: Reac
     ) => {
         const queryClient = useQueryClient()
         const {postSnackbarMessage} = useSnackbarMessenger()
-        const config = new Configuration({
-            basePath: process.env.VITE_GALV_API_BASE_URL,
-            accessToken: useCurrentUser().user?.token
-        })
-        const api_handler = new API_HANDLERS[lookup_key](config)
+        const {api_config} = useCurrentUser()
+        const api_handler = new API_HANDLERS[lookup_key](api_config)
         const create = api_handler[
             `${API_SLUGS[lookup_key]}Create` as keyof typeof api_handler
             ] as (data: Partial<T>) => Promise<AxiosResponse<T>>
@@ -320,11 +307,8 @@ export default function FetchResourceContextProvider({children}: {children: Reac
     ) => {
         const queryClient = useQueryClient()
         const {postSnackbarMessage} = useSnackbarMessenger()
-        const config = new Configuration({
-            basePath: process.env.VITE_GALV_API_BASE_URL,
-            accessToken: useCurrentUser().user?.token
-        })
-        const api_handler = new API_HANDLERS[lookup_key](config)
+        const {api_config} = useCurrentUser()
+        const api_handler = new API_HANDLERS[lookup_key](api_config)
         const destroy = api_handler[
             `${API_SLUGS[lookup_key]}Destroy` as keyof typeof api_handler
             ] as (id: string) => Promise<AxiosResponse<null>>

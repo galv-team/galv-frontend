@@ -127,11 +127,8 @@ export type PrettyObjectFromQueryProps = {
 export function PrettyObjectFromQuery<T extends BaseResource>(
     { resource_id, lookup_key, filter, ...prettyObjectProps}: PrettyObjectFromQueryProps
 ) {
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const target_api_handler = new API_HANDLERS[lookup_key](config)
+    const {api_config} = useCurrentUser()
+    const target_api_handler = new API_HANDLERS[lookup_key](api_config)
     const target_get = target_api_handler[
         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
         ] as (id: string) => Promise<AxiosResponse<T>>
@@ -163,13 +160,10 @@ export default function PrettyObject<
 
     const [newKeyUpdateCount, setNewKeyUpdateCount] = useState(0)
 
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
+    const {api_config} = useCurrentUser()
     const permissions_query = useQuery<AxiosResponse<PermittedAccessLevels>, AxiosError>({
         queryKey: ["access_levels"],
-        queryFn: () => new AccessLevelsApi(config).accessLevelsRetrieve()
+        queryFn: () => new AccessLevelsApi(api_config).accessLevelsRetrieve()
     })
 
     if (typeof target === 'undefined') {
