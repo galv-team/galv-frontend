@@ -584,7 +584,10 @@ function MappingManager(
     const createMap = (data: Omit<DB_MappingResource, "url"|"id"|"is_valid">) =>
         createMapMutation.mutate(data, {onSuccess: (data) => updateFile(data.data)})
     const updateMapMutation = useUpdateQuery<DB_MappingResource>(LOOKUP_KEYS.MAPPING)
-    const updateMap = (data: DB_MappingResource) => updateMapMutation.mutate(data)
+    const updateMap = (data: DB_MappingResource) => updateMapMutation.mutate(
+        data,
+        {onSuccess: () => navigate(0)}
+    )
     const deleteMapMutation = useDeleteQuery<DB_MappingResource>(LOOKUP_KEYS.MAPPING)
     const deleteMap = (data: DB_MappingResource) => deleteMapMutation.mutate(data, {onSuccess: () => navigate(0)})
 

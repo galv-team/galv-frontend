@@ -73,6 +73,8 @@ it('renders', async () => {
                     return make_axios_response(summary, {config})
                 if (url.endsWith('applicable_mappings'))
                     return make_axios_response(applicable_mappings, {config})
+                if (url.endsWith("column_mappings"))
+                    return make_axios_response(config.data, {config})
                 if (url.endsWith("column_types"))
                     return make_paged_axios_response(columns_data, {config})
                 if (/access_levels/.test(url))
@@ -233,8 +235,7 @@ it('renders', async () => {
         await user.click(button)
 
         // We should now have sent an API call
-        const check_api_call = (call: {method: string, data: string}) => {
-            expect(/post/i.test(call.method)).toBe(true)
+        const check_api_call = (call: {data: string}) => {
             const map = JSON.parse(call.data).map
             expect(map).toMatchObject({
                 "Amps": {
@@ -257,6 +258,9 @@ it('renders', async () => {
                 }
             })
         }
-        check_api_call(mockedAxios.request.mock.lastCall![0] as {method: string, data: string})
+        // Find the last POST API call
+        check_api_call(
+            mockedAxios.request.mock.calls.reverse().find(call => call[0].method === 'POST')![0] as {data: string}
+        )
     },
     60000)
