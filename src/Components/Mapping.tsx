@@ -41,6 +41,10 @@ import {Theme} from "@mui/material/styles";
 import IconButton from "@mui/material/IconButton";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {FilesApi} from "@battery-intelligence-lab/galv";
+import {useCurrentUser} from "./CurrentUserContext";
+import {AxiosError, AxiosResponse} from "axios";
 
 type ColumnType = {
     url: string,
@@ -54,7 +58,7 @@ type ColumnType = {
 type ObservedFile = BaseResource & {
     id: string
     summary: Record<string, Record<string, string|number>>
-    applicable_mappings: DB_MappingResource[]
+    applicable_mappings: string
     mapping?: string
 }
 
@@ -543,7 +547,14 @@ function MappingTable(
     </Table>
 }
 
-function MappingManager({file}: { file: ObservedFile }) {
+function MappingManager(
+    {file, applicable_mappings, summary}:
+        {
+            file: ObservedFile,
+            applicable_mappings: DB_MappingResource[],
+            summary: Record<string, Record<string, string|number>>
+        }
+) {
     const blank_map = () => ({
         id: "", url: "", name: "", team: null, is_valid: false, map: {},
         permissions: {read: true, write: true, admin: true},
@@ -556,7 +567,7 @@ function MappingManager({file}: { file: ObservedFile }) {
     const [advancedPropertiesOpen, setAdvancedPropertiesOpen] = React.useState(false)
     const [mapping, setMapping] = useState<DB_MappingResource>(
         () => {
-            const m = file?.applicable_mappings?.find(m => m.url === file.mapping)
+            const m = applicable_mappings?.find(m => m.url === file.mapping)
             return m? {...m} : blank_map()
         }
     )
@@ -577,11 +588,10 @@ function MappingManager({file}: { file: ObservedFile }) {
     const deleteMapMutation = useDeleteQuery<DB_MappingResource>(LOOKUP_KEYS.MAPPING)
     const deleteMap = (data: DB_MappingResource) => deleteMapMutation.mutate(data, {onSuccess: () => navigate(0)})
 
-    const summary = file?.summary as Record<string, Record<string, string|number>>
     // Summary data with children in array form
     const array_summary: Record<string, (string|number|boolean)[]> = {}
 
-    const original_mapping = file?.applicable_mappings?.find((m) => m.id === mapping.id)
+    const original_mapping = applicable_mappings?.find((m) => m.id === mapping.id)
 
     const file_mapping_has_changed = original_mapping?.url !== file?.mapping
     const mapping_map_has_changed = JSON.stringify(mapping.map) !== JSON.stringify(original_mapping?.map)
@@ -610,7 +620,7 @@ function MappingManager({file}: { file: ObservedFile }) {
         .map(c => c.name)
 
     const safeSetMapping = (value?: string) => {
-        const new_mapping = file?.applicable_mappings?.find((m) => m.id === value)
+        const new_mapping = applicable_mappings?.find((m) => m.id === value)
         // Check whether we need to warn about discarding changes.
         if (mapping_is_dirty &&
             !window.confirm(`Discard unsaved changes${mapping.name? ` to mapping '${mapping.name}'` : ""}?`))
@@ -692,14 +702,13 @@ function MappingManager({file}: { file: ObservedFile }) {
                         >
                             <MenuItem key='reset' value="new"><Typography>Create new mapping</Typography></MenuItem>
                             {
-                                file?.applicable_mappings
-                                    .sort((a, b) => {
-                                        if (a.is_valid && !b.is_valid) return -1
-                                        if (!a.is_valid && b.is_valid) return 1
-                                        if ((a.missing ?? Infinity) < (b.missing ?? Infinity)) return -1
-                                        if ((a.missing ?? Infinity) > (b.missing ?? Infinity)) return 1
-                                        return a.name.localeCompare(b.name)
-                                    })
+                                applicable_mappings?.sort((a, b) => {
+                                    if (a.is_valid && !b.is_valid) return -1
+                                    if (!a.is_valid && b.is_valid) return 1
+                                    if ((a.missing ?? Infinity) < (b.missing ?? Infinity)) return -1
+                                    if ((a.missing ?? Infinity) > (b.missing ?? Infinity)) return 1
+                                    return a.name.localeCompare(b.name)
+                                })
                                     .map((m) => <MenuItem key={m.id} value={m.id}>{m.name}</MenuItem>)
                             }
                         </Select>
@@ -892,11 +901,45 @@ export function Mapping() {
         }
     />
 
+    const fileApiHandler = new FilesApi(useCurrentUser().api_config)
+    const queryClient = useQueryClient()
+    const applicableMappingsQuery = useQuery<AxiosResponse<DB_MappingResource[]>, AxiosError>(
+        ["applicable_mappings", file?.id],
+        async () => {
+            const data = await fileApiHandler.filesApplicableMappingsRetrieve(file!.id)
+            queryClient.setQueryData(["applicable_mappings", file!.id], data)
+            const content = data.data as unknown as {mapping: DB_MappingResource, missing: number}[]
+            return {
+                ...data,
+                data: content.map(m => {
+                    return {...m.mapping, missing: m.missing}
+                })
+            } as unknown as AxiosResponse<DB_MappingResource[]>
+        },
+        {enabled: !!file?.id}
+    )
+    const summaryQuery = useQuery<AxiosResponse<Record<string, Record<string, string|number>>>, AxiosError>(
+        ["summary", file?.id],
+        async () => {
+            const data = await fileApiHandler.filesSummaryRetrieve(file!.id)
+            queryClient.setQueryData(["summary", file!.id], data)
+            return data as unknown as AxiosResponse<Record<string, Record<string, string|number>>>
+        },
+        {enabled: !!file?.id}
+    )
+
     return <QueryWrapper
-        queries={fileQuery? [fileQuery] : []}
+        queries={fileQuery?
+            [fileQuery, applicableMappingsQuery, summaryQuery] :
+            [applicableMappingsQuery, summaryQuery]
+        }
         error={errorBody}
         loading={loadingBody}
-        success={!!file && <MappingManager file={file} />}
+        success={!!file && <MappingManager
+            file={file}
+            applicable_mappings={applicableMappingsQuery.data?.data ?? []}
+            summary={summaryQuery.data?.data ?? {}}
+        />}
     />
 }
 
