@@ -3,7 +3,7 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import { makeStyles } from 'tss-react/mui';
-import {Theme} from "@mui/material/styles";
+import {alpha, Theme} from "@mui/material/styles";
 
 const item = (theme: Theme) => ({
   " .MuiCardHeader-root": {
@@ -42,8 +42,11 @@ export default makeStyles()((theme) => {
     loginPaper: {
       marginTop: theme.spacing(8),
       display: 'flex',
-      flexDirection: 'column',
+      flexDirection: "column",
       alignItems: 'center',
+    },
+    mainPaper: {
+      padding: theme.spacing(1),
     },
     icon: {
       margin: theme.spacing(1),
@@ -53,6 +56,9 @@ export default makeStyles()((theme) => {
     form: {
       width: '100%', // Fix IE 11 issue.
       marginTop: theme.spacing(1),
+    },
+    statusAlert: {
+      '& .MuiAlert-message': {width: "100%"},
     },
     submit: {
       margin: theme.spacing(3, 0, 2),
@@ -161,7 +167,6 @@ export default makeStyles()((theme) => {
     },
     filterBar: {
       justifyContent: "space-between",
-      margin: theme.spacing(0.5),
       maxHeight: theme.spacing(30),
       overflowY: "auto",
       "& .horizontal": {
@@ -265,6 +270,83 @@ export default makeStyles()((theme) => {
     typeChangerPopover: {
       zIndex: 5000,
     },
-    typeChangerResourcePopover: {}
+    typeChangerResourcePopover: {},
+    mappingTable: {
+      paddingTop: theme.spacing(2),
+      '& td > svg': {verticalAlign: "middle"},
+    },
+    mappingWarnings: {},
+    mappingSectionHeader: {
+      fontWeight: "bold",
+      fontSize: "large",
+      '& .MuiTypography-root': {
+        display: "inline-block",
+      }
+    },
+    mappingSectionHeaderClickable: {
+      cursor: "pointer",
+    },
+    mappingHeaderComment: {
+      marginLeft: theme.spacing(2),
+      fontSize: "small",
+      fontWeight: "normal",
+      display: "inline-flex",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    mappingRowCountSelector: {
+      '& .MuiButtonBase-root': {
+        padding: 0,
+        marginLeft: theme.spacing(0.5),
+        marginRight: theme.spacing(0.5),
+      },
+    },
+    mappingHeaderSlider: {
+      marginLeft: theme.spacing(2),
+      maxWidth: "10em",
+    },
+    mappingTableHeadRow: {
+      '& th, & td': {
+        fontWeight: "bold",
+      }
+    },
+    mappingResetColumn: {
+      color: theme.palette.warning.light,
+    },
+    mappingRequiredColumn: {
+      color: theme.palette.success.main,
+    },
+    mappingDefaultColumn: {
+      '& span': {fontWeight: "bold"}
+    },
+    mappingRebase: {
+      minWidth: "9em",
+      fontFamily: "math",
+      '& input, & div': {fontFamily: "math"}
+    },
+    mappingRebaseEdit: {
+      minWidth: "18em",
+    },
+    mappingNumberInput: {
+      '& input': {padding: 0, paddingTop: 0, paddingBottom: 0, paddingLeft: 0, paddingRight: 0},
+    },
+    mappingInitial: {
+      backgroundColor: alpha(theme.palette.info.main, 0.1),
+    },
+    mappingProcess: {
+      backgroundColor: alpha(theme.palette.warning.main, 0.1),
+    },
+    mappingResult: {
+      backgroundColor: alpha(theme.palette.success.main, 0.1),
+    },
+    statusActions: {
+      '& .MuiList-root': {
+        width: "100%",
+      },
+      '& .MuiButton-root': {
+        paddingTop: 0,
+        paddingBottom: 0,
+      }
+    },
   }
 });

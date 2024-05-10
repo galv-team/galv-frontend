@@ -14,11 +14,11 @@ export function representation({data, lookup_key}: {data: BaseResource, lookup_k
             .map((e) => e[1])
             .join(" ")
 
-        return s.length? s : `${DISPLAY_NAMES[lookup_key]} ${data.uuid ?? data.id}`
+        return s.length? s : `${DISPLAY_NAMES[lookup_key]} ${data.id ?? data.id}`
     } catch (error) {
-        console.error(`Could not represent ${lookup_key} ${data?.uuid ?? data?.id}`, {args: {data, lookup_key}, error})
+        console.error(`Could not represent ${lookup_key} ${data?.id ?? data?.id}`, {args: {data, lookup_key}, error})
     }
-    return String(data.uuid ?? data.id ?? 'unknown')
+    return String(data.id ?? data.id ?? 'unknown')
 }
 
 export type RepresentationProps = {

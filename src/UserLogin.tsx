@@ -47,11 +47,8 @@ function RegisterForm({onSuccess}: {onSuccess?: (data: AxiosResponse<User>, pass
     }
 
     const queryClient = useQueryClient()
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const users_handler = new UsersApi(config)
+    const {api_config} = useCurrentUser()
+    const users_handler = new UsersApi(api_config)
     const registration_mutation =
         useMutation(
             (data: UserRequest) => users_handler.usersCreate(data),
@@ -177,10 +174,7 @@ export function ActivationForm({_username, onSuccess}: {_username: string, onSuc
     )
     const [status, setStatus] = useState<AlertColor | undefined>("success")
 
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
+    const {api_config} = useCurrentUser()
 
     return <Stack>
         <TextField
@@ -208,7 +202,7 @@ export function ActivationForm({_username, onSuccess}: {_username: string, onSuc
         <Stack direction="row" spacing={1}>
             <Button
                 onClick={() =>
-                    new ActivateApi(config).activateRetrieve({params: {username, token: code}})
+                    new ActivateApi(api_config).activateRetrieve({params: {username, token: code}})
                         .then((r) => {
                             setResult(r.data?.detail)
                             setStatus(r.status === 200? "success" : "error")
@@ -218,7 +212,7 @@ export function ActivationForm({_username, onSuccess}: {_username: string, onSuc
                 }>Activate my account</Button>
             <Button
                 onClick={() =>
-                    new ActivateApi(config).activateRetrieve({params: {username, resend: true}})
+                    new ActivateApi(api_config).activateRetrieve({params: {username, resend: true}})
                         .then(r => {
                             setResult(r.data?.detail)
                             setStatus(r.status === 200? "success" : "error")

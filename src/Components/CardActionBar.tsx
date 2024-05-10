@@ -2,10 +2,8 @@ import React, {ReactNode} from "react";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import UndoIcon from "@mui/icons-material/Undo";
 import RedoIcon from "@mui/icons-material/Redo";
-import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
 import Stack from "@mui/material/Stack";
 import CountBadge from "./CountBadge";
@@ -138,7 +136,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                         if (props.onEditSave!())
                             props.setEditing!(false)
                     }}>
-                        <SaveIcon {...iconProps} color="success"/>
+                        <ICONS.SAVE {...iconProps} color="success"/>
                     </IconButton>
                 </Tooltip>
                 {props.onUndo && <Tooltip title={`Undo`} arrow describeChild key="undo">
@@ -178,7 +176,7 @@ export default function CardActionBar(props: CardActionBarProps) {
     >
         <span>
             <IconButton onClick={() => props.onDestroy && props.onDestroy()} disabled={!props.destroyable}>
-                <DeleteIcon className={clsx(classes.deleteIcon)} {...iconProps}/>
+                <ICONS.DELETE className={clsx(classes.deleteIcon)} {...iconProps}/>
             </IconButton>
         </span>
     </Tooltip>

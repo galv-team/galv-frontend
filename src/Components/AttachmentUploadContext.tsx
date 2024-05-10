@@ -28,21 +28,20 @@ export default function AttachmentUploadContextProvider({children}: PropsWithChi
     const [file, setFile] = useState<File|null>(null)
 
     const queryClient = useQueryClient()
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const api_handler = new ArbitraryFilesApi(config)
+    const {api_config} = useCurrentUser()
+    const api_handler = new ArbitraryFilesApi(api_config)
     const UploadMutation = useMutation(
         ({name, team, is_public, description}: ArbitraryFileUpload) => {
             description = description ?? undefined
             if (!file)
                 throw new Error("No file to upload")
+            if (!team)
+                throw new Error("Files must belong to a Team")
             return api_handler.arbitraryFilesCreate.bind(api_handler)(name, file, team, description, is_public)
         },
         {
             onSuccess: (data: AxiosResponse<ArbitraryFile>) => {
-                queryClient.setQueryData([LOOKUP_KEYS.ARBITRARY_FILE, data.data.uuid], data.data)
+                queryClient.setQueryData([LOOKUP_KEYS.ARBITRARY_FILE, data.data.id], data.data)
                 queryClient.invalidateQueries([LOOKUP_KEYS.ARBITRARY_FILE, "list"])
             }
         }

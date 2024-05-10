@@ -22,7 +22,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 const ResourceChip = jest.requireActual('../Components/ResourceChip').default;
 
 const data = {
-    uuid: "0001-0001-0001-0001",
+    id: "0001-0001-0001-0001",
     identifier: 'Test Cell 1',
     family: "http://example.com/cell_families/1000-1000-1000-1000",
     team: "http://example.com/teams/1",
@@ -37,7 +37,7 @@ const data = {
 }
 
 const family_data = {
-    uuid: "1000-1000-1000-1000",
+    id: "1000-1000-1000-1000",
     identifier: 'Test Cell Family 1',
     team: "http://example.com/teams/1"
 }
@@ -59,5 +59,5 @@ it('renders', async () => {
         </MemoryRouter>
     )
     await screen.findByText(/DummyRepresentation/)
-    expect(screen.getByText(t => t.includes(data.uuid))).toBeInTheDocument()
+    expect(screen.getByText(t => t.includes(data.id))).toBeInTheDocument()
 })

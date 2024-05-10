@@ -32,5 +32,6 @@ docs/build*
 !docs/build_docs.py
 
 .schema/
+.backend/
 
 src/client_templates/.generated/

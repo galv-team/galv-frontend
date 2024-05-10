@@ -28,13 +28,13 @@ type ApiResourceContextProviderProps = {
     resource_id: string|number
 }
 
-export const get_select_function = (lookup_key: LookupKey) =>
-    <T extends BaseResource>(data: AxiosResponse<T>) => {
+export const get_select_function = <T,>(lookup_key: LookupKey) =>
+    (data: AxiosResponse<BaseResource>) => {
         Object.entries(FIELDS[lookup_key]).forEach(([k, v]) => {
             if (v.transformation !== undefined)
                 data.data[k] = v.transformation(data.data[k])
         })
-        return data
+        return data as AxiosResponse<T>
     }
 
 function ApiResourceContextStandaloneProvider<T extends BaseResource>(
@@ -73,7 +73,7 @@ function ApiResourceContextWithFamilyProvider<T extends BaseResource>(
         query.data?.data?.family? id_from_ref_props(query.data?.data?.family) : "never",
         {extra_query_options: {
                 enabled: !!query.data?.data?.family,
-                select: get_select_function(family_lookup_key),
+                select: get_select_function<T>(family_lookup_key),
             }}
     )
 

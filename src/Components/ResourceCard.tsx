@@ -22,22 +22,23 @@ import Divider, {DividerProps} from "@mui/material/Divider";
 import {
     API_HANDLERS,
     API_SLUGS,
+    AutocompleteKey,
     CHILD_LOOKUP_KEYS,
     CHILD_PROPERTY_NAMES,
     DISPLAY_NAMES,
     FAMILY_LOOKUP_KEYS,
     FIELDS,
-    ICONS,
-    is_lookup_key,
-    PATHS,
-    PRIORITY_LEVELS,
-    LookupKey,
     get_has_family,
     get_is_family,
+    ICONS,
+    is_lookup_key,
     LOOKUP_KEYS,
-    SerializableObject,
+    LookupKey,
+    PATHS,
+    PRIORITY_LEVELS,
     Serializable,
-    type_to_key, AutocompleteKey
+    SerializableObject,
+    type_to_key
 } from "../constants";
 import ResourceChip from "./ResourceChip";
 import ErrorBoundary from "./ErrorBoundary";
@@ -49,26 +50,30 @@ import Prettify from "./prettify/Prettify";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import DatasetChart from "../DatasetChart";
 import {Modal} from "@mui/material";
-import {ResourceCreator, get_modal_title} from "./ResourceCreator";
-import {Configuration}from "@battery-intelligence-lab/galv";
+import {get_modal_title, ResourceCreator} from "./ResourceCreator";
+import {Configuration} from "@battery-intelligence-lab/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import {
     from_type_value_notation,
     to_type_value_notation,
     to_type_value_notation_wrapper,
+    TypeValueNotation,
     TypeValueNotationWrapper
 } from "./TypeValueNotation";
 import Typography from "@mui/material/Typography";
+import {Theme} from "@mui/material/styles";
+import ResourceStatuses from "./ResourceStatuses";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
-export type BaseResource = ({uuid: string} | {id: number}) & {
+type CoreProperties = {
     url: string,
     permissions?: Permissions,
-    team?: string,
+    team?: string|null,
     family?: string,
     cycler_tests?: string[],
 } & {[key in child_keys]?: string[]} & SerializableObject
+export type BaseResource = { id: string|number } & CoreProperties
 export type Family = BaseResource & ({cells: string[]} | {equipment: string[]} | {schedules: string[]})
 export type Resource = { family: string, cycler_tests: string[] } & BaseResource
 export type AutocompleteResource = { value: string, ld_value: string, url: string, id: number }
@@ -132,14 +137,11 @@ function ResourceCard<T extends BaseResource>(
 
     // Mutations for saving edits
     const {postSnackbarMessage} = useSnackbarMessenger()
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const api_handler = new API_HANDLERS[lookup_key](config)
+    const api_config = useCurrentUser()
+    const api_handler = new API_HANDLERS[lookup_key](api_config)
     const patch = api_handler[
         `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
-        ] as (uuid: string, data: SerializableObject) => Promise<AxiosResponse<T>>
+        ] as (id: string, data: SerializableObject) => Promise<AxiosResponse<T>>
     const queryClient = useQueryClient()
     const update_mutation =
         useMutation<AxiosResponse<T>, AxiosError, SerializableObject>(
@@ -208,7 +210,7 @@ function ResourceCard<T extends BaseResource>(
                 return
             const destroy = api_handler[
                 `${API_SLUGS[lookup_key]}Destroy` as keyof typeof api_handler
-                ] as (uuid: string) => Promise<AxiosResponse<T>>
+                ] as (id: string) => Promise<AxiosResponse<T>>
             destroy.bind(api_handler)(String(resource_id))
                 .then(() => queryClient.invalidateQueries([lookup_key, 'list']))
                 .then(() => {
@@ -242,8 +244,8 @@ function ResourceCard<T extends BaseResource>(
     const cardBody = <CardContent sx={{
         maxHeight: isEditMode? "80vh" : "unset",
         overflowY: "auto",
-        "& li": isEditMode? {marginTop: (t) => t.spacing(0.5)} : undefined,
-        "& table": isEditMode? {borderCollapse: "separate", borderSpacing: (t) => t.spacing(0.5)} :
+        "& li": isEditMode? {marginTop: (t: Theme) => t.spacing(0.5)} : undefined,
+        "& table": isEditMode? {borderCollapse: "separate", borderSpacing: (t: Theme) => t.spacing(0.5)} :
             undefined,
     }}>
         <Stack spacing={1}>
@@ -282,7 +284,7 @@ function ResourceCard<T extends BaseResource>(
                 }
                 edit_mode={isEditMode}
                 lookup_key={lookup_key}
-                onEdit={(v) => UndoRedo.update({
+                onEdit={(v: TypeValueNotation|TypeValueNotationWrapper) => UndoRedo.update({
                     ...from_type_value_notation(v) as SerializableObject,
                     custom_properties: UndoRedo.current.custom_properties
                 })}
@@ -294,19 +296,19 @@ function ResourceCard<T extends BaseResource>(
                 target={{...(UndoRedo.current.custom_properties as TypeValueNotationWrapper)}}
                 edit_mode={isEditMode}
                 lookup_key={lookup_key}
-                onEdit={(v) => UndoRedo.update({...UndoRedo.current, custom_properties: v})}
+                onEdit={(v: Serializable) => UndoRedo.update({...UndoRedo.current, custom_properties: v})}
                 canEditKeys
             />}
             {family && <PropertiesDivider>
                 Inherited from
                 {family?
                     <ResourceChip
-                        resource_id={family.uuid as string}
+                        resource_id={family.id as string}
                         lookup_key={family_key!}
                     /> : FAMILY_ICON && <LoadingChip icon={<FAMILY_ICON/>}/> }
             </PropertiesDivider>}
             {family && family_key && <PrettyObjectFromQuery
-                resource_id={family.uuid as string}
+                resource_id={family.id as string}
                 lookup_key={family_key}
                 filter={(d, lookup_key) => {
                     const data = deep_copy(d)
@@ -366,8 +368,8 @@ function ResourceCard<T extends BaseResource>(
                     <Grid xs={10} lg={11}>{summarise(apiResource[k], v.many, k, type_to_key(v.type))}</Grid>
                 </Grid>)
         }</Grid>}
-        {lookup_key === LOOKUP_KEYS.FILE && <Stack spacing={2}>
-            <DatasetChart file_uuid={resource_id as string} />
+        {lookup_key === LOOKUP_KEYS.FILE && apiResource?.has_required_columns && <Stack spacing={2}>
+            <DatasetChart parquet_partitions={apiResource?.parquet_partitions as string[]} />
         </Stack>}
     </CardContent>
 
@@ -376,7 +378,7 @@ function ResourceCard<T extends BaseResource>(
             open={forking}
             onClose={() => setForking(false)}
             aria-labelledby={get_modal_title(lookup_key, 'title')}
-            sx={{padding: (t) => t.spacing(4)}}
+            sx={{padding: (t: Theme) => t.spacing(4)}}
         >
             <div>
                 <ErrorBoundary
@@ -414,7 +416,7 @@ function ResourceCard<T extends BaseResource>(
                         lookup_key={lookup_key}
                         prefix={family_key && family ?
                             <Representation
-                                resource_id={family.uuid as string}
+                                resource_id={family.id as string}
                                 lookup_key={family_key}
                                 suffix=" "
                             /> : undefined}
@@ -432,6 +434,7 @@ function ResourceCard<T extends BaseResource>(
             />
             {isExpanded? cardBody : cardSummary}
             {forkModal}
+            <ResourceStatuses lookup_key={lookup_key}/>
         </Card>
 
     const getErrorBody: QueryDependentElement = (queries) => <ErrorCard

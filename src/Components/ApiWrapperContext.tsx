@@ -18,45 +18,43 @@ import {
     UseQueryResult
 } from "@tanstack/react-query";
 import {get_select_function} from "./ApiResourceContext";
+import {CellChemistriesApi, CellsApi, Configuration, FilesApi} from "@battery-intelligence-lab/galv"
 import {BaseResource} from "./ResourceCard";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
-
-export type PaginatedAPIResponse<T extends BaseResource> = {
-    count: number
-    next: string | null
-    previous: string | null
-    results: T[]
-}
 
 export type ListQueryResult<T> = UseInfiniteQueryResult & {
     results: T[] | null | undefined
 }
 
-type RetrieveOptions<T extends BaseResource> = {
-    extra_query_options?: UseQueryOptions<AxiosResponse<T>, AxiosError>,
-    with_result?: (result: AxiosResponse<T>) => AxiosResponse<T>,
-    on_error?: (error: AxiosError) => AxiosResponse<T>|undefined
-}
-type UpdateTVariables<T extends BaseResource> = Partial<T> & {id: string|number}
-type UpdateOptions<T extends BaseResource> = {
-    extra_query_options?: UseMutationOptions<AxiosResponse<T>, AxiosError>,
-    before_cache?: (result: AxiosResponse<T>) => AxiosResponse<T>,
-    after_cache?: (result: AxiosResponse<T>, variables: UpdateTVariables<T>) => void,
-    on_error?: (error: AxiosError, variables: UpdateTVariables<T>) => AxiosResponse<T>|undefined
-}
-type CreateOptions<T extends BaseResource> = {
-    extra_query_options?: UseMutationOptions<AxiosResponse<T>, AxiosError>,
-    before_cache?: (result: AxiosResponse<T>) => AxiosResponse<T>,
-    after_cache?: (result: AxiosResponse<T>, variables: Partial<T>) => void,
-    on_error?: (error: AxiosError, variables: Partial<T>) => AxiosResponse<T>|undefined
-}
-type DeleteOptions<T extends BaseResource> = {
-    extra_query_options?: UseMutationOptions<AxiosResponse<null>, AxiosError>,
-    after?: () => void,
-    on_error?: (error: AxiosError, variables: T) => void
+const apis = [
+    CellChemistriesApi,
+    CellsApi,
+    FilesApi,
+] as const
+
+type ApiHandler = typeof apis[number]
+
+class ApiWrapper {
+    public api_handler;
+    constructor(api_class: ApiHandler, config: Configuration) {
+        this.api_handler = new api_class(config)
+        // add aliases to list, retrieve, create, update, destroy
+        // so instead of this.api_handler.cellsList, you can do this.list
+        // and instead of this.api_handler.cellsRetrieve, you can do this.retrieve
+        // and so on
+        const api_slug = this.api_handler.constructor.name.replace('Api', '')
+        this.list = this.api_handler[`${api_slug}List` as keyof typeof this.api_handler]
+        this.retrieve = this.api_handler[`${api_slug}Retrieve` as keyof typeof this.api_handler]
+        this.create = this.api_handler[`${api_slug}Create` as keyof typeof this.api_handler]
+        this.partialUpdate = this.api_handler[`${api_slug}PartialUpdate` as keyof typeof this.api_handler]
+    }
+
+    public list = (limit?: number, offset?: number) => {
+        return this.api_handler.listCells(limit, offset)
+    }
 }
 
-export interface IFetchResourceContext {
+export interface IApiWrapperContext {
     // Returns null when lookup_key is undefined. Otherwise, returns undefined until data are fetched, then T[]
     useListQuery: <T extends BaseResource>(
         lookup_key: LookupKey|AutocompleteKey|undefined
@@ -80,16 +78,16 @@ export interface IFetchResourceContext {
     ) => UseMutationResult<AxiosResponse<null>, AxiosError, T>
 }
 
-export const FetchResourceContext = createContext({} as IFetchResourceContext)
+export const ApiWrapperContext = createContext({} as IApiWrapperContext)
 
-export const useFetchResource = () => useContext(FetchResourceContext)
+export const useApiWrapper = () => useContext(ApiWrapperContext)
 
 const get_error_detail = (e: AxiosError) => e.response?.data?.detail ??
     Object.entries(e.response?.data ?? {})
         .map(([k, v]) => `${k}: ${v}`)
         .join(', ')
 
-export default function FetchResourceContextProvider({children}: {children: ReactNode}) {
+export default function ApiWrapperContextProvider({children}: {children: ReactNode}) {
     const extract_limit_offset = (url: string|null|undefined) => {
         const safe_number = (n: string | null) => n && !isNaN(parseInt(n))? parseInt(n) : undefined
         if (!url) return undefined
@@ -100,15 +98,18 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         }
     }
 
-    const useListQuery: IFetchResourceContext["useListQuery"] =
+    const useListQuery: IApiWrapperContext["useListQuery"] =
         <T extends BaseResource,>(lookup_key: LookupKey|AutocompleteKey|undefined) => {
             // API handler
-            const {api_config} = useCurrentUser()
+            const config = new Configuration({
+                basePath: process.env.VITE_GALV_API_BASE_URL,
+                accessToken: useCurrentUser().user?.token
+            })
             const queryClient = useQueryClient()
             let queryFn: QueryFunction<AxiosResponse<PaginatedAPIResponse<T>>|null> = () => Promise.resolve(null)
 
             if (lookup_key !== undefined) {
-                const api_handler = new API_HANDLERS[lookup_key](api_config)
+                const api_handler = new API_HANDLERS[lookup_key](config)
                 const get = api_handler[
                     `${API_SLUGS[lookup_key]}List` as keyof typeof api_handler
                     ] as (limit?: number, offset?: number) => Promise<AxiosResponse<PaginatedAPIResponse<T>>>
@@ -153,7 +154,7 @@ export default function FetchResourceContextProvider({children}: {children: Reac
             return out
         }
 
-    const useRetrieveQuery: IFetchResourceContext["useRetrieveQuery"] = <T extends BaseResource>(
+    const useRetrieveQuery: IApiWrapperContext["useRetrieveQuery"] = <T extends BaseResource>(
         lookup_key: LookupKey,
         resource_id: string|number,
         options?: {
@@ -164,7 +165,7 @@ export default function FetchResourceContextProvider({children}: {children: Reac
     ) => {
         const {postSnackbarMessage} = useSnackbarMessenger()
         const {api_config} = useCurrentUser()
-        const api_handler = new API_HANDLERS[lookup_key](api_config)
+        const api_handler = new API_HANDLERS[lookup_key](config)
         const get = api_handler[
             `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof api_handler
             ] as (id: string) => Promise<AxiosResponse<T>>
@@ -198,14 +199,14 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         return useQuery<AxiosResponse<T>, AxiosError>(query_options)
     }
 
-    const useUpdateQuery: IFetchResourceContext["useUpdateQuery"] = <T extends BaseResource>(
+    const useUpdateQuery: IApiWrapperContext["useUpdateQuery"] = <T extends BaseResource>(
         lookup_key: LookupKey,
         options?: UpdateOptions<T>
     ) => {
         const queryClient = useQueryClient()
         const {postSnackbarMessage} = useSnackbarMessenger()
         const {api_config} = useCurrentUser()
-        const api_handler = new API_HANDLERS[lookup_key](api_config)
+        const api_handler = new API_HANDLERS[lookup_key](config)
         const partialUpdate = api_handler[
             `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
             ] as (id: string, data: Partial<T>) => Promise<AxiosResponse<T>>
@@ -251,14 +252,14 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         return useMutation<AxiosResponse<T>, AxiosError, UpdateTVariables<T>>(mutation_options)
     }
 
-    const useCreateQuery: IFetchResourceContext["useCreateQuery"] = <T extends BaseResource>(
+    const useCreateQuery: IApiWrapperContext["useCreateQuery"] = <T extends BaseResource>(
         lookup_key: LookupKey,
         options?: CreateOptions<T>
     ) => {
         const queryClient = useQueryClient()
         const {postSnackbarMessage} = useSnackbarMessenger()
         const {api_config} = useCurrentUser()
-        const api_handler = new API_HANDLERS[lookup_key](api_config)
+        const api_handler = new API_HANDLERS[lookup_key](config)
         const create = api_handler[
             `${API_SLUGS[lookup_key]}Create` as keyof typeof api_handler
             ] as (data: Partial<T>) => Promise<AxiosResponse<T>>
@@ -301,14 +302,14 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         return useMutation<AxiosResponse<T>, AxiosError, Partial<T>>(mutation_options)
     }
 
-    const useDeleteQuery: IFetchResourceContext["useDeleteQuery"] = <T extends BaseResource>(
+    const useDeleteQuery: IApiWrapperContext["useDeleteQuery"] = <T extends BaseResource>(
         lookup_key: LookupKey,
         options?: DeleteOptions<T>
     ) => {
         const queryClient = useQueryClient()
         const {postSnackbarMessage} = useSnackbarMessenger()
         const {api_config} = useCurrentUser()
-        const api_handler = new API_HANDLERS[lookup_key](api_config)
+        const api_handler = new API_HANDLERS[lookup_key](config)
         const destroy = api_handler[
             `${API_SLUGS[lookup_key]}Destroy` as keyof typeof api_handler
             ] as (id: string) => Promise<AxiosResponse<null>>
@@ -345,9 +346,9 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         return useMutation<AxiosResponse<null>, AxiosError, T>(mutation_options)
     }
 
-    return <FetchResourceContext.Provider value={{
+    return <ApiWrapperContext.Provider value={{
         useListQuery, useRetrieveQuery, useUpdateQuery, useCreateQuery, useDeleteQuery
     }}>
         {children}
-    </FetchResourceContext.Provider>
+    </ApiWrapperContext.Provider>
 }

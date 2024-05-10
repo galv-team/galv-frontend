@@ -1,7 +1,7 @@
 import {is_lookup_key, LookupKey, PATHS, Serializable} from "../constants";
 
 export type ObjectReferenceProps =
-    { uuid: string } |
+    { id: string } |
     { id: number } |
     { url: string }
 
@@ -10,11 +10,7 @@ export function id_from_ref_props<T extends number | string>(props: ObjectRefere
     if (typeof props === 'number')
         return props as T
     if (typeof props === 'object') {
-        if ('uuid' in props) {
-            return props.uuid as T
-        } else if ('id' in props) {
-            return props.id as T
-        }
+        if ('id' in props) return props.id as T
     }
     const url = typeof props === 'string' ? props : props?.url
     try {
@@ -29,7 +25,7 @@ export function id_from_ref_props<T extends number | string>(props: ObjectRefere
 }
 
 /**
- * If `url` looks like a valid url for a resource, return the lookup key and uuid.
+ * If `url` looks like a valid url for a resource, return the lookup key and id.
  * @param url
  */
 export function get_url_components(url: string):

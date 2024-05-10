@@ -155,11 +155,8 @@ export function SchemaValidationList() {
     const {setLoginFormOpen, user} = useCurrentUser()
 
     // API handler
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: user?.token
-    })
-    const api_handler = new SchemaValidationsApi(config)
+    const {api_config} = useCurrentUser()
+    const api_handler = new SchemaValidationsApi(api_config)
     // Queries
     const queryClient = useQueryClient()
     const query = useQuery<AxiosResponse<PaginatedSchemaValidationList>, AxiosError, SchemaValidationSummary[]>({
@@ -217,11 +214,8 @@ export function SchemaValidationList() {
 
 export function DatasetStatus() {
     // API handler
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const api_handler = new FilesApi(config)
+    const {api_config} = useCurrentUser()
+    const api_handler = new FilesApi(api_config)
     // Queries
     const queryClient = useQueryClient()
     const query = useQuery<AxiosResponse<PaginatedObservedFileList>, AxiosError>({
@@ -230,7 +224,7 @@ export function DatasetStatus() {
             try {
                 // Update the cache for each resource
                 r.data.results?.forEach((resource: ObservedFile) => {
-                    queryClient.setQueryData([LOOKUP_KEYS.FILE, resource.uuid], {...r, data: resource})
+                    queryClient.setQueryData([LOOKUP_KEYS.FILE, resource.id], {...r, data: resource})
                 })
             } catch (e) {
                 console.error("Error updating cache from list data.", e)
@@ -299,6 +293,10 @@ export function DatasetStatus() {
     </Container>
 }
 
+function Dev() {
+    return <></>
+}
+
 export default function Dashboard() {
     const {classes} = UseStyles()
     return <Stack spacing={2}>
@@ -316,5 +314,6 @@ export default function Dashboard() {
         <DatasetStatus />
         <Typography variant={"h6"} sx={{paddingLeft: "1em"}}>Metadata Validations</Typography>
         <SchemaValidationList />
+        {process.env.NODE_ENV == "development" && <Dev />}
     </Stack>
 }

@@ -21,6 +21,7 @@ import userEvent from "@testing-library/user-event";
 
 jest.mock('../Components/Representation')
 jest.mock('../Components/ResourceChip')
+jest.mock('../DatasetChart')
 
 // Mock jest and set the type
 jest.mock('axios');
@@ -37,7 +38,7 @@ const api_data: {
 } = {
     cell: {
         url: "http://example.com/cells/0001-0001-0001-0001",
-        uuid: "0001-0001-0001-0001",
+        id: "0001-0001-0001-0001",
         identifier: 'Test Cell 1',
         family: "http://example.com/cell_families/1000-1000-1000-1000",
         team: "http://example.com/teams/1",
@@ -96,7 +97,7 @@ const api_data: {
     },
     cell_family: {
         url: "http://example.com/cell_families/1000-1000-1000-1000",
-        uuid: "1000-1000-1000-1000",
+        id: "1000-1000-1000-1000",
         model: "Best Cell",
         manufacturer: "PowerCorp",
         team: "http://example.com/teams/1",
@@ -113,7 +114,7 @@ const api_data: {
     },
     cell_family_2: {
         url: "http://example.com/cell_families/1200-1200-1200-1200",
-        uuid: "1200-1200-1200-1200",
+        id: "1200-1200-1200-1200",
         model: "Value Cell",
         manufacturer: "BudgetCorp",
         team: "http://example.com/teams/1",
@@ -183,11 +184,11 @@ const do_render = async () => {
     mockedAxios.request.mockImplementation((config: AxiosRequestConfig) => {
         if (config.url) {
             const url = config.url.replace(/\/$/, "")
-            if (url.endsWith(api_data.cell.uuid))
+            if (url.endsWith(api_data.cell.id))
                 return make_axios_response(api_data.cell, {config})
-            if (url.endsWith(api_data.cell_family.uuid))
+            if (url.endsWith(api_data.cell_family.id))
                 return make_axios_response(api_data.cell_family, {config})
-            if (url.endsWith(api_data.cell_family_2.uuid))
+            if (url.endsWith(api_data.cell_family_2.id))
                 return make_axios_response(api_data.cell_family_2, {config})
             if (/access_levels/.test(url))
                 return make_axios_response(access_levels_response, {config})
@@ -239,9 +240,9 @@ describe('ResourceCard', () => {
             const read_only_heading = await screen.findByRole('heading', { name: /^Read-only properties$/ });
             const read_only_table = read_only_heading.parentElement!.parentElement!.nextElementSibling;
             expect(read_only_table).not.toBe(null);
-            const uuid_heading = within(read_only_table as HTMLElement).getByText(/uuid/);
-            within(uuid_heading.parentElement!.parentElement!.nextElementSibling as HTMLElement)
-                .getByText(api_data.cell.uuid);
+            const id_heading = within(read_only_table as HTMLElement).getByText(/id/);
+            within(id_heading.parentElement!.parentElement!.nextElementSibling as HTMLElement)
+                .getByText(api_data.cell.id);
 
             const editable_heading = await screen.findByRole('heading', { name: /^Editable properties$/ });
             // Editable properties has a permissions table as its first sibling
@@ -592,15 +593,15 @@ describe('ResourceCard', () => {
             await user.click(screen.getByRole('button', {name: /^Edit this /i}));
             const id_label = screen.getByRole("rowheader", {name: /^key cf$/});
             const input = within(id_label.parentElement! as HTMLElement).getByRole('combobox');
-            expect(input).toHaveValue(`representation: CELL_FAMILY [${api_data.cell_family.uuid}]`);
+            expect(input).toHaveValue(`representation: CELL_FAMILY [${api_data.cell_family.id}]`);
             await user.click(input)
             await user.clear(input)
             await user.keyboard("2")  // should match the second cell family
             const autocomplete = await screen.findByRole('listbox');
-            const option = within(autocomplete).getByText(`representation: CELL_FAMILY [${api_data.cell_family_2.uuid}]`);
+            const option = within(autocomplete).getByText(`representation: CELL_FAMILY [${api_data.cell_family_2.id}]`);
             await user.click(option);
             await wait()
-            expect(input).toHaveValue(`representation: CELL_FAMILY [${api_data.cell_family_2.uuid}]`);
+            expect(input).toHaveValue(`representation: CELL_FAMILY [${api_data.cell_family_2.id}]`);
         })
     })
 

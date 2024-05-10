@@ -87,7 +87,7 @@ export const PrettyString = (
 
     return <Typography component="span" variant="body1" {...childProps as TypographyProps}>{target._value}</Typography>
 }
-const PrettyNumber = (
+export const PrettyNumber = (
     {target, onChange, edit_mode, ...childProps}:
         PrettyComponentProps<number|null> & Partial<Omit<TextFieldProps | TypographyProps, "onChange">>
 ) => {

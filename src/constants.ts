@@ -19,7 +19,6 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import SchemaIcon from '@mui/icons-material/Schema';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingIcon from '@mui/icons-material/Pending';
-import ErrorIcon from '@mui/icons-material/Error';
 import HideSourceIcon from '@mui/icons-material/HideSource';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -28,6 +27,12 @@ import ForkRightIcon from '@mui/icons-material/ForkRight';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SubscriptIcon from '@mui/icons-material/Subscript';
 import SplitscreenIcon from '@mui/icons-material/Splitscreen';
+import ExtensionIcon from '@mui/icons-material/Extension';
+import SuccessIcon from '@mui/icons-material/Done';
+import InfoIcon from '@mui/icons-material/Info';
+import WarningIcon from '@mui/icons-material/Warning';
+import ErrorIcon from '@mui/icons-material/Error';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 
 import {
     CellChemistriesApi,
@@ -47,6 +52,7 @@ import {
     HarvestersApi,
     LabsApi,
     MonitoredPathsApi,
+    ParquetPartitionsApi,
     ScheduleFamiliesApi,
     ScheduleIdentifiersApi,
     SchedulesApi,
@@ -54,7 +60,8 @@ import {
     TokensApi,
     UsersApi,
     ValidationSchemasApi,
-    ArbitraryFilesApi, ColumnsApi, ColumnTypesApi, UnitsApi
+    ArbitraryFilesApi, ColumnsApi, ColumnTypesApi, UnitsApi,
+    ColumnMappingsApi
 } from "@battery-intelligence-lab/galv";
 import {
     TypeChangerAutocompleteKey,
@@ -62,6 +69,8 @@ import {
     TypeChangerSupportedTypeName
 } from "./Components/prettify/TypeChanger";
 import {TypeValueNotation} from "./Components/TypeValueNotation";
+import SaveIcon from "@mui/icons-material/Save";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 /**
  * The basic unit of data passed around the frontend is a Serializable.
@@ -99,8 +108,11 @@ export const type_to_key = (t: TypeChangerSupportedTypeName): AutocompleteKey | 
  *
  * @param k - AutocompleteKey or LookupKey
  */
-export const key_to_type = <T,>(k: AutocompleteKey|LookupKey|T): TypeChangerAutocompleteKey|TypeChangerLookupKey|T =>
-    (is_autocomplete_key(k) || is_lookup_key(k))? `galv_${k}` : k
+export const key_to_type = (k: unknown): TypeChangerAutocompleteKey|TypeChangerLookupKey => {
+    if (is_autocomplete_key(k) || is_lookup_key(k))
+        return `galv_${k}`
+    throw new Error(`key_to_type: ${k} is not a valid key`)
+}
 
 /**
  * This is a list of various resources grouped under a common name for each
@@ -114,7 +126,9 @@ export const key_to_type = <T,>(k: AutocompleteKey|LookupKey|T): TypeChangerAuto
 export const LOOKUP_KEYS = {
     HARVESTER: "HARVESTER",
     PATH: "PATH",
+    PARQUET_PARTITION: "PARQUET_PARTITION",
     FILE: "FILE",
+    MAPPING: "MAPPING",
     CELL_FAMILY: "CELL_FAMILY",
     CELL: "CELL",
     EQUIPMENT_FAMILY: "EQUIPMENT_FAMILY",
@@ -160,7 +174,9 @@ export const is_autocomplete_key = (key: unknown): key is AutocompleteKey =>
 export const ICONS = {
     [LOOKUP_KEYS.HARVESTER]: CloudSyncIcon,
     [LOOKUP_KEYS.PATH]: FolderIcon,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: ExtensionIcon,
     [LOOKUP_KEYS.FILE]: PollIcon,
+    [LOOKUP_KEYS.MAPPING]: CompareArrowsIcon,
     [LOOKUP_KEYS.UNIT]: SubscriptIcon,
     [LOOKUP_KEYS.COLUMN_FAMILY]: SplitscreenIcon,
     [LOOKUP_KEYS.COLUMN]: SplitscreenIcon,
@@ -182,6 +198,8 @@ export const ICONS = {
     MANAGE_ACCOUNT: ManageAccountsIcon,
     LOGOUT: LogoutIcon,
     CREATE: AddCircleIcon,
+    DELETE: DeleteIcon,
+    SAVE: SaveIcon,
     FORK: ForkRightIcon,
     CANCEL: CancelIcon,
     CHECK: CheckCircleIcon,
@@ -193,6 +211,10 @@ export const ICONS = {
     validation_status_VALID: CheckCircleIcon,
     validation_status_INVALID: CancelIcon,
     validation_status_SKIPPED: HideSourceIcon,
+    SUCCESS: SuccessIcon,
+    INFO: InfoIcon,
+    WARNING: WarningIcon,
+    ERROR: ErrorIcon
 } as const
 
 /**
@@ -204,11 +226,13 @@ export const ICONS = {
 export const PATHS = {
     [LOOKUP_KEYS.HARVESTER]: "/harvesters",
     [LOOKUP_KEYS.PATH]: "/paths",
+    [LOOKUP_KEYS.PARQUET_PARTITION]: "/parquet_partitions",
     [LOOKUP_KEYS.FILE]: "/files",
     [LOOKUP_KEYS.COLUMN]: "/columns",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "/column_types",
     [LOOKUP_KEYS.UNIT]: "/units",
     DASHBOARD: "/",
+    [LOOKUP_KEYS.MAPPING]: "/mapping",
     [LOOKUP_KEYS.EXPERIMENT]: "/experiments",
     [LOOKUP_KEYS.CYCLER_TEST]: "/cycler_tests",
     GRAPH: "/graphs",
@@ -241,7 +265,9 @@ export const PATHS = {
 export const DISPLAY_NAMES = {
     [LOOKUP_KEYS.HARVESTER]: "Harvester",
     [LOOKUP_KEYS.PATH]: "Path",
+    [LOOKUP_KEYS.PARQUET_PARTITION]: "Parquet Partition",
     [LOOKUP_KEYS.FILE]: "File",
+    [LOOKUP_KEYS.MAPPING]: "Mapping",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
     [LOOKUP_KEYS.COLUMN]: "Column",
     [LOOKUP_KEYS.UNIT]: "Unit",
@@ -269,7 +295,9 @@ export const DISPLAY_NAMES = {
 export const DISPLAY_NAMES_PLURAL = {
     [LOOKUP_KEYS.HARVESTER]: "Harvesters",
     [LOOKUP_KEYS.PATH]: "Paths",
+    [LOOKUP_KEYS.PARQUET_PARTITION]: "Parquet Partitions",
     [LOOKUP_KEYS.FILE]: "Files",
+    [LOOKUP_KEYS.MAPPING]: "Mappings",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
     [LOOKUP_KEYS.COLUMN]: "Columns",
     [LOOKUP_KEYS.UNIT]: "Unit",
@@ -298,7 +326,9 @@ export const DISPLAY_NAMES_PLURAL = {
 export const API_HANDLERS = {
     [LOOKUP_KEYS.HARVESTER]: HarvestersApi,
     [LOOKUP_KEYS.PATH]: MonitoredPathsApi,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: ParquetPartitionsApi,
     [LOOKUP_KEYS.FILE]: FilesApi,
+    [LOOKUP_KEYS.MAPPING]: ColumnMappingsApi,
     [LOOKUP_KEYS.COLUMN]: ColumnsApi,
     [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnTypesApi,
     [LOOKUP_KEYS.UNIT]: UnitsApi,
@@ -334,13 +364,15 @@ export const API_HANDLERS = {
  * ```
  * const target_get = target_api_handler[
  *         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
- *         ] as (uuid: string) => Promise<AxiosResponse<T>>
+ *         ] as (id: string) => Promise<AxiosResponse<T>>
  * ```
  */
 export const API_SLUGS = {
     [LOOKUP_KEYS.HARVESTER]: "harvesters",
     [LOOKUP_KEYS.PATH]: "monitoredPaths",
+    [LOOKUP_KEYS.PARQUET_PARTITION]: "parquetPartitions",
     [LOOKUP_KEYS.FILE]: "files",
+    [LOOKUP_KEYS.MAPPING]: "columnMappings",
     [LOOKUP_KEYS.COLUMN]: "columns",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "columnTypes",
     [LOOKUP_KEYS.UNIT]: "units",
@@ -413,7 +445,7 @@ const team_fields: {[key: string]: Field} = {
     validation_results: {readonly: true, type: "object", many: true},
 }
 const generic_fields: {[key: string]: Field} = {
-    uuid: {readonly: true, type: "string"},
+    id: {readonly: true, type: "string"},
     ...always_fields,
 }
 const autocomplete_fields: {[key: string]: Field} = {
@@ -442,6 +474,7 @@ export const FIELDS = {
         regex: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         stable_time: {readonly: false, type: "number"},
         active: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        maximum_partition_line_count: {readonly: false, type: "number"},
         harvester: {
             readonly: true,
             type: key_to_type(LOOKUP_KEYS.HARVESTER),
@@ -452,13 +485,21 @@ export const FIELDS = {
         files: {readonly: true, type: key_to_type(LOOKUP_KEYS.FILE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         ...team_fields,
     },
+    [LOOKUP_KEYS.PARQUET_PARTITION]: {
+        ...generic_fields,
+        observed_file: {readonly: true, type: key_to_type(LOOKUP_KEYS.FILE), priority: PRIORITY_LEVELS.SUMMARY},
+        partition_number: {readonly: true, type: "number", priority: PRIORITY_LEVELS.IDENTITY},
+        uploaded: {readonly: true, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        upload_errors: {readonly: true, type: "string", many: true},
+        parquet_file: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+    },
     [LOOKUP_KEYS.FILE]: {
         ...generic_fields,
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         state: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         path: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         parser: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        harvester: {readonly: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), priority: PRIORITY_LEVELS.CONTEXT},
+        harvester: {readonly: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), priority: PRIORITY_LEVELS.SUMMARY},
         last_observed_size: {readonly: true, type: "number"},
         last_observed_time: {readonly: true, type: "string"},
         data_generation_date: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
@@ -466,12 +507,24 @@ export const FIELDS = {
         num_rows: {readonly: true, type: "number"},
         first_sample_no: {readonly: true, type: "number"},
         last_sample_no: {readonly: true, type: "number"},
-        extra_metadata: {readonly: true, type: "object"},
+        extra_metadata: {readonly: true, type: "string", priority: PRIORITY_LEVELS.HIDDEN},
         has_required_columns: {readonly: true, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
         upload_errors: {readonly: true, type: "string", many: true},
         column_errors: {readonly: true, type: "string", many: true},
         columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true, fetch_in_download: true},
         upload_info: {readonly: true, type: "string"},
+        parquet_partitions: {readonly: true, type: key_to_type(LOOKUP_KEYS.PARQUET_PARTITION), many: true},
+        applicable_mappings: {readonly: true, type: 'string', priority: PRIORITY_LEVELS.HIDDEN},
+        mapping: {readonly: true, type: key_to_type(LOOKUP_KEYS.MAPPING), priority: PRIORITY_LEVELS.SUMMARY},
+        summary: {readonly: true, type: "string", priority: PRIORITY_LEVELS.HIDDEN},
+    },
+    [LOOKUP_KEYS.MAPPING]: {
+        ...generic_fields,
+        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        is_valid: {readonly: true, type: "boolean", priority: PRIORITY_LEVELS.IDENTITY},
+        map: {readonly: false, type: "object"},
+        missing: {readonly: true, type: "number"},  // only appears as part of a FILE response
+        ...team_fields
     },
     [LOOKUP_KEYS.COLUMN]: {
         ...always_fields,
@@ -486,8 +539,10 @@ export const FIELDS = {
         ...always_fields,
         id: {readonly: true, type: "number"},
         is_default: {readonly: true, type: "boolean"},
+        is_required: {readonly: true, type: "boolean"},
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        data_type: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         unit: {readonly: false, type: key_to_type(LOOKUP_KEYS.UNIT), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
         columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         ...team_fields
@@ -637,6 +692,12 @@ export const FIELDS = {
             priority: PRIORITY_LEVELS.SUMMARY,
             fetch_in_download: true
         },
+        s3_bucket_name: {readonly: false, type: "string"},
+        s3_location: {readonly: false, type: "string"},
+        s3_access_key: {readonly: false, type: "string"},
+        s3_secret_key: {readonly: false, type: "string"},
+        s3_custom_domain: {readonly: false, type: "string"},
+        s3_configuration_status: {readonly: true, type: "object"},
         teams: {readonly: true, type: key_to_type(LOOKUP_KEYS.TEAM), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         harvesters: {readonly: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), many: true, priority: PRIORITY_LEVELS.SUMMARY},
     },
@@ -671,18 +732,18 @@ export const FIELDS = {
 /**
  * Names used by the backend to filter by each resource type.
  * E.g. to look up all cells in a cell family, we would filter using
- * the querystring `?family_uuid=uuid`.
+ * the querystring `?family_id=id`.
  * It is the responsibility of the frontend to ensure that the
  * filter names are employed in the correct context --
  * cell, equipment, and schedule all share the 'family' filter,
  * so the url path must also be appropriate.
  export const FILTER_NAMES = {
- [LOOKUP_KEYS.CELL_FAMILY]: "family_uuid",
- [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "family_uuid",
- [LOOKUP_KEYS.SCHEDULE_FAMILY]: "family_uuid",
- [LOOKUP_KEYS.CELL]: "cell_uuid",
- [LOOKUP_KEYS.EQUIPMENT]: "equipment_uuid",
- [LOOKUP_KEYS.SCHEDULE]: "schedule_uuid",
+ [LOOKUP_KEYS.CELL_FAMILY]: "family_id",
+ [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "family_id",
+ [LOOKUP_KEYS.SCHEDULE_FAMILY]: "family_id",
+ [LOOKUP_KEYS.CELL]: "cell_id",
+ [LOOKUP_KEYS.EQUIPMENT]: "equipment_id",
+ [LOOKUP_KEYS.SCHEDULE]: "schedule_id",
  [LOOKUP_KEYS.TEAM]: "team_id",
  } as const
  */
@@ -745,12 +806,16 @@ The harvester will also monitor the path for new files, and upload them as they 
 
 You can see all the paths that have been set up by your team.
     `,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: `
+Parquet partitions are the individual partitions of a parquet file.
+They are created when a [file](${PATHS[LOOKUP_KEYS.FILE]}) is uploaded to the database.
+    `,
     [LOOKUP_KEYS.FILE]: `
 Files are data files produced by battery cycler machines (or simulations of them).
 Files are collected when [harvesters](${PATHS[LOOKUP_KEYS.HARVESTER]}) crawl [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}).
 
 The data in each file is parsed and uploaded to the database.
-Files are required to have, at minimum, columns for "time", "potential difference", and "current".
+Files are required to have, at minimum, columns for "ElapsedTime_s", "Voltage_V", and "Current_A".
 
 You can see all the files that have been collected on [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}) created by your team.
     `,
@@ -859,6 +924,8 @@ You are a member of any lab that contains a team you are a member of.
 
 Lab administrators can create new teams, and manage the permissions of existing teams.
 They cannot create or edit any other resources, unless they are also a member of a team.
+
+Labs can specify their own S3 bucket, which is used to store the data files collected by the harvesters.
     `,
     [LOOKUP_KEYS.TEAM]: `
 Teams are the basic organisational unit in Galv.
@@ -897,5 +964,12 @@ You'll also see a list of the resources you are able to edit,
 alongside an indication of their validation status.
 
 If you see problems on your dashboard, you should check the relevant resource for more information.
+    `,
+    MAPPING: `
+Mappings are used to map the columns in a [file](${PATHS[LOOKUP_KEYS.FILE]}) to the columns in the database.
+
+This allows Galv to understand the data in the file, and to store it in the database.
+When a suite of files use the same column names to represent the same kind of data,
+analyses can be performed across all the files.
     `,
 } as const

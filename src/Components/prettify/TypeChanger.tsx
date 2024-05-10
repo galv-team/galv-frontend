@@ -15,7 +15,6 @@ import useStyles from "../../styles/UseStyles";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import {
-    API_HANDLERS,
     AutocompleteKey,
     DISPLAY_NAMES,
     ICONS,
@@ -44,6 +43,16 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 export const is_type_changer_supported_tv_notation = (v: TypeValueNotation): v is TypeValueNotation & {_type: TypeChangerSupportedTypeName} => {
     return v._type !== "null"
+}
+
+const to_type = (k: unknown): TypeChangerSupportedTypeName => {
+    try {
+        return key_to_type(k)
+    } catch {
+        if (typeof k === "string" && Object.keys(type_map).includes(k))
+            return k as keyof typeof type_map
+    }
+    throw new Error(`to_type: ${k} is not a TypeChangerSupportedTypeName or convertable key`)
 }
 
 export type TypeChangerLookupKey = `galv_${LookupKey}`
@@ -152,7 +161,7 @@ const get_conversion_fun = (type: TypeChangerSupportedTypeName):
             if (current.startsWith(page)) {
                 return {_type: type, _value: page}
             }
-            // if current looks like a uuid or id, use it
+            // if current looks like a id or id, use it
             if (current.match(/^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$/) || current.match(/^\d+$/)) {
                 return {_type: type, _value: `${page}/${current}`}
             }
@@ -185,7 +194,7 @@ export type TypeChangerPopoverProps = {
 
 function TypeChangeResourcePopover({onTypeChange, ...props}: TypeChangerPopoverProps) {
     const {classes} = useStyles()
-    const value = key_to_type(props.value)
+    const value = to_type(props.value)
     return <Popover
         className={clsx(classes.typeChangerPopover, classes.typeChangerResourcePopover)}
         anchorOrigin={{
@@ -207,7 +216,7 @@ function TypeChangeResourcePopover({onTypeChange, ...props}: TypeChangerPopoverP
             {Object.keys(LOOKUP_KEYS).map((lookup_key) => {
                 const ICON = ICONS[lookup_key as keyof typeof ICONS]
                 const display = DISPLAY_NAMES[lookup_key as keyof typeof DISPLAY_NAMES]
-                const lookup_key_value = key_to_type(lookup_key)
+                const lookup_key_value = to_type(lookup_key)
                 return <ToggleButton
                     value={lookup_key_value}
                     key={lookup_key_value}
@@ -231,9 +240,10 @@ function TypeChangePopover({value, onTypeChange, ...props}: TypeChangerPopoverPr
         (node: HTMLElement|null) => setResourcePopoverAnchorEl(node),
         []
     )
+    const is_resource_type = (v: typeof value) => !Object.keys(type_map).reduce((acc, k) => acc || k === v, false)
     // Reopen child popover if value is a resource type
     useEffect(() => {
-        if (props.open && value && Object.keys(API_HANDLERS).map(key_to_type).includes(value)) {
+        if (props.open && value && is_resource_type(value)) {
             setResourcePopoverOpen(true)
         }
     }, [props.open, value]);

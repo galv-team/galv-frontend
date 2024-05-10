@@ -47,13 +47,13 @@ function DatasetSelector({selectedDatasetIds, setSelectedDatasetIds}: {
                     value={selectedDatasetIds}
                     onChange={(e) => setSelectedDatasetIds(e.target.value as string[])}
                     renderValue={(selected) =>
-                        query.results!.filter(f => selected.includes(String(f.uuid)))
+                        query.results!.filter(f => selected.includes(String(f.id)))
                             .map(f => f.name as string)
                             .join(', ')
                     }
                 >
                     {query.results.map((dataset) => (
-                        <MenuItem value={String(dataset.uuid)} key={String(dataset.uuid)}>{String(dataset.name)}</MenuItem>
+                        <MenuItem value={String(dataset.id)} key={String(dataset.id)}>{String(dataset.name)}</MenuItem>
                     ))}
                 </Select>
             </FormControl>

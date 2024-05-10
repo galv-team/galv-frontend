@@ -2,171 +2,216 @@
 // Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
-import React, {useState} from "react";
+import React, {ReactNode, useEffect, useState} from "react";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import CardHeader from "@mui/material/CardHeader";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import {ColumnsApi, Configuration}from "@battery-intelligence-lab/galv";
-import {useQueries, useQuery} from "@tanstack/react-query";
-import useStyles from "./styles/UseStyles";
-import clsx from "clsx";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 import CanvasJSReact from "@canvasjs/react-charts";
 import {useCurrentUser} from "./Components/CurrentUserContext";
+import {Table, tableFromIPC } from "apache-arrow";
+import Paper from "@mui/material/Paper";
+import MobileStepper from "@mui/material/MobileStepper";
+import Button from "@mui/material/Button";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import * as wasm from "parquet-wasm/bundler/arrow1"
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
-const COL_KEYS = ["Time", "Amps", "Volts"]
+const COLORS = [
+    "#de6565",
+    "#5d5dab"
+]
 
-const KEY_COL_NAMES = {
-    [COL_KEYS[0]]: "Time",
-    [COL_KEYS[1]]: "Current",
-    [COL_KEYS[2]]: "Potential difference"
-}
-
-const COLORS = {
-    [COL_KEYS[1]]: "#de6565",
-    [COL_KEYS[2]]: "#5d5dab"
-}
-
-/**
- * TODO: handle incoming data stream and render in response to new data chunks
+/*
+Take a parquet file and render a chart of the data.
  */
-export function DatasetChart({file_uuid}: {file_uuid: string}) {
-    const {classes} = useStyles()
-    const maxDataPoints = 10000
+export function DatasetChartPanel({table}: {table: Table}) {
     const [chartKey, setChartKey] = useState<number[]>([])
+    const COL_KEYS = ["Current_A", "Voltage_V"]
 
-    const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
-        accessToken: useCurrentUser().user?.token
-    })
-    const api_handler = new ColumnsApi(config)
-    const columns_query = useQuery({
-        queryKey: ["COLUMNS", file_uuid, "list"],
-        queryFn: () => api_handler.columnsList(
-            undefined,
-            file_uuid,
-            undefined,
-            undefined,
-            undefined,
-            true
-        )
-    })
-    const value_queries = useQueries({
-        queries: (columns_query.data?.data.results ?? []).map((col) => ({
-            queryKey: ["COLUMNS", file_uuid, col.id, "values"],
-            queryFn: () => api_handler.columnsValuesRetrieve(col.id, {params: {max: maxDataPoints}})
-        }))
-    })
+    // Check metadata for key columns.
+    // If key columns are not present, show an error and suggest the user re-map the column types.
 
-    const time_column = columns_query.data?.data.results?.findIndex((col) => col.type_name === "Time")
-
-    const stream_to_numbers = (stream: unknown): (number|null)[] => {
-        if (typeof stream !== "string") return []
-        try {
-            const lines = (stream as string).split("\n")
-            const out = lines.map((line) => {
-                try {
-                    const n = Number(line)
-                    if (!isNaN(n)) return n
-                } catch {
-                    // Do nothing
-                }
-                return null
-            })
-            out.pop()   // Remove last element, which is always empty
-            return out
-        } catch (e) {
-            console.error(`Error parsing stream to numbers`, {stream, e})
-        }
-        return []
-    }
-
-    const cols = columns_query.data?.data.results?.map((col) => col.type_name)
-
-    const chart_data = value_queries
-        .filter((_, i) => i !== time_column)
-        .map((query, i) => {
-            if (!query.data?.data || time_column === undefined) return {
-                id: `Col ${i}`,
-                data: []
-            }
+    const bytes_to_values = (bytes: Uint8Array) => Array.from(bytes)
+    const col_to_values = (col: string) => bytes_to_values(
+        table?.select([col]).batches[0].data.children[0].values
+    )
+    const x_values = table && col_to_values('ElapsedTime_s')
+    const chart_data = table && COL_KEYS
+        .map((key, i) => {
             if (!chartKey.includes(i)) setChartKey(prevState => [...prevState, i])
-            const values = stream_to_numbers(query.data?.data)
+            const values = col_to_values(key)
+            const dataPoints: {x: number, y: number|null}[] = []
+            x_values.forEach((t, n) => {
+                dataPoints.push({
+                    x: t,
+                    y: values[n] ?? null
+                })
+            })
             return {
                 type: "line",
-                name: KEY_COL_NAMES[cols?.[i] ?? ""] ?? `Col ${i}`,
+                name: key,
                 showInLegend: true,
                 xValueFormatString: "#,##0.0000 s",
-                yValueFormatString: `#,##0.0000 ${cols?.[i] ?? ""}`,
-                axisYType: cols?.[i] === COL_KEYS[2]? "secondary" : "primary",
-                color: COLORS[cols?.[i] ?? ""],
-                dataPoints: stream_to_numbers(value_queries[time_column]?.data?.data).map((t, n) => {
-                    return {
-                        x: t,
-                        y: values[n] ?? null
-                    }
-                })
+                yValueFormatString: `#,##0.0000000 ${key.split('_')[1]}`,
+                axisYType: i? "secondary" : "primary",
+                color: COLORS[i],
+                dataPoints
             }
         }, {})
 
+    return <CanvasJSChart
+        key={chartKey.reduce((a, b) => a + b, 0)}
+        options={{
+            theme: "light2",
+            animationEnabled: true,
+            title:{
+                text: "Cycler data summary"
+            },
+            axisX: {
+                title: "Time (s)",
+            },
+            axisY: {
+                title: "Current (A)",
+                titleFontColor: COLORS[0],
+                lineColor: COLORS[0],
+                labelFontColor: COLORS[0],
+                tickColor: COLORS[0]
+            },
+            axisY2: {
+                title: "Potential Difference (V)",
+                titleFontColor: COLORS[1],
+                lineColor: COLORS[1],
+                labelFontColor: COLORS[1],
+                tickColor: COLORS[1]
+            },
+            toolTip: {
+                shared: true
+            },
+            zoomEnabled: true,
+            data: chart_data
+        }}
+    />
+}
+
+export function DatasetChart({parquet_partitions}: {parquet_partitions: string[]}) {
+    const [fetching, setFetching] = useState(false)
+    const [tables, setTables] = useState<ReactNode[]>([])
+    const [currentTableIndex, setCurrentTableIndex] = useState(0)
+    const [parquetModuleInitalized, setParquetModuleInitialized] = useState(false)
+    const token = useCurrentUser().user?.token
+    const headers = {Authorization: `Bearer ${token}`}
+
+    useEffect(() => {
+        // React advises to declare the async function directly inside useEffect
+        async function getParquetModule() {
+            // const parquetModule = await import(
+            //     "https://unpkg.com/parquet-wasm@0.4.0-beta.5/esm/arrow2.js"
+            //     );
+            // // Need to await the default export first to initialize the WebAssembly code
+            // const {memory} = await parquetModule.default();
+            // setParquetModule(parquetModule);
+            // return [parquetModule, memory];
+            await wasm
+            setParquetModuleInitialized(true)
+        }
+
+        if (!parquetModuleInitalized) {
+            getParquetModule()
+        }
+    }, []);
+
+    if (!fetching && tables.length < parquet_partitions.length && parquetModuleInitalized) {
+        setFetching(true)
+        fetch(parquet_partitions[tables.length], {method: "GET", headers})
+            .then(r => r.json())
+            .then(r => fetch(r.parquet_file, {headers}))
+            .then(r => r.arrayBuffer())
+            .then(ab => new Uint8Array(ab))
+            .then(async arr => wasm.readParquet(arr))
+            .then(pq => pq.intoIPCStream())
+            .then(ipc => tableFromIPC(ipc))
+            .then(t => setTables([...tables, <DatasetChartPanel table={t} />]))
+            .then(() => setFetching(false))
+            .catch(e => console.error("Error fetching S3 file", e))
+    }
+
     return <CardContent>
         <Stack spacing={1}>
-            <Box className={clsx(classes.chart)}>
-                {
-                    value_queries.some(q => q.isLoading) ||
-                    columns_query.isLoading?
-                        <Skeleton variant="rounded" height="300px"/> :
-                        <CanvasJSChart
-                            key={chartKey.reduce((a, b) => a + b, 0)}
-                            options={{
-                                theme: "light2",
-                                animationEnabled: true,
-                                title:{
-                                    text: "Cycler data summary"
-                                },
-                                axisX: {
-                                    title: "Time (s)",
-                                },
-                                axisY: {
-                                    title: "Current (A)",
-                                    titleFontColor: COLORS[COL_KEYS[1]],
-                                    lineColor: COLORS[COL_KEYS[1]],
-                                    labelFontColor: COLORS[COL_KEYS[1]],
-                                    tickColor: COLORS[COL_KEYS[1]]
-                                },
-                                axisY2: {
-                                    title: "Potential Difference (V)",
-                                    titleFontColor: COLORS[COL_KEYS[2]],
-                                    lineColor: COLORS[COL_KEYS[2]],
-                                    labelFontColor: COLORS[COL_KEYS[2]],
-                                    tickColor: COLORS[COL_KEYS[2]]
-                                },
-                                toolTip: {
-                                    shared: true
-                                },
-                                data: chart_data
-                            }}
-                        />}
+            <Box>
+                <Paper
+                    square
+                    elevation={0}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        height: 50,
+                        pl: 2,
+                        bgcolor: 'background.default',
+                    }}
+                >
+                    <Typography>Part {currentTableIndex}/{parquet_partitions.length - 1}</Typography>
+                </Paper>
+                <Box sx={{ width: '100%', p: 2 }}>
+                    {
+                        !tables.length ?
+                            <Skeleton variant="rounded" height="300px"/> : tables[currentTableIndex]
+                    }
+                </Box>
+                <Typography variant="body1">Click and drag to zoom in on the chart</Typography>
+                <MobileStepper
+                    variant="text"
+                    steps={parquet_partitions.length}
+                    position="static"
+                    activeStep={currentTableIndex}
+                    nextButton={
+                    currentTableIndex === tables.length - 1 && fetching?
+                        <Button size="small" disabled>
+                            Loading...
+                        </Button> :
+                        <Button
+                            size="small"
+                            onClick={() => setCurrentTableIndex(currentTableIndex + 1)}
+                            disabled={(
+                                currentTableIndex === parquet_partitions.length - 1 ||
+                                    currentTableIndex >= tables.length - 1
+                            )}
+                        >
+                            Next
+                            <KeyboardArrowRight />
+                        </Button>
+                    }
+                    backButton={
+                        <Button
+                            size="small"
+                            onClick={() => setCurrentTableIndex(currentTableIndex - 1)}
+                            disabled={currentTableIndex === 0}
+                        >
+                            <KeyboardArrowLeft />
+                            Back
+                        </Button>
+                    }
+                />
             </Box>
         </Stack>
     </CardContent>
 }
 
-export default function DatasetChartWrapper({file_uuid}: {file_uuid: string}) {
+export default function DatasetChartWrapper({parquet_partitions}: {parquet_partitions: string[]}) {
     const [open, setOpen] = useState<boolean>(false)
 
     return <Card>
         <CardHeader
-            title={<Typography variant="h5">Dataset Chart</Typography>}
-            subheader={<Typography variant="body1">View a chart of a dataset</Typography>}
+            title={<Typography variant="h5">Dataset Preview</Typography>}
+            subheader={<Typography variant="body1">View a graph of Voltage and Current by Time</Typography>}
             onClick={() => setOpen(!open)}
             sx={{cursor: "pointer"}}
         />
-        {open && <DatasetChart file_uuid={file_uuid} />}
+        {open && <DatasetChart parquet_partitions={parquet_partitions} />}
     </Card>
 }

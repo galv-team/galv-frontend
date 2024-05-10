@@ -56,7 +56,7 @@ with galv.ApiClient(config) as api_client:  # Enter a context with an instance o
             if verbose:
                 print(f"Downloading dataset {dataset_id}")
                 files_api = tag_to_api.FilesApi(api_client)  # Get the specific API class we need
-                r = files_api.files_retrieve({"uuid": dataset_id})  # Call the API method to retrieve the dataset
+                r = files_api.files_retrieve({"id": dataset_id})  # Call the API method to retrieve the dataset
                 # Response.response contains the raw response information
                 if r.response.status != 200:
                     raise Exception((
