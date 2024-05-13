@@ -9,8 +9,12 @@ import {Link} from "react-router-dom";
 import List from "@mui/material/List";
 import useStyles from "../styles/UseStyles";
 import CardActions from "@mui/material/CardActions";
-import {ObservedFile} from "@battery-intelligence-lab/galv";
+import {FilesApi, ObservedFile} from "@battery-intelligence-lab/galv";
 import clsx from "clsx";
+import {useCurrentUser} from "./CurrentUserContext";
+import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {AxiosError, AxiosResponse} from "axios";
+import {DB_MappingResource} from "./Mapping";
 
 export function StatusAlert(
     {message, fix_button, children, ...alertProps}:
@@ -33,9 +37,8 @@ export function StatusAlert(
     </Alert>
 }
 
-const fileStatuses = (file: ObservedFile) => {
+const fileStatuses = (file: ObservedFile, mappings: DB_MappingResource[]) => {
     const statuses: ReactNode[] = []
-    const mappings = file.applicable_mappings as {name: string, url: string, is_valid: boolean}[]
     const map = mappings.find(m => m.url === file.mapping)
     if (mappings.length === 0) {
         statuses.push(<StatusAlert
@@ -100,11 +103,30 @@ const fileStatuses = (file: ObservedFile) => {
 export default function ResourceStatuses({lookup_key}: {lookup_key: LookupKey}) {
     const {classes} = useStyles()
     const {apiResource} = useApiResource()
+    // look up mappings from file
+    const fileApiHandler = new FilesApi(useCurrentUser().api_config)
+    const queryClient = useQueryClient()
+    const applicableMappingsQuery = useQuery<AxiosResponse<DB_MappingResource[]>, AxiosError>(
+        ["applicable_mappings", apiResource?.id],
+        async () => {
+            const data = await fileApiHandler.filesApplicableMappingsRetrieve(apiResource!.id as string)
+            queryClient.setQueryData(["applicable_mappings", apiResource!.id], data)
+            const content = data.data as unknown as {mapping: DB_MappingResource, missing: number}[]
+            return {
+                ...data,
+                data: content.map(m => {
+                    return {...m.mapping, missing: m.missing}
+                })
+            } as unknown as AxiosResponse<DB_MappingResource[]>
+        },
+        {enabled: !!apiResource?.id}
+    )
+    const mappings = applicableMappingsQuery.data?.data ?? []
     if (!apiResource) return null
     const statuses: ReactNode[] = []
     switch(lookup_key) {
         case LOOKUP_KEYS.FILE:
-            statuses.push(...fileStatuses(apiResource as unknown as ObservedFile))
+            statuses.push(...fileStatuses(apiResource as unknown as ObservedFile, mappings))
             break;
     }
     return statuses.length > 0?

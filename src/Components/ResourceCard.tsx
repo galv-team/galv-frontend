@@ -48,10 +48,8 @@ import {FilterContext} from "./filtering/FilterContext";
 import ApiResourceContextProvider, {useApiResource} from "./ApiResourceContext";
 import Prettify from "./prettify/Prettify";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
-import DatasetChart from "../DatasetChart";
 import {Modal} from "@mui/material";
 import {get_modal_title, ResourceCreator} from "./ResourceCreator";
-import {Configuration} from "@battery-intelligence-lab/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import {
     from_type_value_notation,
@@ -137,7 +135,7 @@ function ResourceCard<T extends BaseResource>(
 
     // Mutations for saving edits
     const {postSnackbarMessage} = useSnackbarMessenger()
-    const api_config = useCurrentUser()
+    const {api_config} = useCurrentUser()
     const api_handler = new API_HANDLERS[lookup_key](api_config)
     const patch = api_handler[
         `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
@@ -360,6 +358,15 @@ function ResourceCard<T extends BaseResource>(
     }
 
     const cardSummary = <CardContent>
+        {lookup_key === LOOKUP_KEYS.FILE && apiResource?.has_required_columns && apiResource.png &&
+            <Stack spacing={2}>
+                <img
+                    src={apiResource.png as string}
+                    alt={`Preview of ${apiResource.name}`}
+                    className={clsx(classes.filePreview)}
+                />
+            </Stack>
+        }
         {apiResource && <Grid container spacing={1}>{
             Object.entries(FIELDS[lookup_key])
                 .filter((e) => e[1].priority === PRIORITY_LEVELS.SUMMARY)
@@ -368,9 +375,6 @@ function ResourceCard<T extends BaseResource>(
                     <Grid xs={10} lg={11}>{summarise(apiResource[k], v.many, k, type_to_key(v.type))}</Grid>
                 </Grid>)
         }</Grid>}
-        {lookup_key === LOOKUP_KEYS.FILE && apiResource?.has_required_columns && <Stack spacing={2}>
-            <DatasetChart parquet_partitions={apiResource?.parquet_partitions as string[]} />
-        </Stack>}
     </CardContent>
 
     const forkModal = passesFilters({apiResource, family}, lookup_key) &&

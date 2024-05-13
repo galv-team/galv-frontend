@@ -87,7 +87,7 @@ type MappingResource = {
 // A Map but the column_type is an id, as stored in the database
 type DB_MapEntry = {column_type: number} & Omit<MapEntry, "column_type">
 type DB_Map = Record<string, DB_MapEntry>
-type DB_MappingResource = Omit<MappingResource, "map"> & {map: DB_Map}
+export type DB_MappingResource = Omit<MappingResource, "map"> & {map: DB_Map}
 
 const col_id_to_col = (col_id: number, columns: ColumnType[]) => columns.find(c => c.id === col_id)
 

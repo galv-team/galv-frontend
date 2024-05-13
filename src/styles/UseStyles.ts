@@ -348,5 +348,10 @@ export default makeStyles()((theme) => {
         paddingBottom: 0,
       }
     },
+    filePreview: {
+      width: "80%",
+      minWidth: "500px",
+      placeSelf: "center",
+    }
   }
 });
