@@ -196,6 +196,8 @@ const do_render = async () => {
                 return make_paged_axios_response([api_data.cell_family, api_data.cell_family_2], {config})
             if (/teams$/.test(url))
                 return make_paged_axios_response([api_data.team], {config})
+            if (url.endsWith('applicable_mappings'))
+                return make_axios_response([], {config})
             // handle cell_models etc
             let key = /cell_(\w+)$/.exec(url)?.[1]
             key = key?.replace(/ies$/, "y")
