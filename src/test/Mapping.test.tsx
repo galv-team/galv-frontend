@@ -81,6 +81,8 @@ it('renders', async () => {
                     return make_axios_response(access_levels_response, {config})
                 if (/teams$/.test(url))
                     return make_paged_axios_response([team_data], {config})
+                if (url.endsWith('png'))
+                    return make_axios_response({}, {config})
             }
             console.error(`Unexpected axios request`, config)
             throw new Error(`Unexpected axios request to ${config.url ?? "unspecified URL"}`)
