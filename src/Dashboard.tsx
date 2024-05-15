@@ -266,7 +266,7 @@ export function DatasetStatus() {
     }
 
     return <Container maxWidth="lg">
-        {query.isLoading? "Loading..." : <Card>
+        {query.isInitialLoading? "Loading..." : <Card>
             <CardHeader
                 avatar={<LookupKeyIcon lookupKey={LOOKUP_KEYS.FILE} />}
                 title={DISPLAY_NAMES_PLURAL[LOOKUP_KEYS.FILE]}

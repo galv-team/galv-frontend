@@ -33,7 +33,6 @@ import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import {
-    Configuration,
     CreateTokenApi,
     type CreateKnoxTokenRequest,
     type KnoxTokenFull,

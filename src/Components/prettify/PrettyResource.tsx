@@ -40,7 +40,7 @@ export const PrettyResourceSelect = <T extends BaseResource>(
 
     const [url, setUrl] = useState<string>("")
     const [open, setOpen] = React.useState(false);
-    const loading = open && query?.isLoading;
+    const loading = open && query.isLoading && query.isFetching;
 
     useEffect(() => setUrl(target._value ?? ""), [target])
 

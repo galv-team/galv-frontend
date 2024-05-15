@@ -46,7 +46,7 @@ export default function PrettyAutocomplete(
                     ...params.InputProps,
                     endAdornment: (
                         <>
-                            {query?.isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                            {query.isLoading && query.isFetching ? <CircularProgress color="inherit" size={20} /> : null}
                             {params.InputProps.endAdornment}
                         </>
                     ),
