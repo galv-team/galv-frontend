@@ -119,7 +119,7 @@ export default function ResourceStatuses({lookup_key}: {lookup_key: LookupKey}) 
                 })
             } as unknown as AxiosResponse<DB_MappingResource[]>
         },
-        {enabled: !!apiResource?.id}
+        {enabled: lookup_key === LOOKUP_KEYS.FILE && !!apiResource?.id}
     )
     const mappings = applicableMappingsQuery.data?.data ?? []
     if (!apiResource) return null
