@@ -22,7 +22,7 @@ def move_dir(src, dst):
 
 # to separate a single local build from all builds we have a flag, see conf.py
 os.environ["build_all_docs"] = str(True)
-os.environ["pages_root"] = "https://Battery-Intelligence-Lab.github.io/galv-backend"
+os.environ["pages_root"] = "https://galv-team.github.io/galv-backend"
 
 # manually the main branch build in the current supported languages
 build_doc("main")
