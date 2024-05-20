@@ -790,7 +790,7 @@ Each harvester belongs to a [lab](${PATHS[LOOKUP_KEYS.LAB]}), and any team withi
 Harvesters cannot be created here, but you can view and edit their settings.
 
 Harvesters are created and managed by running a Python script on a computer with access to the data source.
-See the [harvester repository](https://github.com/Battery-Intelligence-Lab/galv-harvester) for more information on creating harvesters.
+See the [harvester repository](https://github.com/galv-team/galv-harvester) for more information on creating harvesters.
 
 You can see all the harvesters that belong to your [labs](${PATHS[LOOKUP_KEYS.LAB]}).
     `,

@@ -1,15 +1,15 @@
 # Galv frontend (React app)
 > A metadata secretary for battery science
 
-[![Jest CI](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test.yml/badge.svg)](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test.yml)
-[![Cypress CI](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test_e2e.yml/badge.svg)](https://github.com/Battery-Intelligence-Lab/galv-frontend/actions/workflows/test_e2e.yml)
+[![Jest CI](https://github.com/galv-team/galv-frontend/actions/workflows/test.yml/badge.svg)](https://github.com/galv-team/galv-frontend/actions/workflows/test.yml)
+[![Cypress CI](https://github.com/galv-team/galv-frontend/actions/workflows/test_e2e.yml/badge.svg)](https://github.com/galv-team/galv-frontend/actions/workflows/test_e2e.yml)
 
-The Galv frontend is a user-friendly web interface for interacting with the [Galv REST API](https://github.com/Battery-Intelligence-Lab/galv-backend).
+The Galv frontend is a user-friendly web interface for interacting with the [Galv REST API](https://github.com/galv-team/galv-backend).
 
 ## Galv Project
-- [Backend](https://github.com/Battery-Intelligence-Lab/galv-backend)
-- [**Frontend**](https://github.com/Battery-Intelligence-Lab/galv-frontend)
-- [Harvester](https://github.com/Battery-Intelligence-Lab/galv-harvester)
+- [Backend](https://github.com/galv-team/galv-backend)
+- [**Frontend**](https://github.com/galv-team/galv-frontend)
+- [Harvester](https://github.com/galv-team/galv-harvester)
 
 ## Deploying
 

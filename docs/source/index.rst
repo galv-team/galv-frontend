@@ -5,15 +5,15 @@
 
 .. figure:: img/Galv-logo-tag.png
    :alt: Galv logo
-   :target: https://Battery-Intelligence-Lab.github.io/galv-frontend/
+   :target: https://galv-team.github.io/galv-frontend/
    :scale: 50%
 
-The `Galv Frontend <https://Battery-Intelligence-Lab.github.io/galv-frontend/>`_
+The `Galv Frontend <https://galv-team.github.io/galv-frontend/>`_
 is a web-based platform for battery data analysis and metadata management.
 This documentation provides a guide to Galv's user-friendly web interface, known as the frontend.
 
 Galv's frontend uses the `React <https://reactjs.org/>`_ framework and `Material-UI <https://material-ui.com/>`_
-to provide a modern, responsive, and intuitive user interface to the backend `REST API <https://Battery-Intelligence-Lab.github.io/galv-backend/>`_.
+to provide a modern, responsive, and intuitive user interface to the backend `REST API <https://galv-team.github.io/galv-backend/>`_.
 
 
 .. toctree::

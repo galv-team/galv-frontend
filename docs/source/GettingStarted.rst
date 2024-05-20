@@ -4,7 +4,7 @@ Getting started
 
 The Galv Frontend is a `React <https://reactjs.org/>`_ application.
 It interfaces with an instance of the
-`Backend REST API <https://Battery-Intelligence-Lab.github.io/galv-backend>`_.
+`Backend REST API <https://galv-team.github.io/galv-backend>`_.
 If you are setting up a new instance of Galv, you will need to set up both the Frontend and the Backend.
 You should set up the Backend first, as the Frontend will not work without it.
 
