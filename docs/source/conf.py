@@ -40,6 +40,7 @@ pages_root = os.environ.get("pages_root", "")
 if build_all_docs is not None:
   # we set the html_context with current version and versions from json file
   html_context = {
+    'pages_root' : pages_root,
     'current_version' : os.environ.get("current_version", "no-curent-version-envvar"),
     'versions' : json.load(open("../tags.json", "r")),
   }
