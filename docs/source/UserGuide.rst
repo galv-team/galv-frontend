@@ -196,10 +196,10 @@ using tools like `OpenAPI Generator <https://openapi-generator.tech/>`_.
 Python and TypeScript (Axios) clients are available for download from the
 ``pip`` and ``npm`` package managers, respectively, as ``galv``:
 
-```bash
-pip install galv
-```
+.. code-block:: bash
 
-```bash
-npm install @battery-intelligence-lab/galv
-```
+  pip install galv
+
+.. code-block:: bash
+
+  npm install @battery-intelligence-lab/galv

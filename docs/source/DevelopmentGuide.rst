@@ -10,6 +10,16 @@ The Galv frontend requires an instance of the backend to be running.
 To assist in development, a ``docker-compose`` file is provided to run
 an instance of the frontend and backend together.
 
+The **first time** you run the development instance, you will need to build the frontend container.
+You will also need to rebuild it anytime you change **dependencies** in the ``package.json`` file,
+or change any file outside the ``src`` directory.
+
+To build the frontend container, run the following command:
+
+.. code-block:: shell
+
+  docker-compose build frontend
+
 To bring up the development instance, run the following command:
 
 .. code-block:: shell
@@ -54,7 +64,7 @@ Customizing the development deployment
 
 The services and their settings can be changed in the ``docker-compose.yml`` file.
 
-In particular, if your frontend is targetting a different backend,
+In particular, if your frontend is targeting a different backend,
 you will need to change the ``VITE_GALV_API_BASE_URL`` environment variable in the frontend container.
 Note that you will also need to ensure your target backend has the correct
 ``FRONTEND_VIRTUAL_HOST`` environment variable set.
@@ -116,6 +126,12 @@ and release it to NPM.
 You should ensure that the version of the frontend API client is up to date
 with the backend you are targeting by editing the
 ``@battery-intelligence-lab/galv-backend`` dependency in the ``package.json`` file.
+
+The version of the backend API client will be the same as the version of the backend.
+So if the backend is at version 1.2.3, the API client will be at version 1.2.3.
+
+Remember to run ``docker-compose build frontend`` to rebuild the frontend container
+after changing the backend version.
 
 Releasing a new Frontend version
 ================================================================================
@@ -218,15 +234,16 @@ This is a verbose way to store information, but it ensures that the information 
 
 The format is called Type-Value notation, and it looks like this:
 
-```typescript
-type TypeValueNotation = {
-    _type: "string" | "number" | "boolean" | "null" | "attachment" | "object" | "array" |
-        TypeChangerLookupKey | TypeChangerAutocompleteKey
-    _value: string | number | boolean | null | TypeValueNotation[] | TypeValueNotationWrapper
-}
+.. code-block:: typescript
 
-type TypeValueNotationWrapper = Record<string, TypeValueNotation>
-```
+  type TypeValueNotation = {
+      _type: "string" | "number" | "boolean" | "null" | "attachment" | "object" | "array" |
+          TypeChangerLookupKey | TypeChangerAutocompleteKey
+      _value: string | number | boolean | null | TypeValueNotation[] | TypeValueNotationWrapper
+  }
+
+  type TypeValueNotationWrapper = Record<string, TypeValueNotation>
+
 
 This format means that data represented in Type-Value notation can be serialized to JSON,
 which is used in the backend.
@@ -257,6 +274,8 @@ They may also have a ``resource_id`` property to determine which resource they a
 		* A generic chip component that can be used to display a resource as a single line of text
 	* ``ResourceCreator``
 		* A generic creator component that can be used to create a resource
+  * ``Mapping``
+    * A mapping component that can be used to handle adjusting raw File contents to a supported format
 * Utilities
 	* ``LoadingChip``
 		* A generic loading chip component that can be used to display a loading state
@@ -268,6 +287,9 @@ They may also have a ``resource_id`` property to determine which resource they a
 		* A generic action bar component that can be used to display actions for a resource
 	* ``NumberInput``
 		* A generic number input component that can be used to input a number
+  * ``ResourceStatuses``
+    * A generic status component that can be used to display a resource's status
+    * Used to allow quick access to actions that can be taken on a resource
 * Data display
 	* The family of components in the ``src/Components/prettify`` directory
 		* These components are used to display data in a more human-readable form
