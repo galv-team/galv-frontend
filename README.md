@@ -13,6 +13,9 @@ The Galv frontend is a user-friendly web interface for interacting with the [Gal
 - [**Frontend**](https://github.com/galv-team/galv-frontend)
 - [Harvester](https://github.com/galv-team/galv-harvester)
 
+For more complete documentation, see the
+[Galv Frontend documentation](https://galv-team.github.io/galv-frontend/).
+
 ## Deploying
 
 The frontend is deployed as a Docker container.  
