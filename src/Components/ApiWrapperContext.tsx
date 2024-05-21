@@ -18,7 +18,7 @@ import {
     UseQueryResult
 } from "@tanstack/react-query";
 import {get_select_function} from "./ApiResourceContext";
-import {CellChemistriesApi, CellsApi, Configuration, FilesApi} from "@battery-intelligence-lab/galv"
+import {CellChemistriesApi, CellsApi, Configuration, FilesApi} from "@galv/galv"
 import {BaseResource} from "./ResourceCard";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 

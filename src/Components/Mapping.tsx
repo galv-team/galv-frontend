@@ -42,7 +42,7 @@ import IconButton from "@mui/material/IconButton";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
-import {FilesApi} from "@battery-intelligence-lab/galv";
+import {FilesApi} from "@galv/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import {AxiosError, AxiosResponse} from "axios";
 

@@ -36,7 +36,7 @@ services:
   backend:
     # For big development changes, best to target a specific SHA build rather than :latest in case backend changes.
     # If you prefer, of course, you can target a real backend deployment by changing the frontend GALV_API_BASE_URL
-    image: ghcr.io/battery-intelligence-lab/galv-backend:latest
+    image: ghcr.io/galv-team/galv-backend:latest
     restart: unless-stopped
     environment:
       VIRTUAL_HOST: "localhost"

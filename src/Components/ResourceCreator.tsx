@@ -37,7 +37,7 @@ import {
     type CreateKnoxTokenRequest,
     type KnoxTokenFull,
     ArbitraryFile
-} from "@battery-intelligence-lab/galv";
+} from "@galv/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";

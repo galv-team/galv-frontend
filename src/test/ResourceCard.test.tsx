@@ -13,7 +13,7 @@ import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {FilterContextProvider} from "../Components/filtering/FilterContext";
 import {MemoryRouter} from "react-router-dom";
 import FetchResourceContextProvider from "../Components/FetchResourceContext";
-import {Cell, PermittedAccessLevels, CellFamily, Team} from "@battery-intelligence-lab/galv";
+import {Cell, PermittedAccessLevels, CellFamily, Team} from "@galv/galv";
 import SelectionManagementContextProvider from "../Components/SelectionManagementContext";
 import access_levels_response from './fixtures/access_levels.json';
 import {act} from "react-dom/test-utils";

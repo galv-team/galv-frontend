@@ -125,7 +125,7 @@ It will also produce a new ``typescript-axios`` API client for the frontend
 and release it to NPM.
 You should ensure that the version of the frontend API client is up to date
 with the backend you are targeting by editing the
-``@battery-intelligence-lab/galv-backend`` dependency in the ``package.json`` file.
+``@galv/galv`` dependency in the ``package.json`` file.
 
 The version of the backend API client will be the same as the version of the backend.
 So if the backend is at version 1.2.3, the API client will be at version 1.2.3.

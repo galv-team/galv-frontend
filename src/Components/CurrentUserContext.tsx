@@ -1,5 +1,5 @@
 import {createContext, ReactNode, useContext, useState} from "react";
-import {Configuration, KnoxUser, LoginApi, User}from "@battery-intelligence-lab/galv";
+import {Configuration, KnoxUser, LoginApi, User}from "@galv/galv";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {AxiosError, AxiosResponse} from "axios";
 import axios from "axios";

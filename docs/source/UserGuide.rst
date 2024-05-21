@@ -202,4 +202,4 @@ Python and TypeScript (Axios) clients are available for download from the
 
 .. code-block:: bash
 
-  npm install @battery-intelligence-lab/galv
+  npm install @galv/galv

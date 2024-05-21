@@ -1,6 +1,8 @@
 # Galv frontend (React app)
 > A metadata secretary for battery science
 
+![GitHub package.json dynamic](https://img.shields.io/github/package-json/version/galv-team/galv-frontend)
+
 [![Jest CI](https://github.com/galv-team/galv-frontend/actions/workflows/test.yml/badge.svg)](https://github.com/galv-team/galv-frontend/actions/workflows/test.yml)
 [![Cypress CI](https://github.com/galv-team/galv-frontend/actions/workflows/test_e2e.yml/badge.svg)](https://github.com/galv-team/galv-frontend/actions/workflows/test_e2e.yml)
 
@@ -58,6 +60,8 @@ To run the unit tests, run the following command:
 docker-compose up frontend_test
 ```
 
+Remember to add the `--build` flag if you have made changes to the frontend code outside the `src` directory.
+
 ### End-to-end tests
 
 End-to-end tests are used to ensure that the frontend works as expected from the user's perspective.  They are run with Cypress.
@@ -67,6 +71,8 @@ To run the end-to-end tests, run the following command:
 ```bash
 docker-compose up frontend_test_e2e
 ```
+
+Remember to add the `--build` flag if you have made changes to the frontend code outside the `src` directory.
 
 To develop end-to-end tests, you can use the Cypress GUI.  To do this, run the following command:
 

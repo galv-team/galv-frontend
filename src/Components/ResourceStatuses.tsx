@@ -9,7 +9,7 @@ import {Link} from "react-router-dom";
 import List from "@mui/material/List";
 import useStyles from "../styles/UseStyles";
 import CardActions from "@mui/material/CardActions";
-import {FilesApi, ObservedFile} from "@battery-intelligence-lab/galv";
+import {FilesApi, ObservedFile} from "@galv/galv";
 import clsx from "clsx";
 import {useCurrentUser} from "./CurrentUserContext";
 import {useQuery, useQueryClient} from "@tanstack/react-query";

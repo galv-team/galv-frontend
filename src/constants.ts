@@ -62,7 +62,7 @@ import {
     ValidationSchemasApi,
     ArbitraryFilesApi, ColumnsApi, ColumnTypesApi, UnitsApi,
     ColumnMappingsApi
-} from "@battery-intelligence-lab/galv";
+} from "@galv/galv";
 import {
     TypeChangerAutocompleteKey,
     TypeChangerLookupKey,

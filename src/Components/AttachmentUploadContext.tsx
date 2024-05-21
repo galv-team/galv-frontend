@@ -1,5 +1,5 @@
 import {createContext, PropsWithChildren, useContext, useState} from "react";
-import {ArbitraryFile, ArbitraryFilesApi, Configuration} from "@battery-intelligence-lab/galv";
+import {ArbitraryFile, ArbitraryFilesApi, Configuration} from "@galv/galv";
 import {useMutation, UseMutationResult, useQueryClient} from "@tanstack/react-query";
 import {AxiosResponse} from "axios";
 import {useCurrentUser} from "./CurrentUserContext";

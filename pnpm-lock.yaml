@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@battery-intelligence-lab/galv':
-    specifier: 2.1.28
-    version: 2.1.28
   '@canvasjs/charts':
     specifier: ^3.7.27
     version: 3.7.30
@@ -20,6 +17,9 @@ dependencies:
   '@emotion/styled':
     specifier: ^11.10.5
     version: 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.42)(react@18.2.0)
+  '@galv/galv':
+    specifier: 2.1.33
+    version: 2.1.33
   '@mui/base':
     specifier: 5.0.0-beta.33
     version: 5.0.0-beta.33(@types/react@18.2.42)(react-dom@18.2.0)(react@18.2.0)
@@ -541,14 +541,6 @@ packages:
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
 
-  /@battery-intelligence-lab/galv@2.1.28:
-    resolution: {integrity: sha512-A8M08/v7iyblzdtRU3QbrvsYyuq6Uy1ek+ZMZfDJ6bRztEoIoyWYYl7bsYZEAKWQihKXD4+0hGL5ppQzXRUD/A==}
-    dependencies:
-      axios: 0.21.4
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
   /@bcoe/v8-coverage@0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
@@ -1016,6 +1008,14 @@ packages:
 
   /@floating-ui/utils@0.2.1:
     resolution: {integrity: sha512-9TANp6GPoMtYzQdt54kfAyMmz1+osLlXdg2ENroU7zzrtflTLrrC/lgrIfaSe+Wu0b89GKccT7vxXA0MoAIO+Q==}
+    dev: false
+
+  /@galv/galv@2.1.33:
+    resolution: {integrity: sha512-sq4lh7dYyNHvu3RJ5MFS14+3AfU3k/piOfO5ynqsH6B+xMtiuhxIvJpyVpmdRspMnQJcmjXviOCdrfl5896sxQ==}
+    dependencies:
+      axios: 0.21.4
+    transitivePeerDependencies:
+      - debug
     dev: false
 
   /@hapi/hoek@9.3.0:

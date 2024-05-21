@@ -19,7 +19,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import CardHeader from "@mui/material/CardHeader";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import {Configuration} from "@battery-intelligence-lab/galv";
+import {Configuration} from "@galv/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 
 export function DownloadButton({target_urls, ...props}: {target_urls: string|string[]} & ButtonProps) {

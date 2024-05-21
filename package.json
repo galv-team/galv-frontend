@@ -4,7 +4,7 @@
   "private": true,
   "proxy": "http://app/",
   "dependencies": {
-    "@battery-intelligence-lab/galv": "2.1.28",
+    "@galv/galv": "2.1.33",
     "@canvasjs/charts": "^3.7.27",
     "@canvasjs/react-charts": "^1.0.0",
     "@emotion/react": "^11.10.5",

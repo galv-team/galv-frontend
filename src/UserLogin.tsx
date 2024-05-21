@@ -23,7 +23,7 @@ import ButtonGroup from "@mui/material/ButtonGroup";
 import {useSnackbarMessenger} from "./Components/SnackbarMessengerContext";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import Stack from "@mui/material/Stack";
-import {Configuration, User, UserRequest, UsersApi, ActivateApi}from "@battery-intelligence-lab/galv";
+import {Configuration, User, UserRequest, UsersApi, ActivateApi}from "@galv/galv";
 import {AxiosError, AxiosResponse} from "axios";
 import Alert, {AlertColor} from "@mui/material/Alert";
 
