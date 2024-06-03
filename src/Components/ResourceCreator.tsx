@@ -225,9 +225,21 @@ export function ResourceCreator<T extends BaseResource>(
     // Mutations for saving edits
     const {postSnackbarMessage} = useSnackbarMessenger()
     const queryClient = useQueryClient()
+
+    const clean = <T extends BaseResource>(data: Partial<T>) => {
+        const cleaned: typeof data = {}
+        Object.entries(data).forEach(([k, v]) => {
+            if (v instanceof Array) {
+                v = (v).filter((x: unknown) => x !== null && x !== undefined && x !== "")
+            }
+            cleaned[k as keyof typeof cleaned] = v
+        })
+        return cleaned
+    }
+
     const create_mutation =
         useMutation<AxiosResponse<T>, AxiosError, SerializableObject>(
-            (data: SerializableObject) => post.bind(api_handler)(data),
+            (data: SerializableObject) => post.bind(api_handler)(clean(data)),
             {
                 onSuccess: (data, variables, context) => {
                     if (data === undefined) {
