@@ -1,11 +1,12 @@
 import {createContext, ReactNode, useContext, useState} from "react";
 import {Configuration, KnoxUser, LoginApi, User}from "@galv/galv";
-import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {AxiosError, AxiosResponse} from "axios";
 import axios from "axios";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
+import {API_HANDLERS, LOOKUP_KEYS} from "../constants";
 
 export type LoginUser = Pick<KnoxUser, "token"> & User
 
@@ -14,6 +15,7 @@ export interface ICurrentUserContext {
     api_config: Configuration
     login: (username: string, password: string) => void
     logout: () => void
+    refresh_user: () => void
     loginFormOpen: boolean
     setLoginFormOpen: (open: boolean) => void
 }
@@ -70,6 +72,21 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
         accessToken: user?.token
     })
 
+    const Refresh = useQuery({
+        queryKey: [LOOKUP_KEYS.USER, 'refresh'],
+        queryFn: () => {
+            if (!user) return
+            const api = new API_HANDLERS[LOOKUP_KEYS.USER](api_config)
+            return api.usersRetrieve(user.id)
+                .then((response) => {
+                    const local_user: LoginUser | null = JSON.parse(local_user_string || 'null')
+                    setUser({...local_user, ...response.data} as LoginUser)
+                    return response
+                })
+        },
+        enabled: !!user,
+    })
+
     axios.interceptors.response.use(
         undefined,
         // 401 should log the user out and display a message
@@ -89,7 +106,15 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
     )
 
     return <CurrentUserContext.Provider
-        value={{user, login: do_login, logout: Logout, loginFormOpen, setLoginFormOpen, api_config}}
+        value={{
+            user,
+            login: do_login,
+            logout: Logout,
+            refresh_user: Refresh.refetch,
+            loginFormOpen,
+            setLoginFormOpen,
+            api_config
+        }}
     >
         {children}
     </CurrentUserContext.Provider>

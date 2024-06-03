@@ -44,7 +44,11 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
-import {from_type_value_notation, to_type_value_notation_wrapper, TypeValueNotationWrapper} from "./TypeValueNotation";
+import {
+    from_type_value_notation,
+    to_type_value_notation_wrapper,
+    TypeValueNotationWrapper
+} from "./TypeValueNotation";
 import {useAttachmentUpload} from "./AttachmentUploadContext";
 
 export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: boolean) => void} & CardProps) {
@@ -373,9 +377,19 @@ export const get_modal_title = (lookup_key: LookupKey, suffix: string) => `creat
 
 export default function WrappedResourceCreator<T extends BaseResource>(props: {lookup_key: LookupKey} & CardProps) {
     const [modalOpen, setModalOpen] = useState(false)
+    const {user, refresh_user} = useCurrentUser()
 
     const get_can_create = (lookup_key: LookupKey) => {
+        // We can always create tokens because they represent us, and labs because someone has to.
         if (lookup_key === LOOKUP_KEYS.TOKEN) return true
+        if (lookup_key === LOOKUP_KEYS.LAB) return true
+
+        const lab_admin_resources = [
+            LOOKUP_KEYS.TEAM,
+            LOOKUP_KEYS.ADDITIONAL_STORAGE
+        ] as LookupKey[]
+        if (lab_admin_resources.includes(lookup_key)) return user?.is_lab_admin
+
         const fields = FIELDS[lookup_key]
         return Object.keys(fields).includes('team')
     }
@@ -411,7 +425,11 @@ export default function WrappedResourceCreator<T extends BaseResource>(props: {l
                     {props.lookup_key === LOOKUP_KEYS.TOKEN?
                         <TokenCreator setModalOpen={setModalOpen} {...props} /> :
                         <ResourceCreator<T>
-                            onCreate={() => setModalOpen(false)}
+                            onCreate={() => {
+                                if (props.lookup_key === LOOKUP_KEYS.LAB && !user?.is_lab_admin)
+                                    refresh_user()
+                                setModalOpen(false)
+                            }}
                             onDiscard={() => setModalOpen(false)}
                             {...props}
                         />}

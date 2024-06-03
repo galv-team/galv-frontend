@@ -112,6 +112,7 @@ function ResourceCard<T extends BaseResource>(
     // useContext is wrapped in useRef because we update the context in our useEffect API data hook
     const UndoRedo = useUndoRedoContext<SerializableObject>()
     const UndoRedoRef = useRef(UndoRedo)
+    const {refresh_user} = useCurrentUser()
 
     const [forking, setForking] = useState<boolean>(false)
 
@@ -210,7 +211,12 @@ function ResourceCard<T extends BaseResource>(
                 `${API_SLUGS[lookup_key]}Destroy` as keyof typeof api_handler
                 ] as (id: string) => Promise<AxiosResponse<T>>
             destroy.bind(api_handler)(String(resource_id))
-                .then(() => queryClient.invalidateQueries([lookup_key, 'list']))
+                .then(() => {
+                    queryClient.invalidateQueries([lookup_key, 'list'])
+                    if (lookup_key === LOOKUP_KEYS.LAB) {
+                        refresh_user()
+                    }
+                })
                 .then(() => {
                     navigate(PATHS[lookup_key])
                     queryClient.removeQueries([lookup_key, resource_id])
