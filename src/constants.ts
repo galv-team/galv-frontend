@@ -33,6 +33,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import WarningIcon from '@mui/icons-material/Warning';
 import ErrorIcon from '@mui/icons-material/Error';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import SdStorageIcon from '@mui/icons-material/SdStorage';
 
 import {
     CellChemistriesApi,
@@ -61,7 +62,9 @@ import {
     UsersApi,
     ValidationSchemasApi,
     ArbitraryFilesApi, ColumnsApi, ColumnTypesApi, UnitsApi,
-    ColumnMappingsApi
+    ColumnMappingsApi,
+    GalvStorageApi,
+    AdditionalStorageApi,
 } from "@galv/galv";
 import {
     TypeChangerAutocompleteKey,
@@ -146,6 +149,8 @@ export const LOOKUP_KEYS = {
     UNIT: "UNIT",
     COLUMN_FAMILY: "COLUMN_FAMILY",
     COLUMN: "COLUMN",
+    GALV_STORAGE: "GALV_STORAGE",
+    ADDITIONAL_STORAGE: "ADDITIONAL_STORAGE",
 } as const
 
 export const AUTOCOMPLETE_KEYS = {
@@ -194,6 +199,9 @@ export const ICONS = {
     [LOOKUP_KEYS.TEAM]: PeopleAltIcon,
     [LOOKUP_KEYS.USER]: PersonIcon,
     [LOOKUP_KEYS.TOKEN]: VpnKeyIcon,
+    STORAGE: SdStorageIcon,
+    [LOOKUP_KEYS.GALV_STORAGE]: SdStorageIcon,
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: SdStorageIcon,
     DASHBOARD: HomeIcon,
     MANAGE_ACCOUNT: ManageAccountsIcon,
     LOGOUT: LogoutIcon,
@@ -248,6 +256,8 @@ export const PATHS = {
     [LOOKUP_KEYS.TEAM]: "/teams",
     [LOOKUP_KEYS.USER]: "/users",
     [LOOKUP_KEYS.TOKEN]: "/tokens",
+    [LOOKUP_KEYS.GALV_STORAGE]: "/galv_storage",
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "/additional_storage",
     PROFILE: "/profile",
     [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: "/cell_manufacturers",
     [AUTOCOMPLETE_KEYS.CELL_MODEL]: "/cell_models",
@@ -287,6 +297,8 @@ export const DISPLAY_NAMES = {
     [LOOKUP_KEYS.TEAM]: "Team",
     [LOOKUP_KEYS.USER]: "User",
     [LOOKUP_KEYS.TOKEN]: "Token",
+    [LOOKUP_KEYS.GALV_STORAGE]: "Galv Storage",
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "Additional Storage",
 } as const
 
 /**
@@ -317,6 +329,8 @@ export const DISPLAY_NAMES_PLURAL = {
     [LOOKUP_KEYS.TEAM]: "Teams",
     [LOOKUP_KEYS.USER]: "Users",
     [LOOKUP_KEYS.TOKEN]: "Tokens",
+    [LOOKUP_KEYS.GALV_STORAGE]: "Galv Storage",
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "Additional Storage",
 } as const
 
 /**
@@ -346,6 +360,8 @@ export const API_HANDLERS = {
     [LOOKUP_KEYS.TEAM]: TeamsApi,
     [LOOKUP_KEYS.USER]: UsersApi,
     [LOOKUP_KEYS.TOKEN]: TokensApi,
+    [LOOKUP_KEYS.GALV_STORAGE]: GalvStorageApi,
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: AdditionalStorageApi,
     [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: CellManufacturersApi,
     [AUTOCOMPLETE_KEYS.CELL_MODEL]: CellModelsApi,
     [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: CellFormFactorsApi,
@@ -390,6 +406,8 @@ export const API_SLUGS = {
     [LOOKUP_KEYS.TEAM]: "teams",
     [LOOKUP_KEYS.USER]: "users",
     [LOOKUP_KEYS.TOKEN]: "tokens",
+    [LOOKUP_KEYS.GALV_STORAGE]: "galvStorage",
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "additionalStorage",
     [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: "cellManufacturers",
     [AUTOCOMPLETE_KEYS.CELL_MODEL]: "cellModels",
     [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: "cellFormFactors",
@@ -635,7 +653,7 @@ export const FIELDS = {
         ...always_fields,
         id: {readonly: true, type: "number"},
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        lab: {readonly: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
+        lab: {readonly: true, createonly: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
         member_group: {
             readonly: false,
             type: key_to_type(LOOKUP_KEYS.USER),
@@ -691,12 +709,7 @@ export const FIELDS = {
             priority: PRIORITY_LEVELS.SUMMARY,
             fetch_in_download: true
         },
-        s3_bucket_name: {readonly: false, type: "string"},
-        s3_location: {readonly: false, type: "string"},
-        s3_access_key: {readonly: false, type: "string"},
-        s3_secret_key: {readonly: false, type: "string"},
-        s3_custom_domain: {readonly: false, type: "string"},
-        s3_configuration_status: {readonly: true, type: "object"},
+        storages: {readonly: true, type: key_to_type(LOOKUP_KEYS.ADDITIONAL_STORAGE), many: true},
         teams: {readonly: true, type: key_to_type(LOOKUP_KEYS.TEAM), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         harvesters: {readonly: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), many: true, priority: PRIORITY_LEVELS.SUMMARY},
     },
@@ -717,6 +730,29 @@ export const FIELDS = {
         name: {readonly: true, type: "string", createonly: true, priority: PRIORITY_LEVELS.IDENTITY},
         created: {readonly: true, type: "string"},
         expiry: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+    },
+    [LOOKUP_KEYS.GALV_STORAGE]: {
+        ...generic_fields,
+        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        lab: {readonly: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
+        quota: {readonly: true, type: "number"},
+        bytes_used: {readonly: true, type: "number"},
+        priority: {readonly: false, type: "number"},
+        enabled: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.CONTEXT},
+    },
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: {
+        ...generic_fields,
+        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        lab: {readonly: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
+        quota: {readonly: false, type: "number"},
+        bytes_used: {readonly: true, type: "number"},
+        priority: {readonly: false, type: "number"},
+        bucket_name: {readonly: false, type: "string"},
+        location: {readonly: false, type: "string"},
+        access_key: {readonly: false, type: "string"},
+        secret_key: {readonly: false, type: "string"},
+        custom_domain: {readonly: false, type: "string"},
+        enabled: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.CONTEXT},
     },
     [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: autocomplete_fields,
     [AUTOCOMPLETE_KEYS.CELL_MODEL]: autocomplete_fields,
@@ -951,6 +987,34 @@ Tokens are created by users, and can be used to authenticate with Galv's API.
 You'll also see Browser session tokens which are created automatically when you log in.
 
 If you want to use the API, you'll need to create a token.
+    `,
+    [LOOKUP_KEYS.GALV_STORAGE]: `
+Storage is used for the harvested data files and for the image previews of datasets.
+
+Galv storage is the default storage resource in Galv.
+This storage is provided by the Galv server instance, and each lab is allocated a certain amount of storage.
+
+If you would prefer not to store files on the Galv server, 
+you can disable Galv storage and set up an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}).
+
+If you are at risk of exceeding your storage quota, 
+you can set up an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}) to store the excess data.
+
+The priority specifies the order in which the storage resources are used to store data.
+Higher numbers are used first.
+    `,
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: `
+Storage is used for the harvested data files and for the image previews of datasets.
+
+Additional storage resources are used to data uploaded to Galv in a location managed by the Lab.
+You may want to use additional storage if you have a large amount of data to store, 
+or if you would prefer to store your data in a location you can administrate.
+
+You can set a quota for the storage resource so that your teams do not 
+accidentally exceed any storage limits you may have.
+
+The priority specifies the order in which the storage resources are used to store data.
+Higher numbers are used first.
     `,
     DASHBOARD: `
 The dashboard shows a summary of the resources that are relevant to you.

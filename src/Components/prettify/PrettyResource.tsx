@@ -1,4 +1,4 @@
-import {DISPLAY_NAMES, FAMILY_LOOKUP_KEYS, FIELDS, LookupKey} from "../../constants";
+import {DISPLAY_NAMES, FAMILY_LOOKUP_KEYS, FIELDS, LOOKUP_KEYS, LookupKey} from "../../constants";
 import {ChipProps} from "@mui/material/Chip";
 import React, {useEffect, useState} from "react";
 import useStyles from "../../styles/UseStyles";
@@ -162,7 +162,14 @@ export default function PrettyResource(
     {target, onChange, edit_mode, lookup_key, resource_id, allow_new, ...childProps}: PrettyResourceProps
 ) {
     const url_components = get_url_components(target._value ?? "")
-    lookup_key = lookup_key ?? url_components?.lookup_key
+    if (lookup_key !== url_components?.lookup_key) {
+        // Labs' Galv Storage is exposed under the Additional Storage lookup key because currently we
+        // don't support multiple resource types in a single array.
+        if (lookup_key === LOOKUP_KEYS.ADDITIONAL_STORAGE)
+            lookup_key = url_components?.lookup_key ?? lookup_key
+        else
+            lookup_key = lookup_key ?? url_components?.lookup_key
+    }
     resource_id = resource_id ?? url_components?.resource_id
 
     const str_representation = <PrettyString
