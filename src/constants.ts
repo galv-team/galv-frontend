@@ -148,7 +148,6 @@ export const LOOKUP_KEYS = {
     TOKEN: "TOKEN",
     UNIT: "UNIT",
     COLUMN_FAMILY: "COLUMN_FAMILY",
-    COLUMN: "COLUMN",
     GALV_STORAGE: "GALV_STORAGE",
     ADDITIONAL_STORAGE: "ADDITIONAL_STORAGE",
 } as const
@@ -184,7 +183,6 @@ export const ICONS = {
     [LOOKUP_KEYS.MAPPING]: CompareArrowsIcon,
     [LOOKUP_KEYS.UNIT]: SubscriptIcon,
     [LOOKUP_KEYS.COLUMN_FAMILY]: SplitscreenIcon,
-    [LOOKUP_KEYS.COLUMN]: SplitscreenIcon,
     [LOOKUP_KEYS.CELL_FAMILY]: BatchPredictionIcon,
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: BatchPredictionIcon,
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: BatchPredictionIcon,
@@ -236,7 +234,6 @@ export const PATHS = {
     [LOOKUP_KEYS.PATH]: "/paths",
     [LOOKUP_KEYS.PARQUET_PARTITION]: "/parquet_partitions",
     [LOOKUP_KEYS.FILE]: "/files",
-    [LOOKUP_KEYS.COLUMN]: "/columns",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "/column_types",
     [LOOKUP_KEYS.UNIT]: "/units",
     DASHBOARD: "/",
@@ -279,7 +276,6 @@ export const DISPLAY_NAMES = {
     [LOOKUP_KEYS.FILE]: "File",
     [LOOKUP_KEYS.MAPPING]: "Mapping",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
-    [LOOKUP_KEYS.COLUMN]: "Column",
     [LOOKUP_KEYS.UNIT]: "Unit",
     DASHBOARD: "Dashboard",
     [LOOKUP_KEYS.EXPERIMENT]: "Experiment",
@@ -311,7 +307,6 @@ export const DISPLAY_NAMES_PLURAL = {
     [LOOKUP_KEYS.FILE]: "Files",
     [LOOKUP_KEYS.MAPPING]: "Mappings",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
-    [LOOKUP_KEYS.COLUMN]: "Columns",
     [LOOKUP_KEYS.UNIT]: "Unit",
     DASHBOARD: "Dashboard",
     [LOOKUP_KEYS.EXPERIMENT]: "Experiments",
@@ -343,7 +338,6 @@ export const API_HANDLERS = {
     [LOOKUP_KEYS.PARQUET_PARTITION]: ParquetPartitionsApi,
     [LOOKUP_KEYS.FILE]: FilesApi,
     [LOOKUP_KEYS.MAPPING]: ColumnMappingsApi,
-    [LOOKUP_KEYS.COLUMN]: ColumnsApi,
     [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnTypesApi,
     [LOOKUP_KEYS.UNIT]: UnitsApi,
     [LOOKUP_KEYS.CELL_FAMILY]: CellFamiliesApi,
@@ -389,7 +383,6 @@ export const API_SLUGS = {
     [LOOKUP_KEYS.PARQUET_PARTITION]: "parquetPartitions",
     [LOOKUP_KEYS.FILE]: "files",
     [LOOKUP_KEYS.MAPPING]: "columnMappings",
-    [LOOKUP_KEYS.COLUMN]: "columns",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "columnTypes",
     [LOOKUP_KEYS.UNIT]: "units",
     [LOOKUP_KEYS.CELL]: "cells",
@@ -543,15 +536,6 @@ export const FIELDS = {
         missing: {readonly: true, type: "number"},  // only appears as part of a FILE response
         ...team_fields
     },
-    [LOOKUP_KEYS.COLUMN]: {
-        ...always_fields,
-        id: {readonly: true, type: "number"},
-        name: {readonly: true, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        name_in_file: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        file: {readonly: true, type: key_to_type(LOOKUP_KEYS.FILE), priority: PRIORITY_LEVELS.CONTEXT},
-        type: {readonly: false, type: key_to_type(LOOKUP_KEYS.COLUMN_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
-        values: {readonly: true, type: "string"},
-    },
     [LOOKUP_KEYS.COLUMN_FAMILY]: {
         ...always_fields,
         id: {readonly: true, type: "number"},
@@ -561,7 +545,6 @@ export const FIELDS = {
         description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         data_type: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         unit: {readonly: false, type: key_to_type(LOOKUP_KEYS.UNIT), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
-        columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         ...team_fields
     },
     [LOOKUP_KEYS.UNIT]: {
@@ -791,7 +774,6 @@ export const FAMILY_LOOKUP_KEYS = {
     [LOOKUP_KEYS.CELL]: "CELL_FAMILY",
     [LOOKUP_KEYS.EQUIPMENT]: "EQUIPMENT_FAMILY",
     [LOOKUP_KEYS.SCHEDULE]: "SCHEDULE_FAMILY",
-    [LOOKUP_KEYS.COLUMN]: "COLUMN_FAMILY",
 } as const
 
 export const get_has_family = (key: string|number): key is keyof typeof FAMILY_LOOKUP_KEYS =>
@@ -803,7 +785,6 @@ export const CHILD_LOOKUP_KEYS = {
     [LOOKUP_KEYS.CELL_FAMILY]: "CELL",
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "EQUIPMENT",
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: "SCHEDULE",
-    [LOOKUP_KEYS.COLUMN_FAMILY]: "COLUMN",
 } as const
 
 /**
@@ -859,11 +840,6 @@ You can see all the files that have been collected on [monitored paths](${PATHS[
 Column types identify the type of data in a column of a [file](${PATHS[LOOKUP_KEYS.FILE]}).
 
 They associate a column with a [unit](${PATHS[LOOKUP_KEYS.UNIT]}).
-    `,
-    [LOOKUP_KEYS.COLUMN]: `
-Columns are the individual data columns in a [file](${PATHS[LOOKUP_KEYS.FILE]}).
-
-Each column has a [column type](${PATHS[LOOKUP_KEYS.COLUMN_FAMILY]}), which defines the type of data in the column.
     `,
     [LOOKUP_KEYS.UNIT]: `
 Units are the units of measurement used in the data in a [file](${PATHS[LOOKUP_KEYS.FILE]}).
