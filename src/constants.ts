@@ -587,6 +587,7 @@ export const FIELDS = {
         cell: {readonly: false, type: key_to_type(LOOKUP_KEYS.CELL), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
         schedule: {readonly: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
         equipment: {readonly: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
+        files: {readonly: false, type: key_to_type(LOOKUP_KEYS.FILE), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
         rendered_schedule: {readonly: true, type: "string", many: true},
         ...team_fields,
     },
