@@ -22,7 +22,7 @@ import {TypeChangerAutocompleteKey, TypeChangerLookupKey} from "./prettify/TypeC
  * Because of its verbosity, TypeValueNotation is not very suitable for long lists of values of the same type.
  */
 export type TypeValueNotation = {
-    _type: "string" | "number" | "boolean" | "null" | "attachment" | "object" | "array" |
+    _type: "string" | "number" | "boolean" | "null" | "attachment" | "object" | "array" | "datetime" |
         TypeChangerLookupKey | TypeChangerAutocompleteKey
     _value: string | number | boolean | null | TypeValueNotation[] | TypeValueNotationWrapper
 }

@@ -355,12 +355,14 @@ function ResourceCard<T extends BaseResource>(
                 }
             </Grid>
         }
+        const field = key? FIELDS[lookup_key] : undefined
+        const field_info = field? field[key as keyof typeof field] : undefined
         return lookup && is_lookup_key(lookup) ?
             <ResourceChip
                 resource_id={id_from_ref_props<string>(data as string | number)}
                 lookup_key={lookup}
                 short_name={is_family_child(lookup, lookup_key)}
-            /> : <Prettify target={to_type_value_notation(data)}/>
+            /> : <Prettify target={to_type_value_notation(data, field_info)}/>
     }
 
     const cardSummary = <CardContent>

@@ -23,6 +23,10 @@ import {AutocompleteProps} from "@mui/material/Autocomplete";
 import {TypeValueNotation} from "../TypeValueNotation";
 import PrettyAttachment from "./PrettyAttachment";
 import {Link} from "react-router-dom";
+import dayjs from "dayjs";
+import calendar from "dayjs/plugin/calendar";
+
+dayjs.extend(calendar)
 
 type PrettifyProps = {
     target: TypeValueNotation
@@ -43,6 +47,34 @@ export type PrettyComponentProps<T = unknown> = {
     target: TypeValueNotation & {_value: T}
     onChange: (new_target: TypeValueNotation & {_value: T}) => void
     edit_mode: boolean
+}
+
+export const PrettyDatetime = (
+    {target, onChange, edit_mode, ...childProps}:
+        PrettyComponentProps<string|null> & Partial<Omit<TextFieldProps | TypographyProps, "onChange">>
+) => {
+    const [currentValue, setCurrentValue] = useState<string>(target._value ?? "")
+    let date: string;
+    try {
+        date = dayjs(target._value).calendar()
+    } catch {
+        date = "Invalid date"
+    }
+    return edit_mode?
+        <TextField
+            label="value"
+            variant="filled"
+            size="small"
+            multiline={false}
+            value={currentValue}
+            onChange={(e) => setCurrentValue(e.target.value)}
+            onBlur={() => onChange({_type: "datetime", _value: currentValue})}
+            onKeyDown={(e) => e.key === "Enter" && onChange({_type: "datetime", _value: currentValue})}
+            {...childProps as TextFieldProps}
+        /> :
+        <Typography component="span" variant="body1" {...childProps as TypographyProps}>
+            {date}
+        </Typography>
 }
 
 export const PrettyString = (
@@ -73,7 +105,7 @@ export const PrettyString = (
             label="value"
             variant="filled"
             size="small"
-            multiline={false} // TODO fix error spam
+            multiline={false} // TODO fix error spam - should be fixed in new MUI version
             value={currentValue}
             onChange={(e) => {
                 setCurrentValue(e.target.value)
@@ -162,6 +194,15 @@ export function Pretty(
         return <PrettyAttachment
             {...props as typeof props & { target: TypeValueNotation & {_value: string|null} }}
             creating={create_mode}
+            {...childProps as Partial<Omit<TextFieldProps | TypographyProps, "onChange">>}
+        />
+    }
+
+    if (target._type === 'datetime') {
+        if (props.target._value !== null && typeof props.target._value !== "string")
+            return <PrettyError error={new Error(`Pretty -> PrettyDatetime: target._value '${props.target._value}' is not a string`)} target={target} />
+        return <PrettyDatetime
+            {...props as typeof props & { target: TypeValueNotation & {_value: string|null} }}
             {...childProps as Partial<Omit<TextFieldProps | TypographyProps, "onChange">>}
         />
     }

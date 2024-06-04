@@ -7,6 +7,7 @@ import NumbersIcon from "@mui/icons-material/Numbers";
 import DataObjectIcon from "@mui/icons-material/DataObject";
 import DataArrayIcon from "@mui/icons-material/DataArray";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import IconButton from "@mui/material/IconButton";
 import Popover, {PopoverProps} from "@mui/material/Popover";
 import {SvgIconTypeMap} from "@mui/material/SvgIcon";
@@ -74,6 +75,22 @@ const num = (v: TypeValueNotation): {_type: "number", _value: number|null} => {
     const n = Number(v._value)
     return isNaN(n)? {_type: "number", _value: null} : {_type: "number", _value: n}
 }
+const datetime = (v: TypeValueNotation): {_type: "datetime", _value: string} => {
+    let value: string = new Date().toISOString();
+    try {
+        switch (v._type) {
+            case "datetime": return v as {_type: "datetime", _value: string};
+            case "string": value = new Date(v._value as string).toISOString(); break;
+            case "number": value = new Date(v._value as number).toISOString(); break;
+            case "boolean": value = new Date().toISOString(); break;
+            case "object": value = new Date(Object.values(v._value as TypeValueNotationWrapper)[0]._value as string|number).toISOString(); break;
+            case "array": value = new Date((v._value as TypeValueNotation[])[0]._value as string|number).toISOString(); break;
+        }
+    } catch {
+        value = new Date().toISOString()
+    }
+    return {_type: "datetime", _value: value}
+}
 const obj = (v: TypeValueNotation): {_type: "object", _value: TypeValueNotationWrapper}  => {
     try {
         if (v._type === "array" && v._value instanceof Array) {
@@ -129,6 +146,10 @@ const type_map = {
         icon: PowerSettingsNewIcon,
         tooltip: "Boolean"
     },
+    datetime: {
+        icon: CalendarMonthIcon,
+        tooltip: "Datetime"
+    },
     attachment: {
         icon: AttachFileIcon,
         tooltip: "Attachment"
@@ -148,6 +169,7 @@ const get_conversion_fun = (type: TypeChangerSupportedTypeName):
     switch (type) {
         case 'string': return str
         case 'number': return num
+        case 'datetime': return datetime
         case 'boolean': return (v: TypeValueNotation) => ({_type: "boolean", _value: !!v._value})
         case 'attachment': return () => ({_type: "attachment", _value: null})
         case 'object': return obj
