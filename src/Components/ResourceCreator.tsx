@@ -397,11 +397,13 @@ export default function WrappedResourceCreator<T extends BaseResource>(props: {l
     const ADD_ICON = ICONS.CREATE
 
     return get_can_create(props.lookup_key) ? <UndoRedoProvider>
-        <Tooltip title={`Create a new ${DISPLAY_NAMES[props.lookup_key]}`}>
-            <IconButton onClick={() => setModalOpen(true)} sx={{width: "min-content", placeSelf: "center"}}>
-                <ADD_ICON fontSize="large"/>
-            </IconButton>
-        </Tooltip>
+        <Button
+            onClick={() => setModalOpen(true)}
+            sx={{placeSelf: "center"}}
+            startIcon={<ADD_ICON fontSize="large" />}
+        >
+            Create a new {DISPLAY_NAMES[props.lookup_key]}
+        </Button>
         <Modal
             open={modalOpen}
             onClose={() => setModalOpen(false)}
