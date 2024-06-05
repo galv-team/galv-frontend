@@ -89,14 +89,9 @@ export function Core() {
             </ListItemButton>
             <Divider component="li" key="div0">{open && "Outputs"}</Divider>
             {[LOOKUP_KEYS.EXPERIMENT, LOOKUP_KEYS.CYCLER_TEST].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
-            <Divider component="li" key="div1">{open && "Data"}</Divider>
-            {[
-                LOOKUP_KEYS.FILE,
-                LOOKUP_KEYS.COLUMN_FAMILY,
-                LOOKUP_KEYS.UNIT
-            ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
             <Divider component="li" key="div2">{open && "Resources"}</Divider>
             {[
+                LOOKUP_KEYS.FILE,
                 LOOKUP_KEYS.CELL,
                 LOOKUP_KEYS.EQUIPMENT,
                 LOOKUP_KEYS.SCHEDULE,
@@ -104,13 +99,16 @@ export function Core() {
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
             <Divider component="li" key="div3">{open && "Inputs"}</Divider>
             {[
-                LOOKUP_KEYS.HARVESTER,
                 LOOKUP_KEYS.PATH,
                 LOOKUP_KEYS.VALIDATION_SCHEMA,
+                LOOKUP_KEYS.COLUMN_FAMILY,
+                LOOKUP_KEYS.UNIT,
+                LOOKUP_KEYS.MAPPING
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
-            <Divider component="li" key="div4">{open && "Groups"}</Divider>
+            <Divider component="li" key="div4">{open && "Management"}</Divider>
             {[
                 LOOKUP_KEYS.LAB,
+                LOOKUP_KEYS.HARVESTER,
                 LOOKUP_KEYS.ADDITIONAL_STORAGE,
                 LOOKUP_KEYS.TEAM,
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
