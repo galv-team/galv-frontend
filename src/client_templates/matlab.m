@@ -45,7 +45,7 @@ for i = 1:length(dataset_ids)
     tmp = tempname(tempdir());
     mkdir(tmp);
     
-    % append column data in columns
+    % save parquet files to temporary locations
     for c = 1:length(metadata{i}.parquet_partitions)
         cURL = metadata{i}.parquet_partitions{c};
         partition = webread(cURL, options);
@@ -59,3 +59,6 @@ for i = 1:length(dataset_ids)
     % read the datasets as parquet files
     parquets{i} = parquetDatastore(tmp);
 end
+
+% Take a peek at one of the datasets
+parquets{1}.preview()
