@@ -214,6 +214,7 @@ export const ICONS = {
     DOWNLOAD: DownloadIcon,
     validation_status_ERROR: ErrorIcon,
     validation_status_UNCHECKED: PendingIcon,
+    validation_status_INPUT_REQUIRED: PendingIcon,
     validation_status_VALID: CheckCircleIcon,
     validation_status_INVALID: CancelIcon,
     validation_status_SKIPPED: HideSourceIcon,
@@ -666,7 +667,6 @@ export const FIELDS = {
         ...generic_fields,
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        is_public: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
         file: {
             readonly: true,
             createonly: true,
@@ -966,7 +966,7 @@ You'll also see Browser session tokens which are created automatically when you 
 If you want to use the API, you'll need to create a token.
     `,
     [LOOKUP_KEYS.GALV_STORAGE]: `
-Storage is used for the harvested data files and for the image previews of datasets.
+Storage is used for the harvested data files, attachments, and for the image previews of datasets.
 
 Galv storage is the default storage resource in Galv.
 This storage is provided by the Galv server instance, and each lab is allocated a certain amount of storage.
@@ -981,7 +981,7 @@ The priority specifies the order in which the storage resources are used to stor
 Higher numbers are used first.
     `,
     [LOOKUP_KEYS.ADDITIONAL_STORAGE]: `
-Storage is used for the harvested data files and for the image previews of datasets.
+Storage is used for the harvested data files, attachments, and for the image previews of datasets.
 
 Additional storage resources are used to data uploaded to Galv in a location managed by the Lab.
 You may want to use additional storage if you have a large amount of data to store, 

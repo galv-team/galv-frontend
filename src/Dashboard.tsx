@@ -41,13 +41,14 @@ type SchemaValidationSummary = {
     resource_id?: string
 }
 
-const get_color = (status: SchemaValidation["status"]) => {
+const get_color = (status: SchemaValidation["status"]|"INPUT_REQUIRED") => {
     switch (status) {
         case "VALID":
             return "success"
         case "ERROR":
             return "error"
         case "INVALID":
+        case "INPUT_REQUIRED":
             return "warning"
         default:
             return undefined
@@ -213,6 +214,7 @@ export function SchemaValidationList() {
 }
 
 export function DatasetStatus() {
+    const [open, setOpen] = useState(false)
     // API handler
     const {api_config} = useCurrentUser()
     const api_handler = new FilesApi(api_config)
@@ -234,9 +236,16 @@ export function DatasetStatus() {
     })
 
     const state_to_status = (state: ObservedFile["state"]) => {
-        return state === "IMPORTED"? "VALID" :
-            state === "IMPORT FAILED" ?
-                "ERROR" : "UNCHECKED"
+        switch (state) {
+            case "IMPORTED":
+                return "VALID"
+            case "AWAITING MAP ASSIGNMENT":
+                return "INPUT_REQUIRED"
+            case "IMPORT FAILED":
+                return "ERROR"
+            default:
+                return "UNCHECKED"
+        }
     }
 
     const status_counts = query.data && query.data.data.results?.reduce(
@@ -265,6 +274,8 @@ export function DatasetStatus() {
         </List>
     }
 
+    const files_needing_input = query.data?.data.results?.filter(f => f.state === "AWAITING MAP ASSIGNMENT")
+
     return <Container maxWidth="lg">
         {query.isInitialLoading? "Loading..." : <Card>
             <CardHeader
@@ -288,6 +299,28 @@ export function DatasetStatus() {
                         </Tooltip>)}
                 </Stack>}
             />
+            {files_needing_input && files_needing_input.length > 0 && <CardContent
+                onClick={() => setOpen(!open)}
+                onKeyDown={(e) => {
+                    if (e.target === e.currentTarget && [" ", "Enter"].includes(e.key))
+                        setOpen(!open)
+                }}
+                tabIndex={0}
+                sx={{cursor: "pointer"}}
+            >
+                {
+                    open?
+                        <List>
+                            {files_needing_input.map(f => <ListItem key={f.id}>
+                                <ICONS.validation_status_INPUT_REQUIRED color="warning" />
+                                <ResourceChip resource_id={f.id} lookup_key={LOOKUP_KEYS.FILE} short_name={false} />
+                            </ListItem>)}
+                        </List> :
+                        <Typography>
+                            <em>Click to see all {files_needing_input.length} files with ambiguous mapping.</em>
+                        </Typography>
+                }
+            </CardContent>}
         </Card>}
 
     </Container>
