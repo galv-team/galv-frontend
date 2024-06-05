@@ -1006,10 +1006,26 @@ alongside an indication of their validation status.
 If you see problems on your dashboard, you should check the relevant resource for more information.
     `,
     MAPPING: `
-Mappings are used to map the columns in a [file](${PATHS[LOOKUP_KEYS.FILE]}) to the columns in the database.
+Mappings are used to map the columns in a [file](${PATHS[LOOKUP_KEYS.FILE]}) to recognised standard columns.
 
-This allows Galv to understand the data in the file, and to store it in the database.
+This allows Galv to understand the data in the file and encourages homogeneity across datasets.
 When a suite of files use the same column names to represent the same kind of data,
 analyses can be performed across all the files.
+
+Mappings can be automatically applied to files when they are harvested by 
+a [harvester](${PATHS[LOOKUP_KEYS.HARVESTER]}). 
+If there is a clear 'best mapping' for a file, it will be applied automatically.
+If there are multiple equally good mappings, the user will have to choose a mapping or define a better one.
+
+Mappings are ranked according to:
+- Whether they define the three key columns: "ElapsedTime_s", "Voltage_V", and "Current_A". 
+- Whether all the columns in the mapping are present in the file.
+- How many columns in the file are not in the mapping. Fewer is better.
+
+Applying the above criteria, the best mapping is chosen.
+A mapping will never be considered 'best' if it does not define the three key columns.
+
+Beware when creating mappings that you might create conflicts where two mappings are equally good.
+If this happens, all affected files will need manual disambiguation to choose the correct mapping. 
     `,
 } as const
