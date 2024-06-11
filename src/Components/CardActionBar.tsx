@@ -10,12 +10,13 @@ import CountBadge from "./CountBadge";
 import {Link} from "react-router-dom";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
+import RepartitionIcon from '@mui/icons-material/Repartition';
 import {
     DISPLAY_NAMES,
     DISPLAY_NAMES_PLURAL,
     FIELDS,
     ICONS,
-    is_lookup_key,
+    is_lookup_key, LOOKUP_KEYS,
     LookupKey,
     PATHS,
 } from "../constants";
@@ -46,7 +47,9 @@ export type CardActionBarProps = {
     onUndo?: () => void
     onRedo?: () => void
     destroyable?: boolean
+    reimportable?: boolean
     onDestroy?: () => void
+    onReImport?: () => void
     expanded?: boolean
     setExpanded?: (expanded: boolean) => void
     iconProps?: Partial<SvgIconProps>
@@ -165,21 +168,35 @@ export default function CardActionBar(props: CardActionBarProps) {
         }
     }
 
-    const destroy_section = <Tooltip
-        title={props.destroyable?
-            `Delete this ${DISPLAY_NAMES[props.lookup_key]}` :
-            `Cannot delete this ${DISPLAY_NAMES[props.lookup_key]}, it may be being used by other resources.`
-        }
-        arrow
-        describeChild
-        key="delete"
-    >
+    const destroy_section = <Stack direction="row" spacing={1} alignItems="center">
+        {props.lookup_key === LOOKUP_KEYS.FILE && props.reimportable && <Tooltip
+            title="Force the harvester to re-import this file"
+            arrow
+            describeChild
+            key="reimport"
+        >
+            <span>
+                <IconButton onClick={() => props.onReImport && props.onReImport()} disabled={!props.reimportable}>
+                    <RepartitionIcon {...iconProps} className={clsx(classes.deleteIcon)} {...iconProps}/>
+                </IconButton>
+            </span>
+        </Tooltip>}
+        <Tooltip
+            title={props.destroyable?
+                `Delete this ${DISPLAY_NAMES[props.lookup_key]}` :
+                `Cannot delete this ${DISPLAY_NAMES[props.lookup_key]}, it may be being used by other resources.`
+            }
+            arrow
+            describeChild
+            key="delete"
+        >
         <span>
             <IconButton onClick={() => props.onDestroy && props.onDestroy()} disabled={!props.destroyable}>
                 <ICONS.DELETE className={clsx(classes.deleteIcon)} {...iconProps}/>
             </IconButton>
         </span>
-    </Tooltip>
+        </Tooltip>
+    </Stack>
 
     const select_section = selectable && apiResource && apiResource?.url && <Tooltip
         title={`${isSelected(apiResource)? 'Deselect' : 'Select'} this ${DISPLAY_NAMES[props.lookup_key]}`}

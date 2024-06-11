@@ -229,6 +229,28 @@ function ResourceCard<T extends BaseResource>(
                 })
             })
         }}
+        reimportable={lookup_key === LOOKUP_KEYS.FILE && apiResource?.permissions?.write && apiResource.state !== "RETRY IMPORT"}
+        onReImport={() => {
+            if (!window.confirm(`
+Re-import ${DISPLAY_NAMES[lookup_key]}/${resource_id}?
+
+This will overwrite the current data with the latest version from the source file, if available.
+The file will be added to the Harvester's usual queue for processing.
+`))
+                return;
+            const reimport = api_handler[
+                `${API_SLUGS[lookup_key]}ReimportRetrieve` as keyof typeof api_handler
+                ] as (id: string) => Promise<AxiosResponse<T>>
+            reimport.bind(api_handler)(String(resource_id))
+                .then(() => queryClient.invalidateQueries([lookup_key, resource_id]))
+                .catch(e => {
+                    postSnackbarMessage({
+                        message: `Error re-importing ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
+                        (HTTP ${e.response?.status} - ${e.response?.statusText}): ${e.response?.data?.detail}`,
+                        severity: 'error'
+                    })
+                })
+        }}
         expanded={isExpanded}
         setExpanded={setIsExpanded}
     />
