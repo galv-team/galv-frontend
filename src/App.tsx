@@ -108,9 +108,9 @@ export function Core() {
             <Divider component="li" key="div4">{open && "Management"}</Divider>
             {[
                 LOOKUP_KEYS.LAB,
+                LOOKUP_KEYS.TEAM,
                 LOOKUP_KEYS.HARVESTER,
                 LOOKUP_KEYS.ADDITIONAL_STORAGE,
-                LOOKUP_KEYS.TEAM,
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
         </Stack>
     );
