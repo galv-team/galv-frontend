@@ -189,7 +189,7 @@ export function ResourceCreator<T extends BaseResource>(
 ) {
     const { classes } = useStyles();
 
-    const {file, UploadMutation} = useAttachmentUpload()
+    const {file, getUploadMutation} = useAttachmentUpload()
 
     // Ref wrapper for updating UndoRedo in useEffect
     const UndoRedo = useUndoRedoContext<SerializableObject>()
@@ -282,7 +282,7 @@ export function ResourceCreator<T extends BaseResource>(
                     onCreate(undefined, error)
                 },
             })
-    const create_attachment_mutation = UploadMutation
+    const create_attachment_mutation = getUploadMutation(onCreate)
 
     // The card action bar controls the expanded state and editing state
     const action = <CardActionBar
@@ -317,11 +317,11 @@ export function ResourceCreator<T extends BaseResource>(
                         team: d.team,
                         description: d.description ?? undefined
                     })
-                    close = true
+                    close = false  // handled by the mutation
                 }
             } else {
                 create_mutation.mutate(UndoRedo.current)
-                close = true
+                close = false // handled by the mutation
             }
             if (close) {
                 onCreate()
@@ -424,10 +424,10 @@ export default function WrappedResourceCreator<T extends BaseResource>(props: {l
                     {props.lookup_key === LOOKUP_KEYS.TOKEN?
                         <TokenCreator setModalOpen={setModalOpen} {...props} /> :
                         <ResourceCreator<T>
-                            onCreate={() => {
+                            onCreate={(_, err) => {
                                 if (props.lookup_key === LOOKUP_KEYS.LAB && !user?.is_lab_admin)
                                     refresh_user()
-                                setModalOpen(false)
+                                setModalOpen(!!err)
                             }}
                             onDiscard={() => setModalOpen(false)}
                             {...props}
