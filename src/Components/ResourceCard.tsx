@@ -61,6 +61,7 @@ import {
 import Typography from "@mui/material/Typography";
 import {Theme} from "@mui/material/styles";
 import ResourceStatuses from "./ResourceStatuses";
+import AuthImage from "./AuthImage";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
@@ -368,11 +369,7 @@ function ResourceCard<T extends BaseResource>(
     const cardSummary = <CardContent>
         {lookup_key === LOOKUP_KEYS.FILE && apiResource?.has_required_columns && apiResource.png &&
             <Stack spacing={2}>
-                <img
-                    src={apiResource.png as string}
-                    alt={`Preview of ${apiResource.name}`}
-                    className={clsx(classes.filePreview)}
-                />
+                <AuthImage file={apiResource as unknown as {id: string, path: string, png: string}} />
             </Stack>
         }
         {apiResource && <Grid container spacing={1}>{
