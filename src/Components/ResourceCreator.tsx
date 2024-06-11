@@ -28,8 +28,6 @@ import ErrorBoundary from "./ErrorBoundary";
 import UndoRedoProvider, {useUndoRedoContext} from "./UndoRedoContext";
 import {BaseResource} from "./ResourceCard";
 import Modal from "@mui/material/Modal";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import {
@@ -317,7 +315,6 @@ export function ResourceCreator<T extends BaseResource>(
                     create_attachment_mutation.mutate({
                         name: d.name,
                         team: d.team,
-                        is_public: d.is_public ?? false,
                         description: d.description ?? undefined
                     })
                     close = true

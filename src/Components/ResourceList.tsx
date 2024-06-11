@@ -13,7 +13,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Skeleton from "@mui/material/Skeleton";
 import ResourceCard, {BaseResource} from "./ResourceCard";
 import ResourceCreator from "./ResourceCreator";
-import {DISPLAY_NAMES_PLURAL, LOOKUP_KEYS, LookupKey} from "../constants";
+import {DISPLAY_NAMES_PLURAL, FAMILY_LOOKUP_KEYS, get_has_family, LOOKUP_KEYS, LookupKey} from "../constants";
 import ErrorBoundary from "./ErrorBoundary";
 import Button from "@mui/material/Button";
 import {useCurrentUser} from "./CurrentUserContext";
@@ -74,6 +74,7 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
                 {lookup_key === LOOKUP_KEYS.FILE && <ClientCodeDemo />}
                 {content}
                 <ResourceCreator key={'creator'} lookup_key={lookup_key} />
+                {get_has_family(lookup_key) && <ResourceCreator key={'family_creator'} lookup_key={FAMILY_LOOKUP_KEYS[lookup_key]} />}
             </Stack>
         </Container>
     );
