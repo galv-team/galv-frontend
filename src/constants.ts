@@ -61,7 +61,7 @@ import {
     TokensApi,
     UsersApi,
     ValidationSchemasApi,
-    ArbitraryFilesApi, ColumnsApi, ColumnTypesApi, UnitsApi,
+    ArbitraryFilesApi, ColumnTypesApi, UnitsApi,
     ColumnMappingsApi,
     GalvStorageApi,
     AdditionalStorageApi,
@@ -665,6 +665,7 @@ export const FIELDS = {
     },
     [LOOKUP_KEYS.ARBITRARY_FILE]: {
         ...generic_fields,
+        lab: {readonly: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         file: {
@@ -727,7 +728,7 @@ export const FIELDS = {
     [LOOKUP_KEYS.ADDITIONAL_STORAGE]: {
         ...generic_fields,
         name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        lab: {readonly: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
+        lab: {readonly: true, createonly: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
         quota: {readonly: false, type: "number"},
         bytes_used: {readonly: true, type: "number"},
         priority: {readonly: false, type: "number"},
@@ -735,6 +736,7 @@ export const FIELDS = {
         location: {readonly: false, type: "string"},
         access_key: {readonly: false, type: "string"},
         secret_key: {readonly: false, type: "string"},
+        region_name: {readonly: false, type: "string"},
         custom_domain: {readonly: false, type: "string"},
         enabled: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.CONTEXT},
     },
@@ -794,7 +796,6 @@ export const CHILD_PROPERTY_NAMES  = {
     [LOOKUP_KEYS.CELL_FAMILY]: "cells",
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "equipment",
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: "schedules",
-    [LOOKUP_KEYS.COLUMN_FAMILY]: "columns",
 } as const
 
 export const get_is_family = (key: string|number): key is keyof typeof CHILD_PROPERTY_NAMES =>
@@ -937,7 +938,12 @@ You are a member of any lab that contains a team you are a member of.
 Lab administrators can create new teams, and manage the permissions of existing teams.
 They cannot create or edit any other resources, unless they are also a member of a team.
 
-Labs can specify their own S3 bucket, which is used to store the data files collected by the harvesters.
+A Lab will have data from battery cycling experiments performed in that lab.
+This data can be automatically collected by [harvesters](${PATHS[LOOKUP_KEYS.HARVESTER]}).
+The data are stored in Galv's systems, 
+unless the lab has set up an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}).
+
+Metadata are stored in the Galv database, and can be opened up for collaboration within a Lab or between Labs.
     `,
     [LOOKUP_KEYS.TEAM]: `
 Teams are the basic organisational unit in Galv.
