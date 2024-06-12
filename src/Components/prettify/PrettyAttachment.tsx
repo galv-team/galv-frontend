@@ -6,6 +6,7 @@ import Chip from "@mui/material/Chip";
 import {useAttachmentUpload} from "../AttachmentUploadContext";
 import {PrettyComponentProps} from "./Prettify";
 import PrettyResource, {PrettyResourceSelect} from "./PrettyResource";
+import AuthFile from "../AuthFile";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -58,7 +59,7 @@ export default function PrettyAttachment(
         />
 
     if (target?._value)
-        return <PrettyResource target={target} edit_mode={false} onChange={() => {}} />
+        return <AuthFile url={target._value as string}/>
 
     return <Typography variant="body2" color="text.secondary">No file attached</Typography>
 }

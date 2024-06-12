@@ -503,7 +503,7 @@ export const FIELDS = {
         partition_number: {readonly: true, type: "number", priority: PRIORITY_LEVELS.IDENTITY},
         uploaded: {readonly: true, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
         upload_errors: {readonly: true, type: "string", many: true},
-        parquet_file: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        parquet_file: {readonly: true, type: "attachment", priority: PRIORITY_LEVELS.SUMMARY},
     },
     [LOOKUP_KEYS.FILE]: {
         ...generic_fields,
