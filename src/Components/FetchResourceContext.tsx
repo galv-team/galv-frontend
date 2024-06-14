@@ -171,6 +171,8 @@ export default function FetchResourceContextProvider({children}: {children: Reac
 
         const after = options?.with_result? options.with_result : (r: AxiosResponse<T>) => r
         const on_error_fn = options?.on_error? options.on_error : (e: AxiosError) => {
+            if (e.response?.status === 401)
+                return // handled in UserLogin interceptor
             postSnackbarMessage({
                 message: `Error retrieving ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
                 (HTTP ${e.response?.status} - ${e.response?.statusText}): ${get_error_detail(e)}`,
