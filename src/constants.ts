@@ -811,6 +811,9 @@ Harvesters cannot be created here, but you can view and edit their settings.
 Harvesters are created and managed by running a Python script on a computer with access to the data source.
 See the [harvester repository](https://github.com/galv-team/galv-harvester) for more information on creating harvesters.
 
+When creating a harvester, you will need to provide the server URL.
+The server URL for this instance is \`${process.env.VITE_GALV_API_BASE_URL}.\`
+
 You can see all the harvesters that belong to your [labs](${PATHS[LOOKUP_KEYS.LAB]}).
     `,
     [LOOKUP_KEYS.PATH]: `
