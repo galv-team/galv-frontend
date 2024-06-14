@@ -132,10 +132,12 @@ export default function ResourceStatuses({lookup_key}: {lookup_key: LookupKey}) 
     const statuses: ReactNode[] = []
     switch(lookup_key) {
         case LOOKUP_KEYS.FILE:
-            if (applicableMappingsQuery.isFetching || applicableMappingsQuery.isLoading) {
-                statuses.push(<Skeleton variant="rounded" height="3em" />)
-            } else
-                statuses.push(...fileStatuses(apiResource as unknown as ObservedFile, mappings))
+            if (apiResource.state !== "GROWING") {
+                if (applicableMappingsQuery.isFetching || applicableMappingsQuery.isLoading) {
+                    statuses.push(<Skeleton variant="rounded" height="3em" />)
+                } else
+                    statuses.push(...fileStatuses(apiResource as unknown as ObservedFile, mappings))
+            }
             break;
     }
     return statuses.length > 0?
