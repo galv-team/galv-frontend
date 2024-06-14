@@ -11,6 +11,7 @@ import {ICONS} from "../constants";
 
 export default function AuthFile({url}: { url: string }) {
     const [dataUrl, setDataUrl] = useState('');
+    const [filename, setFilename] = useState('file');
     const [downloading, setDownloading] = useState(false);
     const headers = {
         authorization: `Bearer ${useCurrentUser().user?.token}`,
@@ -21,6 +22,16 @@ export default function AuthFile({url}: { url: string }) {
         queryFn: async () => {
             const response = await axios.get(url, {headers, responseType: 'blob'});
             const redirect_url = response.headers['galv-storage-redirect-url']
+            if (redirect_url) {
+                setFilename(redirect_url.split('/').pop() ?? 'file')
+            } else {
+                const disposition = response.headers['content-disposition']
+                if (disposition) {
+                    setFilename(disposition.split('filename=')[1].split('"')[0])
+                } else {
+                    setFilename(url.split('/').pop() ?? 'file')
+                }
+            }
             return redirect_url?
                 axios.get(redirect_url, {responseType: 'blob'}):
                 response;
@@ -38,7 +49,7 @@ export default function AuthFile({url}: { url: string }) {
         return <Button
             component='a'
             href={dataUrl}
-            download
+            download={filename ?? 'file'}
             color="success"
             startIcon={<ICONS.SAVE/>}
         >Save</Button>
