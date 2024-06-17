@@ -378,8 +378,8 @@ export default function WrappedResourceCreator<T extends BaseResource>(props: {l
 
     const get_can_create = (lookup_key: LookupKey) => {
         // We can always create tokens because they represent us, and labs because someone has to.
-        if (lookup_key === LOOKUP_KEYS.TOKEN) return true
-        if (lookup_key === LOOKUP_KEYS.LAB) return true
+        if (lookup_key === LOOKUP_KEYS.TOKEN) return !!user
+        if (lookup_key === LOOKUP_KEYS.LAB) return !!user
 
         const lab_admin_resources = [
             LOOKUP_KEYS.TEAM,
