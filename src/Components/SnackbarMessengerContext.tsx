@@ -44,9 +44,10 @@ export const SnackbarMessenger = (props: Omit<SnackbarProps, "message"|"action"|
     const max_snacks = 4
 
     return <List>
-        {snackbarMessages.map((m, i) => i < max_snacks && <ListItem>
+        {snackbarMessages.map((m, i) => i < max_snacks && <ListItem
+            key={m.key ?? `snackbar-messenger-${i}`}
+        >
             <Snackbar
-                key={m.key ?? `snackbar-messenger-${i}`}
                 open={open}
                 onClose={handleClose}
                 anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}

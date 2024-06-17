@@ -822,6 +822,7 @@ Paths are file paths on a computer running a [harvester](${PATHS[LOOKUP_KEYS.HAR
 Harvesters are owned by a lab, and any team member within that lab can set up a path for it.
 
 As paths are crawled by the harvester, any files that match the path and regex will be added to the database.
+The harvester will _never_ collect hidden files (those starting with a dot).
 When a file maintains a stable size for a given period of time, its data content will be uploaded.
 The harvester will also monitor the path for new files, and upload them as they appear.
 

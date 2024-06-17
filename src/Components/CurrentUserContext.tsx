@@ -38,7 +38,6 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
     const [username, setUsername] = useState<string>('')
     const [password, setPassword] = useState<string>('')
     const [onSuccess, setOnSuccess] = useState<((data: AxiosResponse<KnoxUser>) => void)|undefined>(undefined)
-    const [onError, setOnError] = useState<((error: unknown) => void)|undefined>(undefined)
     const [lastError, setLastError] = useState<AxiosError|undefined>(undefined)
     const [loginFormOpen, setLoginFormOpen] = useState<boolean>(false)
 
@@ -78,13 +77,11 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
     const do_login: ICurrentUserContext["login"] = (
         username: string,
         password: string,
-        onSuccess?: (data: AxiosResponse<KnoxUser>) => void,
-        onError?: (error: unknown) => void
+        onSuccess?: (data: AxiosResponse<KnoxUser>) => void
     ) => {
         setUsername(username)
         setPassword(password)
         setOnSuccess(onSuccess)
-        setOnError(onError)
         setTimeout(() => Login.mutate(), 100)
     }
 
@@ -99,7 +96,7 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
             if (!user) return
             const api = new API_HANDLERS[LOOKUP_KEYS.USER](api_config)
             return api.usersRetrieve(user.id)
-                .then((response) => {
+                .then((response: AxiosResponse<User>) => {
                     const local_user: LoginUser | null = JSON.parse(local_user_string || 'null')
                     setUser({...local_user, ...response.data} as LoginUser)
                     return response
