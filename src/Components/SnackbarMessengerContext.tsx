@@ -2,6 +2,8 @@ import {createContext, ReactElement, ReactNode, useContext, useEffect, useState}
 import {AlertProps, Snackbar, SnackbarProps} from "@mui/material";
 import {useImmer} from "use-immer";
 import Alert from "@mui/material/Alert";
+import ListItem from "@mui/material/ListItem";
+import List from "@mui/material/List";
 
 export type SnackbarMessage = {message: ReactNode} & Pick<AlertProps, "severity">
 
@@ -39,18 +41,25 @@ export const SnackbarMessenger = (props: Omit<SnackbarProps, "message"|"action"|
     }
     useEffect(() => setOpen(snackbarMessages.length > 0), [snackbarMessages])
 
-    return <Snackbar
-        key={snackbarMessages[0]?.key ?? 'snackbar-messenger'}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
-        {...props}
-    >
-        <Alert
-            onClose={handleClose}
-            severity={snackbarMessages[0]?.severity || "info"}
-        >
-            {snackbarMessages[0]?.message}
-        </Alert>
-    </Snackbar>
+    const max_snacks = 4
+
+    return <List>
+        {snackbarMessages.map((m, i) => i < max_snacks && <ListItem>
+            <Snackbar
+                key={m.key ?? `snackbar-messenger-${i}`}
+                open={open}
+                onClose={handleClose}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
+                autoHideDuration={5000}
+                {...props}
+            >
+                <Alert
+                    onClose={handleClose}
+                    severity={m.severity || "info"}
+                >
+                    {m.message}
+                </Alert>
+            </Snackbar>
+        </ListItem>)}
+    </List>
 }

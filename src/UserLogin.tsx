@@ -23,7 +23,7 @@ import ButtonGroup from "@mui/material/ButtonGroup";
 import {useSnackbarMessenger} from "./Components/SnackbarMessengerContext";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import Stack from "@mui/material/Stack";
-import {Configuration, User, UserRequest, UsersApi, ActivateApi}from "@galv/galv";
+import {User, UserRequest, UsersApi, ActivateApi}from "@galv/galv";
 import {AxiosError, AxiosResponse} from "axios";
 import Alert, {AlertColor} from "@mui/material/Alert";
 
@@ -36,6 +36,7 @@ function RegisterForm({onSuccess}: {onSuccess?: (data: AxiosResponse<User>, pass
     const [lastName, setLastName] = useState('')
     const [email, setEmail] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+    const [regErrors, setRegErrors] = useState<string[]>([])
 
     const clear_form = () => {
         setUsername('')
@@ -44,6 +45,7 @@ function RegisterForm({onSuccess}: {onSuccess?: (data: AxiosResponse<User>, pass
         setPassword('')
         setEmail('')
         setConfirmPassword('')
+        setRegErrors([])
     }
 
     const queryClient = useQueryClient()
@@ -68,27 +70,17 @@ function RegisterForm({onSuccess}: {onSuccess?: (data: AxiosResponse<User>, pass
                 },
                 onError: (error: AxiosError, variables, context) => {
                     console.error(error, {variables, context})
-                    const d = error.response?.data as SerializableObject
-                    const firstError = Object.entries(d)[0]
-                    postSnackbarMessage({
-                        message: <Stack>
-                            <span>{`Error registering new user  
-                        (HTTP ${error.response?.status} - ${error.response?.statusText}).`}</span>
-                            <span style={{fontWeight: "bold"}}>{`${firstError[0]}: ${firstError[1]}`}</span>
-                            {Object.keys(d).length > 1 && <span>+ {Object.keys(d).length - 1} more</span>}
-                        </Stack>,
-                        severity: 'error'
-                    })
+                    if (error.response?.data instanceof Object)
+                        setRegErrors(Object.values(error.response?.data as SerializableObject).map(s => String(s)))
+                    else
+                        setRegErrors(["An error occurred"])
                 },
             })
 
     const do_register = () => {
         if (username === "" || password === "" || email === "" || confirmPassword === "") return
         if (password !== confirmPassword) {
-            postSnackbarMessage({
-                message: `Password and password confirmation do not match`,
-                severity: 'error'
-            })
+            setRegErrors(["Password and Confirm Password do not match"])
             return
         }
         registration_mutation.mutate({
@@ -163,6 +155,9 @@ function RegisterForm({onSuccess}: {onSuccess?: (data: AxiosResponse<User>, pass
             onChange={(e) => setConfirmPassword(e.target.value)}
         />
         <Button onClick={do_register} fullWidth={true}>Register</Button>
+        <List>
+            {regErrors.map((e, i) => <ListItem key={i}><Alert severity="error">{e}</Alert></ListItem>)}
+        </List>
     </Box>
 }
 
@@ -248,7 +243,7 @@ export function Registration() {
             >
                 {value === index && (
                     <Box sx={{ p: 3 }}>
-                        <Typography>{children}</Typography>
+                        {children}
                     </Box>
                 )}
             </div>
@@ -291,7 +286,7 @@ export function Registration() {
 }
 
 export default function UserLogin() {
-    const {user, login, logout, loginFormOpen, setLoginFormOpen} = useCurrentUser()
+    const {user, login, last_login_error, logout, loginFormOpen, setLoginFormOpen} = useCurrentUser()
     const { classes } = UseStyles();
 
     const [username, setUsername] = useState('')
@@ -306,10 +301,13 @@ export default function UserLogin() {
     )
     const do_login = () => {
         if (username === "" || password === "") return
-        login(username, password)
-        setLoginFormOpen(false)
-        setUsername("")
-        setPassword("")
+        login(
+            username,
+            password,
+            (data) => {
+                !!data && setLoginFormOpen(false)
+            }
+        )
     }
 
     const MainButton = user?
@@ -418,6 +416,9 @@ export default function UserLogin() {
             }}
         >
             {popoverContent}
+            {last_login_error && <Alert severity="error">{
+                last_login_error.response?.data?.detail ?? "An error occurred"
+            }</Alert>}
         </Popover>}
         {MainButton}
     </Grid>

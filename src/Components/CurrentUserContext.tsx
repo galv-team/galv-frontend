@@ -13,7 +13,13 @@ export type LoginUser = Pick<KnoxUser, "token"> & User
 export interface ICurrentUserContext {
     user: LoginUser|null
     api_config: Configuration
-    login: (username: string, password: string) => void
+    login: (
+        username: string,
+        password: string,
+        onSuccess?: (data: AxiosResponse<KnoxUser>) => void,
+        onError?: (error: unknown) => void
+    ) => void
+    last_login_error: AxiosError|undefined
     logout: () => void
     refresh_user: () => void
     loginFormOpen: boolean
@@ -31,6 +37,9 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
     const [user, setUser] = useState<LoginUser|null>(local_user ?? null)
     const [username, setUsername] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+    const [onSuccess, setOnSuccess] = useState<((data: AxiosResponse<KnoxUser>) => void)|undefined>(undefined)
+    const [onError, setOnError] = useState<((error: unknown) => void)|undefined>(undefined)
+    const [lastError, setLastError] = useState<AxiosError|undefined>(undefined)
     const [loginFormOpen, setLoginFormOpen] = useState<boolean>(false)
 
     const {postSnackbarMessage} = useSnackbarMessenger()
@@ -43,13 +52,18 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
     })
     const api_handler = new LoginApi(get_config())
     const Login = useMutation<AxiosResponse<KnoxUser>, AxiosError, void>(
-        () => api_handler.loginCreate.bind(new LoginApi(get_config()))(),
+        () => {
+            setLastError(undefined)
+            return api_handler.loginCreate.bind(new LoginApi(get_config()))()
+        },
         {
             onSuccess: (data) => {
                 window.localStorage.setItem('user', JSON.stringify(data.data))
                 setUser(data.data as unknown as LoginUser)
                 queryClient.removeQueries({predicate: () => true})
-            }
+                onSuccess && onSuccess(data)
+            },
+            onError: setLastError
         }
     )
 
@@ -61,9 +75,16 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
         }
     }
 
-    const do_login = (username: string, password: string) => {
+    const do_login: ICurrentUserContext["login"] = (
+        username: string,
+        password: string,
+        onSuccess?: (data: AxiosResponse<KnoxUser>) => void,
+        onError?: (error: unknown) => void
+    ) => {
         setUsername(username)
         setPassword(password)
+        setOnSuccess(onSuccess)
+        setOnError(onError)
         setTimeout(() => Login.mutate(), 100)
     }
 
@@ -92,14 +113,22 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
         // 401 should log the user out and display a message
         (error) => {
             if (error.response?.status === 401) {
-                Logout()
-                postSnackbarMessage({
-                    message: <Stack direction="row" spacing={1}>
-                        You have been logged out.
-                        <Button onClick={() => setLoginFormOpen(true)}>Log in</Button>
-                    </Stack>,
-                    severity: 'warning'
-                })
+                // Failed logins should show incorrect username/password message
+                if (error.response.data.detail === 'Invalid username/password.') {
+                    postSnackbarMessage({
+                        message: 'Incorrect username or password',
+                        severity: 'error'
+                    })
+                } else if (user) {
+                    Logout()
+                    postSnackbarMessage({
+                        message: <Stack direction="row" spacing={1}>
+                            You have been logged out.
+                            <Button onClick={() => setLoginFormOpen(true)}>Log in</Button>
+                        </Stack>,
+                        severity: 'warning'
+                    })
+                }
             }
             return Promise.reject(error)
         }
@@ -109,6 +138,7 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
         value={{
             user,
             login: do_login,
+            last_login_error: lastError,
             logout: Logout,
             refresh_user: Refresh.refetch,
             loginFormOpen,
