@@ -34,6 +34,7 @@ import IntroText from "./Components/IntroText";
 import Box from "@mui/material/Box";
 import clsx from "clsx";
 import UseStyles from "./styles/UseStyles";
+import {ListQueryResult, useFetchResource} from "./Components/FetchResourceContext";
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -215,25 +216,8 @@ export function SchemaValidationList() {
 
 export function DatasetStatus() {
     const [open, setOpen] = useState(false)
-    // API handler
-    const {api_config} = useCurrentUser()
-    const api_handler = new FilesApi(api_config)
-    // Queries
-    const queryClient = useQueryClient()
-    const query = useQuery<AxiosResponse<PaginatedObservedFileList>, AxiosError>({
-        queryKey: [LOOKUP_KEYS.FILE, 'dashboard-list'],
-        queryFn: () => api_handler.filesList().then((r): typeof r => {
-            try {
-                // Update the cache for each resource
-                r.data.results?.forEach((resource: ObservedFile) => {
-                    queryClient.setQueryData([LOOKUP_KEYS.FILE, resource.id], {...r, data: resource})
-                })
-            } catch (e) {
-                console.error("Error updating cache from list data.", e)
-            }
-            return r
-        })
-    })
+    const {useListQuery} = useFetchResource()
+    const query = useListQuery(LOOKUP_KEYS.FILE) as ListQueryResult<ObservedFile>
 
     const state_to_status = (state: ObservedFile["state"]) => {
         switch (state) {
@@ -248,7 +232,7 @@ export function DatasetStatus() {
         }
     }
 
-    const status_counts = query.data && query.data.data.results?.reduce(
+    const status_counts = query.results && query.results.reduce(
         (a, b) => {
             const status = state_to_status(b.state)
             if (a[status] === undefined)
@@ -274,7 +258,7 @@ export function DatasetStatus() {
         </List>
     }
 
-    const files_needing_input = query.data?.data.results?.filter(f => f.state === "AWAITING MAP ASSIGNMENT")
+    const files_needing_input = query.results?.filter(f => f.state === "AWAITING MAP ASSIGNMENT")
 
     return <Container maxWidth="lg">
         {query.isInitialLoading? "Loading..." : <Card>
