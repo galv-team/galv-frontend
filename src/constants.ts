@@ -117,6 +117,8 @@ export const key_to_type = (k: unknown): TypeChangerAutocompleteKey|TypeChangerL
     throw new Error(`key_to_type: ${k} is not a valid key`)
 }
 
+export const DEFAULT_FETCH_LIMIT = 10
+
 /**
  * This is a list of various resources grouped under a common name for each
  * resource type.

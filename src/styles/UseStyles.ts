@@ -352,6 +352,12 @@ export default makeStyles()((theme) => {
       width: "80%",
       minWidth: "500px",
       placeSelf: "center",
+    },
+    paginationBar: {
+      width: "100%",
+      display: "flex",
+      justifyContent: "flex-end",
+      alignItems: "center",
     }
   }
 });

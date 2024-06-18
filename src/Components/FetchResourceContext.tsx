@@ -3,7 +3,7 @@ import {useCurrentUser} from "./CurrentUserContext";
 import {
     API_HANDLERS,
     API_SLUGS,
-    AutocompleteKey,
+    AutocompleteKey, DEFAULT_FETCH_LIMIT,
     DISPLAY_NAMES,
     is_lookup_key,
     LookupKey
@@ -59,7 +59,8 @@ type DeleteOptions<T extends BaseResource> = {
 export interface IFetchResourceContext {
     // Returns null when lookup_key is undefined. Otherwise, returns undefined until data are fetched, then T[]
     useListQuery: <T extends BaseResource>(
-        lookup_key: LookupKey|AutocompleteKey|undefined
+        lookup_key: LookupKey|AutocompleteKey|undefined,
+        limit?: number
     ) => ListQueryResult<T>
     useRetrieveQuery: <T extends BaseResource>(
         lookup_key: LookupKey,
@@ -101,7 +102,7 @@ export default function FetchResourceContextProvider({children}: {children: Reac
     }
 
     const useListQuery: IFetchResourceContext["useListQuery"] =
-        <T extends BaseResource,>(lookup_key: LookupKey|AutocompleteKey|undefined) => {
+        <T extends BaseResource,>(lookup_key: LookupKey|AutocompleteKey|undefined, limit: number = DEFAULT_FETCH_LIMIT) => {
             // API handler
             const {api_config} = useCurrentUser()
             const queryClient = useQueryClient()
@@ -113,7 +114,7 @@ export default function FetchResourceContextProvider({children}: {children: Reac
                     `${API_SLUGS[lookup_key]}List` as keyof typeof api_handler
                     ] as (limit?: number, offset?: number) => Promise<AxiosResponse<PaginatedAPIResponse<T>>>
                 // Queries
-                queryFn = (ctx) => get.bind(api_handler)(ctx.pageParam?.limit, ctx.pageParam?.offset).then(r => {
+                queryFn = (ctx) => get.bind(api_handler)(ctx.pageParam?.limit || limit, ctx.pageParam?.offset).then(r => {
                     try {
                         // Update the cache for each resource
                         r.data.results.forEach((resource) => {
