@@ -85,7 +85,9 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
                     className={clsx(classes.pageTitle, classes.text)}
                 >
                     {DISPLAY_NAMES_PLURAL[lookup_key]}
-                    {query.isLoading && query.isFetching && <CircularProgress sx={{color: (t) => t.palette.text.disabled, marginLeft: "1em"}} />}
+                    {query.isLoading &&
+                        query.isFetching &&
+                        <CircularProgress className={clsx(classes.inlineProgress)} size={20} />}
                 </Typography>
             </Grid>
             <IntroText k={lookup_key} />

@@ -358,6 +358,11 @@ export default makeStyles()((theme) => {
       display: "flex",
       justifyContent: "flex-end",
       alignItems: "center",
+    },
+    inlineProgress: {
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
+      color: theme.palette.text.disabled
     }
   }
 });

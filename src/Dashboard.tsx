@@ -35,6 +35,8 @@ import Box from "@mui/material/Box";
 import clsx from "clsx";
 import UseStyles from "./styles/UseStyles";
 import {ListQueryResult, useFetchResource} from "./Components/FetchResourceContext";
+import CircularProgress from "@mui/material/CircularProgress";
+import useStyles from "./styles/UseStyles";
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -218,6 +220,7 @@ export function DatasetStatus() {
     const [open, setOpen] = useState(false)
     const {useListQuery} = useFetchResource()
     const query = useListQuery(LOOKUP_KEYS.FILE) as ListQueryResult<ObservedFile>
+    const {classes} = useStyles()
 
     const state_to_status = (state: ObservedFile["state"]) => {
         switch (state) {
@@ -266,6 +269,7 @@ export function DatasetStatus() {
                 avatar={<LookupKeyIcon lookupKey={LOOKUP_KEYS.FILE} />}
                 title={DISPLAY_NAMES_PLURAL[LOOKUP_KEYS.FILE]}
                 action={<Stack direction="row" spacing={1} alignItems="center">
+                    {query.isFetching && <CircularProgress className={clsx(classes.inlineProgress)} size={20} />}
                     {status_counts &&
                         Object.entries(status_counts).map(([status, counts]) => <Tooltip
                             title={<TooltipContent status={status as ReturnType<typeof state_to_status>} />}
