@@ -21,9 +21,9 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import {useSnackbarMessenger} from "./Components/SnackbarMessengerContext";
-import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {useMutation, UseMutationResult, useQueryClient} from "@tanstack/react-query";
 import Stack from "@mui/material/Stack";
-import {User, UserRequest, UsersApi, ActivateApi, ForgotPasswordApi, ResetPasswordApi} from "@galv/galv";
+import {User, UserRequest, UsersApi, ActivateApi, ForgotPasswordApi, ResetPasswordApi, Configuration} from "@galv/galv";
 import {AxiosError, AxiosResponse} from "axios";
 import Alert, {AlertColor} from "@mui/material/Alert";
 
@@ -51,11 +51,11 @@ function RegisterForm({onSuccess}: {onSuccess?: (data: AxiosResponse<User>, pass
     const queryClient = useQueryClient()
     const {api_config} = useCurrentUser()
     const users_handler = new UsersApi(api_config)
-    const registration_mutation =
+    const registration_mutation: UseMutationResult<AxiosResponse<User>, AxiosError, UserRequest> =
         useMutation(
-            (data: UserRequest) => users_handler.usersCreate(data),
+            (data) => users_handler.usersCreate(data),
             {
-                onSuccess: (data: AxiosResponse<LoginUser>, variables, context) => {
+                onSuccess: (data, variables, context) => {
                     if (data === undefined) {
                         console.warn("No data in mutation response", {data, variables, context})
                         return
@@ -313,12 +313,14 @@ export function LoginForm() {
         )
     }
 
+    const config = new Configuration({basePath: process.env.VITE_GALV_API_BASE_URL})
+
     const request_reset = () => {
         if (email === "") {
             setResetStatus({severity: "error", content: "Please enter your email"})
             return
         }
-        new ForgotPasswordApi({basePath}).forgotPasswordCreate({email})
+        new ForgotPasswordApi(config).forgotPasswordCreate({email})
             .then(() => {
                 setResetStatus({severity: "success", content: "Token sent"})
             })
@@ -332,7 +334,7 @@ export function LoginForm() {
             setResetStatus({severity: "error", content: "Please enter your email, token, and new password"})
             return
         }
-        new ResetPasswordApi({basePath}).resetPasswordCreate({email, token, password})
+        new ResetPasswordApi(config).resetPasswordCreate({email, token, password})
             .then(() => {
                 setResetStatus({severity: "success", content: "Password reset"})
                 setToken("")
@@ -344,8 +346,6 @@ export function LoginForm() {
                 setResetStatus({severity: "error", content: e.response?.data?.error ?? "An error occurred"})
             })
     }
-
-    const basePath = process.env.VITE_GALV_API_BASE_URL
 
     return (<Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
