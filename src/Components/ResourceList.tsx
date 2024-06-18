@@ -2,7 +2,7 @@
 // Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
-import React, {ReactNode} from "react";
+import React, {ReactNode, useContext} from "react";
 import useStyles from "../styles/UseStyles";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -28,6 +28,7 @@ import {useFetchResource} from "./FetchResourceContext";
 import IntroText from "./IntroText";
 import ClientCodeDemo from "../ClientCodeDemo";
 import TablePagination from "@mui/material/TablePagination";
+import {FilterContext} from "./filtering/FilterContext";
 
 export type ResourceListProps = {
     lookup_key: LookupKey
@@ -39,10 +40,14 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
 
     const {setLoginFormOpen, user} = useCurrentUser()
 
+    const {passesFilters} = useContext(FilterContext)
+
     const [page, setPage] = React.useState(0)
     const [itemsPerPage, setItemsPerPage] = React.useState(DEFAULT_FETCH_LIMIT)
 
     const query = useListQuery<T>(lookup_key, itemsPerPage)
+
+    let results = query.results ?? []
 
     let content: ReactNode
 
@@ -54,15 +59,16 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
         else
             content = <p>No {DISPLAY_NAMES_PLURAL[lookup_key].toLowerCase()} on the server are visible for this account.</p>
     } else if (query.results) {
-        content = query.results
+        results = query.results
+            .filter(r => passesFilters({apiResource: r}, lookup_key))  // todo: family filters
             .filter((r, i) => i >= (page * itemsPerPage) && i < ((page + 1) * itemsPerPage))
-            .map(
-                (resource: T, i) => <ResourceCard
-                    key={`resource_${i}`}
-                    resource_id={resource.id as string ?? resource.id as number}
-                    lookup_key={lookup_key}
-                />
-            )
+        content = results.map(
+            (resource: T, i) => <ResourceCard
+                key={`resource_${i}`}
+                resource_id={resource.id as string ?? resource.id as number}
+                lookup_key={lookup_key}
+            />
+        )
     } else {
         content = "No resources to show."
     }
@@ -99,7 +105,7 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
                     <CircularProgress sx={{color: (t) => t.palette.text.disabled, fontSize: "small"}} />}
                 <TablePagination
                     component="div"
-                    count={query.results?.length ?? 0}
+                    count={results.length ?? 0}
                     page={page}
                     onPageChange={(e, newPage) => setPage(newPage)}
                     rowsPerPageOptions={[3, 5, 10, 25, 50, { value: -1, label: 'All' }]}
