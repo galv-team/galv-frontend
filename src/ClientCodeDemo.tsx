@@ -15,7 +15,7 @@ import python from "./client_templates/python.py?raw";
 import matlab from "./client_templates/matlab.m?raw";
 import julia from "./client_templates/julia.jl?raw";
 import {useFetchResource} from "./Components/FetchResourceContext";
-import {LOOKUP_KEYS} from "./constants";
+import {DEFAULT_FETCH_LIMIT, LOOKUP_KEYS} from "./constants";
 
 export type ClientCodeSupportedLanguage =
     "python" |
@@ -28,12 +28,13 @@ const templates: Record<ClientCodeSupportedLanguage, string> = {
     "julia": julia
 }
 
-function DatasetSelector({selectedDatasetIds, setSelectedDatasetIds}: {
+function DatasetSelector({selectedDatasetIds, setSelectedDatasetIds, fileQueryLimit}: {
     selectedDatasetIds: string[],
-    setSelectedDatasetIds: (ids: string[]) => void
+    setSelectedDatasetIds: (ids: string[]) => void,
+    fileQueryLimit?: number
 }) {
     const { useListQuery } = useFetchResource();
-    const query = useListQuery(LOOKUP_KEYS.FILE)
+    const query = useListQuery(LOOKUP_KEYS.FILE, fileQueryLimit ?? DEFAULT_FETCH_LIMIT)
 
     if (query.isInitialLoading) {
         return <p>Loading...</p>
@@ -63,7 +64,7 @@ function DatasetSelector({selectedDatasetIds, setSelectedDatasetIds}: {
     }
 }
 
-export default function ClientCodeDemo() {
+export default function ClientCodeDemo(props: {fileQueryLimit?: number}) {
     const {user} = useCurrentUser()
     const [language, setLanguage] = useState<ClientCodeSupportedLanguage>("python")
     const [open, setOpen] = useState<boolean>(false)
@@ -99,7 +100,11 @@ export default function ClientCodeDemo() {
                             }
                         </Select>
                     </FormControl>
-                    <DatasetSelector selectedDatasetIds={dataset_ids} setSelectedDatasetIds={setDatasetIds} />
+                    <DatasetSelector
+                        selectedDatasetIds={dataset_ids}
+                        setSelectedDatasetIds={setDatasetIds}
+                        fileQueryLimit={props.fileQueryLimit}
+                    />
                     <CopyBlock
                         text={updateCode(templates[language])}
                         language={language}

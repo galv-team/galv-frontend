@@ -47,6 +47,9 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
 
     const query = useListQuery<T>(lookup_key, itemsPerPage)
 
+    if (query?.hasNextPage && !query.isFetchingNextPage)
+        query.fetchNextPage()
+
     let results = query.results ?? []
 
     let content: ReactNode
@@ -59,10 +62,12 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
         else
             content = <p>No {DISPLAY_NAMES_PLURAL[lookup_key].toLowerCase()} on the server are visible for this account.</p>
     } else if (query.results) {
+        // Reduce the result count for pagination to only those that pass filters
         results = query.results
             .filter(r => passesFilters({apiResource: r}, lookup_key))  // todo: family filters
+        content = results
             .filter((r, i) => i >= (page * itemsPerPage) && i < ((page + 1) * itemsPerPage))
-        content = results.map(
+            .map(
             (resource: T, i) => <ResourceCard
                 key={`resource_${i}`}
                 resource_id={resource.id as string ?? resource.id as number}
@@ -72,9 +77,6 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
     } else {
         content = "No resources to show."
     }
-
-    if (query?.hasNextPage && !query.isFetchingNextPage)
-        query.fetchNextPage()
 
     return (
         <Container maxWidth="lg">
@@ -92,7 +94,7 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
             </Grid>
             <IntroText k={lookup_key} />
             <Stack spacing={2} key="body">
-                {lookup_key === LOOKUP_KEYS.FILE && <ClientCodeDemo />}
+                {lookup_key === LOOKUP_KEYS.FILE && <ClientCodeDemo fileQueryLimit={itemsPerPage} />}
                 {content}
                 <ResourceCreator key={'creator'} lookup_key={lookup_key} />
                 {get_has_family(lookup_key) && <ResourceCreator key={'family_creator'} lookup_key={FAMILY_LOOKUP_KEYS[lookup_key]} />}
@@ -104,13 +106,13 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
                 sx={{paddingTop: (t) => t.spacing(1)}}
             >
                 {query.isFetching &&
-                    <CircularProgress sx={{color: (t) => t.palette.text.disabled, fontSize: "small"}} />}
+                    <CircularProgress className={clsx(classes.inlineProgress)} size={20} />}
                 <TablePagination
                     component="div"
                     count={results.length ?? 0}
                     page={page}
                     onPageChange={(e, newPage) => setPage(newPage)}
-                    rowsPerPageOptions={[3, 5, 10, 25, 50, { value: -1, label: 'All' }]}
+                    rowsPerPageOptions={[1, 3, 5, 10, 25, 50, { value: -1, label: 'All' }]}
                     rowsPerPage={itemsPerPage}
                     onRowsPerPageChange={(e) => setItemsPerPage(parseInt(e.target.value, 10))}
                     // todo: Custom pagination actions? https://mui.com/material-ui/react-table/#custom-pagination-actions
