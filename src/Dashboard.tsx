@@ -17,7 +17,7 @@ import ListItem from "@mui/material/ListItem";
 import Tooltip from "@mui/material/Tooltip";
 import {ResourceChip} from "./Components/ResourceChip";
 import Stack from "@mui/material/Stack";
-import React, {ReactNode, useState} from "react";
+import React, {ReactNode, useEffect, useState} from "react";
 import Button from "@mui/material/Button";
 import {useCurrentUser} from "./Components/CurrentUserContext";
 import List from "@mui/material/List";
@@ -37,6 +37,7 @@ import UseStyles from "./styles/UseStyles";
 import {ListQueryResult, useFetchResource} from "./Components/FetchResourceContext";
 import CircularProgress from "@mui/material/CircularProgress";
 import useStyles from "./styles/UseStyles";
+import Skeleton from "@mui/material/Skeleton";
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -222,6 +223,9 @@ export function DatasetStatus() {
     const query = useListQuery(LOOKUP_KEYS.FILE) as ListQueryResult<ObservedFile>
     const {classes} = useStyles()
 
+    if (query?.hasNextPage && !query.isFetchingNextPage)
+        query.fetchNextPage()
+
     const state_to_status = (state: ObservedFile["state"]) => {
         switch (state) {
             case "IMPORTED":
@@ -235,25 +239,25 @@ export function DatasetStatus() {
         }
     }
 
-    const status_counts = query.results && query.results.reduce(
-        (a, b) => {
-            const status = state_to_status(b.state)
-            if (a[status] === undefined)
-                a[status] = {[b.state]: 1}
-            else {
-                if (a[status]![b.state] === undefined)
-                    a[status]![b.state] = 1
-                else
-                    a[status]![b.state]!++
-            }
-            return a
-        },
-        {} as {[key in ReturnType<typeof state_to_status>]: {[key in ObservedFile["state"]]?: number}}
-    )
+    const statusCounts = query.results?.reduce(
+            (a, b) => {
+                const status = state_to_status(b.state)
+                if (a[status] === undefined)
+                    a[status] = {[b.state]: 1}
+                else {
+                    if (a[status]![b.state] === undefined)
+                        a[status]![b.state] = 1
+                    else
+                        a[status]![b.state]!++
+                }
+                return a
+            },
+            {} as Record<ReturnType<typeof state_to_status>, Partial<Record<ObservedFile["state"], number>>>
+        )
 
     const TooltipContent = ({status}: {status: ReturnType<typeof state_to_status>}) => {
         return <List>
-            {status_counts && Object.entries(status_counts[status]!).map(([state, count]) =>
+            {statusCounts && Object.entries(statusCounts[status]!).map(([state, count]) =>
                 <ListItem key={state}>
                     <ListItemText>{state}: {count}</ListItemText>
                 </ListItem>
@@ -264,14 +268,14 @@ export function DatasetStatus() {
     const files_needing_input = query.results?.filter(f => f.state === "AWAITING MAP ASSIGNMENT")
 
     return <Container maxWidth="lg">
-        {query.isInitialLoading? "Loading..." : <Card>
+        {query.isInitialLoading? <Skeleton height="4em" /> : <Card>
             <CardHeader
                 avatar={<LookupKeyIcon lookupKey={LOOKUP_KEYS.FILE} />}
                 title={DISPLAY_NAMES_PLURAL[LOOKUP_KEYS.FILE]}
                 action={<Stack direction="row" spacing={1} alignItems="center">
                     {query.isFetching && <CircularProgress className={clsx(classes.inlineProgress)} size={20} />}
-                    {status_counts &&
-                        Object.entries(status_counts).map(([status, counts]) => <Tooltip
+                    {statusCounts &&
+                        Object.entries(statusCounts).map(([status, counts]) => <Tooltip
                             title={<TooltipContent status={status as ReturnType<typeof state_to_status>} />}
                             key={status}
                             placement="left"
