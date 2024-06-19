@@ -54,7 +54,9 @@ function DatasetSelector({selectedDatasetIds, setSelectedDatasetIds, fileQueryLi
                     }
                 >
                     {query.results.map((dataset) => (
-                        <MenuItem value={String(dataset.id)} key={String(dataset.id)}>{String(dataset.name)}</MenuItem>
+                        <MenuItem value={String(dataset.id)} key={String(dataset.id)}>
+                            {String(dataset.name ?? dataset.path ?? dataset.id)}
+                        </MenuItem>
                     ))}
                 </Select>
             </FormControl>
