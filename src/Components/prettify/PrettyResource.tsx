@@ -34,9 +34,15 @@ export const PrettyResourceSelect = <T extends BaseResource>(
 
     const query = useListQuery<T>(lookup_key)
 
+    if (query?.hasNextPage && !query.isFetchingNextPage)
+        query.fetchNextPage()
+
     const family_lookup_key = Object.keys(FAMILY_LOOKUP_KEYS).includes(lookup_key)?
         FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS] : undefined
     const family_query = useListQuery<BaseResource>(family_lookup_key)
+
+    if (family_query?.hasNextPage && !family_query.isFetchingNextPage)
+        family_query.fetchNextPage()
 
     const [url, setUrl] = useState<string>("")
     const [open, setOpen] = React.useState(false);

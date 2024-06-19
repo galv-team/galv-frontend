@@ -175,6 +175,9 @@ function SelectColumnType(
     const {classes} = useStyles();
     const [createModalOpen, setCreateModalOpen] = useState(false)
 
+    if (results?.hasNextPage && !results.isFetchingNextPage)
+        results.fetchNextPage()
+
     // Sort the ColumnType array
     const sortedData = results?.sort((a, b) => {
         if (a.is_required && !b.is_required) return -1;
@@ -562,7 +565,7 @@ function MappingManager(
     })
     const {classes} = useStyles()
     const {useListQuery, useCreateQuery, useUpdateQuery, useDeleteQuery} = useFetchResource()
-    const {results: columns} = useListQuery<ColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
+    const col_query = useListQuery<ColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
     const [more, setMore] = React.useState(false)
     const [advancedPropertiesOpen, setAdvancedPropertiesOpen] = React.useState(false)
     const [mapping, setMapping] = useState<DB_MappingResource>(
@@ -590,6 +593,11 @@ function MappingManager(
     )
     const deleteMapMutation = useDeleteQuery<DB_MappingResource>(LOOKUP_KEYS.MAPPING)
     const deleteMap = (data: DB_MappingResource) => deleteMapMutation.mutate(data, {onSuccess: () => navigate(0)})
+
+    if (col_query?.hasNextPage && !col_query.isFetchingNextPage)
+        col_query.fetchNextPage()
+
+    const columns = col_query?.results
 
     // Summary data with children in array form
     const array_summary: Record<string, (string|number|boolean)[]> = {}
