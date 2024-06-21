@@ -95,7 +95,7 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
         queryFn: () => {
             if (!user) return
             const api = new API_HANDLERS[LOOKUP_KEYS.USER](api_config)
-            return api.usersRetrieve(user.id)
+            return api.usersRetrieve({id: user.id})
                 .then((response: AxiosResponse<User>) => {
                     const local_user: LoginUser | null = JSON.parse(local_user_string || 'null')
                     setUser({...local_user, ...response.data} as LoginUser)

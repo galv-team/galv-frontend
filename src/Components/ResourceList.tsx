@@ -45,7 +45,7 @@ export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListP
     const [page, setPage] = React.useState(0)
     const [itemsPerPage, setItemsPerPage] = React.useState(DEFAULT_FETCH_LIMIT)
 
-    const query = useListQuery<T>(lookup_key, itemsPerPage)
+    const query = useListQuery<T>(lookup_key, {limit: itemsPerPage})
 
     if (query?.hasNextPage && !query.isFetchingNextPage)
         query.fetchNextPage()

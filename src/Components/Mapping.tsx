@@ -171,12 +171,14 @@ function SelectColumnType(
         {selected_id: number|null, setSelected: (s?: ColumnType) => void, reset_name: string}
 ) {
     const {useListQuery} = useFetchResource()
-    const {results} = useListQuery<ColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
+    const query = useListQuery<ColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
     const {classes} = useStyles();
     const [createModalOpen, setCreateModalOpen] = useState(false)
 
-    if (results?.hasNextPage && !results.isFetchingNextPage)
-        results.fetchNextPage()
+    if (query?.hasNextPage && !query.isFetchingNextPage)
+        query.fetchNextPage()
+
+    const results = query.results
 
     // Sort the ColumnType array
     const sortedData = results?.sort((a, b) => {
@@ -917,7 +919,7 @@ export function Mapping() {
     const applicableMappingsQuery = useQuery<AxiosResponse<DB_MappingResource[]>, AxiosError>(
         ["applicable_mappings", file?.id],
         async () => {
-            const data = await fileApiHandler.filesApplicableMappingsRetrieve(file!.id)
+            const data = await fileApiHandler.filesApplicableMappingsRetrieve({id: file!.id})
             queryClient.setQueryData(["applicable_mappings", file!.id], data)
             const content = data.data as unknown as {mapping: DB_MappingResource, missing: number}[]
             return {
@@ -932,7 +934,7 @@ export function Mapping() {
     const summaryQuery = useQuery<AxiosResponse<Record<string, Record<string, string|number>>>, AxiosError>(
         ["summary", file?.id],
         async () => {
-            const data = await fileApiHandler.filesSummaryRetrieve(file!.id)
+            const data = await fileApiHandler.filesSummaryRetrieve({id: file!.id})
             queryClient.setQueryData(["summary", file!.id], data)
             return data as unknown as AxiosResponse<Record<string, Record<string, string|number>>>
         },

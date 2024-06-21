@@ -8,7 +8,7 @@
     "@canvasjs/react-charts": "^1.0.0",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
-    "@galv/galv": "2.1.43",
+    "@galv/galv": "2.1.44",
     "@mui/base": "5.0.0-beta.33",
     "@mui/icons-material": "^5.10.15",
     "@mui/lab": "^5.0.0-alpha.109",

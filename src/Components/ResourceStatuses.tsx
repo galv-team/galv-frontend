@@ -115,7 +115,9 @@ export default function ResourceStatuses({lookup_key}: {lookup_key: LookupKey}) 
     const applicableMappingsQuery = useQuery<AxiosResponse<DB_MappingResource[]>, AxiosError>(
         ["applicable_mappings", apiResource?.id],
         async () => {
-            const data = await fileApiHandler.filesApplicableMappingsRetrieve(apiResource!.id as string)
+            const data = await fileApiHandler.filesApplicableMappingsRetrieve(
+                {id: apiResource!.id as string}
+            )
             queryClient.setQueryData(["applicable_mappings", apiResource!.id], data)
             const content = data.data as unknown as {mapping: DB_MappingResource, missing: number}[]
             return {

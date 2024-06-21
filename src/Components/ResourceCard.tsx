@@ -20,7 +20,7 @@ import QueryWrapper, {QueryDependentElement} from "./QueryWrapper";
 import {AxiosError, AxiosResponse} from "axios";
 import Divider, {DividerProps} from "@mui/material/Divider";
 import {
-    API_HANDLERS,
+    API_HANDLERS, API_HANDLERS_FP,
     API_SLUGS,
     AutocompleteKey,
     CHILD_LOOKUP_KEYS,
@@ -62,6 +62,7 @@ import Typography from "@mui/material/Typography";
 import {Theme} from "@mui/material/styles";
 import ResourceStatuses from "./ResourceStatuses";
 import AuthImage from "./AuthImage";
+import {Axios} from "./FetchResourceContext";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
@@ -138,14 +139,18 @@ function ResourceCard<T extends BaseResource>(
     // Mutations for saving edits
     const {postSnackbarMessage} = useSnackbarMessenger()
     const {api_config} = useCurrentUser()
-    const api_handler = new API_HANDLERS[lookup_key](api_config)
+    // used to get config in axios call
+    const api_skeleton =
+        (new API_HANDLERS[lookup_key](api_config)) as unknown as {axios: Axios, basePath: string}
+    const api_handler = API_HANDLERS_FP[lookup_key](api_config)
     const patch = api_handler[
         `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
-        ] as (id: string, data: SerializableObject) => Promise<AxiosResponse<T>>
+        ] as (id: string, data: Partial<T>) => Promise<(axios: Axios, basePath: string) => Promise<AxiosResponse<T>>>
     const queryClient = useQueryClient()
     const update_mutation =
-        useMutation<AxiosResponse<T>, AxiosError, SerializableObject>(
-            (data: SerializableObject) => patch.bind(api_handler)(String(resource_id), data),
+        useMutation<AxiosResponse<T>, AxiosError, Partial<T>>(
+            (data: Partial<T>) => patch(String(resource_id), data)
+                .then((request) => request(api_skeleton.axios, api_skeleton.basePath)),
             {
                 onSuccess: (data, variables, context) => {
                     if (data === undefined) {
@@ -158,7 +163,7 @@ function ResourceCard<T extends BaseResource>(
                 },
                 onError: (error, variables, context) => {
                     console.error(error, {variables, context})
-                    const d = error.response?.data as SerializableObject
+                    const d = error.response?.data as Partial<T>
                     const firstError = Object.entries(d)[0]
                     postSnackbarMessage({
                         message: <Stack>
@@ -195,7 +200,7 @@ function ResourceCard<T extends BaseResource>(
         undoable={UndoRedo.can_undo}
         redoable={UndoRedo.can_redo}
         onEditSave={() => {
-            update_mutation.mutate(UndoRedo.current)
+            update_mutation.mutate(UndoRedo.current as Partial<T>)
             return true
         }}
         onEditDiscard={() => {
@@ -210,8 +215,8 @@ function ResourceCard<T extends BaseResource>(
                 return
             const destroy = api_handler[
                 `${API_SLUGS[lookup_key]}Destroy` as keyof typeof api_handler
-                ] as (id: string) => Promise<AxiosResponse<T>>
-            destroy.bind(api_handler)(String(resource_id))
+                ] as (requestParams: {id: string}) => Promise<AxiosResponse<T>>
+            destroy.bind(api_handler)({id: String(resource_id)})
                 .then(() => {
                     queryClient.invalidateQueries([lookup_key, 'list'])
                     if (lookup_key === LOOKUP_KEYS.LAB) {
@@ -240,8 +245,8 @@ The file will be added to the Harvester's usual queue for processing.
                 return;
             const reimport = api_handler[
                 `${API_SLUGS[lookup_key]}ReimportRetrieve` as keyof typeof api_handler
-                ] as (id: string) => Promise<AxiosResponse<T>>
-            reimport.bind(api_handler)(String(resource_id))
+                ] as (requestParams: {id: string}) => Promise<AxiosResponse<T>>
+            reimport.bind(api_handler)({id: String(resource_id)})
                 .then(() => queryClient.invalidateQueries([lookup_key, resource_id]))
                 .catch(e => {
                     postSnackbarMessage({

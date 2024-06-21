@@ -65,6 +65,35 @@ import {
     ColumnMappingsApi,
     GalvStorageApi,
     AdditionalStorageApi,
+    CellChemistriesApiFp,
+    CellFamiliesApiFp,
+    CellFormFactorsApiFp,
+    CellManufacturersApiFp,
+    CellModelsApiFp,
+    CellsApiFp,
+    CyclerTestsApiFp,
+    EquipmentApiFp,
+    EquipmentFamiliesApiFp,
+    EquipmentManufacturersApiFp,
+    EquipmentModelsApiFp,
+    EquipmentTypesApiFp,
+    ExperimentsApiFp,
+    FilesApiFp,
+    HarvestersApiFp,
+    LabsApiFp,
+    MonitoredPathsApiFp,
+    ParquetPartitionsApiFp,
+    ScheduleFamiliesApiFp,
+    ScheduleIdentifiersApiFp,
+    SchedulesApiFp,
+    TeamsApiFp,
+    TokensApiFp,
+    UsersApiFp,
+    ValidationSchemasApiFp,
+    ArbitraryFilesApiFp, ColumnTypesApiFp, UnitsApiFp,
+    ColumnMappingsApiFp,
+    GalvStorageApiFp,
+    AdditionalStorageApiFp,
 } from "@galv/galv";
 import {
     TypeChangerAutocompleteKey,
@@ -332,8 +361,55 @@ export const DISPLAY_NAMES_PLURAL = {
 } as const
 
 /**
+ * API slugs for each resource type.
+ * Used to access the inner API functions.
+ *
+ * Casting is likely to be necessary when using this, e.g.:
+ * ```
+ * const target_get = target_api_handler[
+ *         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
+ *         ] as (requestParams: {id: string}) => Promise<AxiosResponse<T>>
+ * ```
+ */
+export const API_SLUGS = {
+    [LOOKUP_KEYS.HARVESTER]: "harvesters",
+    [LOOKUP_KEYS.PATH]: "monitoredPaths",
+    [LOOKUP_KEYS.PARQUET_PARTITION]: "parquetPartitions",
+    [LOOKUP_KEYS.FILE]: "files",
+    [LOOKUP_KEYS.MAPPING]: "columnMappings",
+    [LOOKUP_KEYS.COLUMN_FAMILY]: "columnTypes",
+    [LOOKUP_KEYS.UNIT]: "units",
+    [LOOKUP_KEYS.CELL]: "cells",
+    [LOOKUP_KEYS.EQUIPMENT]: "equipment",
+    [LOOKUP_KEYS.SCHEDULE]: "schedules",
+    [LOOKUP_KEYS.CELL_FAMILY]: "cellFamilies",
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "equipmentFamilies",
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: "scheduleFamilies",
+    [LOOKUP_KEYS.EXPERIMENT]: "experiments",
+    [LOOKUP_KEYS.CYCLER_TEST]: "cyclerTests",
+    [LOOKUP_KEYS.ARBITRARY_FILE]: "arbitraryFiles",
+    [LOOKUP_KEYS.VALIDATION_SCHEMA]: "validationSchemas",
+    [LOOKUP_KEYS.LAB]: "labs",
+    [LOOKUP_KEYS.TEAM]: "teams",
+    [LOOKUP_KEYS.USER]: "users",
+    [LOOKUP_KEYS.TOKEN]: "tokens",
+    [LOOKUP_KEYS.GALV_STORAGE]: "galvStorage",
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "additionalStorage",
+    [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: "cellManufacturers",
+    [AUTOCOMPLETE_KEYS.CELL_MODEL]: "cellModels",
+    [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: "cellFormFactors",
+    [AUTOCOMPLETE_KEYS.CELL_CHEMISTRY]: "cellChemistries",
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE]: "equipmentTypes",
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: "equipmentManufacturers",
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: "equipmentModels",
+    [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: "scheduleIdentifiers",
+} as const
+
+/**
  * API handlers for each resource type.
  * Instantiated with new API_HANDLERS[lookup_key]().
+ * 
+ * Used when we don't know the order of the arguments to the API function.
  */
 export const API_HANDLERS = {
     [LOOKUP_KEYS.HARVESTER]: HarvestersApi,
@@ -370,48 +446,43 @@ export const API_HANDLERS = {
 } as const
 
 /**
- * API slugs for each resource type.
- * Used to access the inner API functions.
- *
- * Casting is likely to be necessary when using this, e.g.:
- * ```
- * const target_get = target_api_handler[
- *         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
- *         ] as (id: string) => Promise<AxiosResponse<T>>
- * ```
+ * API Functional Interface for each resource type.
+ * Instantiated with new API_HANDLERS[lookup_key]().
+ * 
+ * This is used when we don't know the name of the parameters we want to set.
  */
-export const API_SLUGS = {
-    [LOOKUP_KEYS.HARVESTER]: "harvesters",
-    [LOOKUP_KEYS.PATH]: "monitoredPaths",
-    [LOOKUP_KEYS.PARQUET_PARTITION]: "parquetPartitions",
-    [LOOKUP_KEYS.FILE]: "files",
-    [LOOKUP_KEYS.MAPPING]: "columnMappings",
-    [LOOKUP_KEYS.COLUMN_FAMILY]: "columnTypes",
-    [LOOKUP_KEYS.UNIT]: "units",
-    [LOOKUP_KEYS.CELL]: "cells",
-    [LOOKUP_KEYS.EQUIPMENT]: "equipment",
-    [LOOKUP_KEYS.SCHEDULE]: "schedules",
-    [LOOKUP_KEYS.CELL_FAMILY]: "cellFamilies",
-    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "equipmentFamilies",
-    [LOOKUP_KEYS.SCHEDULE_FAMILY]: "scheduleFamilies",
-    [LOOKUP_KEYS.EXPERIMENT]: "experiments",
-    [LOOKUP_KEYS.CYCLER_TEST]: "cyclerTests",
-    [LOOKUP_KEYS.ARBITRARY_FILE]: "arbitraryFiles",
-    [LOOKUP_KEYS.VALIDATION_SCHEMA]: "validationSchemas",
-    [LOOKUP_KEYS.LAB]: "labs",
-    [LOOKUP_KEYS.TEAM]: "teams",
-    [LOOKUP_KEYS.USER]: "users",
-    [LOOKUP_KEYS.TOKEN]: "tokens",
-    [LOOKUP_KEYS.GALV_STORAGE]: "galvStorage",
-    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "additionalStorage",
-    [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: "cellManufacturers",
-    [AUTOCOMPLETE_KEYS.CELL_MODEL]: "cellModels",
-    [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: "cellFormFactors",
-    [AUTOCOMPLETE_KEYS.CELL_CHEMISTRY]: "cellChemistries",
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE]: "equipmentTypes",
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: "equipmentManufacturers",
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: "equipmentModels",
-    [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: "scheduleIdentifiers",
+export const API_HANDLERS_FP = {
+    [LOOKUP_KEYS.HARVESTER]: HarvestersApiFp,
+    [LOOKUP_KEYS.PATH]: MonitoredPathsApiFp,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: ParquetPartitionsApiFp,
+    [LOOKUP_KEYS.FILE]: FilesApiFp,
+    [LOOKUP_KEYS.MAPPING]: ColumnMappingsApiFp,
+    [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnTypesApiFp,
+    [LOOKUP_KEYS.UNIT]: UnitsApiFp,
+    [LOOKUP_KEYS.CELL_FAMILY]: CellFamiliesApiFp,
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: EquipmentFamiliesApiFp,
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: ScheduleFamiliesApiFp,
+    [LOOKUP_KEYS.EXPERIMENT]: ExperimentsApiFp,
+    [LOOKUP_KEYS.CYCLER_TEST]: CyclerTestsApiFp,
+    [LOOKUP_KEYS.CELL]: CellsApiFp,
+    [LOOKUP_KEYS.EQUIPMENT]: EquipmentApiFp,
+    [LOOKUP_KEYS.SCHEDULE]: SchedulesApiFp,
+    [LOOKUP_KEYS.ARBITRARY_FILE]: ArbitraryFilesApiFp,
+    [LOOKUP_KEYS.VALIDATION_SCHEMA]: ValidationSchemasApiFp,
+    [LOOKUP_KEYS.LAB]: LabsApiFp,
+    [LOOKUP_KEYS.TEAM]: TeamsApiFp,
+    [LOOKUP_KEYS.USER]: UsersApiFp,
+    [LOOKUP_KEYS.TOKEN]: TokensApiFp,
+    [LOOKUP_KEYS.GALV_STORAGE]: GalvStorageApiFp,
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: AdditionalStorageApiFp,
+    [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: CellManufacturersApiFp,
+    [AUTOCOMPLETE_KEYS.CELL_MODEL]: CellModelsApiFp,
+    [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: CellFormFactorsApiFp,
+    [AUTOCOMPLETE_KEYS.CELL_CHEMISTRY]: CellChemistriesApiFp,
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE]: EquipmentTypesApiFp,
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: EquipmentManufacturersApiFp,
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: EquipmentModelsApiFp,
+    [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: ScheduleIdentifiersApiFp,
 } as const
 
 
