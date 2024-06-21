@@ -805,51 +805,55 @@ export const get_is_family = (key: string|number): key is keyof typeof CHILD_PRO
 
 export const INTRODUCTIONS = {
     [LOOKUP_KEYS.HARVESTER]: `
-Harvesters are responsible for collecting data from external sources.
-Each harvester belongs to a [lab](${PATHS[LOOKUP_KEYS.LAB]}), and any team within that lab can set up a [monitored path](${PATHS[LOOKUP_KEYS.PATH]}) for it.
+Harvesters are specialized tools designed to gather data from external sources. 
+Each harvester is associated with a [lab](${PATHS[LOOKUP_KEYS.LAB]}), 
+and any team within that lab can configure a [monitored path](${PATHS[LOOKUP_KEYS.PATH]}) for it.
 
-Harvesters cannot be created here, but you can view and edit their settings.
+To create a new harvester, you can utilize a Python script on a computer with access to the desired data source. 
+Visit the [harvester repository](https://github.com/galv-team/galv-harvester) for detailed instructions on setting up and configuring harvesters. 
+You will need the following information:
 
-Harvesters are created and managed by running a Python script on a computer with access to the data source.
-See the [harvester repository](https://github.com/galv-team/galv-harvester) for more information on creating harvesters.
+1. Server URL: \`${process.env.VITE_GALV_API_BASE_URL}\`
+2. API token: Generate a new token in the [token section](${PATHS[LOOKUP_KEYS.TOKEN]})
 
-When creating a harvester, you will need to provide the server URL.
-The server URL for this instance is \`${process.env.VITE_GALV_API_BASE_URL}.\`
-
-You can see all the harvesters that belong to your [labs](${PATHS[LOOKUP_KEYS.LAB]}).
+Below, you can view all the harvesters that are associated with your [labs](${PATHS[LOOKUP_KEYS.LAB]}).
     `,
     [LOOKUP_KEYS.PATH]: `
-Monitored paths are responsible for collecting data from external sources.
-Paths are file paths on a computer running a [harvester](${PATHS[LOOKUP_KEYS.HARVESTER]}).
-Harvesters are owned by a lab, and any team member within that lab can set up a path for it.
+Monitored paths collect data from external sources via file paths on 
+[harvester-running](${PATHS[LOOKUP_KEYS.HARVESTER]}) computers. Lab members can set up paths for their lab's 
+harvesters. Matching files are added to the database when:
 
-As paths are crawled by the harvester, any files that match the path and regex will be added to the database.
-The harvester will _never_ collect hidden files (those starting with a dot).
-When a file maintains a stable size for a given period of time, its data content will be uploaded.
-The harvester will also monitor the path for new files, and upload them as they appear.
+1. They match the path and specified regex
+2. They're not hidden (don't start with a dot)
+3. Their size remains stable for the specified duration
 
-You can see all the paths that have been set up by your team.
+Harvesters continuously monitor paths, uploading new files as they appear.
+You can see all the paths that have been set up by your team below.
     `,
     [LOOKUP_KEYS.PARQUET_PARTITION]: `
 Parquet partitions are the individual partitions of a parquet file.
 They are created when a [file](${PATHS[LOOKUP_KEYS.FILE]}) is uploaded to the database.
     `,
     [LOOKUP_KEYS.FILE]: `
-Files are data files produced by battery cycler machines (or simulations of them).
+Files are data files produced by battery cyclers, simulations, or any combination of them.
 Files are collected when [harvesters](${PATHS[LOOKUP_KEYS.HARVESTER]}) crawl [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}).
 
-The data in each file is parsed and uploaded to the database.
+The data in each file is parsed either automatically if it matches one of the predefined [mapping](${PATHS[LOOKUP_KEYS.MAPPING]}) or manually with a prompt if a mapping is not found.
+Parsed files are then uploaded to the database, where metadata can be attached and the data can be downloaded.
 Files are required to have, at minimum, columns for "ElapsedTime_s", "Voltage_V", and "Current_A".
 
 You can see all the files that have been collected on [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}) created by your team.
     `,
     [LOOKUP_KEYS.COLUMN_FAMILY]: `
-Column types identify the type of data in a column of a [file](${PATHS[LOOKUP_KEYS.FILE]}).
+Column types serve as identifiers for the data type present in a specific column of a [file](${PATHS[LOOKUP_KEYS.FILE]}). 
+They establish a connection between a column and its corresponding [unit](${PATHS[LOOKUP_KEYS.UNIT]}), enabling accurate interpretation and analysis of the data.
 
-They associate a column with a [unit](${PATHS[LOOKUP_KEYS.UNIT]}).
+When new column types are added or existing ones are modified, the mapping selection for columns in the associated [file](${PATHS[LOOKUP_KEYS.FILE]}) is automatically updated. 
+This dynamic updating mechanism ensures that the column mappings remain aligned with the defined column types.
     `,
     [LOOKUP_KEYS.UNIT]: `
-Units are the units of measurement used in the data in a [file](${PATHS[LOOKUP_KEYS.FILE]}).
+Units represent the specific units of measurement employed to quantify and express the data contained within a [file](${PATHS[LOOKUP_KEYS.FILE]}). 
+These units provide the necessary context and scale for interpreting and understanding the numerical values present in the data.
     `,
     [LOOKUP_KEYS.CELL_FAMILY]: `
 Cell families are collections of [cells](${PATHS[LOOKUP_KEYS.CELL]}) that share some common properties.
@@ -857,187 +861,217 @@ Cell families are collections of [cells](${PATHS[LOOKUP_KEYS.CELL]}) that share 
 A [cell](${PATHS[LOOKUP_KEYS.CELL]}) will have all the properties of the family it belongs to, but it can override them if the property is declared on the cell itself.
     `,
     [LOOKUP_KEYS.CELL]: `
-Cells are the basic unit of a battery.
-Each [cycler test](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}) is performed on a single cell.
+Cells represent the fundamental instance of a battery within the Galv ecosystem. 
+Each [cycler test](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}) is conducted on a single cell.
 
-Cells are organised into [cell families](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}), which define their properties.
-Most properties of a cell are inherited from its family, but they can be overridden on the cell itself.
+Cells are organised into [cell families](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}), which define their shared properties and characteristics. 
+Most properties of an individual cell are inherited from its associated family, promoting consistency and standardization across related cells. 
+However, if necessary, these inherited properties can be overridden or customized at the individual cell level.
 
-For most cells, you'll probably only want to set the identifier and family.
+For the majority of cells, it is likely that only the identifier and family information will need to be specified. 
+This streamlined approach simplifies the process of managing and tracking individual cells while leveraging the inherited properties defined by their respective cell families.
     `,
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: `
-Equipment families are collections of [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) that share some common properties.
-
-[Equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) will have all the properties of the family it belongs to, but it can override them if the property is declared on the equipment itself.
+Equipment families serve as logical groupings for [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) resources that share common properties or characteristics. 
+They provide an organisational framework for managing and categorizing equipment within the Galv ecosystem.
+Each individual [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) resource inherits the properties defined by the equipment family it belongs to. 
+This inheritance mechanism ensures consistency and standardisation across related equipment resources.
+However, if a specific property is explicitly declared at the individual equipment level, it takes precedence and overrides the inherited value from the family. 
+This flexibility allows for customisation and accommodation of unique equipment characteristics or configurations when necessary.
     `,
     [LOOKUP_KEYS.EQUIPMENT]: `
-Equipment resources describe any and all pieces of equipment that are relevant to the battery [cycler tests](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}).
-This includes the cycler itself, but also any other equipment that is used to perform the test,
-for example a temperature chamber or a power supply.
+Equipment resources in the Galv ecosystem encompass a comprehensive description of all pieces of equipment relevant to battery [cycler tests](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}). 
+This includes not only the cycler itself but also any ancillary equipment utilized during the testing process, such as temperature chambers, power supplies, or other auxiliary devices.
 
-Equipment is organised into [equipment families](${PATHS[LOOKUP_KEYS.EQUIPMENT_FAMILY]}), which define their properties.
-Most properties of an equipment are inherited from its family, but they can be overridden on the equipment itself.
+These equipment resources are organized into [equipment families](${PATHS[LOOKUP_KEYS.EQUIPMENT_FAMILY]}), which define their shared properties and characteristics. 
+Most properties of an individual equipment resource are inherited from its associated family, ensuring consistency and standardisation. 
+However, if necessary, these inherited properties can be overridden or customized at the individual equipment level.
+
+By maintaining a centralized repository of equipment resources and their associated families, researchers can efficiently manage and track the various components involved in their cycler tests. 
+This organisational structure facilitates accurate documentation, reproducibility, and effective collaboration within the Galv platform.
     `,
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: `
-Schedule families are collections of [schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) that share some common properties.
+Schedule families are logical groupings of [schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) that share common properties or characteristics. 
+They serve as a organisational framework for managing and categorising schedules within the Galv ecosystem.
 
-[Schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) will have all the properties of the family it belongs to, but it can override them if the property is declared on the schedule itself.
+Each [schedule](${PATHS[LOOKUP_KEYS.SCHEDULE]}) inherits the properties defined by the schedule family it belongs to. 
+However, if a specific property is explicitly declared at the individual schedule level, it takes precedence and overrides the inherited value from the family.
 
-Schedule families' schedule templates can contain variables that are replaced with values when a schedule is created.
-Those variables can be set by variables in the schedule itself,
-in the [family](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}) of the cell being tested, 
-or in the individual [cell](${PATHS[LOOKUP_KEYS.CELL]}) being tested.
-The order of priority is cell (highest), cell family, schedule (lowest).
+Schedule families define schedule templates that can contain variables. 
+These variables are dynamically replaced with specific values when a schedule is created and applied to a cycler test. 
+The values used to replace these variables can be derived from multiple sources, following a predefined order of priority:
+
+1. Individual [cell](${PATHS[LOOKUP_KEYS.CELL]}) being tested (highest priority)
+2. [Family](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}) of the cell being tested
+3. Individual schedule (lowest priority)
+
+This hierarchical variable replacement mechanism ensures that the most specific and relevant values are used for each cycler test, while maintaining a consistent and organised structure defined by the schedule families and templates.
+
+By leveraging schedule families and their templates, researchers can efficiently manage and customize testing procedures, while ensuring standardisation and reproducibility across related experiments within the Galv platform.
     `,
     [LOOKUP_KEYS.SCHEDULE]: `
-Schedules are the instructions for a battery [cycler test](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}).
-They define the pattern of charging and discharging, and the ambient temperature.
+Schedules serve as the instructions that govern the execution of battery [cycler tests](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}). 
+They define the specific pattern of charging and discharging cycles, as well as the ambient temperature conditions under which the tests are conducted.
 
-Schedules are organised into [schedule families](${PATHS[LOOKUP_KEYS.SCHEDULE_FAMILY]}), which define their properties.
-Most properties of a schedule are inherited from its family, but they can be overridden on the schedule itself.
+Schedules are organized into [schedule families](${PATHS[LOOKUP_KEYS.SCHEDULE_FAMILY]}), which define their shared properties and characteristics. 
+Most properties of a schedule are inherited from its associated family, but they can be overridden or customized at the individual schedule level if necessary.
 
-Schedules can specify values for variables in their family's template.
-Those values can be overridden if the same variable is set in the [family](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}) of the cell being tested,
-or in the individual [cell](${PATHS[LOOKUP_KEYS.CELL]}) being tested.
+Additionally, schedules can specify values for variables defined within their families template. 
+These variable values can be further overridden or superseded by values set in the [family](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}) of the cell being tested or in the individual [cell](${PATHS[LOOKUP_KEYS.CELL]}) itself. 
+This hierarchical overriding mechanism allows for flexibility and customization while maintaining a consistent and organized structure.
+
+The ability to define and customize schedules, combined with the inheritance and overriding mechanisms, enables researchers to tailor testing procedures to specific experimental requirements or cell characteristics, while still maintaining a standardized and reproducible framework within the Galv ecosystem.
     `,
     [LOOKUP_KEYS.EXPERIMENT]: `
-Experiments are collections of [cycler tests](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}) that share some common properties.
+They serve as a logical grouping mechanism for related tests conducted under similar conditions or with shared objectives.
 
-Typically, a single experiment will be performed on a single cell family, 
-using a variety of different schedules that seek to characterise different properties of the cells.
+Typically, a single experiment is performed on a specific cell family, employing a variety of different [schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) designed to characterise and evaluate different properties or aspects of the cells under investigation.
 
-Experiments will group together the metadata (e.g. 
-[authors](${PATHS[LOOKUP_KEYS.USER]}), 
-[cells](${PATHS[LOOKUP_KEYS.CELL]}), 
-[schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}), 
-[equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]})) 
-of the tests they contain,
-alongside the actual data produced (see [files](${PATHS[LOOKUP_KEYS.FILE]})).
+Within an experiment, the metadata associated with the constituent tests is consolidated. 
+This includes information about the [authors](${PATHS[LOOKUP_KEYS.USER]}) involved, the specific [cells](${PATHS[LOOKUP_KEYS.CELL]}) tested, the [schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) employed, and the [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) utilised during the testing process. 
+Additionally, the actual data produced by these tests, in the form of [files](${PATHS[LOOKUP_KEYS.FILE]}), is also organised and associated with the respective experiment.
+
+By grouping related cycler tests into experiments, researchers can efficiently manage and analyze data from multiple tests conducted under similar conditions or with shared objectives. 
+This organizational structure facilitates collaboration, data sharing, and comprehensive analysis within the Galv platform.
     `,
     [LOOKUP_KEYS.CYCLER_TEST]: `
-Cycler tests are the basic unit of battery testing.
-Each test is performed on a single [cell](${PATHS[LOOKUP_KEYS.CELL]}), using a single [schedule](${PATHS[LOOKUP_KEYS.SCHEDULE]}).
-The test may also use multiple pieces of [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}).
-The tests describe the conditions under which the cell was tested, and the data produced by the test.
+Cycler tests represent the fundamental application of battery testing within the Galv ecosystem. 
+Each test is conducted on a single [cell](${PATHS[LOOKUP_KEYS.CELL]}) and follows a specific [schedule](${PATHS[LOOKUP_KEYS.SCHEDULE]}) that outlines the testing parameters and procedures. 
+Additionally, a cycler test may involve the use of multiple pieces of [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}, such as cyclers, temperature chambers, or other auxiliary devices.
 
-Cycler tests can be grouped into [experiments](${PATHS[LOOKUP_KEYS.EXPERIMENT]}).
+The cycler test encapsulates the conditions under which the cell was tested, as well as the resulting data generated during the testing process. 
+These tests provide a comprehensive record of the experimental setup, testing parameters, and the acquired data, ensuring traceability and reproducibility.
+
+Furthermore, cycler tests can be logically grouped into [experiments](${PATHS[LOOKUP_KEYS.EXPERIMENT]}), allowing researchers to organise and manage related tests under a common umbrella. 
+This hierarchical structure facilitates efficient data management, analysis, and collaboration within the Galv platform.
     `,
     [LOOKUP_KEYS.ARBITRARY_FILE]: `
-Attachments are files that are relevant to the battery testing process, but are not produced by the cycler.
-They may be used to store the protocol for an experiment, or the datasheet for a piece of equipment.
+Attachments are files that are related to the battery testing process but are not directly generated by the cycling equipment itself. 
+These files can serve various purposes, such as storing experimental protocols, equipment datasheets, or any other supplementary information relevant to the testing procedures.
+
+By incorporating attachments, researchers can maintain a comprehensive record of all pertinent details associated with their battery experiments. 
+This includes detailed experimental protocols outlining the specific steps and parameters employed during the testing process, as well as technical specifications and datasheets for the equipment utilised.
+
+The ability to attach these supplementary files within the Galv ecosystem promotes transparency, reproducibility, and effective collaboration. 
+Researchers can easily share and access the necessary contextual information alongside the experimental data, facilitating a more comprehensive understanding of the testing conditions and methodologies employed.
     `,
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: `
-Validation schemas are used to validate the data in [files](${PATHS[LOOKUP_KEYS.FILE]}).
-They are also used to validate the metadata in the other resources.
+Validation schemas serve as powerful tools for ensuring the integrity and consistency of data within [files](${PATHS[LOOKUP_KEYS.FILE]}) and validating the metadata associated with other resources in the Galv ecosystem.
 
-Validation schemas are JSON schemas, and can be used to validate any JSON data.
+These validation schemas are defined using the JSON Schema specification, a widely adopted standard for describing and validating JSON data structures. 
+This flexible format enables the creation of schemas capable of validating any JSON data, regardless of its complexity or structure.
 
-By default, Galv applies a loose validation schema to all data, which ensures that the data is valid JSON.
-The schema checks that data has the minimal required columns of "time", "potential difference", and "current".
+By default, Galv applies a loose validation schema to all data, ensuring adherence to the fundamental requirement of being valid JSON. 
+Additionally, this default schema checks for the presence of the minimal required columns: "time", "potential difference", and "current" – essential columns for most battery cycling experiments and analyses.
+
+However, users have the flexibility to define and apply more stringent validation schemas tailored to their specific needs. 
+These custom schemas can enforce additional constraints, such as data types, value ranges, and complex relationships between different fields. 
+By applying these validation schemas, users can ensure that their data adheres to predefined standards and conventions, facilitating consistent and reliable analyses across different datasets.
     `,
     [LOOKUP_KEYS.LAB]: `
-Labs are the top-level organisational unit in Galv.
-Labs are collections of [teams](${PATHS[LOOKUP_KEYS.TEAM]}), which in turn contain all the resources in Galv.
+Labs are the top-level organizational units in Galv, composed of [teams](${PATHS[LOOKUP_KEYS.TEAM]}) that contain all resources. 
+Your lab membership is determined by your affiliation with teams within that lab. 
+Lab administrators can create new teams and manage existing team permissions, but cannot directly manage resources unless they are team members.
 
-You are a member of any lab that contains a team you are a member of.
+Labs house data from battery cycling experiments, which can be automatically collected by [harvesters](${PATHS[LOOKUP_KEYS.HARVESTER]}). 
+The collected data are stored in Galv's systems or an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}) managed by the lab, allowing flexibility for large datasets or specific storage requirements.
 
-Lab administrators can create new teams, and manage the permissions of existing teams.
-They cannot create or edit any other resources, unless they are also a member of a team.
-
-A Lab will have data from battery cycling experiments performed in that lab.
-This data can be automatically collected by [harvesters](${PATHS[LOOKUP_KEYS.HARVESTER]}).
-The data are stored in Galv's systems, 
-unless the lab has set up an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}).
-
-Metadata are stored in the Galv database, and can be opened up for collaboration within a Lab or between Labs.
+While raw data files are stored in designated locations, associated metadata is stored in Galv's database and can be opened for collaboration within or between labs, facilitating data sharing and collaborative research efforts.
+Proper management of lab structures, team memberships, and access permissions is crucial for maintaining a secure and efficient collaborative environment within the Galv ecosystem.
     `,
     [LOOKUP_KEYS.TEAM]: `
-Teams are the basic organisational unit in Galv.
-Teams are collections of [users](${PATHS[LOOKUP_KEYS.USER]}), and own the resources in Galv.
+Teams are the fundamental organisational units within the Galv platform. 
+They serve as collaborative spaces where [users](${PATHS[LOOKUP_KEYS.USER]}) can work together and manage shared resources.
+Each team is composed of a collection of users, and they collectively own and have control over the resources within Galv. 
+The team that owns a particular resource has the authority to alter its permissions and, if necessary, delete it.
 
-The team that owns a resource can alter its permissions, and can delete it.
+**Members** have the ability to view and edit all resources owned by the team, unless specific restrictions have been applied to certain resources. 
+This collaborative access allows team members to work seamlessly on shared projects and data.
 
-Teams have two groups of users: members and admins.
-Members can view and edit all resources owned by the team unless those resources have been restricted.
-Admins can do everything members can, and can also alter the permissions of the team.
+**Administrators**, on the other hand, possess additional privileges beyond those of regular members. 
+In addition to the viewing and editing capabilities, admins can also alter the team's permissions, granting or revoking access to resources as needed. 
+This level of control enables administrators to manage the team's structure, membership, and resource access effectively.
+
+It's important to note that team membership and roles should be carefully managed to ensure the appropriate level of access and collaboration within the Galv ecosystem. 
+Best practices include periodically reviewing team memberships, assigning roles based on project needs, and implementing access controls to protect sensitive data when necessary.
     `,
     [LOOKUP_KEYS.USER]: `
-Users are the people who use Galv.
-Each user has a username, email address, and password.
+Users are individuals who interact with and utilise the Galv platform. 
+Each user is identified by a unique username, an associated email address, and a secure password.
 
-Users can be members of multiple [teams](${PATHS[LOOKUP_KEYS.TEAM]}).
+One of the key features of Galv is its support for team-based collaboration. 
+Users can be members of multiple [teams](${PATHS[LOOKUP_KEYS.TEAM]}), enabling them to work together on projects, share resources, and coordinate efforts effectively.
 
-You can see and edit your own user details here.
+In this section, you can view and modify your own user details. 
+This includes updating your personal information, such as your email address or password, as well as managing your team memberships. 
+
+It's important to note that user accounts and associated information should be treated with care, as they grant access to sensitive data and resources within the Galv platform. 
+Best practices include using strong and unique passwords, and regularly reviewing and updating your user details to maintain a secure and reliable user experience.
     `,
     [LOOKUP_KEYS.TOKEN]: `
-Tokens are used to authenticate with Galv.
+Tokens can be created by users and are utilised for authenticating with Galv's API. 
+This allows programmatic access and integration with Galv's services. 
+Additionally, you'll see Browser session tokens, which are automatically generated when you log in to the Galv web interface, facilitating seamless authentication for your browser sessions.
 
-Tokens are created by users, and can be used to authenticate with Galv's API.
-You'll also see Browser session tokens which are created automatically when you log in.
+If you plan to interact with Galv's API, either through custom applications or scripts, you'll need to create a dedicated token. 
+These tokens act as secure credentials, granting authorized access to the API endpoints and enabling you to perform various operations programmatically.
 
-If you want to use the API, you'll need to create a token.
+It's important to note that tokens should be treated with care and kept confidential, as they grant access to your Galv account and associated resources. 
+Best practices include generating tokens with appropriate scopes and permissions, and revoking or regenerating them periodically to maintain a high level of security.
     `,
     [LOOKUP_KEYS.GALV_STORAGE]: `
-Storage is used for the harvested data files, attachments, and for the image previews of datasets.
+Storage in Galv is utilised for various purposes, including storing harvested data files, attachments, and generating image previews of datasets. 
+This storage functionality is essential for efficient data management and collaboration within the platform.
 
-Galv storage is the default storage resource in Galv.
-This storage is provided by the Galv server instance, and each lab is allocated a certain amount of storage.
+Galv provides a default storage resource, referred to as Galv storage. 
+This storage is hosted on the Galv server instance, and each lab is allocated a specific storage quota. 
+This default storage option offers a convenient and centralized solution for managing data within the Galv ecosystem.
 
-If you would prefer not to store files on the Galv server, 
-you can disable Galv storage and set up an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}).
+However, if you prefer not to store files on the Galv server, you have the option to disable Galv storage and set up an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}). 
+This alternative storage resource can be hosted and managed according to your specific requirements, providing greater flexibility and control over data storage.
 
-If you are at risk of exceeding your storage quota, 
-you can set up an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}) to store the excess data.
+In scenarios where you are at risk of exceeding your allocated storage quota on the Galv server, you can proactively set up an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}) to accommodate the excess data. 
+This approach ensures that you can seamlessly continue storing and managing your data without disruptions or limitations.
 
-The priority specifies the order in which the storage resources are used to store data.
-Higher numbers are used first.
+The priority setting determines the order in which the available storage resources are utilized for storing data. 
+Higher priority numbers are used first, allowing you to define the preferred storage location based on your specific needs and preferences.
     `,
     [LOOKUP_KEYS.ADDITIONAL_STORAGE]: `
-Storage is used for the harvested data files, attachments, and for the image previews of datasets.
+Storage is utilised for harvested data files, attachments, and image previews of datasets.
 
-Additional storage resources are used to data uploaded to Galv in a location managed by the Lab.
-You may want to use additional storage if you have a large amount of data to store, 
-or if you would prefer to store your data in a location you can administrate.
+Additional storage resources can be used for data uploaded to Galv, with the location managed by the Lab. 
+You may consider using additional storage if you have a large amount of data to store or if you prefer to store your data in a location you can administer directly.
 
-You can set a quota for the storage resource so that your teams do not 
-accidentally exceed any storage limits you may have.
+You have the option to set a quota for the storage resource, ensuring that your teams do not accidentally exceed any storage limits you may have in place.
 
-The priority specifies the order in which the storage resources are used to store data.
-Higher numbers are used first.
+The priority setting determines the order in which the storage resources are utilised for storing data. Higher priority numbers are used first.
     `,
     DASHBOARD: `
-The dashboard shows a summary of the resources that are relevant to you.
+The dashboard provides an overview of the resources pertinent to you and your teams. 
 
-It shows the [files](${PATHS[LOOKUP_KEYS.FILE]}) that have been collected on 
-[monitored paths](${PATHS[LOOKUP_KEYS.PATH]}) created by your [teams](${PATHS[LOOKUP_KEYS.TEAM]}),
-alongside an indication of their upload and validation status.
+It displays the [files](${PATHS[LOOKUP_KEYS.FILE]}) gathered from the [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}) 
+set up by your [teams](${PATHS[LOOKUP_KEYS.TEAM]}), along with their respective upload and validation statuses.
 
-You'll also see a list of the resources you are able to edit, 
-alongside an indication of their validation status.
+Additionally, the dashboard lists the resources you have permission to edit, accompanied by their validation statuses.
 
-If you see problems on your dashboard, you should check the relevant resource for more information.
+In the event you encounter any issues on your dashboard, you can investigate the relevant resource for more detailed information.
     `,
     MAPPING: `
-Mappings are used to map the columns in a [file](${PATHS[LOOKUP_KEYS.FILE]}) to recognised standard columns.
+Mappings are utilised to map the columns in a [file](${PATHS[LOOKUP_KEYS.FILE]}) to recognised standard columns. 
+This enables Galv to comprehend the data within the file and promotes homogeneity across datasets. 
+When a set of files employs the same column names to represent the same type of data, analyses can be performed across all the files.
 
-This allows Galv to understand the data in the file and encourages homogeneity across datasets.
-When a suite of files use the same column names to represent the same kind of data,
-analyses can be performed across all the files.
+Mappings can be automatically applied to files during the harvesting process by a [harvester](${PATHS[LOOKUP_KEYS.HARVESTER]}). 
+If there is a clear 'best mapping' for a file, it will be applied automatically. 
+However, if there are multiple equally suitable mappings, the user will need to choose a mapping or define a more appropriate one.
 
-Mappings can be automatically applied to files when they are harvested by 
-a [harvester](${PATHS[LOOKUP_KEYS.HARVESTER]}). 
-If there is a clear 'best mapping' for a file, it will be applied automatically.
-If there are multiple equally good mappings, the user will have to choose a mapping or define a better one.
-
-Mappings are ranked according to:
-- Whether they define the three key columns: "ElapsedTime_s", "Voltage_V", and "Current_A". 
+Mappings are ranked based on the following criteria:
+- Whether they define the three key columns: "ElapsedTime_s", "Voltage_V", and "Current_A".
 - Whether all the columns in the mapping are present in the file.
-- How many columns in the file are not in the mapping. Fewer is better.
+- The number of columns in the file that are not included in the mapping. Fewer unmatched columns are preferred.
 
-Applying the above criteria, the best mapping is chosen.
-A mapping will never be considered 'best' if it does not define the three key columns.
+By applying the above criteria, the best mapping is selected. A mapping will never be considered 'best' if it does not define the three key columns.
 
-Beware when creating mappings that you might create conflicts where two mappings are equally good.
-If this happens, all affected files will need manual disambiguation to choose the correct mapping. 
+When creating mappings, be cautious of potential conflicts where two mappings are equally suitable. In such cases, all affected files will require manual disambiguation to choose the correct mapping.
     `,
 } as const
