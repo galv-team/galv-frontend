@@ -13,6 +13,7 @@ import {FilterContextProvider} from "../Components/filtering/FilterContext";
 import {MemoryRouter} from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import FetchResourceContextProvider from "../Components/FetchResourceContext";
+import AttachmentUploadContextProvider from "../Components/AttachmentUploadContext";
 
 jest.mock('../Components/CardActionBar')
 jest.mock('../Components/prettify/PrettyObject')
@@ -40,7 +41,9 @@ it('renders', async () => {
             <QueryClientProvider client={queryClient}>
                 <FetchResourceContextProvider>
                     <FilterContextProvider>
-                        <ResourceCreator lookup_key={LOOKUP_KEYS.CELL} />
+                        <AttachmentUploadContextProvider>
+                            <ResourceCreator lookup_key={LOOKUP_KEYS.CELL} />
+                        </AttachmentUploadContextProvider>
                     </FilterContextProvider>
                 </FetchResourceContextProvider>
             </QueryClientProvider>

@@ -111,7 +111,7 @@ const api_data: {
             write: true,
             create: false
         },
-        nominal_voltage: 3.7
+        nominal_voltage_v: 3.7
     },
     cell_family_2: {
         url: "http://example.com/cell_families/1200-1200-1200-1200",
@@ -128,7 +128,7 @@ const api_data: {
             write: true,
             create: false
         },
-        nominal_voltage: 3.1
+        nominal_voltage_v: 3.1
     },
     team: {
         url: "http://example.com/teams/1",
@@ -184,7 +184,9 @@ const do_render = async () => {
     // Set up a mini mock server to respond to axios requests
     mockedAxios.request.mockImplementation((config: AxiosRequestConfig) => {
         if (config.url) {
-            const url = config.url.replace(/\/$/, "")
+            const url = config.url
+                .replace(/\?.*$/, "")
+                .replace(/\/$/, "")
             if (url.endsWith(api_data.cell.id))
                 return make_axios_response(api_data.cell, {config})
             if (url.endsWith(api_data.cell_family.id))
@@ -267,10 +269,10 @@ describe('ResourceCard', () => {
             const inherited_heading = await screen.findByRole('heading', { name: /^Inherited from / });
             const inherited_table = inherited_heading.parentElement!.parentElement!.nextElementSibling;
             expect(inherited_table).not.toBe(null);
-            const nominal_voltage_heading = within(inherited_table as HTMLElement)
-                .getByRole("rowheader", {name:/nominal_voltage/});
-            within(nominal_voltage_heading.parentElement! as HTMLElement)
-                .getByRole("cell", {name: api_data.cell_family.nominal_voltage!.toString()});
+            const nominal_voltage_v_heading = within(inherited_table as HTMLElement)
+                .getByRole("rowheader", {name:/nominal_voltage_v/});
+            within(nominal_voltage_v_heading.parentElement! as HTMLElement)
+                .getByRole("cell", {name: api_data.cell_family.nominal_voltage_v!.toString()});
         })
 
         it('expands and collapses', () => {

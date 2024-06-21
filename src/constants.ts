@@ -609,7 +609,7 @@ export const FIELDS = {
         form_factor: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR), priority: PRIORITY_LEVELS.CONTEXT},
         chemistry: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_CHEMISTRY), priority: PRIORITY_LEVELS.CONTEXT},
         cells: {readonly: true, type: "CELL", many: true, priority: PRIORITY_LEVELS.SUMMARY},
-        nominal_voltage: {readonly: false, type: "number"},
+        nominal_voltage_v: {readonly: false, type: "number"},
         nominal_capacity: {readonly: false, type: "number"},
         initial_ac_impedance: {readonly: false, type: "number"},
         initial_dc_resistance: {readonly: false, type: "number"},
