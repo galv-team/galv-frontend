@@ -66,7 +66,9 @@ it('renders', async () => {
         // Set up a mini mock server to respond to axios requests
         mockedAxios.request.mockImplementation((config: AxiosRequestConfig) => {
             if (config.url) {
-                const url = config.url.replace(/\/$/, "")
+                const url = config.url
+                    .replace(/\?.*$/, "")
+                    .replace(/\/$/, "")
                 if (url.endsWith(file_data.id))
                     return make_axios_response(file_data, {config})
                 if (url.endsWith('summary'))

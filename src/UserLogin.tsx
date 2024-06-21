@@ -53,7 +53,7 @@ function RegisterForm({onSuccess}: {onSuccess?: (data: AxiosResponse<User>, pass
     const users_handler = new UsersApi(api_config)
     const registration_mutation: UseMutationResult<AxiosResponse<User>, AxiosError, UserRequest> =
         useMutation(
-            (data) => users_handler.usersCreate(data),
+            (data) => users_handler.usersCreate({userRequest: data}),
             {
                 onSuccess: (data, variables, context) => {
                     if (data === undefined) {
@@ -320,7 +320,7 @@ export function LoginForm() {
             setResetStatus({severity: "error", content: "Please enter your email"})
             return
         }
-        new ForgotPasswordApi(config).forgotPasswordCreate({email})
+        new ForgotPasswordApi(config).forgotPasswordCreate({passwordResetRequestRequest: {email}})
             .then(() => {
                 setResetStatus({severity: "success", content: "Token sent"})
             })
@@ -334,7 +334,7 @@ export function LoginForm() {
             setResetStatus({severity: "error", content: "Please enter your email, token, and new password"})
             return
         }
-        new ResetPasswordApi(config).resetPasswordCreate({email, token, password})
+        new ResetPasswordApi(config).resetPasswordCreate({passwordResetRequest: {email, token, password}})
             .then(() => {
                 setResetStatus({severity: "success", content: "Password reset"})
                 setToken("")

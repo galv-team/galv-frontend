@@ -61,7 +61,8 @@ export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: 
     const create_mutation = useMutation<
         AxiosResponse<KnoxTokenFull>, AxiosError, CreateKnoxTokenRequest
     >(
-        (data) => new CreateTokenApi(api_config).createTokenCreate(data),
+        (data) => new CreateTokenApi(api_config)
+            .createTokenCreate({createKnoxTokenRequest: data}),
         {
             onSuccess: (data) => {
                 setErr("")

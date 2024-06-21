@@ -34,7 +34,10 @@ function DatasetSelector({selectedDatasetIds, setSelectedDatasetIds, fileQueryLi
     fileQueryLimit?: number
 }) {
     const { useListQuery } = useFetchResource();
-    const query = useListQuery(LOOKUP_KEYS.FILE, fileQueryLimit ?? DEFAULT_FETCH_LIMIT)
+    const query = useListQuery(
+        LOOKUP_KEYS.FILE,
+        {limit: fileQueryLimit ?? DEFAULT_FETCH_LIMIT}
+    )
 
     if (query.isInitialLoading) {
         return <p>Loading...</p>

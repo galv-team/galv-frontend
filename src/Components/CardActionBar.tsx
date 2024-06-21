@@ -70,7 +70,7 @@ export default function CardActionBar(props: CardActionBarProps) {
         fontSize: "large",
         ...props.iconProps
     }
-    const selectable = props.selectable ?? true
+    const selectable = props.selectable ?? typeof apiResource?.id === "string"
     const {toggleSelected, isSelected} = useSelectionManagement()
 
     const context_section = <>{

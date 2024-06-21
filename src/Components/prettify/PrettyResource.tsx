@@ -113,7 +113,7 @@ export const PrettyResourceSelect = <T extends BaseResource>(
             onClose={() => setOpen(false)}
             options={options}
             value={url_to_value(url)}
-            loading={loading}
+            loading={query.isInitialLoading}
             getOptionLabel={(option: string) => option}
             groupBy={family_lookup_key?
                 (option) => {

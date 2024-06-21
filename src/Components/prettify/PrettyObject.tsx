@@ -131,11 +131,11 @@ export function PrettyObjectFromQuery<T extends BaseResource>(
     const target_api_handler = new API_HANDLERS[lookup_key](api_config)
     const target_get = target_api_handler[
         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
-        ] as (id: string) => Promise<AxiosResponse<T>>
+        ] as (id: {id: string}) => Promise<AxiosResponse<T>>
 
     const target_query = useQuery<AxiosResponse<T>, AxiosError>({
         queryKey: [lookup_key, resource_id],
-        queryFn: () => target_get.bind(target_api_handler)(String(resource_id))
+        queryFn: () => target_get.bind(target_api_handler)({id: String(resource_id)})
     })
 
     const target_after_filter = filter?
