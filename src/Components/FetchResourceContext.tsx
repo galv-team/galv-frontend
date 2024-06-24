@@ -20,6 +20,7 @@ import {
 import {get_select_function} from "./ApiResourceContext";
 import {BaseResource} from "./ResourceCard";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
+import {Configuration} from "@galv/galv";
 
 export type Axios = typeof axios
 
@@ -33,6 +34,21 @@ export type PaginatedAPIResponse<T extends BaseResource> = {
 export type ListQueryResult<T> = UseInfiniteQueryResult & {
     results: T[] | null | undefined
 }
+
+export type FieldDescription = {
+    type: 'url'|'number'|'datetime'|'boolean'|'string'|'choice'|'json'|string
+    many: boolean,
+    help_text: string,
+    required: boolean,
+    read_only: boolean,
+    write_only: boolean,
+    create_only: boolean,
+    allow_null: boolean,
+    default: string|number|null,
+    choices: Record<string, string|number>|null
+}
+
+export type SerializerDescriptionSerializer = Record<string, FieldDescription>
 
 type RetrieveOptions<T extends BaseResource> = {
     extra_query_options?: UseQueryOptions<AxiosResponse<T>, AxiosError>,
@@ -62,13 +78,16 @@ export interface IFetchResourceContext {
     // Returns null when lookup_key is undefined. Otherwise, returns undefined until data are fetched, then T[]
     useListQuery: <T extends BaseResource>(
         lookup_key: LookupKey|AutocompleteKey|undefined,
-        limit?: number
+        requestParams?: {limit?: number}
     ) => ListQueryResult<T>
     useRetrieveQuery: <T extends BaseResource>(
         lookup_key: LookupKey,
         resource_id: string|number,
         options?: RetrieveOptions<T>
     ) => UseQueryResult<AxiosResponse<T>, AxiosError>
+    useDescribeQuery: (
+        lookup_key?: LookupKey
+    ) => UseQueryResult<AxiosResponse<SerializerDescriptionSerializer>, AxiosError>
     useUpdateQuery: <T extends BaseResource>(
         lookup_key: LookupKey,
         options?: UpdateOptions<T>
@@ -104,7 +123,8 @@ export default function FetchResourceContextProvider({children}: {children: Reac
     }
 
     const useListQuery: IFetchResourceContext["useListQuery"] =
-        <T extends BaseResource,>(lookup_key: LookupKey|AutocompleteKey|undefined, limit: number = DEFAULT_FETCH_LIMIT) => {
+        <T extends BaseResource,>(lookup_key: LookupKey|AutocompleteKey|undefined, requestParams?: {limit?: number}) => {
+            const limit = requestParams?.limit ?? DEFAULT_FETCH_LIMIT
             // API handler
             const {api_config} = useCurrentUser()
             const queryClient = useQueryClient()
@@ -204,6 +224,23 @@ export default function FetchResourceContextProvider({children}: {children: Reac
             ...options?.extra_query_options
         }
         return useQuery<AxiosResponse<T>, AxiosError>(query_options)
+    }
+
+    const useDescribeQuery: IFetchResourceContext["useDescribeQuery"] = (lookup_key?: LookupKey) => {
+        let queryFn = (() => Promise.resolve(null)) as unknown as QueryFunction<AxiosResponse<SerializerDescriptionSerializer>>
+        if (lookup_key) {
+            const api_handler = new API_HANDLERS[lookup_key]({basePath: process.env.VITE_GALV_API_BASE_URL} as Configuration)
+            const describe = api_handler[
+                `${API_SLUGS[lookup_key]}DescribeRetrieve` as keyof typeof api_handler
+                ] as () => Promise<AxiosResponse<SerializerDescriptionSerializer>>
+
+            queryFn = (() => describe.bind(api_handler)()) as QueryFunction<AxiosResponse<SerializerDescriptionSerializer>>
+        }
+        return useQuery<AxiosResponse<SerializerDescriptionSerializer>, AxiosError>(
+            [lookup_key, 'describe'],
+            queryFn,
+            {enabled: !!lookup_key}
+        )
     }
 
     const useUpdateQuery: IFetchResourceContext["useUpdateQuery"] = <T extends BaseResource>(
@@ -362,7 +399,7 @@ export default function FetchResourceContextProvider({children}: {children: Reac
     }
 
     return <FetchResourceContext.Provider value={{
-        useListQuery, useRetrieveQuery, useUpdateQuery, useCreateQuery, useDeleteQuery
+        useListQuery, useRetrieveQuery, useDescribeQuery, useUpdateQuery, useCreateQuery, useDeleteQuery
     }}>
         {children}
     </FetchResourceContext.Provider>

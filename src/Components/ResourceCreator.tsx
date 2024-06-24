@@ -15,8 +15,6 @@ import React, {useEffect, useRef, useState} from "react";
 import ErrorCard from "./error/ErrorCard";
 import {AxiosError, AxiosResponse} from "axios";
 import {
-    API_HANDLERS,
-    API_SLUGS,
     DISPLAY_NAMES,
     FIELDS,
     ICONS,
@@ -48,6 +46,7 @@ import {
     TypeValueNotationWrapper
 } from "./TypeValueNotation";
 import {useAttachmentUpload} from "./AttachmentUploadContext";
+import {useFetchResource} from "./FetchResourceContext";
 
 export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: boolean) => void} & CardProps) {
     const { classes } = useStyles()
@@ -201,7 +200,7 @@ export function ResourceCreator<T extends BaseResource>(
         Object.entries(FIELDS[lookup_key])
             .filter((v) => v[1].priority !== PRIORITY_LEVELS.HIDDEN)
             .forEach(([k, v]) => {
-                if (!v.readonly || v.createonly) {
+                if (!v.read_only || v.create_only) {
                     if (initial_data?.[k as keyof typeof initial_data] !== undefined)
                         template_object[k] = initial_data[k as keyof typeof initial_data]
                     else
@@ -219,11 +218,7 @@ export function ResourceCreator<T extends BaseResource>(
         UndoRedoRef.current.set(template_object)
     }, [initial_data, lookup_key])
 
-    const {api_config} = useCurrentUser()
-    const api_handler = new API_HANDLERS[lookup_key](api_config)
-    const post = api_handler[
-        `${API_SLUGS[lookup_key]}Create` as keyof typeof api_handler
-        ] as (data: SerializableObject) => Promise<AxiosResponse<T>>
+    const {useCreateQuery} = useFetchResource()
 
     // Mutations for saving edits
     const {postSnackbarMessage} = useSnackbarMessenger()
@@ -241,15 +236,15 @@ export function ResourceCreator<T extends BaseResource>(
     }
 
     const create_mutation =
-        useMutation<AxiosResponse<T>, AxiosError, SerializableObject>(
-            (data: SerializableObject) => post.bind(api_handler)(clean(data)),
+        useCreateQuery<T>(
+            lookup_key,
             {
-                onSuccess: (data, variables, context) => {
+                after_cache: (data, variables) => {
                     if (data === undefined) {
-                        console.warn("No data in mutation response", {data, variables, context})
+                        console.warn("No data in mutation response", {data, variables})
                         return
                     }
-                    queryClient.invalidateQueries([lookup_key, 'list'], {exact: true})
+
                     // Also invalidate any query mentioned in the response
                     const invalidate = (url: Serializable|Serializable[]): void => {
                         if (url instanceof Array)
@@ -267,8 +262,8 @@ export function ResourceCreator<T extends BaseResource>(
                     queryClient.invalidateQueries(['autocomplete'])
                     onCreate(data.data.url as string ?? undefined)
                 },
-                onError: (error, variables, context) => {
-                    console.error(error, {variables, context})
+                on_error: (error, variables) => {
+                    console.error(error, {variables})
                     const d = error.response?.data as SerializableObject
                     const firstError = Object.entries(d)[0]
                     postSnackbarMessage({
@@ -281,6 +276,7 @@ export function ResourceCreator<T extends BaseResource>(
                         severity: 'error'
                     })
                     onCreate(undefined, error)
+                    return undefined
                 },
             })
     const create_attachment_mutation = getUploadMutation(onCreate)
@@ -321,7 +317,7 @@ export function ResourceCreator<T extends BaseResource>(
                     close = false  // handled by the mutation
                 }
             } else {
-                create_mutation.mutate(UndoRedo.current)
+                create_mutation.mutate(clean(UndoRedo.current) as Partial<T>)
                 close = false // handled by the mutation
             }
             if (close) {

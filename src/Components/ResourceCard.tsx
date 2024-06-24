@@ -127,7 +127,7 @@ function ResourceCard<T extends BaseResource>(
         if (apiResource) {
             const data = deep_copy(apiResource)
             Object.entries(FIELDS[lookup_key]).forEach(([k, v]) => {
-                if (v.readonly) {
+                if (v.read_only) {
                     delete data[k]
                 }
             })
@@ -294,7 +294,7 @@ The file will be added to the Harvester's usual queue for processing.
                             delete data[k]
                     })
                     Object.entries(FIELDS[lookup_key]).forEach(([k, v]) => {
-                        if (!v.readonly)
+                        if (!v.read_only)
                             delete data[k]
                     })
                     return data
