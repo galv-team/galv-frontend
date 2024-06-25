@@ -142,9 +142,10 @@ function ResourceCard<T extends BaseResource>(
     // used to get config in axios call
     const api_skeleton =
         (new API_HANDLERS[lookup_key](api_config)) as unknown as {axios: Axios, basePath: string}
-    const api_handler = API_HANDLERS_FP[lookup_key](api_config)
-    const patch = api_handler[
-        `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
+    const api_handler_fp = API_HANDLERS_FP[lookup_key](api_config)
+    const api_handler = new API_HANDLERS[lookup_key](api_config)
+    const patch = api_handler_fp[
+        `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler_fp
         ] as (id: string, data: Partial<T>) => Promise<(axios: Axios, basePath: string) => Promise<AxiosResponse<T>>>
     const queryClient = useQueryClient()
     const update_mutation =
@@ -218,21 +219,22 @@ function ResourceCard<T extends BaseResource>(
                 ] as (requestParams: {id: string}) => Promise<AxiosResponse<T>>
             destroy.bind(api_handler)({id: String(resource_id)})
                 .then(() => {
+                    navigate(PATHS[lookup_key])
+                    queryClient.removeQueries([lookup_key, resource_id])
+                })
+                .then(() => {
                     queryClient.invalidateQueries([lookup_key, 'list'])
                     if (lookup_key === LOOKUP_KEYS.LAB) {
                         refresh_user()
                     }
                 })
-                .then(() => {
-                    navigate(PATHS[lookup_key])
-                    queryClient.removeQueries([lookup_key, resource_id])
-                }).catch(e => {
-                postSnackbarMessage({
-                    message: `Error deleting ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
+                .catch(e => {
+                    postSnackbarMessage({
+                        message: `Error deleting ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
                         (HTTP ${e.response?.status} - ${e.response?.statusText}): ${e.response?.data?.detail}`,
-                    severity: 'error'
+                        severity: 'error'
+                    })
                 })
-            })
         }}
         reimportable={lookup_key === LOOKUP_KEYS.FILE && apiResource?.permissions?.write && apiResource.state !== "RETRY IMPORT"}
         onReImport={() => {
