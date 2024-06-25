@@ -26,7 +26,7 @@ import {useQuery} from "@tanstack/react-query";
 import {BaseResource} from "../ResourceCard";
 import {AccessLevelsApi, PermittedAccessLevels} from "@galv/galv";
 import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
+import Select, {SelectProps} from "@mui/material/Select";
 import {useCurrentUser} from "../CurrentUserContext";
 import {useState} from "react";
 import {
@@ -174,18 +174,19 @@ export function AnnotatedKey({metadata, key_name, create_mode}: AnnotatedKeyProp
     </Tooltip>
 }
 
-export function ChoiceSelect({choices, edit_fun_factory, value}: {
+export function ChoiceSelect({choices, edit_fun_factory, value, ...props}: {
     choices: Record<string, string|number>|null,
     edit_fun_factory: (value: TypeValueNotation) => TypeValueNotation|void,
     value: TypeValueNotation
-}) {
+} & Omit<SelectProps, "value"|"onChange">) {
     if (!choices)
         return <Typography variant="subtitle2" component="span" textAlign="right" color="error">No choices</Typography>
     return <Select
         value={value._value ?? Object.values(choices)[0]}
         onChange={(e) => {
-            edit_fun_factory({_type: "string", _value: e.target.value})
+            edit_fun_factory({_type: "string", _value: e.target.value} as TypeValueNotation)
         }}
+        {...props}
     >
         {Object.entries(choices).map(([k, v], i) => (<MenuItem key={i} value={k}>{v}</MenuItem>))}
     </Select>
@@ -271,7 +272,7 @@ export default function PrettyObject<
         keys = base_keys.filter(key => !Object.keys(permissions_query.data?.data).includes(key))
     }
     // TODO: replace this permissions hack when we move to API-lead metadata
-    if (Object.keys(permissions).length === 0 && creating) {
+    if (creating) {
         const access_level_keys = [
             "read_access_level", "edit_access_level", "delete_access_level"
         ]
@@ -279,9 +280,16 @@ export default function PrettyObject<
             if (get_metadata(key)) {
                 let v = _value[key]?._value
                 if (v === undefined) {
-                    v = Number(get_metadata(key).default)
+                    v = Number(get_metadata(key).default ?? "null")  // Number(null) is 0
                     if (isNaN(v)) {
-                        v = ''
+                        if (
+                            get_metadata(key).api_type === 'choice' &&
+                            get_metadata(key).choices !== null
+                        ) {
+                            const choices = Object.keys(get_metadata(key).choices!)
+                            v = choices[choices.length - 1]
+                        } else
+                            v = ''
                     }
                 }
 
@@ -358,6 +366,7 @@ export default function PrettyObject<
                                             choices={get_metadata(key).choices}
                                             edit_fun_factory={edit_fun_factory(key)}
                                             value={_value[key] ?? get_metadata(key).default}
+                                            disabled={is_read_only(key) || !_edit_mode}
                                         /> :
                                         <Prettify
                                             nest_level={_nest_level}
