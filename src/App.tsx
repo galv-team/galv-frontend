@@ -102,8 +102,7 @@ export function Core() {
                 LOOKUP_KEYS.PATH,
                 LOOKUP_KEYS.VALIDATION_SCHEMA,
                 LOOKUP_KEYS.COLUMN_FAMILY,
-                LOOKUP_KEYS.UNIT,
-                LOOKUP_KEYS.MAPPING
+                LOOKUP_KEYS.UNIT
             ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
             <Divider component="li" key="div4">{open && "Management"}</Divider>
             {[

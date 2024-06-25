@@ -4,12 +4,14 @@ import {FAMILY_LOOKUP_KEYS, FIELDS, get_has_family, LookupKey} from "../constant
 import {AxiosError, AxiosResponse} from "axios";
 import {UseQueryResult} from "@tanstack/react-query";
 import {id_from_ref_props} from "./misc";
-import {useFetchResource} from "./FetchResourceContext";
+import {SerializerDescriptionSerializer, useFetchResource} from "./FetchResourceContext";
 
 export interface IApiResourceContext<T extends BaseResource = BaseResource> {
     apiResource?: T
+    apiResourceDescription?: SerializerDescriptionSerializer
     apiQuery?: UseQueryResult<AxiosResponse<T>, AxiosError>
     family?: BaseResource
+    familyDescription?: SerializerDescriptionSerializer
     familyQuery?: UseQueryResult<AxiosResponse<BaseResource>, AxiosError>
 }
 
@@ -40,14 +42,19 @@ export const get_select_function = <T,>(lookup_key: LookupKey) =>
 function ApiResourceContextStandaloneProvider<T extends BaseResource>(
     {lookup_key, resource_id, children}: PropsWithChildren<ApiResourceContextProviderProps>
 ) {
-    const {useRetrieveQuery} = useFetchResource()
+    const {useRetrieveQuery, useDescribeQuery} = useFetchResource()
     const query = useRetrieveQuery<T>(
         lookup_key,
         resource_id,
         {extra_query_options: {select: get_select_function(lookup_key)}}
     )
+    const description_query = useDescribeQuery(lookup_key)
 
-    return <ApiResourceContext.Provider value={{apiResource: query.data?.data, apiQuery: query}}>
+    return <ApiResourceContext.Provider value={{
+        apiResource: query.data?.data,
+        apiResourceDescription: description_query.data?.data,
+        apiQuery: query
+    }}>
         {children}
     </ApiResourceContext.Provider>
 }
@@ -58,7 +65,7 @@ function ApiResourceContextWithFamilyProvider<T extends BaseResource>(
     if (!get_has_family(lookup_key))
         throw new Error(`Cannot use ApiResourceContextWithFamilyProvider for ${lookup_key} because it does not have a family.`)
 
-    const {useRetrieveQuery} = useFetchResource()
+    const {useRetrieveQuery, useDescribeQuery} = useFetchResource()
     const query = useRetrieveQuery<T>(
         lookup_key,
         resource_id,
@@ -77,10 +84,15 @@ function ApiResourceContextWithFamilyProvider<T extends BaseResource>(
             }}
     )
 
+    const description_query = useDescribeQuery(lookup_key)
+    const family_description_query = useDescribeQuery(family_lookup_key)
+
     return <ApiResourceContext.Provider value={{
         apiResource: query.data?.data,
+        apiResourceDescription: description_query.data?.data,
         apiQuery: query,
         family: family_query.data?.data,
+        familyDescription: family_description_query.data?.data,
         familyQuery: family_query
     }}>
         {children}

@@ -110,7 +110,7 @@ function ResourceCard<T extends BaseResource>(
     const [isExpanded, setIsExpanded] = useState<boolean>(expanded || isEditMode)
 
     const {passesFilters} = useContext(FilterContext)
-    const {apiResource, family, apiQuery} = useApiResource<T>()
+    const {apiResource, apiResourceDescription, family, apiQuery} = useApiResource<T>()
     // useContext is wrapped in useRef because we update the context in our useEffect API data hook
     const UndoRedo = useUndoRedoContext<SerializableObject>()
     const UndoRedoRef = useRef(UndoRedo)
@@ -128,6 +128,11 @@ function ResourceCard<T extends BaseResource>(
             const data = deep_copy(apiResource)
             Object.entries(FIELDS[lookup_key]).forEach(([k, v]) => {
                 if (v.read_only) {
+                    delete data[k]
+                }
+            })
+            apiResourceDescription && Object.entries(apiResourceDescription).forEach(([k, v]) => {
+                if (v.read_only && data[k] !== undefined) {
                     delete data[k]
                 }
             })
@@ -290,13 +295,18 @@ The file will be added to the Harvester's usual queue for processing.
                 key="read-props"
                 filter={(d, lookup_key) => {
                     const data = deep_copy(d)
-                    // Unrecognised fields are always editable
-                    Object.keys(data).forEach(k => {
-                        if (!Object.keys(FIELDS[lookup_key]).includes(k))
-                            delete data[k]
-                    })
                     Object.entries(FIELDS[lookup_key]).forEach(([k, v]) => {
                         if (!v.read_only)
+                            delete data[k]
+                    })
+                    apiResourceDescription && Object.entries(apiResourceDescription).forEach(([k, v]) => {
+                        if (!v.read_only && data[k] !== undefined)
+                            delete data[k]
+                    })
+                    // Unrecognised fields are always editable
+                    Object.keys(data).forEach(k => {
+                        const in_description = apiResourceDescription && Object.keys(apiResourceDescription).includes(k)
+                        if (!Object.keys(FIELDS[lookup_key]).includes(k) && !in_description)
                             delete data[k]
                     })
                     return data
