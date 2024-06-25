@@ -200,7 +200,7 @@ function ResourceCard<T extends BaseResource>(
         undoable={UndoRedo.can_undo}
         redoable={UndoRedo.can_redo}
         onEditSave={() => {
-            update_mutation.mutate(UndoRedo.current as Partial<T>)
+            update_mutation.mutate(UndoRedo.diff() as Partial<T>)
             return true
         }}
         onEditDiscard={() => {

@@ -15,6 +15,7 @@ interface IUndoRedo<T = unknown> {
     set: (payload: T) => void
     reset: () => void
     update: (payload: T) => void
+    diff: (updated_index?: number, original_index?: number) => Partial<T>
 }
 
 const UndoRedoContext = createContext({} as IUndoRedo)
@@ -62,6 +63,22 @@ export default function UndoRedoProvider({children}: PropsWithChildren) {
                 history: [...state.history.slice(0, state.current_index + 1), payload],
                 current_index: state.current_index + 1
             })
+        },
+        diff: (updated_index: number = 0, original_index: number = 0) => {
+            if (updated_index === 0 && original_index === 0) {
+                updated_index = state.current_index
+            }
+            const a = state.history[updated_index] as Record<string, unknown>
+            const b = state.history[original_index] as Record<string, unknown>
+            const diff = {} as Record<string, unknown>
+            Object.keys(a).forEach(key => {
+                if (a[key] !== b[key]) {
+                    // Allow for null and empty string to be considered the same
+                    if (!((a[key] === null || b[key] === null) && (a[key] === "" || b[key] === "")))
+                        diff[key] = a[key]
+                }
+            })
+            return diff
         }
     }}>
         {children}

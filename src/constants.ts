@@ -679,7 +679,7 @@ export const FIELDS = {
         model: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
         form_factor: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR), priority: PRIORITY_LEVELS.CONTEXT},
         chemistry: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_CHEMISTRY), priority: PRIORITY_LEVELS.CONTEXT},
-        cells: {read_only: true, type: "CELL", many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        cells: {read_only: true, type: key_to_type(LOOKUP_KEYS.CELL), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         nominal_voltage_v: {read_only: false, type: "number"},
         nominal_capacity: {read_only: false, type: "number"},
         initial_ac_impedance: {read_only: false, type: "number"},
