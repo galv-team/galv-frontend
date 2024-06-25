@@ -24,7 +24,7 @@ import {
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery} from "@tanstack/react-query";
 import {BaseResource} from "../ResourceCard";
-import {AccessLevelsApi, PermittedAccessLevels}from "@galv/galv";
+import {AccessLevelsApi, PermittedAccessLevels} from "@galv/galv";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import {useCurrentUser} from "../CurrentUserContext";
@@ -270,6 +270,28 @@ export default function PrettyObject<
         }
         keys = base_keys.filter(key => !Object.keys(permissions_query.data?.data).includes(key))
     }
+    // TODO: replace this permissions hack when we move to API-lead metadata
+    if (Object.keys(permissions).length === 0 && creating) {
+        const access_level_keys = [
+            "read_access_level", "edit_access_level", "delete_access_level"
+        ]
+        for (const key of access_level_keys) {
+            if (get_metadata(key)) {
+                let v = _value[key]?._value
+                if (v === undefined) {
+                    v = Number(get_metadata(key).default)
+                    if (isNaN(v)) {
+                        v = ''
+                    }
+                }
+
+                permissions[key as keyof PermittedAccessLevels] = {
+                    _type: "number",
+                    _value: v as number
+                }
+            }
+        }
+    }
 
     const get_child_type = (key: string): TypeChangerSupportedTypeName|undefined => {
         const metadata = get_metadata(key)
@@ -335,7 +357,7 @@ export default function PrettyObject<
                                         <ChoiceSelect
                                             choices={get_metadata(key).choices}
                                             edit_fun_factory={edit_fun_factory(key)}
-                                            value={_value[key]}
+                                            value={_value[key] ?? get_metadata(key).default}
                                         /> :
                                         <Prettify
                                             nest_level={_nest_level}
