@@ -31,14 +31,6 @@ export default function AttachmentUploadContextProvider({children}: PropsWithChi
     const api_handler = new ArbitraryFilesApi(api_config)
     const UploadMutation: IAttachmentUploadContext["getUploadMutation"] = callback => useMutation(
         (data: ArbitraryFilesApiArbitraryFilesCreateRequest) => {
-            if (!data)
-                throw new Error("No data to upload")
-            if (!data.name)
-                throw new Error("No name for the file")
-            if (!data.file)
-                throw new Error("No file to upload")
-            if (!data.team)
-                throw new Error("Files must belong to a Team")
             return api_handler.arbitraryFilesCreate.bind(api_handler)(data)
         },
         {

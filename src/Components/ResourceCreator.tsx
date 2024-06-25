@@ -32,7 +32,7 @@ import {
     CreateTokenApi,
     type CreateKnoxTokenRequest,
     type KnoxTokenFull,
-    ArbitraryFile
+    ArbitraryFile, ArbitraryFilesApiArbitraryFilesCreateRequest
 } from "@galv/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import Select from "@mui/material/Select";
@@ -308,12 +308,14 @@ export function ResourceCreator<T extends BaseResource>(
                 })
                 if (okay) {
                     if (!file) throw new Error("No file to upload")
-                    const d = UndoRedo.current as unknown as ArbitraryFile
-                    create_attachment_mutation.mutate({
-                        name: d.name,
-                        team: d.team,
-                        description: d.description ?? undefined
-                    })
+                    const d = UndoRedo.current as unknown as Omit<ArbitraryFilesApiArbitraryFilesCreateRequest, "file">
+                    if (!d)
+                        throw new Error("No data to upload")
+                    if (!d.name)
+                        throw new Error("No name for the file")
+                    if (!d.team)
+                        throw new Error("Files must belong to a Team")
+                    create_attachment_mutation.mutate({...d, file})
                     close = false  // handled by the mutation
                 }
             } else {
