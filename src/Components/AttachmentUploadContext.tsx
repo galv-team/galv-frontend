@@ -1,17 +1,15 @@
 import {createContext, PropsWithChildren, useContext, useState} from "react";
-import {ArbitraryFile, ArbitraryFilesApi} from "@galv/galv";
+import {ArbitraryFile, ArbitraryFilesApi, ArbitraryFilesApiArbitraryFilesCreateRequest} from "@galv/galv";
 import {useMutation, UseMutationResult, useQueryClient} from "@tanstack/react-query";
 import {AxiosResponse} from "axios";
 import {useCurrentUser} from "./CurrentUserContext";
 import {LOOKUP_KEYS} from "../constants";
 
-type ArbitraryFileUpload = Pick<ArbitraryFile, "name"|"team"|"description">
-
 export interface IAttachmentUploadContext {
     file: File|null
     setFile: (file: File|null) => void
     getUploadMutation: (callback: (new_data_url?: string, error?: unknown) => void) =>
-        UseMutationResult<AxiosResponse<ArbitraryFile>, unknown, ArbitraryFileUpload>
+        UseMutationResult<AxiosResponse<ArbitraryFile>, unknown, ArbitraryFilesApiArbitraryFilesCreateRequest>
 }
 
 const AttachmentUploadContext = createContext({} as IAttachmentUploadContext)
@@ -32,13 +30,16 @@ export default function AttachmentUploadContextProvider({children}: PropsWithChi
     const {api_config} = useCurrentUser()
     const api_handler = new ArbitraryFilesApi(api_config)
     const UploadMutation: IAttachmentUploadContext["getUploadMutation"] = callback => useMutation(
-        ({name, team, description}: ArbitraryFileUpload) => {
-            description = description ?? undefined
-            if (!file)
+        (data: ArbitraryFilesApiArbitraryFilesCreateRequest) => {
+            if (!data)
+                throw new Error("No data to upload")
+            if (!data.name)
+                throw new Error("No name for the file")
+            if (!data.file)
                 throw new Error("No file to upload")
-            if (!team)
+            if (!data.team)
                 throw new Error("Files must belong to a Team")
-            return api_handler.arbitraryFilesCreate.bind(api_handler)(name, file, team, description)
+            return api_handler.arbitraryFilesCreate.bind(api_handler)(data)
         },
         {
             onSuccess: async (data: AxiosResponse<ArbitraryFile>) => {
