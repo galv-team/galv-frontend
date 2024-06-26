@@ -15,8 +15,6 @@ import React, {useEffect, useRef, useState} from "react";
 import ErrorCard from "./error/ErrorCard";
 import {AxiosError, AxiosResponse} from "axios";
 import {
-    API_HANDLERS,
-    API_SLUGS,
     DISPLAY_NAMES,
     FIELDS,
     ICONS,
@@ -28,15 +26,13 @@ import ErrorBoundary from "./ErrorBoundary";
 import UndoRedoProvider, {useUndoRedoContext} from "./UndoRedoContext";
 import {BaseResource} from "./ResourceCard";
 import Modal from "@mui/material/Modal";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
 import {
     CreateTokenApi,
     type CreateKnoxTokenRequest,
     type KnoxTokenFull,
-    ArbitraryFile
+    ArbitraryFile, ArbitraryFilesApiArbitraryFilesCreateRequest
 } from "@galv/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import Select from "@mui/material/Select";
@@ -44,8 +40,13 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
-import {from_type_value_notation, to_type_value_notation_wrapper, TypeValueNotationWrapper} from "./TypeValueNotation";
+import {
+    from_type_value_notation,
+    to_type_value_notation_wrapper,
+    TypeValueNotationWrapper
+} from "./TypeValueNotation";
 import {useAttachmentUpload} from "./AttachmentUploadContext";
+import {useFetchResource} from "./FetchResourceContext";
 
 export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: boolean) => void} & CardProps) {
     const { classes } = useStyles()
@@ -59,7 +60,8 @@ export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: 
     const create_mutation = useMutation<
         AxiosResponse<KnoxTokenFull>, AxiosError, CreateKnoxTokenRequest
     >(
-        (data) => new CreateTokenApi(api_config).createTokenCreate(data),
+        (data) => new CreateTokenApi(api_config)
+            .createTokenCreate({createKnoxTokenRequest: data}),
         {
             onSuccess: (data) => {
                 setErr("")
@@ -187,7 +189,7 @@ export function ResourceCreator<T extends BaseResource>(
 ) {
     const { classes } = useStyles();
 
-    const {file, UploadMutation} = useAttachmentUpload()
+    const {file, getUploadMutation} = useAttachmentUpload()
 
     // Ref wrapper for updating UndoRedo in useEffect
     const UndoRedo = useUndoRedoContext<SerializableObject>()
@@ -198,7 +200,7 @@ export function ResourceCreator<T extends BaseResource>(
         Object.entries(FIELDS[lookup_key])
             .filter((v) => v[1].priority !== PRIORITY_LEVELS.HIDDEN)
             .forEach(([k, v]) => {
-                if (!v.readonly || v.createonly) {
+                if (!v.read_only || v.create_only) {
                     if (initial_data?.[k as keyof typeof initial_data] !== undefined)
                         template_object[k] = initial_data[k as keyof typeof initial_data]
                     else
@@ -216,25 +218,33 @@ export function ResourceCreator<T extends BaseResource>(
         UndoRedoRef.current.set(template_object)
     }, [initial_data, lookup_key])
 
-    const {api_config} = useCurrentUser()
-    const api_handler = new API_HANDLERS[lookup_key](api_config)
-    const post = api_handler[
-        `${API_SLUGS[lookup_key]}Create` as keyof typeof api_handler
-        ] as (data: SerializableObject) => Promise<AxiosResponse<T>>
+    const {useCreateQuery} = useFetchResource()
 
     // Mutations for saving edits
     const {postSnackbarMessage} = useSnackbarMessenger()
     const queryClient = useQueryClient()
+
+    const clean = <T extends BaseResource>(data: Partial<T>) => {
+        const cleaned: typeof data = {}
+        Object.entries(data).forEach(([k, v]) => {
+            if (v instanceof Array) {
+                v = (v).filter((x: unknown) => x !== null && x !== undefined && x !== "")
+            }
+            cleaned[k as keyof typeof cleaned] = v
+        })
+        return cleaned
+    }
+
     const create_mutation =
-        useMutation<AxiosResponse<T>, AxiosError, SerializableObject>(
-            (data: SerializableObject) => post.bind(api_handler)(data),
+        useCreateQuery<T>(
+            lookup_key,
             {
-                onSuccess: (data, variables, context) => {
+                after_cache: (data, variables) => {
                     if (data === undefined) {
-                        console.warn("No data in mutation response", {data, variables, context})
+                        console.warn("No data in mutation response", {data, variables})
                         return
                     }
-                    queryClient.invalidateQueries([lookup_key, 'list'], {exact: true})
+
                     // Also invalidate any query mentioned in the response
                     const invalidate = (url: Serializable|Serializable[]): void => {
                         if (url instanceof Array)
@@ -252,8 +262,8 @@ export function ResourceCreator<T extends BaseResource>(
                     queryClient.invalidateQueries(['autocomplete'])
                     onCreate(data.data.url as string ?? undefined)
                 },
-                onError: (error, variables, context) => {
-                    console.error(error, {variables, context})
+                on_error: (error, variables) => {
+                    console.error(error, {variables})
                     const d = error.response?.data as SerializableObject
                     const firstError = Object.entries(d)[0]
                     postSnackbarMessage({
@@ -266,9 +276,10 @@ export function ResourceCreator<T extends BaseResource>(
                         severity: 'error'
                     })
                     onCreate(undefined, error)
+                    return undefined
                 },
             })
-    const create_attachment_mutation = UploadMutation
+    const create_attachment_mutation = getUploadMutation(onCreate)
 
     // The card action bar controls the expanded state and editing state
     const action = <CardActionBar
@@ -297,18 +308,19 @@ export function ResourceCreator<T extends BaseResource>(
                 })
                 if (okay) {
                     if (!file) throw new Error("No file to upload")
-                    const d = UndoRedo.current as unknown as ArbitraryFile
-                    create_attachment_mutation.mutate({
-                        name: d.name,
-                        team: d.team,
-                        is_public: d.is_public ?? false,
-                        description: d.description ?? undefined
-                    })
-                    close = true
+                    const d = UndoRedo.current as unknown as Omit<ArbitraryFilesApiArbitraryFilesCreateRequest, "file">
+                    if (!d)
+                        throw new Error("No data to upload")
+                    if (!d.name)
+                        throw new Error("No name for the file")
+                    if (!d.team)
+                        throw new Error("Files must belong to a Team")
+                    create_attachment_mutation.mutate({...d, file})
+                    close = false  // handled by the mutation
                 }
             } else {
-                create_mutation.mutate(UndoRedo.current)
-                close = true
+                create_mutation.mutate(clean(UndoRedo.current) as Partial<T>)
+                close = false // handled by the mutation
             }
             if (close) {
                 onCreate()
@@ -361,9 +373,19 @@ export const get_modal_title = (lookup_key: LookupKey, suffix: string) => `creat
 
 export default function WrappedResourceCreator<T extends BaseResource>(props: {lookup_key: LookupKey} & CardProps) {
     const [modalOpen, setModalOpen] = useState(false)
+    const {user, refresh_user} = useCurrentUser()
 
     const get_can_create = (lookup_key: LookupKey) => {
-        if (lookup_key === LOOKUP_KEYS.TOKEN) return true
+        // We can always create tokens because they represent us, and labs because someone has to.
+        if (lookup_key === LOOKUP_KEYS.TOKEN) return !!user
+        if (lookup_key === LOOKUP_KEYS.LAB) return !!user
+
+        const lab_admin_resources = [
+            LOOKUP_KEYS.TEAM,
+            LOOKUP_KEYS.ADDITIONAL_STORAGE
+        ] as LookupKey[]
+        if (lab_admin_resources.includes(lookup_key)) return user?.is_lab_admin
+
         const fields = FIELDS[lookup_key]
         return Object.keys(fields).includes('team')
     }
@@ -371,11 +393,13 @@ export default function WrappedResourceCreator<T extends BaseResource>(props: {l
     const ADD_ICON = ICONS.CREATE
 
     return get_can_create(props.lookup_key) ? <UndoRedoProvider>
-        <Tooltip title={`Create a new ${DISPLAY_NAMES[props.lookup_key]}`}>
-            <IconButton onClick={() => setModalOpen(true)} sx={{width: "min-content", placeSelf: "center"}}>
-                <ADD_ICON fontSize="large"/>
-            </IconButton>
-        </Tooltip>
+        <Button
+            onClick={() => setModalOpen(true)}
+            sx={{placeSelf: "center"}}
+            startIcon={<ADD_ICON fontSize="large" />}
+        >
+            Create a new {DISPLAY_NAMES[props.lookup_key]}
+        </Button>
         <Modal
             open={modalOpen}
             onClose={() => setModalOpen(false)}
@@ -399,7 +423,11 @@ export default function WrappedResourceCreator<T extends BaseResource>(props: {l
                     {props.lookup_key === LOOKUP_KEYS.TOKEN?
                         <TokenCreator setModalOpen={setModalOpen} {...props} /> :
                         <ResourceCreator<T>
-                            onCreate={() => setModalOpen(false)}
+                            onCreate={(_, err) => {
+                                if (props.lookup_key === LOOKUP_KEYS.LAB && !user?.is_lab_admin)
+                                    refresh_user()
+                                setModalOpen(!!err)
+                            }}
                             onDiscard={() => setModalOpen(false)}
                             {...props}
                         />}

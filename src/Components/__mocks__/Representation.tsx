@@ -8,7 +8,7 @@ import {BaseResource} from "../ResourceCard";
 import {LookupKey} from "../../constants";
 
 export function representation(params: {data: BaseResource, lookup_key: LookupKey}): string {
-    return `representation: ${params.lookup_key} [${params.data.id ?? params.data.id}]`
+    return `representation: ${params.lookup_key} [${params.data.id}]`
 }
 
 export default function Representation(params: RepresentationProps) {

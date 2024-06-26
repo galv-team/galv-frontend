@@ -1,4 +1,4 @@
-import {DISPLAY_NAMES, FAMILY_LOOKUP_KEYS, FIELDS, LookupKey} from "../../constants";
+import {DISPLAY_NAMES, FAMILY_LOOKUP_KEYS, FIELDS, LOOKUP_KEYS, LookupKey} from "../../constants";
 import {ChipProps} from "@mui/material/Chip";
 import React, {useEffect, useState} from "react";
 import useStyles from "../../styles/UseStyles";
@@ -34,9 +34,15 @@ export const PrettyResourceSelect = <T extends BaseResource>(
 
     const query = useListQuery<T>(lookup_key)
 
+    if (query?.hasNextPage && !query.isFetchingNextPage)
+        query.fetchNextPage()
+
     const family_lookup_key = Object.keys(FAMILY_LOOKUP_KEYS).includes(lookup_key)?
         FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS] : undefined
     const family_query = useListQuery<BaseResource>(family_lookup_key)
+
+    if (family_query?.hasNextPage && !family_query.isFetchingNextPage)
+        family_query.fetchNextPage()
 
     const [url, setUrl] = useState<string>("")
     const [open, setOpen] = React.useState(false);
@@ -107,7 +113,7 @@ export const PrettyResourceSelect = <T extends BaseResource>(
             onClose={() => setOpen(false)}
             options={options}
             value={url_to_value(url)}
-            loading={loading}
+            loading={query.isInitialLoading}
             getOptionLabel={(option: string) => option}
             groupBy={family_lookup_key?
                 (option) => {
@@ -162,7 +168,14 @@ export default function PrettyResource(
     {target, onChange, edit_mode, lookup_key, resource_id, allow_new, ...childProps}: PrettyResourceProps
 ) {
     const url_components = get_url_components(target._value ?? "")
-    lookup_key = lookup_key ?? url_components?.lookup_key
+    if (lookup_key !== url_components?.lookup_key) {
+        // Labs' Galv Storage is exposed under the Additional Storage lookup key because currently we
+        // don't support multiple resource types in a single array.
+        if (lookup_key === LOOKUP_KEYS.ADDITIONAL_STORAGE)
+            lookup_key = url_components?.lookup_key ?? lookup_key
+        else
+            lookup_key = lookup_key ?? url_components?.lookup_key
+    }
     resource_id = resource_id ?? url_components?.resource_id
 
     const str_representation = <PrettyString

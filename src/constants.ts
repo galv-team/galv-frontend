@@ -33,6 +33,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import WarningIcon from '@mui/icons-material/Warning';
 import ErrorIcon from '@mui/icons-material/Error';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import SdStorageIcon from '@mui/icons-material/SdStorage';
 
 import {
     CellChemistriesApi,
@@ -60,8 +61,39 @@ import {
     TokensApi,
     UsersApi,
     ValidationSchemasApi,
-    ArbitraryFilesApi, ColumnsApi, ColumnTypesApi, UnitsApi,
-    ColumnMappingsApi
+    ArbitraryFilesApi, ColumnTypesApi, UnitsApi,
+    ColumnMappingsApi,
+    GalvStorageApi,
+    AdditionalStorageApi,
+    CellChemistriesApiFp,
+    CellFamiliesApiFp,
+    CellFormFactorsApiFp,
+    CellManufacturersApiFp,
+    CellModelsApiFp,
+    CellsApiFp,
+    CyclerTestsApiFp,
+    EquipmentApiFp,
+    EquipmentFamiliesApiFp,
+    EquipmentManufacturersApiFp,
+    EquipmentModelsApiFp,
+    EquipmentTypesApiFp,
+    ExperimentsApiFp,
+    FilesApiFp,
+    HarvestersApiFp,
+    LabsApiFp,
+    MonitoredPathsApiFp,
+    ParquetPartitionsApiFp,
+    ScheduleFamiliesApiFp,
+    ScheduleIdentifiersApiFp,
+    SchedulesApiFp,
+    TeamsApiFp,
+    TokensApiFp,
+    UsersApiFp,
+    ValidationSchemasApiFp,
+    ArbitraryFilesApiFp, ColumnTypesApiFp, UnitsApiFp,
+    ColumnMappingsApiFp,
+    GalvStorageApiFp,
+    AdditionalStorageApiFp,
 } from "@galv/galv";
 import {
     TypeChangerAutocompleteKey,
@@ -114,6 +146,8 @@ export const key_to_type = (k: unknown): TypeChangerAutocompleteKey|TypeChangerL
     throw new Error(`key_to_type: ${k} is not a valid key`)
 }
 
+export const DEFAULT_FETCH_LIMIT = 10
+
 /**
  * This is a list of various resources grouped under a common name for each
  * resource type.
@@ -145,7 +179,8 @@ export const LOOKUP_KEYS = {
     TOKEN: "TOKEN",
     UNIT: "UNIT",
     COLUMN_FAMILY: "COLUMN_FAMILY",
-    COLUMN: "COLUMN",
+    GALV_STORAGE: "GALV_STORAGE",
+    ADDITIONAL_STORAGE: "ADDITIONAL_STORAGE",
 } as const
 
 export const AUTOCOMPLETE_KEYS = {
@@ -179,7 +214,6 @@ export const ICONS = {
     [LOOKUP_KEYS.MAPPING]: CompareArrowsIcon,
     [LOOKUP_KEYS.UNIT]: SubscriptIcon,
     [LOOKUP_KEYS.COLUMN_FAMILY]: SplitscreenIcon,
-    [LOOKUP_KEYS.COLUMN]: SplitscreenIcon,
     [LOOKUP_KEYS.CELL_FAMILY]: BatchPredictionIcon,
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: BatchPredictionIcon,
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: BatchPredictionIcon,
@@ -194,6 +228,9 @@ export const ICONS = {
     [LOOKUP_KEYS.TEAM]: PeopleAltIcon,
     [LOOKUP_KEYS.USER]: PersonIcon,
     [LOOKUP_KEYS.TOKEN]: VpnKeyIcon,
+    STORAGE: SdStorageIcon,
+    [LOOKUP_KEYS.GALV_STORAGE]: SdStorageIcon,
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: SdStorageIcon,
     DASHBOARD: HomeIcon,
     MANAGE_ACCOUNT: ManageAccountsIcon,
     LOGOUT: LogoutIcon,
@@ -208,6 +245,7 @@ export const ICONS = {
     DOWNLOAD: DownloadIcon,
     validation_status_ERROR: ErrorIcon,
     validation_status_UNCHECKED: PendingIcon,
+    validation_status_INPUT_REQUIRED: PendingIcon,
     validation_status_VALID: CheckCircleIcon,
     validation_status_INVALID: CancelIcon,
     validation_status_SKIPPED: HideSourceIcon,
@@ -228,7 +266,6 @@ export const PATHS = {
     [LOOKUP_KEYS.PATH]: "/paths",
     [LOOKUP_KEYS.PARQUET_PARTITION]: "/parquet_partitions",
     [LOOKUP_KEYS.FILE]: "/files",
-    [LOOKUP_KEYS.COLUMN]: "/columns",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "/column_types",
     [LOOKUP_KEYS.UNIT]: "/units",
     DASHBOARD: "/",
@@ -248,6 +285,8 @@ export const PATHS = {
     [LOOKUP_KEYS.TEAM]: "/teams",
     [LOOKUP_KEYS.USER]: "/users",
     [LOOKUP_KEYS.TOKEN]: "/tokens",
+    [LOOKUP_KEYS.GALV_STORAGE]: "/galv_storage",
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "/additional_storage",
     PROFILE: "/profile",
     [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: "/cell_manufacturers",
     [AUTOCOMPLETE_KEYS.CELL_MODEL]: "/cell_models",
@@ -269,7 +308,6 @@ export const DISPLAY_NAMES = {
     [LOOKUP_KEYS.FILE]: "File",
     [LOOKUP_KEYS.MAPPING]: "Mapping",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
-    [LOOKUP_KEYS.COLUMN]: "Column",
     [LOOKUP_KEYS.UNIT]: "Unit",
     DASHBOARD: "Dashboard",
     [LOOKUP_KEYS.EXPERIMENT]: "Experiment",
@@ -287,6 +325,8 @@ export const DISPLAY_NAMES = {
     [LOOKUP_KEYS.TEAM]: "Team",
     [LOOKUP_KEYS.USER]: "User",
     [LOOKUP_KEYS.TOKEN]: "Token",
+    [LOOKUP_KEYS.GALV_STORAGE]: "Galv Storage",
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "Additional Storage",
 } as const
 
 /**
@@ -299,7 +339,6 @@ export const DISPLAY_NAMES_PLURAL = {
     [LOOKUP_KEYS.FILE]: "Files",
     [LOOKUP_KEYS.MAPPING]: "Mappings",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
-    [LOOKUP_KEYS.COLUMN]: "Columns",
     [LOOKUP_KEYS.UNIT]: "Unit",
     DASHBOARD: "Dashboard",
     [LOOKUP_KEYS.EXPERIMENT]: "Experiments",
@@ -317,43 +356,8 @@ export const DISPLAY_NAMES_PLURAL = {
     [LOOKUP_KEYS.TEAM]: "Teams",
     [LOOKUP_KEYS.USER]: "Users",
     [LOOKUP_KEYS.TOKEN]: "Tokens",
-} as const
-
-/**
- * API handlers for each resource type.
- * Instantiated with new API_HANDLERS[lookup_key]().
- */
-export const API_HANDLERS = {
-    [LOOKUP_KEYS.HARVESTER]: HarvestersApi,
-    [LOOKUP_KEYS.PATH]: MonitoredPathsApi,
-    [LOOKUP_KEYS.PARQUET_PARTITION]: ParquetPartitionsApi,
-    [LOOKUP_KEYS.FILE]: FilesApi,
-    [LOOKUP_KEYS.MAPPING]: ColumnMappingsApi,
-    [LOOKUP_KEYS.COLUMN]: ColumnsApi,
-    [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnTypesApi,
-    [LOOKUP_KEYS.UNIT]: UnitsApi,
-    [LOOKUP_KEYS.CELL_FAMILY]: CellFamiliesApi,
-    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: EquipmentFamiliesApi,
-    [LOOKUP_KEYS.SCHEDULE_FAMILY]: ScheduleFamiliesApi,
-    [LOOKUP_KEYS.EXPERIMENT]: ExperimentsApi,
-    [LOOKUP_KEYS.CYCLER_TEST]: CyclerTestsApi,
-    [LOOKUP_KEYS.CELL]: CellsApi,
-    [LOOKUP_KEYS.EQUIPMENT]: EquipmentApi,
-    [LOOKUP_KEYS.SCHEDULE]: SchedulesApi,
-    [LOOKUP_KEYS.ARBITRARY_FILE]: ArbitraryFilesApi,
-    [LOOKUP_KEYS.VALIDATION_SCHEMA]: ValidationSchemasApi,
-    [LOOKUP_KEYS.LAB]: LabsApi,
-    [LOOKUP_KEYS.TEAM]: TeamsApi,
-    [LOOKUP_KEYS.USER]: UsersApi,
-    [LOOKUP_KEYS.TOKEN]: TokensApi,
-    [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: CellManufacturersApi,
-    [AUTOCOMPLETE_KEYS.CELL_MODEL]: CellModelsApi,
-    [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: CellFormFactorsApi,
-    [AUTOCOMPLETE_KEYS.CELL_CHEMISTRY]: CellChemistriesApi,
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE]: EquipmentTypesApi,
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: EquipmentManufacturersApi,
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: EquipmentModelsApi,
-    [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: ScheduleIdentifiersApi,
+    [LOOKUP_KEYS.GALV_STORAGE]: "Galv Storage",
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "Additional Storage",
 } as const
 
 /**
@@ -364,7 +368,7 @@ export const API_HANDLERS = {
  * ```
  * const target_get = target_api_handler[
  *         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
- *         ] as (id: string) => Promise<AxiosResponse<T>>
+ *         ] as (requestParams: {id: string}) => Promise<AxiosResponse<T>>
  * ```
  */
 export const API_SLUGS = {
@@ -373,7 +377,6 @@ export const API_SLUGS = {
     [LOOKUP_KEYS.PARQUET_PARTITION]: "parquetPartitions",
     [LOOKUP_KEYS.FILE]: "files",
     [LOOKUP_KEYS.MAPPING]: "columnMappings",
-    [LOOKUP_KEYS.COLUMN]: "columns",
     [LOOKUP_KEYS.COLUMN_FAMILY]: "columnTypes",
     [LOOKUP_KEYS.UNIT]: "units",
     [LOOKUP_KEYS.CELL]: "cells",
@@ -390,6 +393,8 @@ export const API_SLUGS = {
     [LOOKUP_KEYS.TEAM]: "teams",
     [LOOKUP_KEYS.USER]: "users",
     [LOOKUP_KEYS.TOKEN]: "tokens",
+    [LOOKUP_KEYS.GALV_STORAGE]: "galvStorage",
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "additionalStorage",
     [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: "cellManufacturers",
     [AUTOCOMPLETE_KEYS.CELL_MODEL]: "cellModels",
     [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: "cellFormFactors",
@@ -398,6 +403,86 @@ export const API_SLUGS = {
     [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: "equipmentManufacturers",
     [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: "equipmentModels",
     [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: "scheduleIdentifiers",
+} as const
+
+/**
+ * API handlers for each resource type.
+ * Instantiated with new API_HANDLERS[lookup_key]().
+ * 
+ * Used when we don't know the order of the arguments to the API function.
+ */
+export const API_HANDLERS = {
+    [LOOKUP_KEYS.HARVESTER]: HarvestersApi,
+    [LOOKUP_KEYS.PATH]: MonitoredPathsApi,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: ParquetPartitionsApi,
+    [LOOKUP_KEYS.FILE]: FilesApi,
+    [LOOKUP_KEYS.MAPPING]: ColumnMappingsApi,
+    [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnTypesApi,
+    [LOOKUP_KEYS.UNIT]: UnitsApi,
+    [LOOKUP_KEYS.CELL_FAMILY]: CellFamiliesApi,
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: EquipmentFamiliesApi,
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: ScheduleFamiliesApi,
+    [LOOKUP_KEYS.EXPERIMENT]: ExperimentsApi,
+    [LOOKUP_KEYS.CYCLER_TEST]: CyclerTestsApi,
+    [LOOKUP_KEYS.CELL]: CellsApi,
+    [LOOKUP_KEYS.EQUIPMENT]: EquipmentApi,
+    [LOOKUP_KEYS.SCHEDULE]: SchedulesApi,
+    [LOOKUP_KEYS.ARBITRARY_FILE]: ArbitraryFilesApi,
+    [LOOKUP_KEYS.VALIDATION_SCHEMA]: ValidationSchemasApi,
+    [LOOKUP_KEYS.LAB]: LabsApi,
+    [LOOKUP_KEYS.TEAM]: TeamsApi,
+    [LOOKUP_KEYS.USER]: UsersApi,
+    [LOOKUP_KEYS.TOKEN]: TokensApi,
+    [LOOKUP_KEYS.GALV_STORAGE]: GalvStorageApi,
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: AdditionalStorageApi,
+    [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: CellManufacturersApi,
+    [AUTOCOMPLETE_KEYS.CELL_MODEL]: CellModelsApi,
+    [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: CellFormFactorsApi,
+    [AUTOCOMPLETE_KEYS.CELL_CHEMISTRY]: CellChemistriesApi,
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE]: EquipmentTypesApi,
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: EquipmentManufacturersApi,
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: EquipmentModelsApi,
+    [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: ScheduleIdentifiersApi,
+} as const
+
+/**
+ * API Functional Interface for each resource type.
+ * Instantiated with new API_HANDLERS[lookup_key]().
+ * 
+ * This is used when we don't know the name of the parameters we want to set.
+ */
+export const API_HANDLERS_FP = {
+    [LOOKUP_KEYS.HARVESTER]: HarvestersApiFp,
+    [LOOKUP_KEYS.PATH]: MonitoredPathsApiFp,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: ParquetPartitionsApiFp,
+    [LOOKUP_KEYS.FILE]: FilesApiFp,
+    [LOOKUP_KEYS.MAPPING]: ColumnMappingsApiFp,
+    [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnTypesApiFp,
+    [LOOKUP_KEYS.UNIT]: UnitsApiFp,
+    [LOOKUP_KEYS.CELL_FAMILY]: CellFamiliesApiFp,
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: EquipmentFamiliesApiFp,
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: ScheduleFamiliesApiFp,
+    [LOOKUP_KEYS.EXPERIMENT]: ExperimentsApiFp,
+    [LOOKUP_KEYS.CYCLER_TEST]: CyclerTestsApiFp,
+    [LOOKUP_KEYS.CELL]: CellsApiFp,
+    [LOOKUP_KEYS.EQUIPMENT]: EquipmentApiFp,
+    [LOOKUP_KEYS.SCHEDULE]: SchedulesApiFp,
+    [LOOKUP_KEYS.ARBITRARY_FILE]: ArbitraryFilesApiFp,
+    [LOOKUP_KEYS.VALIDATION_SCHEMA]: ValidationSchemasApiFp,
+    [LOOKUP_KEYS.LAB]: LabsApiFp,
+    [LOOKUP_KEYS.TEAM]: TeamsApiFp,
+    [LOOKUP_KEYS.USER]: UsersApiFp,
+    [LOOKUP_KEYS.TOKEN]: TokensApiFp,
+    [LOOKUP_KEYS.GALV_STORAGE]: GalvStorageApiFp,
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: AdditionalStorageApiFp,
+    [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: CellManufacturersApiFp,
+    [AUTOCOMPLETE_KEYS.CELL_MODEL]: CellModelsApiFp,
+    [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: CellFormFactorsApiFp,
+    [AUTOCOMPLETE_KEYS.CELL_CHEMISTRY]: CellChemistriesApiFp,
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE]: EquipmentTypesApiFp,
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: EquipmentManufacturersApiFp,
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: EquipmentModelsApiFp,
+    [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: ScheduleIdentifiersApiFp,
 } as const
 
 
@@ -420,12 +505,12 @@ export const PRIORITY_LEVELS = {
 } as const
 
 export type Field = {
-    readonly: boolean
+    read_only: boolean
     type: TypeChangerSupportedTypeName
     many?: boolean
     priority?: number
-    // createonly fields are required at create time, but otherwise readonly
-    createonly?: boolean
+    // create_only fields are required at create time, but otherwise read_only
+    create_only?: boolean
     // default_value is used when creating a new resource
     default_value?: Serializable
     // If field data need transforming from API to frontend, provide a function here.
@@ -437,22 +522,22 @@ export type Field = {
     fetch_in_download?: boolean
 }
 const always_fields: {[key: string]: Field} = {
-    url: {readonly: true, type: "string"},
-    permissions: {readonly: true, type: "object"},
+    url: {read_only: true, type: "string"},
+    permissions: {read_only: true, type: "object"},
 }
 const team_fields: {[key: string]: Field} = {
-    team: {readonly: true, type: "galv_TEAM", createonly: true},
-    validation_results: {readonly: true, type: "object", many: true},
+    team: {read_only: true, type: "galv_TEAM", create_only: true},
+    validation_results: {read_only: true, type: "object", many: true},
 }
 const generic_fields: {[key: string]: Field} = {
-    id: {readonly: true, type: "string"},
+    id: {read_only: true, type: "string"},
     ...always_fields,
 }
 const autocomplete_fields: {[key: string]: Field} = {
-    url: {readonly: true, type: "string"},
-    id: {readonly: true, type: "number"},
-    value: {readonly: true, type: "string"},
-    ld_value: {readonly: true, type: "string"},
+    url: {read_only: true, type: "string"},
+    id: {read_only: true, type: "number"},
+    value: {read_only: true, type: "string"},
+    ld_value: {read_only: true, type: "string"},
 }
 /**
  * Lookup map to get the properties of the fields in each resource type.
@@ -460,214 +545,205 @@ const autocomplete_fields: {[key: string]: Field} = {
 export const FIELDS = {
     [LOOKUP_KEYS.HARVESTER]: {
         ...generic_fields,
-        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        lab: {readonly: true, type: "string", priority: PRIORITY_LEVELS.CONTEXT},
-        last_check_in: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        last_check_in_job: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        sleep_time: {readonly: false, type: "number"},
-        environment_variables: {readonly: true, type: "object"},
-        active: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.CONTEXT},
+        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        lab: {read_only: true, type: "string", priority: PRIORITY_LEVELS.CONTEXT},
+        last_check_in: {read_only: true, type: "datetime", priority: PRIORITY_LEVELS.SUMMARY},
+        last_check_in_job: {read_only: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        sleep_time: {read_only: false, type: "number"},
+        environment_variables: {read_only: true, type: "object"},
+        active: {read_only: false, type: "boolean", priority: PRIORITY_LEVELS.CONTEXT},
     },
     [LOOKUP_KEYS.PATH]: {
         ...generic_fields,
-        path: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        regex: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        stable_time: {readonly: false, type: "number"},
-        active: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
-        maximum_partition_line_count: {readonly: false, type: "number"},
+        path: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        regex: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        stable_time: {read_only: false, type: "number"},
+        active: {read_only: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        maximum_partition_line_count: {read_only: false, type: "number"},
         harvester: {
-            readonly: true,
+            read_only: true,
             type: key_to_type(LOOKUP_KEYS.HARVESTER),
             priority: PRIORITY_LEVELS.SUMMARY,
-            createonly: true,
+            create_only: true,
             fetch_in_download: true
         },
-        files: {readonly: true, type: key_to_type(LOOKUP_KEYS.FILE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        files: {read_only: true, type: key_to_type(LOOKUP_KEYS.FILE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
         ...team_fields,
     },
     [LOOKUP_KEYS.PARQUET_PARTITION]: {
         ...generic_fields,
-        observed_file: {readonly: true, type: key_to_type(LOOKUP_KEYS.FILE), priority: PRIORITY_LEVELS.SUMMARY},
-        partition_number: {readonly: true, type: "number", priority: PRIORITY_LEVELS.IDENTITY},
-        uploaded: {readonly: true, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
-        upload_errors: {readonly: true, type: "string", many: true},
-        parquet_file: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        observed_file: {read_only: true, type: key_to_type(LOOKUP_KEYS.FILE), priority: PRIORITY_LEVELS.SUMMARY},
+        partition_number: {read_only: true, type: "number", priority: PRIORITY_LEVELS.IDENTITY},
+        uploaded: {read_only: true, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        upload_errors: {read_only: true, type: "string", many: true},
+        parquet_file: {read_only: true, type: "attachment", priority: PRIORITY_LEVELS.SUMMARY},
     },
     [LOOKUP_KEYS.FILE]: {
         ...generic_fields,
-        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        state: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        path: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        parser: {readonly: true, type: "string"},
-        harvester: {readonly: true, type: key_to_type(LOOKUP_KEYS.HARVESTER)},
-        last_observed_size: {readonly: true, type: "number"},
-        last_observed_time: {readonly: true, type: "string"},
-        data_generation_date: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        inferred_format: {readonly: true, type: "string"},
-        num_rows: {readonly: true, type: "number"},
-        first_sample_no: {readonly: true, type: "number"},
-        last_sample_no: {readonly: true, type: "number"},
-        extra_metadata: {readonly: true, type: "string", priority: PRIORITY_LEVELS.HIDDEN},
-        has_required_columns: {readonly: true, type: "boolean"},
-        upload_errors: {readonly: true, type: "string", many: true},
-        column_errors: {readonly: true, type: "string", many: true},
-        upload_info: {readonly: true, type: "string"},
-        parquet_partitions: {readonly: true, type: key_to_type(LOOKUP_KEYS.PARQUET_PARTITION), many: true},
-        applicable_mappings: {readonly: true, type: 'string', priority: PRIORITY_LEVELS.HIDDEN},
-        mapping: {readonly: true, type: key_to_type(LOOKUP_KEYS.MAPPING)},
-        summary: {readonly: true, type: "string", priority: PRIORITY_LEVELS.HIDDEN},
+        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        state: {read_only: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        path: {read_only: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        parser: {read_only: true, type: "string"},
+        harvester: {read_only: true, type: key_to_type(LOOKUP_KEYS.HARVESTER)},
+        last_observed_size: {read_only: true, type: "number"},
+        last_observed_time: {read_only: true, type: "datetime"},
+        data_generation_date: {read_only: true, type: "datetime", priority: PRIORITY_LEVELS.SUMMARY},
+        inferred_format: {read_only: true, type: "string"},
+        num_rows: {read_only: true, type: "number"},
+        first_sample_no: {read_only: true, type: "number"},
+        last_sample_no: {read_only: true, type: "number"},
+        extra_metadata: {read_only: true, type: "string", priority: PRIORITY_LEVELS.HIDDEN},
+        has_required_columns: {read_only: true, type: "boolean"},
+        upload_errors: {read_only: true, type: "string", many: true},
+        column_errors: {read_only: true, type: "string", many: true},
+        upload_info: {read_only: true, type: "string"},
+        parquet_partitions: {read_only: true, type: key_to_type(LOOKUP_KEYS.PARQUET_PARTITION), many: true},
+        applicable_mappings: {read_only: true, type: 'string', priority: PRIORITY_LEVELS.HIDDEN},
+        mapping: {read_only: true, type: key_to_type(LOOKUP_KEYS.MAPPING)},
+        summary: {read_only: true, type: "string", priority: PRIORITY_LEVELS.HIDDEN},
     },
     [LOOKUP_KEYS.MAPPING]: {
         ...generic_fields,
-        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        is_valid: {readonly: true, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
-        map: {readonly: false, type: "object"},
-        missing: {readonly: true, type: "number"},  // only appears as part of a FILE response
+        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        is_valid: {read_only: true, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        map: {read_only: false, type: "object"},
+        missing: {read_only: true, type: "number"},  // only appears as part of a FILE response
         ...team_fields
-    },
-    [LOOKUP_KEYS.COLUMN]: {
-        ...always_fields,
-        id: {readonly: true, type: "number"},
-        name: {readonly: true, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        name_in_file: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        file: {readonly: true, type: key_to_type(LOOKUP_KEYS.FILE), priority: PRIORITY_LEVELS.CONTEXT},
-        type: {readonly: false, type: key_to_type(LOOKUP_KEYS.COLUMN_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
-        values: {readonly: true, type: "string"},
     },
     [LOOKUP_KEYS.COLUMN_FAMILY]: {
         ...always_fields,
-        id: {readonly: true, type: "number"},
-        is_default: {readonly: true, type: "boolean"},
-        is_required: {readonly: true, type: "boolean"},
-        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        data_type: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        unit: {readonly: false, type: key_to_type(LOOKUP_KEYS.UNIT), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
-        columns: {readonly: true, type: key_to_type(LOOKUP_KEYS.COLUMN), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        id: {read_only: true, type: "number"},
+        is_default: {read_only: true, type: "boolean"},
+        is_required: {read_only: true, type: "boolean"},
+        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        description: {read_only: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        data_type: {read_only: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        unit: {read_only: false, type: key_to_type(LOOKUP_KEYS.UNIT), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
         ...team_fields
     },
     [LOOKUP_KEYS.UNIT]: {
         ...always_fields,
-        id: {readonly: true, type: "number"},
-        is_default: {readonly: true, type: "boolean"},
-        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        symbol: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        id: {read_only: true, type: "number"},
+        is_default: {read_only: true, type: "boolean"},
+        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        symbol: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        description: {read_only: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         ...team_fields
     },
     [LOOKUP_KEYS.EXPERIMENT]: {
-        title: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {readonly: false, type: "string"},
-        authors: {readonly: false, type: key_to_type(LOOKUP_KEYS.USER), many: true, priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
-        protocol: {readonly: false, type: "string"},
-        protocol_file: {readonly: false, type: "string"},
-        cycler_tests: {readonly: false, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
+        title: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        description: {read_only: false, type: "string"},
+        authors: {read_only: false, type: key_to_type(LOOKUP_KEYS.USER), many: true, priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
+        protocol: {read_only: false, type: "string"},
+        protocol_file: {read_only: false, type: "string"},
+        cycler_tests: {read_only: false, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
         ...team_fields,
     },
     [LOOKUP_KEYS.CYCLER_TEST]: {
         ...generic_fields,
-        cell: {readonly: false, type: key_to_type(LOOKUP_KEYS.CELL), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
-        schedule: {readonly: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
-        equipment: {readonly: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
-        rendered_schedule: {readonly: true, type: "string", many: true},
+        cell: {read_only: false, type: key_to_type(LOOKUP_KEYS.CELL), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
+        schedule: {read_only: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
+        equipment: {read_only: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
+        files: {read_only: false, type: key_to_type(LOOKUP_KEYS.FILE), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
+        rendered_schedule: {read_only: true, type: "string", many: true},
         ...team_fields,
     },
     [LOOKUP_KEYS.CELL]: {
         ...generic_fields,
-        identifier: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.CELL_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
+        identifier: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        family: {read_only: false, type: key_to_type(LOOKUP_KEYS.CELL_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
         ...team_fields,
-        cycler_tests: {readonly: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true},
-        in_use: {readonly: true, type: "boolean"},
+        cycler_tests: {read_only: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true},
+        in_use: {read_only: true, type: "boolean"},
     },
     [LOOKUP_KEYS.EQUIPMENT]: {
         ...generic_fields,
-        identifier: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
+        identifier: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        family: {read_only: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
         ...team_fields,
-        calibration_date: {readonly: false, type: "string"},
-        in_use: {readonly: true, type: "boolean"},
+        calibration_date: {read_only: false, type: "string"},
+        in_use: {read_only: true, type: "boolean"},
     },
     [LOOKUP_KEYS.SCHEDULE]: {
         ...generic_fields,
-        family: {readonly: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
+        family: {read_only: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
         ...team_fields,
-        schedule_file: {readonly: false, type: "string"},
-        pybamm_schedule_variables: {readonly: false, type: "object"},
-        in_use: {readonly: true, type: "boolean"},
+        schedule_file: {read_only: false, type: "string"},
+        pybamm_schedule_variables: {read_only: false, type: "object"},
+        in_use: {read_only: true, type: "boolean"},
     },
     [LOOKUP_KEYS.CELL_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        manufacturer: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
-        model: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
-        form_factor: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR), priority: PRIORITY_LEVELS.CONTEXT},
-        chemistry: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_CHEMISTRY), priority: PRIORITY_LEVELS.CONTEXT},
-        cells: {readonly: true, type: "CELL", many: true, priority: PRIORITY_LEVELS.SUMMARY},
-        nominal_voltage: {readonly: false, type: "number"},
-        nominal_capacity: {readonly: false, type: "number"},
-        initial_ac_impedance: {readonly: false, type: "number"},
-        initial_dc_resistance: {readonly: false, type: "number"},
-        energy_density: {readonly: false, type: "number"},
-        power_density: {readonly: false, type: "number"},
-        in_use: {readonly: true, type: "boolean"},
+        manufacturer: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
+        model: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
+        form_factor: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR), priority: PRIORITY_LEVELS.CONTEXT},
+        chemistry: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_CHEMISTRY), priority: PRIORITY_LEVELS.CONTEXT},
+        cells: {read_only: true, type: key_to_type(LOOKUP_KEYS.CELL), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        nominal_voltage_v: {read_only: false, type: "number"},
+        nominal_capacity: {read_only: false, type: "number"},
+        initial_ac_impedance: {read_only: false, type: "number"},
+        initial_dc_resistance: {read_only: false, type: "number"},
+        energy_density: {read_only: false, type: "number"},
+        power_density: {read_only: false, type: "number"},
+        in_use: {read_only: true, type: "boolean"},
     },
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        manufacturer: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
-        model: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
-        type: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE), priority: PRIORITY_LEVELS.CONTEXT},
-        equipment: {readonly: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY},
-        in_use: {readonly: true, type: "boolean"},
+        manufacturer: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
+        model: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
+        type: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE), priority: PRIORITY_LEVELS.CONTEXT},
+        equipment: {read_only: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        in_use: {read_only: true, type: "boolean"},
     },
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        identifier: {readonly: false, type: key_to_type(AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER), priority: PRIORITY_LEVELS.IDENTITY},
-        description: {readonly: false, type: "string"},
-        ambient_temperature: {readonly: false, type: "number"},
-        pybamm_template: {readonly: false, type: "object"},
-        schedules: {readonly: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
-        in_use: {readonly: true, type: "boolean"},
+        identifier: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER), priority: PRIORITY_LEVELS.IDENTITY},
+        description: {read_only: false, type: "string"},
+        ambient_temperature: {read_only: false, type: "number"},
+        pybamm_template: {read_only: false, type: "object"},
+        schedules: {read_only: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        in_use: {read_only: true, type: "boolean"},
     },
     [LOOKUP_KEYS.TEAM]: {
         ...always_fields,
-        id: {readonly: true, type: "number"},
-        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        lab: {readonly: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
+        id: {read_only: true, type: "number"},
+        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        lab: {read_only: true, create_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
         member_group: {
-            readonly: false,
+            read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
             priority: PRIORITY_LEVELS.SUMMARY,
             fetch_in_download: true
         },
         admin_group: {
-            readonly: false,
+            read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
             priority: PRIORITY_LEVELS.SUMMARY,
             fetch_in_download: true
         },
-        monitored_paths: {readonly: true, type: key_to_type(LOOKUP_KEYS.PATH), many: true},
-        cellfamily_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.CELL_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        cell_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.CELL), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        equipmentfamily_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        equipment_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        schedulefamily_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        schedule_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        cyclertest_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        experiment_resources: {readonly: true, type: key_to_type(LOOKUP_KEYS.EXPERIMENT), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        monitored_paths: {read_only: true, type: key_to_type(LOOKUP_KEYS.PATH), many: true},
+        cellfamily_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.CELL_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        cell_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.CELL), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        equipmentfamily_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        equipment_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        schedulefamily_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        schedule_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        cyclertest_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        experiment_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.EXPERIMENT), many: true, priority: PRIORITY_LEVELS.CONTEXT},
     },
     [LOOKUP_KEYS.ARBITRARY_FILE]: {
         ...generic_fields,
-        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        is_public: {readonly: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        lab: {read_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
+        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        description: {read_only: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         file: {
-            readonly: true,
-            createonly: true,
+            read_only: true,
+            create_only: true,
             type: "attachment",
             priority: PRIORITY_LEVELS.SUMMARY
         },
@@ -675,48 +751,67 @@ export const FIELDS = {
     },
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: {
         ...generic_fields,
-        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        schema: {readonly: false, type: "object"},
+        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        schema: {read_only: false, type: "object"},
         ...team_fields,
     },
     [LOOKUP_KEYS.LAB]: {
         ...always_fields,
-        id: {readonly: true, type: "number"},
-        name: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {readonly: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        id: {read_only: true, type: "number"},
+        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        description: {read_only: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
         admin_group: {
-            readonly: false,
+            read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
             priority: PRIORITY_LEVELS.SUMMARY,
             fetch_in_download: true
         },
-        s3_bucket_name: {readonly: false, type: "string"},
-        s3_location: {readonly: false, type: "string"},
-        s3_access_key: {readonly: false, type: "string"},
-        s3_secret_key: {readonly: false, type: "string"},
-        s3_custom_domain: {readonly: false, type: "string"},
-        s3_configuration_status: {readonly: true, type: "object"},
-        teams: {readonly: true, type: key_to_type(LOOKUP_KEYS.TEAM), many: true, priority: PRIORITY_LEVELS.SUMMARY},
-        harvesters: {readonly: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        storages: {read_only: true, type: key_to_type(LOOKUP_KEYS.ADDITIONAL_STORAGE), many: true},
+        teams: {read_only: true, type: key_to_type(LOOKUP_KEYS.TEAM), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        harvesters: {read_only: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), many: true, priority: PRIORITY_LEVELS.SUMMARY},
     },
     [LOOKUP_KEYS.USER]: {
         ...always_fields,
-        id: {readonly: true, type: "number"},
-        username: {readonly: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        email: {readonly: false, type: "string"},
-        first_name: {readonly: false, type: "string"},
-        last_name: {readonly: false, type: "string"},
-        is_staff: {readonly: true, type: "boolean", priority: PRIORITY_LEVELS.HIDDEN},
-        is_superuser: {readonly: true, type: "boolean"},
-        groups: {readonly: true, type: "object", many: true, priority: PRIORITY_LEVELS.HIDDEN},
+        id: {read_only: true, type: "number"},
+        username: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        email: {read_only: false, type: "string"},
+        first_name: {read_only: false, type: "string"},
+        last_name: {read_only: false, type: "string"},
+        is_staff: {read_only: true, type: "boolean", priority: PRIORITY_LEVELS.HIDDEN},
+        is_superuser: {read_only: true, type: "boolean"},
+        groups: {read_only: true, type: "object", many: true, priority: PRIORITY_LEVELS.HIDDEN},
     },
     [LOOKUP_KEYS.TOKEN]: {
         ...always_fields,
-        id: {readonly: true, type: "number"},
-        name: {readonly: true, type: "string", createonly: true, priority: PRIORITY_LEVELS.IDENTITY},
-        created: {readonly: true, type: "string"},
-        expiry: {readonly: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        id: {read_only: true, type: "number"},
+        name: {read_only: true, type: "string", create_only: true, priority: PRIORITY_LEVELS.IDENTITY},
+        created: {read_only: true, type: "string"},
+        expiry: {read_only: true, type: "datetime", priority: PRIORITY_LEVELS.SUMMARY},
+    },
+    [LOOKUP_KEYS.GALV_STORAGE]: {
+        ...generic_fields,
+        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        lab: {read_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
+        quota: {read_only: true, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
+        bytes_used: {read_only: true, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
+        priority: {read_only: false, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
+        enabled: {read_only: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+    },
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: {
+        ...generic_fields,
+        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
+        lab: {read_only: true, create_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
+        quota: {read_only: false, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
+        bytes_used: {read_only: true, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
+        priority: {read_only: false, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
+        bucket_name: {read_only: false, type: "string"},
+        location: {read_only: false, type: "string"},
+        access_key: {read_only: false, type: "string"},
+        secret_key: {read_only: false, type: "string"},
+        region_name: {read_only: false, type: "string"},
+        custom_domain: {read_only: false, type: "string"},
+        enabled: {read_only: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
     },
     [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: autocomplete_fields,
     [AUTOCOMPLETE_KEYS.CELL_MODEL]: autocomplete_fields,
@@ -754,7 +849,6 @@ export const FAMILY_LOOKUP_KEYS = {
     [LOOKUP_KEYS.CELL]: "CELL_FAMILY",
     [LOOKUP_KEYS.EQUIPMENT]: "EQUIPMENT_FAMILY",
     [LOOKUP_KEYS.SCHEDULE]: "SCHEDULE_FAMILY",
-    [LOOKUP_KEYS.COLUMN]: "COLUMN_FAMILY",
 } as const
 
 export const get_has_family = (key: string|number): key is keyof typeof FAMILY_LOOKUP_KEYS =>
@@ -766,7 +860,6 @@ export const CHILD_LOOKUP_KEYS = {
     [LOOKUP_KEYS.CELL_FAMILY]: "CELL",
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "EQUIPMENT",
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: "SCHEDULE",
-    [LOOKUP_KEYS.COLUMN_FAMILY]: "COLUMN",
 } as const
 
 /**
@@ -776,7 +869,6 @@ export const CHILD_PROPERTY_NAMES  = {
     [LOOKUP_KEYS.CELL_FAMILY]: "cells",
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "equipment",
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: "schedules",
-    [LOOKUP_KEYS.COLUMN_FAMILY]: "columns",
 } as const
 
 export const get_is_family = (key: string|number): key is keyof typeof CHILD_PROPERTY_NAMES =>
@@ -784,52 +876,55 @@ export const get_is_family = (key: string|number): key is keyof typeof CHILD_PRO
 
 export const INTRODUCTIONS = {
     [LOOKUP_KEYS.HARVESTER]: `
-Harvesters are responsible for collecting data from external sources.
-Each harvester belongs to a [lab](${PATHS[LOOKUP_KEYS.LAB]}), and any team within that lab can set up a [monitored path](${PATHS[LOOKUP_KEYS.PATH]}) for it.
+Harvesters are specialized tools designed to gather data from external sources. 
+Each harvester is associated with a [lab](${PATHS[LOOKUP_KEYS.LAB]}), 
+and any team within that lab can configure a [monitored path](${PATHS[LOOKUP_KEYS.PATH]}) for it.
 
-Harvesters cannot be created here, but you can view and edit their settings.
+To create a new harvester, you can utilize a Python script on a computer with access to the desired data source. 
+Visit the [harvester repository](https://github.com/galv-team/galv-harvester) for detailed instructions on setting up and configuring harvesters. 
+You will need the following information:
 
-Harvesters are created and managed by running a Python script on a computer with access to the data source.
-See the [harvester repository](https://github.com/galv-team/galv-harvester) for more information on creating harvesters.
+1. Server URL: \`${process.env.VITE_GALV_API_BASE_URL}\`
+2. API token: Generate a new token in the [token section](${PATHS[LOOKUP_KEYS.TOKEN]})
 
-You can see all the harvesters that belong to your [labs](${PATHS[LOOKUP_KEYS.LAB]}).
+Below, you can view all the harvesters that are associated with your [labs](${PATHS[LOOKUP_KEYS.LAB]}).
     `,
     [LOOKUP_KEYS.PATH]: `
-Monitored paths are responsible for collecting data from external sources.
-Paths are file paths on a computer running a [harvester](${PATHS[LOOKUP_KEYS.HARVESTER]}).
-Harvesters are owned by a lab, and any team member within that lab can set up a path for it.
+Monitored paths collect data from external sources via file paths on 
+[harvester-running](${PATHS[LOOKUP_KEYS.HARVESTER]}) computers. Lab members can set up paths for their lab's 
+harvesters. Matching files are added to the database when:
 
-As paths are crawled by the harvester, any files that match the path and regex will be added to the database.
-When a file maintains a stable size for a given period of time, its data content will be uploaded.
-The harvester will also monitor the path for new files, and upload them as they appear.
+1. They match the path and specified regex
+2. They're not hidden (don't start with a dot)
+3. Their size remains stable for the specified duration
 
-You can see all the paths that have been set up by your team.
+Harvesters continuously monitor paths, uploading new files as they appear.
+You can see all the paths that have been set up by your team below.
     `,
     [LOOKUP_KEYS.PARQUET_PARTITION]: `
 Parquet partitions are the individual partitions of a parquet file.
 They are created when a [file](${PATHS[LOOKUP_KEYS.FILE]}) is uploaded to the database.
     `,
     [LOOKUP_KEYS.FILE]: `
-Files are data files produced by battery cycler machines (or simulations of them).
+Files are data files produced by battery cyclers, simulations, or any combination of them.
 Files are collected when [harvesters](${PATHS[LOOKUP_KEYS.HARVESTER]}) crawl [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}).
 
-The data in each file is parsed and uploaded to the database.
+The data in each file is parsed either automatically if it matches one of the predefined [mapping](${PATHS[LOOKUP_KEYS.MAPPING]}) or manually with a prompt if a mapping is not found.
+Parsed files are then uploaded to the database, where metadata can be attached and the data can be downloaded.
 Files are required to have, at minimum, columns for "ElapsedTime_s", "Voltage_V", and "Current_A".
 
 You can see all the files that have been collected on [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}) created by your team.
     `,
     [LOOKUP_KEYS.COLUMN_FAMILY]: `
-Column types identify the type of data in a column of a [file](${PATHS[LOOKUP_KEYS.FILE]}).
+Column types serve as identifiers for the data type present in a specific column of a [file](${PATHS[LOOKUP_KEYS.FILE]}). 
+They establish a connection between a column and its corresponding [unit](${PATHS[LOOKUP_KEYS.UNIT]}), enabling accurate interpretation and analysis of the data.
 
-They associate a column with a [unit](${PATHS[LOOKUP_KEYS.UNIT]}).
-    `,
-    [LOOKUP_KEYS.COLUMN]: `
-Columns are the individual data columns in a [file](${PATHS[LOOKUP_KEYS.FILE]}).
-
-Each column has a [column type](${PATHS[LOOKUP_KEYS.COLUMN_FAMILY]}), which defines the type of data in the column.
+When new column types are added or existing ones are modified, the mapping selection for columns in the associated [file](${PATHS[LOOKUP_KEYS.FILE]}) is automatically updated. 
+This dynamic updating mechanism ensures that the column mappings remain aligned with the defined column types.
     `,
     [LOOKUP_KEYS.UNIT]: `
-Units are the units of measurement used in the data in a [file](${PATHS[LOOKUP_KEYS.FILE]}).
+Units represent the specific units of measurement employed to quantify and express the data contained within a [file](${PATHS[LOOKUP_KEYS.FILE]}). 
+These units provide the necessary context and scale for interpreting and understanding the numerical values present in the data.
     `,
     [LOOKUP_KEYS.CELL_FAMILY]: `
 Cell families are collections of [cells](${PATHS[LOOKUP_KEYS.CELL]}) that share some common properties.
@@ -837,138 +932,201 @@ Cell families are collections of [cells](${PATHS[LOOKUP_KEYS.CELL]}) that share 
 A [cell](${PATHS[LOOKUP_KEYS.CELL]}) will have all the properties of the family it belongs to, but it can override them if the property is declared on the cell itself.
     `,
     [LOOKUP_KEYS.CELL]: `
-Cells are the basic unit of a battery.
-Each [cycler test](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}) is performed on a single cell.
+Cells represent the fundamental instance of a battery within the Galv ecosystem. 
+Each [cycler test](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}) is conducted on a single cell.
 
-Cells are organised into [cell families](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}), which define their properties.
-Most properties of a cell are inherited from its family, but they can be overridden on the cell itself.
+Cells are organised into [cell families](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}), which define their shared properties and characteristics. 
+Most properties of an individual cell are inherited from its associated family, promoting consistency and standardization across related cells. 
+However, if necessary, these inherited properties can be overridden or customized at the individual cell level.
 
-For most cells, you'll probably only want to set the identifier and family.
+For the majority of cells, it is likely that only the identifier and family information will need to be specified. 
+This streamlined approach simplifies the process of managing and tracking individual cells while leveraging the inherited properties defined by their respective cell families.
     `,
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: `
-Equipment families are collections of [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) that share some common properties.
-
-[Equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) will have all the properties of the family it belongs to, but it can override them if the property is declared on the equipment itself.
+Equipment families serve as logical groupings for [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) resources that share common properties or characteristics. 
+They provide an organisational framework for managing and categorizing equipment within the Galv ecosystem.
+Each individual [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) resource inherits the properties defined by the equipment family it belongs to. 
+This inheritance mechanism ensures consistency and standardisation across related equipment resources.
+However, if a specific property is explicitly declared at the individual equipment level, it takes precedence and overrides the inherited value from the family. 
+This flexibility allows for customisation and accommodation of unique equipment characteristics or configurations when necessary.
     `,
     [LOOKUP_KEYS.EQUIPMENT]: `
-Equipment resources describe any and all pieces of equipment that are relevant to the battery [cycler tests](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}).
-This includes the cycler itself, but also any other equipment that is used to perform the test,
-for example a temperature chamber or a power supply.
+Equipment resources in the Galv ecosystem encompass a comprehensive description of all pieces of equipment relevant to battery [cycler tests](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}). 
+This includes not only the cycler itself but also any ancillary equipment utilized during the testing process, such as temperature chambers, power supplies, or other auxiliary devices.
 
-Equipment is organised into [equipment families](${PATHS[LOOKUP_KEYS.EQUIPMENT_FAMILY]}), which define their properties.
-Most properties of an equipment are inherited from its family, but they can be overridden on the equipment itself.
+These equipment resources are organized into [equipment families](${PATHS[LOOKUP_KEYS.EQUIPMENT_FAMILY]}), which define their shared properties and characteristics. 
+Most properties of an individual equipment resource are inherited from its associated family, ensuring consistency and standardisation. 
+However, if necessary, these inherited properties can be overridden or customized at the individual equipment level.
     `,
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: `
-Schedule families are collections of [schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) that share some common properties.
+Schedule families are logical groupings of [schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) that share common properties or characteristics. 
+They serve as a organisational framework for managing and categorising schedules within the Galv ecosystem.
 
-[Schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) will have all the properties of the family it belongs to, but it can override them if the property is declared on the schedule itself.
+Each [schedule](${PATHS[LOOKUP_KEYS.SCHEDULE]}) inherits the properties defined by the schedule family it belongs to. 
+However, if a specific property is explicitly declared at the individual schedule level, it takes precedence and overrides the inherited value from the family.
 
-Schedule families' schedule templates can contain variables that are replaced with values when a schedule is created.
-Those variables can be set by variables in the schedule itself,
-in the [family](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}) of the cell being tested, 
-or in the individual [cell](${PATHS[LOOKUP_KEYS.CELL]}) being tested.
-The order of priority is cell (highest), cell family, schedule (lowest).
+Schedule families define schedule templates that can contain variables. 
+These variables are dynamically replaced with specific values when a schedule is created and applied to a cycler test. 
+The values used to replace these variables can be derived from multiple sources, following a predefined order of priority:
+
+1. Individual [cell](${PATHS[LOOKUP_KEYS.CELL]}) being tested (highest priority)
+2. [Family](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}) of the cell being tested
+3. Individual schedule (lowest priority)
+
+This hierarchical variable replacement mechanism ensures that the most specific and relevant values are used for each cycler test, while maintaining a consistent and organised structure defined by the schedule families and templates.
     `,
     [LOOKUP_KEYS.SCHEDULE]: `
-Schedules are the instructions for a battery [cycler test](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}).
-They define the pattern of charging and discharging, and the ambient temperature.
+Schedules serve as the instructions that govern the execution of battery [cycler tests](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}). 
+They define the specific pattern of charging and discharging cycles, as well as the ambient temperature conditions under which the tests are conducted.
 
-Schedules are organised into [schedule families](${PATHS[LOOKUP_KEYS.SCHEDULE_FAMILY]}), which define their properties.
-Most properties of a schedule are inherited from its family, but they can be overridden on the schedule itself.
+Schedules are organized into [schedule families](${PATHS[LOOKUP_KEYS.SCHEDULE_FAMILY]}), which define their shared properties and characteristics. 
+Most properties of a schedule are inherited from its associated family, but they can be overridden or customized at the individual schedule level if necessary.
 
-Schedules can specify values for variables in their family's template.
-Those values can be overridden if the same variable is set in the [family](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}) of the cell being tested,
-or in the individual [cell](${PATHS[LOOKUP_KEYS.CELL]}) being tested.
+Additionally, schedules can specify values for variables defined within their families template. 
+These variable values can be further overridden or superseded by values set in the [family](${PATHS[LOOKUP_KEYS.CELL_FAMILY]}) of the cell being tested or in the individual [cell](${PATHS[LOOKUP_KEYS.CELL]}) itself. 
     `,
     [LOOKUP_KEYS.EXPERIMENT]: `
-Experiments are collections of [cycler tests](${PATHS[LOOKUP_KEYS.CYCLER_TEST]}) that share some common properties.
+They serve as a logical grouping mechanism for related tests conducted under similar conditions or with shared objectives.
 
-Typically, a single experiment will be performed on a single cell family, 
-using a variety of different schedules that seek to characterise different properties of the cells.
+Typically, a single experiment is performed on a specific cell family, employing a variety of different [schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) designed to characterise and evaluate different properties or aspects of the cells under investigation.
 
-Experiments will group together the metadata (e.g. 
-[authors](${PATHS[LOOKUP_KEYS.USER]}), 
-[cells](${PATHS[LOOKUP_KEYS.CELL]}), 
-[schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}), 
-[equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]})) 
-of the tests they contain,
-alongside the actual data produced (see [files](${PATHS[LOOKUP_KEYS.FILE]})).
+Within an experiment, the metadata associated with the constituent tests is consolidated. 
+This includes information about the [authors](${PATHS[LOOKUP_KEYS.USER]}) involved, the specific [cells](${PATHS[LOOKUP_KEYS.CELL]}) tested, the [schedules](${PATHS[LOOKUP_KEYS.SCHEDULE]}) employed, and the [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}) utilised during the testing process. 
+Additionally, the actual data produced by these tests, in the form of [files](${PATHS[LOOKUP_KEYS.FILE]}), is also organised and associated with the respective experiment.
     `,
     [LOOKUP_KEYS.CYCLER_TEST]: `
-Cycler tests are the basic unit of battery testing.
-Each test is performed on a single [cell](${PATHS[LOOKUP_KEYS.CELL]}), using a single [schedule](${PATHS[LOOKUP_KEYS.SCHEDULE]}).
-The test may also use multiple pieces of [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}).
-The tests describe the conditions under which the cell was tested, and the data produced by the test.
+Cycler tests represent the fundamental application of battery testing within the Galv ecosystem. 
+Each test is conducted on a single [cell](${PATHS[LOOKUP_KEYS.CELL]}) and follows a specific [schedule](${PATHS[LOOKUP_KEYS.SCHEDULE]}) that outlines the testing parameters and procedures. 
+Additionally, a cycler test may involve the use of multiple pieces of [equipment](${PATHS[LOOKUP_KEYS.EQUIPMENT]}, such as cyclers, temperature chambers, or other auxiliary devices.
 
-Cycler tests can be grouped into [experiments](${PATHS[LOOKUP_KEYS.EXPERIMENT]}).
+The cycler test encapsulates the conditions under which the cell was tested, as well as the resulting data generated during the testing process. 
+These tests provide a comprehensive record of the experimental setup, testing parameters, and the acquired data, ensuring traceability and reproducibility.
+
+Furthermore, cycler tests can be logically grouped into [experiments](${PATHS[LOOKUP_KEYS.EXPERIMENT]}), allowing researchers to organise and manage related tests under a common umbrella. 
     `,
     [LOOKUP_KEYS.ARBITRARY_FILE]: `
-Attachments are files that are relevant to the battery testing process, but are not produced by the cycler.
-They may be used to store the protocol for an experiment, or the datasheet for a piece of equipment.
+Attachments are files that are related to the battery testing process but are not directly generated by the cycling equipment itself. 
+These files can serve various purposes, such as storing experimental protocols, equipment datasheets, or any other supplementary information relevant to the testing procedures.
+
+By incorporating attachments, researchers can maintain a comprehensive record of all pertinent details associated with their battery experiments. 
+This includes detailed experimental protocols outlining the specific steps and parameters employed during the testing process, as well as technical specifications and datasheets for the equipment utilised.
     `,
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: `
-Validation schemas are used to validate the data in [files](${PATHS[LOOKUP_KEYS.FILE]}).
-They are also used to validate the metadata in the other resources.
+Validation schemas serve as powerful tools for ensuring the integrity and consistency of data within [files](${PATHS[LOOKUP_KEYS.FILE]}) and validating the metadata associated with other resources in the Galv ecosystem.
 
-Validation schemas are JSON schemas, and can be used to validate any JSON data.
+These validation schemas are defined using the JSON Schema specification, a widely adopted standard for describing and validating JSON data structures. 
+This flexible format enables the creation of schemas capable of validating any JSON data, regardless of its complexity or structure.
 
-By default, Galv applies a loose validation schema to all data, which ensures that the data is valid JSON.
-The schema checks that data has the minimal required columns of "time", "potential difference", and "current".
+By default, Galv applies a loose validation schema to all data, ensuring adherence to the fundamental requirement of being valid JSON. 
+Additionally, this default schema checks for the presence of the minimal required columns: "time", "potential difference", and "current" – essential columns for most battery cycling experiments and analyses.
+
+However, users have the flexibility to define and apply more stringent validation schemas tailored to their specific needs. 
+These custom schemas can enforce additional constraints, such as data types, value ranges, and complex relationships between different fields. 
     `,
     [LOOKUP_KEYS.LAB]: `
-Labs are the top-level organisational unit in Galv.
-Labs are collections of [teams](${PATHS[LOOKUP_KEYS.TEAM]}), which in turn contain all the resources in Galv.
+Labs are the top-level organizational units in Galv, composed of [teams](${PATHS[LOOKUP_KEYS.TEAM]}) that contain all resources. 
+Your lab membership is determined by your affiliation with teams within that lab. 
+Lab administrators can create new teams and manage existing team permissions, but cannot directly manage resources unless they are team members.
 
-You are a member of any lab that contains a team you are a member of.
+Labs house data from battery cycling experiments, which can be automatically collected by [harvesters](${PATHS[LOOKUP_KEYS.HARVESTER]}). 
+The collected data are stored in Galv's systems or an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}) managed by the lab, allowing flexibility for large datasets or specific storage requirements.
 
-Lab administrators can create new teams, and manage the permissions of existing teams.
-They cannot create or edit any other resources, unless they are also a member of a team.
-
-Labs can specify their own S3 bucket, which is used to store the data files collected by the harvesters.
+While raw data files are stored in designated locations, associated metadata is stored in Galv's database and can be opened for collaboration within or between labs, facilitating data sharing and collaborative research efforts.
+Proper management of lab structures, team memberships, and access permissions is crucial for maintaining a secure and efficient collaborative environment within the Galv ecosystem.
     `,
     [LOOKUP_KEYS.TEAM]: `
-Teams are the basic organisational unit in Galv.
-Teams are collections of [users](${PATHS[LOOKUP_KEYS.USER]}), and own the resources in Galv.
+Teams are the fundamental organisational units within the Galv platform. 
+They serve as collaborative spaces where [users](${PATHS[LOOKUP_KEYS.USER]}) can work together and manage shared resources.
+Each team is composed of a collection of users, and they collectively own and have control over the resources within Galv. 
+The team that owns a particular resource has the authority to alter its permissions and, if necessary, delete it.
 
-The team that owns a resource can alter its permissions, and can delete it.
+**Members** have the ability to view and edit all resources owned by the team, unless specific restrictions have been applied to certain resources. 
+This collaborative access allows team members to work seamlessly on shared projects and data.
 
-Teams have two groups of users: members and admins.
-Members can view and edit all resources owned by the team unless those resources have been restricted.
-Admins can do everything members can, and can also alter the permissions of the team.
+**Administrators**, on the other hand, possess additional privileges beyond those of regular members. 
+In addition to the viewing and editing capabilities, admins can also alter the team's permissions, granting or revoking access to resources as needed. 
+This level of control enables administrators to manage the team's structure, membership, and resource access effectively.
+
+It's important to note that team membership and roles should be carefully managed to ensure the appropriate level of access and collaboration within the Galv ecosystem. 
+Best practices include periodically reviewing team memberships, assigning roles based on project needs, and implementing access controls to protect sensitive data when necessary.
     `,
     [LOOKUP_KEYS.USER]: `
-Users are the people who use Galv.
-Each user has a username, email address, and password.
+Users are individuals who interact with and utilise the Galv platform. 
+Each user is identified by a unique username, an associated email address, and a secure password.
 
-Users can be members of multiple [teams](${PATHS[LOOKUP_KEYS.TEAM]}).
+One of the key features of Galv is its support for team-based collaboration. 
+Users can be members of multiple [teams](${PATHS[LOOKUP_KEYS.TEAM]}), enabling them to work together on projects, share resources, and coordinate efforts effectively.
 
-You can see and edit your own user details here.
+In this section, you can view and modify your own user details. 
+This includes updating your personal information, such as your email address or password, as well as managing your team memberships. 
+
+It's important to note that user accounts and associated information should be treated with care, as they grant access to sensitive data and resources within the Galv platform. 
+Best practices include using strong and unique passwords, and regularly reviewing and updating your user details to maintain a secure and reliable user experience.
     `,
     [LOOKUP_KEYS.TOKEN]: `
-Tokens are used to authenticate with Galv.
+Tokens can be created by users and are utilised for authenticating with Galv's API. 
+This allows programmatic access and integration with Galv's services. 
+Additionally, you'll see Browser session tokens, which are automatically generated when you log in to the Galv web interface, facilitating seamless authentication for your browser sessions.
 
-Tokens are created by users, and can be used to authenticate with Galv's API.
-You'll also see Browser session tokens which are created automatically when you log in.
+If you plan to interact with Galv's API, either through custom applications or scripts, you'll need to create a dedicated token. 
+These tokens act as secure credentials, granting authorized access to the API endpoints and enabling you to perform various operations programmatically.
 
-If you want to use the API, you'll need to create a token.
+It's important to note that tokens should be treated with care and kept confidential, as they grant access to your Galv account and associated resources. 
+Best practices include generating tokens with appropriate scopes and permissions, and revoking or regenerating them periodically to maintain a high level of security.
+    `,
+    [LOOKUP_KEYS.GALV_STORAGE]: `
+Storage in Galv is utilised for various purposes, including storing harvested data files, attachments, and generating image previews of datasets. 
+This storage functionality is essential for efficient data management and collaboration within the platform.
+
+Galv provides a default storage resource, referred to as Galv storage. 
+This storage is hosted on the Galv server instance, and each lab is allocated a specific storage quota. 
+This default storage option offers a convenient and centralized solution for managing data within the Galv ecosystem.
+
+However, if you prefer not to store files on the Galv server, you have the option to disable Galv storage and set up an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}). 
+This alternative storage resource can be hosted and managed according to your specific requirements, providing greater flexibility and control over data storage.
+
+In scenarios where you are at risk of exceeding your allocated storage quota on the Galv server, you can proactively set up an [additional storage resource](${PATHS[LOOKUP_KEYS.ADDITIONAL_STORAGE]}) to accommodate the excess data. 
+This approach ensures that you can seamlessly continue storing and managing your data without disruptions or limitations.
+
+The priority setting determines the order in which the available storage resources are utilized for storing data. 
+Higher priority numbers are used first, allowing you to define the preferred storage location based on your specific needs and preferences.
+    `,
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: `
+Storage is utilised for harvested data files, attachments, and image previews of datasets.
+
+Additional storage resources can be used for data uploaded to Galv, with the location managed by the Lab. 
+You may consider using additional storage if you have a large amount of data to store or if you prefer to store your data in a location you can administer directly.
+
+You have the option to set a quota for the storage resource, ensuring that your teams do not accidentally exceed any storage limits you may have in place.
+
+The priority setting determines the order in which the storage resources are utilised for storing data. Higher priority numbers are used first.
     `,
     DASHBOARD: `
-The dashboard shows a summary of the resources that are relevant to you.
+The dashboard provides an overview of the resources pertinent to you and your teams. 
 
-It shows the [files](${PATHS[LOOKUP_KEYS.FILE]}) that have been collected on 
-[monitored paths](${PATHS[LOOKUP_KEYS.PATH]}) created by your [teams](${PATHS[LOOKUP_KEYS.TEAM]}),
-alongside an indication of their upload and validation status.
+It displays the [files](${PATHS[LOOKUP_KEYS.FILE]}) gathered from the [monitored paths](${PATHS[LOOKUP_KEYS.PATH]}) 
+set up by your [teams](${PATHS[LOOKUP_KEYS.TEAM]}), along with their respective upload and validation statuses.
 
-You'll also see a list of the resources you are able to edit, 
-alongside an indication of their validation status.
+Additionally, the dashboard lists the resources you have permission to edit, accompanied by their validation statuses.
 
-If you see problems on your dashboard, you should check the relevant resource for more information.
+In the event you encounter any issues on your dashboard, you can investigate the relevant resource for more detailed information.
     `,
     MAPPING: `
-Mappings are used to map the columns in a [file](${PATHS[LOOKUP_KEYS.FILE]}) to the columns in the database.
+Mappings are utilised to map the columns in a [file](${PATHS[LOOKUP_KEYS.FILE]}) to recognised standard columns. 
+This enables Galv to comprehend the data within the file and promotes homogeneity across datasets. 
+When a set of files employs the same column names to represent the same type of data, analyses can be performed across all the files.
 
-This allows Galv to understand the data in the file, and to store it in the database.
-When a suite of files use the same column names to represent the same kind of data,
-analyses can be performed across all the files.
+Mappings can be automatically applied to files during the harvesting process by a [harvester](${PATHS[LOOKUP_KEYS.HARVESTER]}). 
+If there is a clear 'best mapping' for a file, it will be applied automatically. 
+However, if there are multiple equally suitable mappings, the user will need to choose a mapping or define a more appropriate one.
+
+Mappings are ranked based on the following criteria:
+- Whether they define the three key columns: "ElapsedTime_s", "Voltage_V", and "Current_A".
+- Whether all the columns in the mapping are present in the file.
+- The number of columns in the file that are not included in the mapping. Fewer unmatched columns are preferred.
+
+By applying the above criteria, the best mapping is selected. A mapping will never be considered 'best' if it does not define the three key columns.
+
+When creating mappings, be cautious of potential conflicts where two mappings are equally suitable. In such cases, all affected files will require manual disambiguation to choose the correct mapping.
     `,
 } as const

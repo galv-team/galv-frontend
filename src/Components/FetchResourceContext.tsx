@@ -1,14 +1,14 @@
 import {createContext, ReactNode, useContext} from "react";
 import {useCurrentUser} from "./CurrentUserContext";
 import {
-    API_HANDLERS,
+    API_HANDLERS, API_HANDLERS_FP,
     API_SLUGS,
-    AutocompleteKey,
+    AutocompleteKey, DEFAULT_FETCH_LIMIT,
     DISPLAY_NAMES,
     is_lookup_key,
     LookupKey
 } from "../constants";
-import {AxiosError, AxiosResponse} from "axios";
+import axios, {AxiosError, AxiosResponse} from "axios";
 import {
     MutationFunction,
     QueryFunction,
@@ -20,6 +20,9 @@ import {
 import {get_select_function} from "./ApiResourceContext";
 import {BaseResource} from "./ResourceCard";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
+import {Configuration} from "@galv/galv";
+
+export type Axios = typeof axios
 
 export type PaginatedAPIResponse<T extends BaseResource> = {
     count: number
@@ -31,6 +34,21 @@ export type PaginatedAPIResponse<T extends BaseResource> = {
 export type ListQueryResult<T> = UseInfiniteQueryResult & {
     results: T[] | null | undefined
 }
+
+export type FieldDescription = {
+    type: 'url'|'number'|'datetime'|'boolean'|'string'|'choice'|'json'|string
+    many: boolean,
+    help_text: string,
+    required: boolean,
+    read_only: boolean,
+    write_only: boolean,
+    create_only: boolean,
+    allow_null: boolean,
+    default: string|number|null,
+    choices: Record<string, string|number>|null
+}
+
+export type SerializerDescriptionSerializer = Record<string, FieldDescription>
 
 type RetrieveOptions<T extends BaseResource> = {
     extra_query_options?: UseQueryOptions<AxiosResponse<T>, AxiosError>,
@@ -59,13 +77,17 @@ type DeleteOptions<T extends BaseResource> = {
 export interface IFetchResourceContext {
     // Returns null when lookup_key is undefined. Otherwise, returns undefined until data are fetched, then T[]
     useListQuery: <T extends BaseResource>(
-        lookup_key: LookupKey|AutocompleteKey|undefined
+        lookup_key: LookupKey|AutocompleteKey|undefined,
+        requestParams?: {limit?: number}
     ) => ListQueryResult<T>
     useRetrieveQuery: <T extends BaseResource>(
         lookup_key: LookupKey,
         resource_id: string|number,
         options?: RetrieveOptions<T>
     ) => UseQueryResult<AxiosResponse<T>, AxiosError>
+    useDescribeQuery: (
+        lookup_key?: LookupKey
+    ) => UseQueryResult<AxiosResponse<SerializerDescriptionSerializer>, AxiosError>
     useUpdateQuery: <T extends BaseResource>(
         lookup_key: LookupKey,
         options?: UpdateOptions<T>
@@ -101,7 +123,8 @@ export default function FetchResourceContextProvider({children}: {children: Reac
     }
 
     const useListQuery: IFetchResourceContext["useListQuery"] =
-        <T extends BaseResource,>(lookup_key: LookupKey|AutocompleteKey|undefined) => {
+        <T extends BaseResource,>(lookup_key: LookupKey|AutocompleteKey|undefined, requestParams?: {limit?: number}) => {
+            const limit = requestParams?.limit ?? DEFAULT_FETCH_LIMIT
             // API handler
             const {api_config} = useCurrentUser()
             const queryClient = useQueryClient()
@@ -111,9 +134,12 @@ export default function FetchResourceContextProvider({children}: {children: Reac
                 const api_handler = new API_HANDLERS[lookup_key](api_config)
                 const get = api_handler[
                     `${API_SLUGS[lookup_key]}List` as keyof typeof api_handler
-                    ] as (limit?: number, offset?: number) => Promise<AxiosResponse<PaginatedAPIResponse<T>>>
+                    ] as (requestParams: {limit?: number, offset?: number}) => Promise<AxiosResponse<PaginatedAPIResponse<T>>>
                 // Queries
-                queryFn = (ctx) => get.bind(api_handler)(ctx.pageParam?.limit, ctx.pageParam?.offset).then(r => {
+                queryFn = (ctx) => get.bind(api_handler)({
+                    limit: ctx.pageParam?.limit || limit,
+                    offset: ctx.pageParam?.offset
+                }).then(r => {
                     try {
                         // Update the cache for each resource
                         r.data.results.forEach((resource) => {
@@ -167,10 +193,12 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         const api_handler = new API_HANDLERS[lookup_key](api_config)
         const get = api_handler[
             `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof api_handler
-            ] as (id: string) => Promise<AxiosResponse<T>>
+            ] as (requestParams: {id: string}) => Promise<AxiosResponse<T>>
 
         const after = options?.with_result? options.with_result : (r: AxiosResponse<T>) => r
         const on_error_fn = options?.on_error? options.on_error : (e: AxiosError) => {
+            if (e.response?.status === 401)
+                return // handled in UserLogin interceptor
             postSnackbarMessage({
                 message: `Error retrieving ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
                 (HTTP ${e.response?.status} - ${e.response?.statusText}): ${get_error_detail(e)}`,
@@ -179,7 +207,7 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         }
 
         const queryFn: QueryFunction<AxiosResponse<T>> = () => {
-            return get.bind(api_handler)(String(resource_id))
+            return get.bind(api_handler)({id: String(resource_id)})
                 .then(after)
                 .catch((e) => {
                     const result = on_error_fn(e as AxiosError)
@@ -198,6 +226,23 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         return useQuery<AxiosResponse<T>, AxiosError>(query_options)
     }
 
+    const useDescribeQuery: IFetchResourceContext["useDescribeQuery"] = (lookup_key?: LookupKey) => {
+        let queryFn = (() => Promise.resolve(null)) as unknown as QueryFunction<AxiosResponse<SerializerDescriptionSerializer>>
+        if (lookup_key) {
+            const api_handler = new API_HANDLERS[lookup_key]({basePath: process.env.VITE_GALV_API_BASE_URL} as Configuration)
+            const describe = api_handler[
+                `${API_SLUGS[lookup_key]}DescribeRetrieve` as keyof typeof api_handler
+                ] as () => Promise<AxiosResponse<SerializerDescriptionSerializer>>
+
+            queryFn = (() => describe.bind(api_handler)()) as QueryFunction<AxiosResponse<SerializerDescriptionSerializer>>
+        }
+        return useQuery<AxiosResponse<SerializerDescriptionSerializer>, AxiosError>(
+            [lookup_key, 'describe'],
+            queryFn,
+            {enabled: !!lookup_key}
+        )
+    }
+
     const useUpdateQuery: IFetchResourceContext["useUpdateQuery"] = <T extends BaseResource>(
         lookup_key: LookupKey,
         options?: UpdateOptions<T>
@@ -205,10 +250,13 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         const queryClient = useQueryClient()
         const {postSnackbarMessage} = useSnackbarMessenger()
         const {api_config} = useCurrentUser()
-        const api_handler = new API_HANDLERS[lookup_key](api_config)
+        // used to get config in axios call
+        const api_skeleton =
+            (new API_HANDLERS[lookup_key](api_config)) as unknown as {axios: Axios, basePath: string}
+        const api_handler = API_HANDLERS_FP[lookup_key](api_config)
         const partialUpdate = api_handler[
             `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
-            ] as (id: string, data: Partial<T>) => Promise<AxiosResponse<T>>
+            ] as (id: string, data: Partial<T>) => Promise<(axios: Axios, basePath: string) => Promise<AxiosResponse<T>>>
 
         const pre_cache = options?.before_cache? options.before_cache : (r: AxiosResponse<T>) => r
         // (r, v) => ({r, v}) does nothing except stop TS from complaining about unused variables
@@ -225,8 +273,8 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         }
 
         const mutationFn: MutationFunction<AxiosResponse<T>, Partial<T>> =
-            (data: Partial<T>) => partialUpdate
-                .bind(api_handler)(String(data.id ?? data.id), data)
+            (data: Partial<T>) => partialUpdate(String(data.id), data)
+                .then((request) => request(api_skeleton.axios, api_skeleton.basePath))
                 .then(pre_cache)
 
         const mutation_options: UseMutationOptions<AxiosResponse<T>, AxiosError, Partial<T>> = {
@@ -258,10 +306,13 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         const queryClient = useQueryClient()
         const {postSnackbarMessage} = useSnackbarMessenger()
         const {api_config} = useCurrentUser()
-        const api_handler = new API_HANDLERS[lookup_key](api_config)
+        // used to get config in axios call
+        const api_skeleton =
+            (new API_HANDLERS[lookup_key](api_config)) as unknown as {axios: Axios, basePath: string}
+        const api_handler = API_HANDLERS_FP[lookup_key](api_config)
         const create = api_handler[
             `${API_SLUGS[lookup_key]}Create` as keyof typeof api_handler
-            ] as (data: Partial<T>) => Promise<AxiosResponse<T>>
+            ] as (data: Partial<T>) => Promise<(axios: Axios, basePath: string) => Promise<AxiosResponse<T>>>
 
         const pre_cache = options?.before_cache? options.before_cache : (r: AxiosResponse<T>) => r
         // (r, v) => ({r, v}) does nothing except stop TS from complaining about unused variables
@@ -277,7 +328,9 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         }
 
         const mutationFn: MutationFunction<AxiosResponse<T>, Partial<T>> =
-            (data: Partial<T>) => create.bind(api_handler)(data).then(pre_cache)
+            (data: Partial<T>) => create(data)
+                .then((request) => request(api_skeleton.axios, api_skeleton.basePath))
+                .then(pre_cache)
 
         const mutation_options: UseMutationOptions<AxiosResponse<T>, AxiosError, Partial<T>> = {
             mutationKey: [lookup_key, 'create'],
@@ -311,7 +364,7 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         const api_handler = new API_HANDLERS[lookup_key](api_config)
         const destroy = api_handler[
             `${API_SLUGS[lookup_key]}Destroy` as keyof typeof api_handler
-            ] as (id: string) => Promise<AxiosResponse<null>>
+            ] as (requestParameters: {id: string}) => Promise<AxiosResponse<null>>
 
         const on_error_fn = options?.on_error? options.on_error : (e: AxiosError, v: T) => {
             postSnackbarMessage({
@@ -322,7 +375,7 @@ export default function FetchResourceContextProvider({children}: {children: Reac
         }
 
         const mutationFn: MutationFunction<AxiosResponse<null>, T> =
-            (data: T) => destroy.bind(api_handler)(String(data.id))
+            (data: T) => destroy.bind(api_handler)({id: String(data.id)})
 
         const mutation_options: UseMutationOptions<AxiosResponse<null>, AxiosError, T> = {
             mutationKey: [lookup_key, 'delete'],
@@ -346,7 +399,7 @@ export default function FetchResourceContextProvider({children}: {children: Reac
     }
 
     return <FetchResourceContext.Provider value={{
-        useListQuery, useRetrieveQuery, useUpdateQuery, useCreateQuery, useDeleteQuery
+        useListQuery, useRetrieveQuery, useDescribeQuery, useUpdateQuery, useCreateQuery, useDeleteQuery
     }}>
         {children}
     </FetchResourceContext.Provider>

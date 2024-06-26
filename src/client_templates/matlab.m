@@ -7,7 +7,7 @@
 %
 % Download datasets from the REST API.
 % Downloads all data for all columns for the dataset and reads them
-% into struct objects: dataset_metadata, column_metadata, and datasets.
+% into struct objects: dataset_metadata, and parquets.
 % Structs are indexed by dataset id.
 %
 % SPDX-License-Identifier: BSD-2-Clause
@@ -32,8 +32,8 @@ dataset_ids = [
 
 dataset_ids = unique(dataset_ids);
 n = length(dataset_ids);
-metadata = cell(n);
-data = cell(n);
+metadata = cell(n, 1);
+parquets = cell(n, 1);
 
 for i = 1:length(dataset_ids)
     d = dataset_ids(i);
@@ -42,23 +42,23 @@ for i = 1:length(dataset_ids)
     dsURL = strcat(apiURL, '/files/', d, '/');
     metadata{i} = webread(dsURL, options);
     
-    data{i} = table();
+    tmp = tempname(tempdir());
+    mkdir(tmp);
     
-    % append column data in columns
-    for c = 1:length(metadata{i}.columns)
-        cURL = metadata{i}.columns{c};
-        stream = webread(cURL, options);
-        metadata{i}.columns{c} = stream;
-        content = webread(stream.values, options);
-        % handle conversion from bytes to utf-8
-        content = native2unicode(content, "UTF-8");
-        content = convertCharsToStrings(content);
-        content = strip(content, "right", newline());
-        content = split(content, newline());
-        % type conversion where necessary
-        if stream.data_type ~= "str"
-            content = str2double(content);
-        end
-        data{i}.(matlab.lang.makeValidName(stream.name_in_file)) = content;        
+    % save parquet files to temporary locations
+    for c = 1:length(metadata{i}.parquet_partitions)
+        cURL = metadata{i}.parquet_partitions{c};
+        partition = webread(cURL, options);
+        metadata{i}.parquet_partitions{c} = partition;
+        tmpf = [tempname(tmp), '.parquet'];
+        websave(tmpf, partition.parquet_file, options);   
+        % websave adds .html if it doesn't see an extension, so strip that
+        movefile([tmpf, '.html'], tmpf);
     end
+
+    % read the datasets as parquet files
+    parquets{i} = parquetDatastore(tmp);
 end
+
+% Take a peek at one of the datasets
+parquets{1}.preview()

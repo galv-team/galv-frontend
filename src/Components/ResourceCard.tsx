@@ -20,7 +20,7 @@ import QueryWrapper, {QueryDependentElement} from "./QueryWrapper";
 import {AxiosError, AxiosResponse} from "axios";
 import Divider, {DividerProps} from "@mui/material/Divider";
 import {
-    API_HANDLERS,
+    API_HANDLERS, API_HANDLERS_FP,
     API_SLUGS,
     AutocompleteKey,
     CHILD_LOOKUP_KEYS,
@@ -61,6 +61,8 @@ import {
 import Typography from "@mui/material/Typography";
 import {Theme} from "@mui/material/styles";
 import ResourceStatuses from "./ResourceStatuses";
+import AuthImage from "./AuthImage";
+import {Axios} from "./FetchResourceContext";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
@@ -108,10 +110,11 @@ function ResourceCard<T extends BaseResource>(
     const [isExpanded, setIsExpanded] = useState<boolean>(expanded || isEditMode)
 
     const {passesFilters} = useContext(FilterContext)
-    const {apiResource, family, apiQuery} = useApiResource<T>()
+    const {apiResource, apiResourceDescription, family, apiQuery} = useApiResource<T>()
     // useContext is wrapped in useRef because we update the context in our useEffect API data hook
     const UndoRedo = useUndoRedoContext<SerializableObject>()
     const UndoRedoRef = useRef(UndoRedo)
+    const {refresh_user} = useCurrentUser()
 
     const [forking, setForking] = useState<boolean>(false)
 
@@ -124,7 +127,12 @@ function ResourceCard<T extends BaseResource>(
         if (apiResource) {
             const data = deep_copy(apiResource)
             Object.entries(FIELDS[lookup_key]).forEach(([k, v]) => {
-                if (v.readonly) {
+                if (v.read_only) {
+                    delete data[k]
+                }
+            })
+            apiResourceDescription && Object.entries(apiResourceDescription).forEach(([k, v]) => {
+                if (v.read_only && data[k] !== undefined) {
                     delete data[k]
                 }
             })
@@ -136,14 +144,19 @@ function ResourceCard<T extends BaseResource>(
     // Mutations for saving edits
     const {postSnackbarMessage} = useSnackbarMessenger()
     const {api_config} = useCurrentUser()
+    // used to get config in axios call
+    const api_skeleton =
+        (new API_HANDLERS[lookup_key](api_config)) as unknown as {axios: Axios, basePath: string}
+    const api_handler_fp = API_HANDLERS_FP[lookup_key](api_config)
     const api_handler = new API_HANDLERS[lookup_key](api_config)
-    const patch = api_handler[
-        `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
-        ] as (id: string, data: SerializableObject) => Promise<AxiosResponse<T>>
+    const patch = api_handler_fp[
+        `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler_fp
+        ] as (id: string, data: Partial<T>) => Promise<(axios: Axios, basePath: string) => Promise<AxiosResponse<T>>>
     const queryClient = useQueryClient()
     const update_mutation =
-        useMutation<AxiosResponse<T>, AxiosError, SerializableObject>(
-            (data: SerializableObject) => patch.bind(api_handler)(String(resource_id), data),
+        useMutation<AxiosResponse<T>, AxiosError, Partial<T>>(
+            (data: Partial<T>) => patch(String(resource_id), data)
+                .then((request) => request(api_skeleton.axios, api_skeleton.basePath)),
             {
                 onSuccess: (data, variables, context) => {
                     if (data === undefined) {
@@ -156,7 +169,7 @@ function ResourceCard<T extends BaseResource>(
                 },
                 onError: (error, variables, context) => {
                     console.error(error, {variables, context})
-                    const d = error.response?.data as SerializableObject
+                    const d = error.response?.data as Partial<T>
                     const firstError = Object.entries(d)[0]
                     postSnackbarMessage({
                         message: <Stack>
@@ -193,7 +206,7 @@ function ResourceCard<T extends BaseResource>(
         undoable={UndoRedo.can_undo}
         redoable={UndoRedo.can_redo}
         onEditSave={() => {
-            update_mutation.mutate(UndoRedo.current)
+            update_mutation.mutate(UndoRedo.diff() as Partial<T>)
             return true
         }}
         onEditDiscard={() => {
@@ -208,19 +221,47 @@ function ResourceCard<T extends BaseResource>(
                 return
             const destroy = api_handler[
                 `${API_SLUGS[lookup_key]}Destroy` as keyof typeof api_handler
-                ] as (id: string) => Promise<AxiosResponse<T>>
-            destroy.bind(api_handler)(String(resource_id))
-                .then(() => queryClient.invalidateQueries([lookup_key, 'list']))
+                ] as (requestParams: {id: string}) => Promise<AxiosResponse<T>>
+            destroy.bind(api_handler)({id: String(resource_id)})
                 .then(() => {
                     navigate(PATHS[lookup_key])
                     queryClient.removeQueries([lookup_key, resource_id])
-                }).catch(e => {
-                postSnackbarMessage({
-                    message: `Error deleting ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
-                        (HTTP ${e.response?.status} - ${e.response?.statusText}): ${e.response?.data?.detail}`,
-                    severity: 'error'
                 })
-            })
+                .then(() => {
+                    queryClient.invalidateQueries([lookup_key, 'list'])
+                    if (lookup_key === LOOKUP_KEYS.LAB) {
+                        refresh_user()
+                    }
+                })
+                .catch(e => {
+                    postSnackbarMessage({
+                        message: `Error deleting ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
+                        (HTTP ${e.response?.status} - ${e.response?.statusText}): ${e.response?.data?.detail}`,
+                        severity: 'error'
+                    })
+                })
+        }}
+        reimportable={lookup_key === LOOKUP_KEYS.FILE && apiResource?.permissions?.write && apiResource.state !== "RETRY IMPORT"}
+        onReImport={() => {
+            if (!window.confirm(`
+Re-import ${DISPLAY_NAMES[lookup_key]}/${resource_id}?
+
+This will overwrite the current data with the latest version from the source file, if available.
+The file will be added to the Harvester's usual queue for processing.
+`))
+                return;
+            const reimport = api_handler[
+                `${API_SLUGS[lookup_key]}ReimportRetrieve` as keyof typeof api_handler
+                ] as (requestParams: {id: string}) => Promise<AxiosResponse<T>>
+            reimport.bind(api_handler)({id: String(resource_id)})
+                .then(() => queryClient.invalidateQueries([lookup_key, resource_id]))
+                .catch(e => {
+                    postSnackbarMessage({
+                        message: `Error re-importing ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
+                        (HTTP ${e.response?.status} - ${e.response?.statusText}): ${e.response?.data?.detail}`,
+                        severity: 'error'
+                    })
+                })
         }}
         expanded={isExpanded}
         setExpanded={setIsExpanded}
@@ -254,13 +295,18 @@ function ResourceCard<T extends BaseResource>(
                 key="read-props"
                 filter={(d, lookup_key) => {
                     const data = deep_copy(d)
-                    // Unrecognised fields are always editable
-                    Object.keys(data).forEach(k => {
-                        if (!Object.keys(FIELDS[lookup_key]).includes(k))
+                    Object.entries(FIELDS[lookup_key]).forEach(([k, v]) => {
+                        if (!v.read_only)
                             delete data[k]
                     })
-                    Object.entries(FIELDS[lookup_key]).forEach(([k, v]) => {
-                        if (!v.readonly)
+                    apiResourceDescription && Object.entries(apiResourceDescription).forEach(([k, v]) => {
+                        if (!v.read_only && data[k] !== undefined)
+                            delete data[k]
+                    })
+                    // Unrecognised fields are always editable
+                    Object.keys(data).forEach(k => {
+                        const in_description = apiResourceDescription && Object.keys(apiResourceDescription).includes(k)
+                        if (!Object.keys(FIELDS[lookup_key]).includes(k) && !in_description)
                             delete data[k]
                     })
                     return data
@@ -349,22 +395,20 @@ function ResourceCard<T extends BaseResource>(
                 }
             </Grid>
         }
+        const field = key? FIELDS[lookup_key] : undefined
+        const field_info = field? field[key as keyof typeof field] : undefined
         return lookup && is_lookup_key(lookup) ?
             <ResourceChip
                 resource_id={id_from_ref_props<string>(data as string | number)}
                 lookup_key={lookup}
                 short_name={is_family_child(lookup, lookup_key)}
-            /> : <Prettify target={to_type_value_notation(data)}/>
+            /> : <Prettify target={to_type_value_notation(data, field_info)}/>
     }
 
     const cardSummary = <CardContent>
         {lookup_key === LOOKUP_KEYS.FILE && apiResource?.has_required_columns && apiResource.png &&
             <Stack spacing={2}>
-                <img
-                    src={apiResource.png as string}
-                    alt={`Preview of ${apiResource.name}`}
-                    className={clsx(classes.filePreview)}
-                />
+                <AuthImage file={apiResource as unknown as {id: string, path: string, png: string}} />
             </Stack>
         }
         {apiResource && <Grid container spacing={1}>{

@@ -78,6 +78,7 @@ const api_data: {
             str: {_type: "string", _value: "custom"},
             num: {_type: "number", _value: 3.14159},
             bool: {_type: "boolean", _value: true},
+            date: {_type: "datetime", _value: "2024-04-10T15:43:20.522000Z"},
             arr: {
                 _type: "array",
                 _value: [
@@ -110,7 +111,7 @@ const api_data: {
             write: true,
             create: false
         },
-        nominal_voltage: 3.7
+        nominal_voltage_v: 3.7
     },
     cell_family_2: {
         url: "http://example.com/cell_families/1200-1200-1200-1200",
@@ -127,7 +128,7 @@ const api_data: {
             write: true,
             create: false
         },
-        nominal_voltage: 3.1
+        nominal_voltage_v: 3.1
     },
     team: {
         url: "http://example.com/teams/1",
@@ -183,7 +184,9 @@ const do_render = async () => {
     // Set up a mini mock server to respond to axios requests
     mockedAxios.request.mockImplementation((config: AxiosRequestConfig) => {
         if (config.url) {
-            const url = config.url.replace(/\/$/, "")
+            const url = config.url
+                .replace(/\?.*$/, "")
+                .replace(/\/$/, "")
             if (url.endsWith(api_data.cell.id))
                 return make_axios_response(api_data.cell, {config})
             if (url.endsWith(api_data.cell_family.id))
@@ -266,10 +269,10 @@ describe('ResourceCard', () => {
             const inherited_heading = await screen.findByRole('heading', { name: /^Inherited from / });
             const inherited_table = inherited_heading.parentElement!.parentElement!.nextElementSibling;
             expect(inherited_table).not.toBe(null);
-            const nominal_voltage_heading = within(inherited_table as HTMLElement)
-                .getByRole("rowheader", {name:/nominal_voltage/});
-            within(nominal_voltage_heading.parentElement! as HTMLElement)
-                .getByRole("cell", {name: api_data.cell_family.nominal_voltage!.toString()});
+            const nominal_voltage_v_heading = within(inherited_table as HTMLElement)
+                .getByRole("rowheader", {name:/nominal_voltage_v/});
+            within(nominal_voltage_v_heading.parentElement! as HTMLElement)
+                .getByRole("cell", {name: api_data.cell_family.nominal_voltage_v!.toString()});
         })
 
         it('expands and collapses', () => {
@@ -649,6 +652,16 @@ describe('ResourceCard', () => {
             const row = await setup("key str", "number");
             expect(within(row).getByRole('spinbutton')).toHaveValue(null)
         })
+        it('allows changing the type of a string to a datetime', async () => {
+            const row = await setup("key str", "datetime");
+            const value = (within(row).getAllByRole('textbox')[1] as HTMLInputElement).value;
+            // Expect to have defaulted to the time when the conversion applied
+            const date = new Date(value);
+            const now = new Date();
+            const diff = +now - +date;  // + coerces to number
+            expect(diff).toBeLessThan(10000);
+            expect(diff).toBeGreaterThan(0);
+        })
         it('allows changing the type of a string to an array', async () => {
             const row = await setup("key str", "array");
             // Expect the length to be 3: key, value, and add new element
@@ -667,6 +680,16 @@ describe('ResourceCard', () => {
         it('allows changing the type of a boolean to a number', async () => {
             const row = await setup("key bool", "number");
             expect(within(row).getByRole('spinbutton')).toHaveValue(1)
+        })
+        it('allows changing the type of a boolean to a datetime', async () => {
+            const row = await setup("key bool", "datetime");
+            const value = (within(row).getAllByRole('textbox')[1] as HTMLInputElement).value;
+            // Expect to have defaulted to the time when the conversion applied
+            const date = new Date(value);
+            const now = new Date();
+            const diff = +now - +date;  // + coerces to number
+            expect(diff).toBeLessThan(10000);
+            expect(diff).toBeGreaterThan(0);
         })
         it('allows changing the type of a boolean to an array', async () => {
             const row = await setup("key bool", "array");
@@ -687,6 +710,14 @@ describe('ResourceCard', () => {
         it('allows changing the type of a number to a boolean', async () => {
             const row = await setup("key num", "boolean");
             expect(within(row).getByRole('checkbox')).toBeChecked()
+        })
+        it('allows changing the type of a number to a datetime', async () => {
+            const row = await setup("key num", "datetime");
+            const value = (within(row).getAllByRole('textbox')[1] as HTMLInputElement).value;
+            // Pi gets converted to the Unix epoch
+            const date = new Date(value);
+            const epoch = new Date(3.14159);
+            expect(date.toISOString()).toEqual(epoch.toISOString());
         })
         it('allows changing the type of a number to an array', async () => {
             const row = await setup("key num", "array");
@@ -712,6 +743,14 @@ describe('ResourceCard', () => {
             const row = await setup("key arr", "number");
             expect(within(row).getByRole('spinbutton')).toHaveValue(null)
         })
+        it('allows changing the type of an array to a datetime', async () => {
+            const row = await setup("key arr", "datetime");
+            const value = (within(row).getAllByRole('textbox')[1] as HTMLInputElement).value;
+            // "element 1" gets date-parsed as 2001-01-01T00:00:00.000Z
+            const date = new Date(value);
+            const jan_1_2001 = "2001-01-01T00:00:00.000Z";
+            expect(date.toISOString()).toEqual(jan_1_2001);
+        })
         it('allows changing the type of an array to an object', async () => {
             const row = await setup("key arr", "object");
             // Expect the length to be 4: key, key, value, and add new key
@@ -731,9 +770,42 @@ describe('ResourceCard', () => {
             const row = await setup("key obj", "number");
             expect(within(row).getByRole('spinbutton')).toHaveValue(null)
         })
+        it('allows changing the type of an object to a datetime', async () => {
+            const row = await setup("key obj", "datetime");
+            const value = (within(row).getAllByRole('textbox')[1] as HTMLInputElement).value;
+            // Expect to have defaulted to the time when the conversion applied
+            const date = new Date(value);
+            const now = new Date();
+            const diff = +now - +date;  // + coerces to number
+            expect(diff).toBeLessThan(10000);
+            expect(diff).toBeGreaterThan(0);
+        })
         it('allows changing the type of an object to an array', async () => {
             const row = await setup("key obj", "array");
             // Expect the length to be 4: key, value, value, and add new element
+            expect(within(row).getAllByRole('textbox').length).toBe(4)
+        })
+        it('allows changing the type of a datetime to a string', async () => {
+            const row = await setup("key date", "string");
+            expect(within(row).getAllByRole('textbox').pop())
+                .toHaveValue(api_data.cell.custom_properties?.date._value);
+        })
+        it('allows changing the type of a datetime to a boolean', async () => {
+            const row = await setup("key date", "boolean");
+            expect(within(row).getByRole('checkbox')).toBeChecked()
+        })
+        it('allows changing the type of a datetime to a number', async () => {
+            const row = await setup("key date", "number");
+            expect(within(row).getByRole('spinbutton')).toHaveValue(null)
+        })
+        it('allows changing the type of a datetime to an array', async () => {
+            const row = await setup("key date", "array");
+            // Expect the length to be 3: key, value, and add new element
+            expect(within(row).getAllByRole('textbox').length).toBe(3)
+        })
+        it('allows changing the type of a datetime to an object', async () => {
+            const row = await setup("key date", "object");
+            // Expect the length to be 4: key, key, value, and add new key
             expect(within(row).getAllByRole('textbox').length).toBe(4)
         })
 
@@ -752,6 +824,16 @@ describe('ResourceCard', () => {
         it('allows changing the type of a resource to a number', async () => {
             const row = await setup("key cf", "number");
             expect(within(row).getByRole('spinbutton')).toHaveValue(null)
+        })
+        it('allows changing the type of a resource to a datetime', async () => {
+            const row = await setup("key cf", "datetime");
+            const value = (within(row).getAllByRole('textbox')[1] as HTMLInputElement).value;
+            // Expect to have defaulted to the time when the conversion applied
+            const date = new Date(value);
+            const now = new Date();
+            const diff = +now - +date;  // + coerces to number
+            expect(diff).toBeLessThan(10000);
+            expect(diff).toBeGreaterThan(0);
         })
         it('allows changing the type of a resource to an array', async () => {
             const row = await setup("key cf", "array");

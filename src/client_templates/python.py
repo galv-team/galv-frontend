@@ -1,118 +1,93 @@
 # SPDX-License-Identifier: BSD-2-Clause
-# Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
+# Copyright (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 # of Oxford, and the 'Galv' Developers. All rights reserved.
-
+#
 # By Matt Jaquiery <matt.jaquiery@dtc.ox.ac.uk>
 
-# Download datasets from the REST API.
-# Downloads all data for all columns for the dataset and reads them
-# into a Dict object. Data are under datasets[x] as DataFrames.
-#
-# Dataset and column dataset_metadata are under dataset_metadata[x] and
-# column_metadata[x] respectively.
-import time
-import re
-import pandas
-
-import galv  # install via `pip install galv` if not available
-from galv.apis import tag_to_api
+import os
+import requests
+import json
+import pyarrow.parquet as pq
+import tempfile
 
 # Configuration
+host = "GALV_API_HOST"
+token = "GALV_USER_TOKEN"
+headers = {
+    "Authorization": f"Bearer {token}",
+    "accept": "application/json"
+}
 verbose = True
 
-VARS = {
-    "api_host": "GALV_API_HOST",
-    "user_token": "GALV_USER_TOKEN",
-    "dataset_ids": [
-        "GALV_DATASET_IDS"
-    ]
-}
+dataset_ids = [
+    "GALV_DATASET_IDS"
+]
+dataset_metadata = {}
+parquets = {}
 
-headers = {'Authorization': f'Bearer {VARS["user_token"]}'}
 
-# Add additional dataset ids to download additional datasets
-dataset_metadata = {}  # Will have keys=dataset_id, values=DynamicSchema of dataset metadata
-column_metadata = {}  # Will have keys=dataset_id, values=List of DynamicSchemas of column metadata
-data = {}  # Will have keys=dataset_id, values=pandas DataFrame of data
+def vprintln(message):
+    if verbose:
+        print(message)
 
-# Set up the connection configuration
-config = galv.Configuration(host=VARS['api_host'])
-config.access_token = VARS['user_token']
 
-# Download data
-start_time = time.time()
-successes = 0
-if verbose:
-    print(f"Downloading {len(VARS['dataset_ids'])} datasets from {VARS['api_host']}")
+def get_dataset(id):
+    vprintln(f"Downloading dataset {id}")
 
-with galv.ApiClient(config) as api_client:  # Enter a context with an instance of the API client
-    # Set up the specific API classes we need
-    files_api = tag_to_api.FilesApi(api_client)
-    columns_api = tag_to_api.ColumnsApi(api_client)
+    response = requests.get(f"{host}/files/{id}/", headers=headers)
+    if response.status_code != 200:
+        print(f"Error fetching dataset {id}: {response.status_code}")
+        return
 
-    for dataset_id in VARS['dataset_ids']:
-        dataset_start_time = time.time()
+    try:
+        body = response.json()
+    except json.JSONDecodeError:
+        print(f"Error parsing JSON for dataset {id}")
+        return
+
+    dataset_metadata[id] = body
+    parquet_partitions = dataset_metadata[id]["parquet_partitions"]
+    len_partitions = len(parquet_partitions)
+    vprintln(f"Downloading {len_partitions} parquet partitions for dataset {id}")
+
+    dataset_dir = tempfile.mkdtemp(prefix=f"py_{id}")
+
+    for i, pp in enumerate(parquet_partitions):
+        vprintln(f"Downloading partition {i + 1} from {pp}")
+        partition_response = requests.get(pp, headers=headers)
+        if partition_response.status_code != 200:
+            print(f"Error fetching parquet partition {i + 1} for dataset {id}: {partition_response.status_code}")
+            continue
+
         try:
-            if verbose:
-                print(f"Downloading dataset {dataset_id}")
-                files_api = tag_to_api.FilesApi(api_client)  # Get the specific API class we need
-                r = files_api.files_retrieve({"id": dataset_id})  # Call the API method to retrieve the dataset
-                # Response.response contains the raw response information
-                if r.response.status != 200:
-                    raise Exception((
-                        f"Failed to download dataset {dataset_id}. "
-                        f"HTTP{r.response.status}: {r.response.reason}"
-                    ))
-                # Response.body contains the response body
-                dataset_metadata[dataset_id] = r.body
+            parquet_info = partition_response.json()
+        except json.JSONDecodeError:
+            print(f"Error parsing JSON for dataset {id} parquet partition {i + 1}")
+            continue
 
-            columns = dataset_metadata[dataset_id].get('columns', [])
+        pq_file = parquet_info["parquet_file"]
+        vprintln(f"Downloading .parquet from {pq_file}")
+        path = os.path.join(dataset_dir, f"{i + 1}.parquet")
 
-            if verbose:
-                print(f"Dataset {dataset_id} has {len(columns)} columns to download")
+        download_response = requests.get(pq_file, headers=headers)
+        if download_response.status_code == 200:
+            with open(path, 'wb') as f:
+                f.write(download_response.content)
+            vprintln(f"Partition {i + 1} downloaded successfully")
+        else:
+            print(f"Error downloading .parquet file from {pq_file}: {download_response.status_code}")
 
-            # Download the data from all columns in the dataset
-            data[dataset_id] = pandas.DataFrame()
-            column_metadata[dataset_id] = [None] * len(columns)
+    # Add parquet from directory
+    parquets[id] = pq.ParquetDataset(dataset_dir)
+    vprintln("Completed.")
 
-            for i, column in enumerate(columns):
-                # Extract id from column URL
-                column_id = re.search(r'/(\d+)/(\??.*)$', column).group(1)
-                if verbose:
-                    print(f"Downloading dataset {dataset_id} column {i}")
-                c = columns_api.columns_retrieve({"id": int(column_id)})
-                if c.response.status != 200:
-                    raise Exception((
-                        f"Failed to download column {column}. "
-                        f"HTTP{r.response.status}: {r.response.reason}"
-                    ))
-                column_metadata[dataset_id][i] = c.body
-                v = columns_api.columns_values_retrieve({"id": int(column_id)})
-                if c.response.status != 200:
-                    raise Exception((
-                        f"Failed to download data for column {column}. "
-                        f"HTTP{r.response.status}: {r.response.reason}"
-                    ))
-                # Values are fetched as a stream of bytes, so we need to decode them.
-                # Values are fetched as a stream of bytes, so we need to decode them.
-                d = str(v.response.data, encoding='utf-8')
-                data[dataset_id][c.body["name_in_file"]] = d.split('\n')
 
-            if verbose:
-                print((
-                    f"Finished downloading dataset {dataset_id} in "
-                    f"{round(time.time() - dataset_start_time, 2)}s"
-                ))
-            successes += 1
+for id in dataset_ids:
+    get_dataset(id)
+    vprintln(f"Completed dataset {id}")
 
-        except Exception as e:
-            print(f"Error downloading dataset {dataset_id}. {e.__class__.__name__}: {e}")
+vprintln("All datasets complete.")
 
-if verbose:
-    print((
-        f"Successfully downloaded {successes}/{len(VARS['dataset_ids'])} datasets "
-        f"in {round(time.time() - start_time, 2)}s\n\n"
-        "Dataset metadata is in dataset_metadata, column metadata is in column_metadata, "
-        "and data are in data.\n\n"
-        "All are dictionaries with dataset_id keys and DynamicSchema/DataFrame values."
-    ))
+# Load a dataset as a DataFrame
+df = parquets[dataset_ids[0]].read().to_pandas()
+print(df)

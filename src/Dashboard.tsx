@@ -17,7 +17,7 @@ import ListItem from "@mui/material/ListItem";
 import Tooltip from "@mui/material/Tooltip";
 import {ResourceChip} from "./Components/ResourceChip";
 import Stack from "@mui/material/Stack";
-import React, {ReactNode, useState} from "react";
+import React, {ReactNode, useEffect, useState} from "react";
 import Button from "@mui/material/Button";
 import {useCurrentUser} from "./Components/CurrentUserContext";
 import List from "@mui/material/List";
@@ -34,6 +34,10 @@ import IntroText from "./Components/IntroText";
 import Box from "@mui/material/Box";
 import clsx from "clsx";
 import UseStyles from "./styles/UseStyles";
+import {ListQueryResult, useFetchResource} from "./Components/FetchResourceContext";
+import CircularProgress from "@mui/material/CircularProgress";
+import useStyles from "./styles/UseStyles";
+import Skeleton from "@mui/material/Skeleton";
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -41,13 +45,14 @@ type SchemaValidationSummary = {
     resource_id?: string
 }
 
-const get_color = (status: SchemaValidation["status"]) => {
+const get_color = (status: SchemaValidation["status"]|"INPUT_REQUIRED") => {
     switch (status) {
         case "VALID":
             return "success"
         case "ERROR":
             return "error"
         case "INVALID":
+        case "INPUT_REQUIRED":
             return "warning"
         default:
             return undefined
@@ -213,51 +218,46 @@ export function SchemaValidationList() {
 }
 
 export function DatasetStatus() {
-    // API handler
-    const {api_config} = useCurrentUser()
-    const api_handler = new FilesApi(api_config)
-    // Queries
-    const queryClient = useQueryClient()
-    const query = useQuery<AxiosResponse<PaginatedObservedFileList>, AxiosError>({
-        queryKey: [LOOKUP_KEYS.FILE, 'dashboard-list'],
-        queryFn: () => api_handler.filesList().then((r): typeof r => {
-            try {
-                // Update the cache for each resource
-                r.data.results?.forEach((resource: ObservedFile) => {
-                    queryClient.setQueryData([LOOKUP_KEYS.FILE, resource.id], {...r, data: resource})
-                })
-            } catch (e) {
-                console.error("Error updating cache from list data.", e)
-            }
-            return r
-        })
-    })
+    const [open, setOpen] = useState(false)
+    const {useListQuery} = useFetchResource()
+    const query = useListQuery(LOOKUP_KEYS.FILE) as ListQueryResult<ObservedFile>
+    const {classes} = useStyles()
+
+    if (query?.hasNextPage && !query.isFetchingNextPage)
+        query.fetchNextPage()
 
     const state_to_status = (state: ObservedFile["state"]) => {
-        return state === "IMPORTED"? "VALID" :
-            state === "IMPORT FAILED" ?
-                "ERROR" : "UNCHECKED"
+        switch (state) {
+            case "IMPORTED":
+                return "VALID"
+            case "AWAITING MAP ASSIGNMENT":
+                return "INPUT_REQUIRED"
+            case "IMPORT FAILED":
+                return "ERROR"
+            default:
+                return "UNCHECKED"
+        }
     }
 
-    const status_counts = query.data && query.data.data.results?.reduce(
-        (a, b) => {
-            const status = state_to_status(b.state)
-            if (a[status] === undefined)
-                a[status] = {[b.state]: 1}
-            else {
-                if (a[status]![b.state] === undefined)
-                    a[status]![b.state] = 1
-                else
-                    a[status]![b.state]!++
-            }
-            return a
-        },
-        {} as {[key in ReturnType<typeof state_to_status>]: {[key in ObservedFile["state"]]?: number}}
-    )
+    const statusCounts = query.results?.reduce(
+            (a, b) => {
+                const status = state_to_status(b.state)
+                if (a[status] === undefined)
+                    a[status] = {[b.state]: 1}
+                else {
+                    if (a[status]![b.state] === undefined)
+                        a[status]![b.state] = 1
+                    else
+                        a[status]![b.state]!++
+                }
+                return a
+            },
+            {} as Record<ReturnType<typeof state_to_status>, Partial<Record<ObservedFile["state"], number>>>
+        )
 
     const TooltipContent = ({status}: {status: ReturnType<typeof state_to_status>}) => {
         return <List>
-            {status_counts && Object.entries(status_counts[status]!).map(([state, count]) =>
+            {statusCounts && Object.entries(statusCounts[status]!).map(([state, count]) =>
                 <ListItem key={state}>
                     <ListItemText>{state}: {count}</ListItemText>
                 </ListItem>
@@ -265,14 +265,17 @@ export function DatasetStatus() {
         </List>
     }
 
+    const files_needing_input = query.results?.filter(f => f.state === "AWAITING MAP ASSIGNMENT")
+
     return <Container maxWidth="lg">
-        {query.isInitialLoading? "Loading..." : <Card>
+        {query.isInitialLoading? <Skeleton height="4em" /> : <Card>
             <CardHeader
                 avatar={<LookupKeyIcon lookupKey={LOOKUP_KEYS.FILE} />}
                 title={DISPLAY_NAMES_PLURAL[LOOKUP_KEYS.FILE]}
                 action={<Stack direction="row" spacing={1} alignItems="center">
-                    {status_counts &&
-                        Object.entries(status_counts).map(([status, counts]) => <Tooltip
+                    {query.isFetching && <CircularProgress className={clsx(classes.inlineProgress)} size={20} />}
+                    {statusCounts &&
+                        Object.entries(statusCounts).map(([status, counts]) => <Tooltip
                             title={<TooltipContent status={status as ReturnType<typeof state_to_status>} />}
                             key={status}
                             placement="left"
@@ -288,6 +291,28 @@ export function DatasetStatus() {
                         </Tooltip>)}
                 </Stack>}
             />
+            {files_needing_input && files_needing_input.length > 0 && <CardContent
+                onClick={() => setOpen(!open)}
+                onKeyDown={(e) => {
+                    if (e.target === e.currentTarget && [" ", "Enter"].includes(e.key))
+                        setOpen(!open)
+                }}
+                tabIndex={0}
+                sx={{cursor: "pointer"}}
+            >
+                {
+                    open?
+                        <List>
+                            {files_needing_input.map(f => <ListItem key={f.id}>
+                                <ICONS.validation_status_INPUT_REQUIRED color="warning" />
+                                <ResourceChip resource_id={f.id} lookup_key={LOOKUP_KEYS.FILE} short_name={false} />
+                            </ListItem>)}
+                        </List> :
+                        <Typography>
+                            <em>Click to see all {files_needing_input.length} files with ambiguous mapping.</em>
+                        </Typography>
+                }
+            </CardContent>}
         </Card>}
 
     </Container>

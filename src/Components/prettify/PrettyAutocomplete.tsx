@@ -29,15 +29,18 @@ export default function PrettyAutocomplete(
             edit_mode={false}
         />
 
+    const fireChange = (value: string|string[]) => {
+        value instanceof Array?
+                value.map(v => onChange({_type: target._type, _value: v})) :
+                onChange({_type: target._type, _value: value})
+    }
+
     return <Autocomplete
         value={target._value ?? ""}
         freeSolo
         options={query.results? query.results.map(r => r.value) : []}
-        onChange={(e, value) =>
-            value instanceof Array?
-                value.map(v => onChange({_type: target._type, _value: v})) :
-                onChange({_type: target._type, _value: value})
-        }
+        onChange={(_, v) => fireChange(v)}
+        onBlur={(e: React.FocusEvent<HTMLInputElement>) => fireChange(e.target.value)}
         renderInput={(params) => (
             <TextField
                 {...params}

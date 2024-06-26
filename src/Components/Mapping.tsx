@@ -171,9 +171,14 @@ function SelectColumnType(
         {selected_id: number|null, setSelected: (s?: ColumnType) => void, reset_name: string}
 ) {
     const {useListQuery} = useFetchResource()
-    const {results} = useListQuery<ColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
+    const query = useListQuery<ColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
     const {classes} = useStyles();
     const [createModalOpen, setCreateModalOpen] = useState(false)
+
+    if (query?.hasNextPage && !query.isFetchingNextPage)
+        query.fetchNextPage()
+
+    const results = query.results
 
     // Sort the ColumnType array
     const sortedData = results?.sort((a, b) => {
@@ -562,7 +567,7 @@ function MappingManager(
     })
     const {classes} = useStyles()
     const {useListQuery, useCreateQuery, useUpdateQuery, useDeleteQuery} = useFetchResource()
-    const {results: columns} = useListQuery<ColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
+    const col_query = useListQuery<ColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
     const [more, setMore] = React.useState(false)
     const [advancedPropertiesOpen, setAdvancedPropertiesOpen] = React.useState(false)
     const [mapping, setMapping] = useState<DB_MappingResource>(
@@ -590,6 +595,11 @@ function MappingManager(
     )
     const deleteMapMutation = useDeleteQuery<DB_MappingResource>(LOOKUP_KEYS.MAPPING)
     const deleteMap = (data: DB_MappingResource) => deleteMapMutation.mutate(data, {onSuccess: () => navigate(0)})
+
+    if (col_query?.hasNextPage && !col_query.isFetchingNextPage)
+        col_query.fetchNextPage()
+
+    const columns = col_query?.results
 
     // Summary data with children in array form
     const array_summary: Record<string, (string|number|boolean)[]> = {}
@@ -909,7 +919,7 @@ export function Mapping() {
     const applicableMappingsQuery = useQuery<AxiosResponse<DB_MappingResource[]>, AxiosError>(
         ["applicable_mappings", file?.id],
         async () => {
-            const data = await fileApiHandler.filesApplicableMappingsRetrieve(file!.id)
+            const data = await fileApiHandler.filesApplicableMappingsRetrieve({id: file!.id})
             queryClient.setQueryData(["applicable_mappings", file!.id], data)
             const content = data.data as unknown as {mapping: DB_MappingResource, missing: number}[]
             return {
@@ -924,7 +934,7 @@ export function Mapping() {
     const summaryQuery = useQuery<AxiosResponse<Record<string, Record<string, string|number>>>, AxiosError>(
         ["summary", file?.id],
         async () => {
-            const data = await fileApiHandler.filesSummaryRetrieve(file!.id)
+            const data = await fileApiHandler.filesSummaryRetrieve({id: file!.id})
             queryClient.setQueryData(["summary", file!.id], data)
             return data as unknown as AxiosResponse<Record<string, Record<string, string|number>>>
         },

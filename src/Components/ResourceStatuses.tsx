@@ -15,6 +15,7 @@ import {useCurrentUser} from "./CurrentUserContext";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {AxiosError, AxiosResponse} from "axios";
 import {DB_MappingResource} from "./Mapping";
+import Skeleton from "@mui/material/Skeleton";
 
 export function StatusAlert(
     {message, fix_button, children, ...alertProps}:
@@ -40,62 +41,67 @@ export function StatusAlert(
 const fileStatuses = (file: ObservedFile, mappings: DB_MappingResource[]) => {
     const statuses: ReactNode[] = []
     const map = mappings.find(m => m.url === file.mapping)
-    if (mappings.length === 0) {
-        statuses.push(<StatusAlert
-            message="There are no mappings that can be applied to this file"
-            fix_button={
-                <Button component={Link} to={`${PATHS.MAPPING}/${file.id ?? file.id}`} size="small">
-                    Create mapping
-                </Button>
-            }
-            severity="error"
-        >
-            Mappings are used to map the columns in a file to the columns in the database.
-            When a suite of files use the same column names to represent the same kind of data,
-            analyses can be performed across all the files.
-            Galv requires that certain key columns are present in every file: 'ElapsedTime_s', 'Voltage_V', and 'Current_A'.
-        </StatusAlert>)
-    } else if (!map) {
-        statuses.push(<StatusAlert
-            message="There are mappings that can be applied to this file, but none have been selected"
-            fix_button={
-                <Button component={Link} to={`${PATHS.MAPPING}/${file.id ?? file.id}`} size="small">
-                    Choose mapping
-                </Button>
-            }
-            severity="warning"
-        >
-
-            Mappings are used to map the columns in a file to the columns in the database.
-            When a suite of files use the same column names to represent the same kind of data,
-            analyses can be performed across all the files.
-            Galv requires that certain key columns are present in every file: 'ElapsedTime_s', 'Voltage_V', and 'Current_A'.
-        </StatusAlert>)
-    } else if (!map.is_valid) {
-        statuses.push(<StatusAlert
-            message={`An invalid mapping '${map.name}' is applied to this file`}
-            fix_button={
-                <Button component={Link} to={`${PATHS.MAPPING}/${file.id ?? file.id}`} size="small">
-                    Edit mapping
-                </Button>
-            }
-            severity="warning"
-        >
-            All mappings must recognise 'ElapsedTime_s', 'Voltage_V', and 'Current_A' columns to be counted as valid.
-            Data that do not have these columns cannot be previewed, and may not be suitable for analysis.
-        </StatusAlert>)
+    if (map) {
+        if (map.is_valid) {
+            statuses.push(<StatusAlert
+                message={`File mapped using valid mapping '${map.name}'`}
+                fix_button={
+                    <Button component={Link} to={`${PATHS.MAPPING}/${file.id ?? file.id}`} size="small">
+                        Edit mapping
+                    </Button>
+                }
+                severity="success"
+            >
+                Data has the required columns. Preview and analysis tools are available.
+            </StatusAlert>)
+        } else {
+            statuses.push(<StatusAlert
+                message={`An invalid mapping '${map.name}' is applied to this file`}
+                fix_button={
+                    <Button component={Link} to={`${PATHS.MAPPING}/${file.id ?? file.id}`} size="small">
+                        Edit mapping
+                    </Button>
+                }
+                severity="warning"
+            >
+                All mappings must recognise 'ElapsedTime_s', 'Voltage_V', and 'Current_A' columns to be counted as valid.
+                Data that do not have these columns cannot be previewed, and may not be suitable for analysis.
+            </StatusAlert>)
+        }
     } else {
-        statuses.push(<StatusAlert
-            message={`File mapped using valid mapping '${map.name}'`}
-            fix_button={
-                <Button component={Link} to={`${PATHS.MAPPING}/${file.id ?? file.id}`} size="small">
-                    Edit mapping
-                </Button>
-            }
-            severity="success"
-        >
-            Data has the required columns. Preview and analysis tools are available.
-        </StatusAlert>)
+        if (mappings.length > 0) {
+            statuses.push(<StatusAlert
+                message="There are mappings that can be applied to this file, but none have been selected"
+                fix_button={
+                    <Button component={Link} to={`${PATHS.MAPPING}/${file.id ?? file.id}`} size="small">
+                        Choose mapping
+                    </Button>
+                }
+                severity="warning"
+            >
+
+                Mappings are used to map the columns in a file to the columns in the database.
+                When a suite of files use the same column names to represent the same kind of data,
+                analyses can be performed across all the files.
+                Galv requires that certain key columns are present in every file: 'ElapsedTime_s', 'Voltage_V', and
+                'Current_A'.
+            </StatusAlert>)
+        } else {
+            statuses.push(<StatusAlert
+                message="There are no mappings that can be applied to this file"
+                fix_button={
+                    <Button component={Link} to={`${PATHS.MAPPING}/${file.id ?? file.id}`} size="small">
+                        Create mapping
+                    </Button>
+                }
+                severity="error"
+            >
+                Mappings are used to map the columns in a file to the columns in the database.
+                When a suite of files use the same column names to represent the same kind of data,
+                analyses can be performed across all the files.
+                Galv requires that certain key columns are present in every file: 'ElapsedTime_s', 'Voltage_V', and 'Current_A'.
+            </StatusAlert>)
+        }
     }
     return statuses
 }
@@ -109,7 +115,9 @@ export default function ResourceStatuses({lookup_key}: {lookup_key: LookupKey}) 
     const applicableMappingsQuery = useQuery<AxiosResponse<DB_MappingResource[]>, AxiosError>(
         ["applicable_mappings", apiResource?.id],
         async () => {
-            const data = await fileApiHandler.filesApplicableMappingsRetrieve(apiResource!.id as string)
+            const data = await fileApiHandler.filesApplicableMappingsRetrieve(
+                {id: apiResource!.id as string}
+            )
             queryClient.setQueryData(["applicable_mappings", apiResource!.id], data)
             const content = data.data as unknown as {mapping: DB_MappingResource, missing: number}[]
             return {
@@ -126,7 +134,12 @@ export default function ResourceStatuses({lookup_key}: {lookup_key: LookupKey}) 
     const statuses: ReactNode[] = []
     switch(lookup_key) {
         case LOOKUP_KEYS.FILE:
-            statuses.push(...fileStatuses(apiResource as unknown as ObservedFile, mappings))
+            if (apiResource.state !== "GROWING") {
+                if (applicableMappingsQuery.isFetching || applicableMappingsQuery.isLoading) {
+                    statuses.push(<Skeleton variant="rounded" height="3em" />)
+                } else
+                    statuses.push(...fileStatuses(apiResource as unknown as ObservedFile, mappings))
+            }
             break;
     }
     return statuses.length > 0?

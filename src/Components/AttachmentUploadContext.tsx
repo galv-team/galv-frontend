@@ -1,16 +1,15 @@
 import {createContext, PropsWithChildren, useContext, useState} from "react";
-import {ArbitraryFile, ArbitraryFilesApi, Configuration} from "@galv/galv";
+import {ArbitraryFile, ArbitraryFilesApi, ArbitraryFilesApiArbitraryFilesCreateRequest} from "@galv/galv";
 import {useMutation, UseMutationResult, useQueryClient} from "@tanstack/react-query";
 import {AxiosResponse} from "axios";
 import {useCurrentUser} from "./CurrentUserContext";
 import {LOOKUP_KEYS} from "../constants";
 
-type ArbitraryFileUpload = Pick<ArbitraryFile, "name"|"team"|"is_public"|"description">
-
 export interface IAttachmentUploadContext {
     file: File|null
     setFile: (file: File|null) => void
-    UploadMutation: UseMutationResult<AxiosResponse<ArbitraryFile>, unknown, ArbitraryFileUpload>
+    getUploadMutation: (callback: (new_data_url?: string, error?: unknown) => void) =>
+        UseMutationResult<AxiosResponse<ArbitraryFile>, unknown, ArbitraryFilesApiArbitraryFilesCreateRequest>
 }
 
 const AttachmentUploadContext = createContext({} as IAttachmentUploadContext)
@@ -30,24 +29,23 @@ export default function AttachmentUploadContextProvider({children}: PropsWithChi
     const queryClient = useQueryClient()
     const {api_config} = useCurrentUser()
     const api_handler = new ArbitraryFilesApi(api_config)
-    const UploadMutation = useMutation(
-        ({name, team, is_public, description}: ArbitraryFileUpload) => {
-            description = description ?? undefined
-            if (!file)
-                throw new Error("No file to upload")
-            if (!team)
-                throw new Error("Files must belong to a Team")
-            return api_handler.arbitraryFilesCreate.bind(api_handler)(name, file, team, description, is_public)
+    const UploadMutation: IAttachmentUploadContext["getUploadMutation"] = callback => useMutation(
+        (data: ArbitraryFilesApiArbitraryFilesCreateRequest) => {
+            return api_handler.arbitraryFilesCreate.bind(api_handler)(data)
         },
         {
-            onSuccess: (data: AxiosResponse<ArbitraryFile>) => {
+            onSuccess: async (data: AxiosResponse<ArbitraryFile>) => {
                 queryClient.setQueryData([LOOKUP_KEYS.ARBITRARY_FILE, data.data.id], data.data)
-                queryClient.invalidateQueries([LOOKUP_KEYS.ARBITRARY_FILE, "list"])
+                await queryClient.invalidateQueries([LOOKUP_KEYS.ARBITRARY_FILE, "list"])
+                callback(data.data.url)
+            },
+            onError: (error: unknown) => {
+                callback(undefined, error)
             }
         }
     )
 
-    return <AttachmentUploadContext.Provider value={{file, setFile, UploadMutation}}>
+    return <AttachmentUploadContext.Provider value={{file, setFile, getUploadMutation: UploadMutation}}>
         {children}
     </AttachmentUploadContext.Provider>
 }

@@ -24,9 +24,9 @@ import {
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery} from "@tanstack/react-query";
 import {BaseResource} from "../ResourceCard";
-import {AccessLevelsApi, Configuration, PermittedAccessLevels}from "@galv/galv";
+import {AccessLevelsApi, PermittedAccessLevels} from "@galv/galv";
 import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
+import Select, {SelectProps} from "@mui/material/Select";
 import {useCurrentUser} from "../CurrentUserContext";
 import {useState} from "react";
 import {
@@ -34,6 +34,8 @@ import {
     to_type_value_notation_wrapper, TypeValueNotation,
     TypeValueNotationWrapper
 } from "../TypeValueNotation";
+import Tooltip from "@mui/material/Tooltip";
+import {FieldDescription, useFetchResource} from "../FetchResourceContext";
 
 export type AccessLevels = Partial<{[key in keyof PermittedAccessLevels]: { _type: "number", _value: number }}>
 
@@ -131,11 +133,11 @@ export function PrettyObjectFromQuery<T extends BaseResource>(
     const target_api_handler = new API_HANDLERS[lookup_key](api_config)
     const target_get = target_api_handler[
         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
-        ] as (id: string) => Promise<AxiosResponse<T>>
+        ] as (id: {id: string}) => Promise<AxiosResponse<T>>
 
     const target_query = useQuery<AxiosResponse<T>, AxiosError>({
         queryKey: [lookup_key, resource_id],
-        queryFn: () => target_get.bind(target_api_handler)(String(resource_id))
+        queryFn: () => target_get.bind(target_api_handler)({id: String(resource_id)})
     })
 
     const target_after_filter = filter?
@@ -147,6 +149,47 @@ export function PrettyObjectFromQuery<T extends BaseResource>(
         lookup_key={lookup_key}
         target={to_type_value_notation_wrapper(target_after_filter ?? {}, lookup_key)}
     />
+}
+
+export type AnnotatedKeyProps = {
+    metadata: FieldDescription
+    key_name: string
+    create_mode?: boolean
+}
+
+export function AnnotatedKey({metadata, key_name, create_mode}: AnnotatedKeyProps) {
+    const help_text = <>
+        {metadata.help_text}
+        {
+            (create_mode && metadata.create_only || metadata.required)?
+                " [Required]" :
+                metadata.read_only? " [Read-only]" :
+                    ""
+        }
+    </>
+    return <Tooltip title={help_text} placement="top-start">
+        <Typography variant="subtitle2" component="span" textAlign="right">
+            {(metadata.required || (metadata.create_only && create_mode)) && "*"}{key_name}
+        </Typography>
+    </Tooltip>
+}
+
+export function ChoiceSelect({choices, edit_fun_factory, value, ...props}: {
+    choices: Record<string, string|number>|null,
+    edit_fun_factory: (value: TypeValueNotation) => TypeValueNotation|void,
+    value: TypeValueNotation
+} & Omit<SelectProps, "value"|"onChange">) {
+    if (!choices)
+        return <Typography variant="subtitle2" component="span" textAlign="right" color="error">No choices</Typography>
+    return <Select
+        value={value._value ?? Object.values(choices)[0]}
+        onChange={(e) => {
+            edit_fun_factory({_type: "string", _value: e.target.value} as TypeValueNotation)
+        }}
+        {...props}
+    >
+        {Object.entries(choices).map(([k, v], i) => (<MenuItem key={i} value={k}>{v}</MenuItem>))}
+    </Select>
 }
 
 export default function PrettyObject<
@@ -161,10 +204,12 @@ export default function PrettyObject<
     const [newKeyUpdateCount, setNewKeyUpdateCount] = useState(0)
 
     const {api_config} = useCurrentUser()
+    const {useDescribeQuery} = useFetchResource()
     const permissions_query = useQuery<AxiosResponse<PermittedAccessLevels>, AxiosError>({
         queryKey: ["access_levels"],
         queryFn: () => new AccessLevelsApi(api_config).accessLevelsRetrieve()
     })
+    const description_query = useDescribeQuery(lookup_key)
 
     if (typeof target === 'undefined') {
         return <PrettyError
@@ -186,14 +231,27 @@ export default function PrettyObject<
     const _extractPermissions = extractPermissions || _nest_level === 0
     const _canEditKeys = canEditKeys || _nest_level !== 0
 
-    const get_metadata = (key: string) => {
-        if (lookup_key !== undefined && _nest_level === 0 && !_canEditKeys) {
-            const fields = FIELDS[lookup_key]
-            if (Object.keys(fields).includes(key))
-                return {...FIELDS[lookup_key][key as keyof typeof fields] as Field, lock_type: true}
+    // TODO: eventually remove our own metadata and use the API's
+    const get_metadata: (key: string) => FieldDescription & Field & {api_type: FieldDescription["type"], lock_type?: boolean} =
+        (key: string) => {
+            let obj = {} as FieldDescription & Field & {api_type: FieldDescription["type"], lock_type?: boolean}
+            if (lookup_key !== undefined && _nest_level === 0 && !_canEditKeys) {
+                const fields = FIELDS[lookup_key]
+                if (Object.keys(fields).includes(key))
+                    // ...obj just suppresses type errors
+                    obj = {...obj, ...FIELDS[lookup_key][key as keyof typeof fields] as Field, lock_type: true}
+            }
+            if (description_query.data?.data && Object.keys(description_query.data?.data).includes(key))
+                obj = {
+                    ...description_query.data?.data[key],
+                    ...obj,
+                    api_type: description_query.data?.data[key].type,
+                    lock_type: true
+                }
+            return obj
         }
-    }
-    const is_readonly = (key: string) => get_metadata(key)?.readonly && (!creating || !get_metadata(key)?.createonly)
+
+    const is_read_only = (key: string) => get_metadata(key)?.read_only && (!creating || !get_metadata(key)?.create_only)
 
     // Edit function factory produces a function that edits the object with a new value for key k
     const edit_fun_factory = (k: string) => (v: TypeValueNotation) => _onEdit({..._value, [k]: v})
@@ -213,11 +271,40 @@ export default function PrettyObject<
         }
         keys = base_keys.filter(key => !Object.keys(permissions_query.data?.data).includes(key))
     }
+    // TODO: replace this permissions hack when we move to API-lead metadata
+    if (creating) {
+        const access_level_keys = [
+            "read_access_level", "edit_access_level", "delete_access_level"
+        ]
+        for (const key of access_level_keys) {
+            if (get_metadata(key)) {
+                let v = _value[key]?._value
+                if (v === undefined) {
+                    v = Number(get_metadata(key).default ?? "null")  // Number(null) is 0
+                    if (isNaN(v)) {
+                        if (
+                            get_metadata(key).api_type === 'choice' &&
+                            get_metadata(key).choices !== null
+                        ) {
+                            const choices = Object.keys(get_metadata(key).choices!)
+                            v = choices[choices.length - 1]
+                        } else
+                            v = ''
+                    }
+                }
+
+                permissions[key as keyof PermittedAccessLevels] = {
+                    _type: "number",
+                    _value: v as number
+                }
+            }
+        }
+    }
 
     const get_child_type = (key: string): TypeChangerSupportedTypeName|undefined => {
         const metadata = get_metadata(key)
         if (metadata && metadata.many)
-            return metadata.type
+            return metadata.type as TypeChangerSupportedTypeName|undefined
         return undefined
     }
 
@@ -241,7 +328,7 @@ export default function PrettyObject<
                         return <TableRow key={i}>
                             <TableCell component="th" scope="row" key={`key_${i}`} align="right">
                                 <Stack alignItems="stretch" justifyContent="flex-end">
-                                    {_canEditKeys && _edit_mode && onEdit && !is_readonly(key) ?
+                                    {_canEditKeys && _edit_mode && onEdit && !is_read_only(key) ?
                                         <Prettify
                                             nest_level={_nest_level}
                                             edit_mode={true}
@@ -262,23 +349,35 @@ export default function PrettyObject<
                                             label="key"
                                             fullWidth={true}
                                         /> :
-                                        <Typography variant="subtitle2" component="span" textAlign="right">
-                                            {key}
-                                        </Typography>
+                                        // If this is a key we recognise from the API, show any help text we may have
+                                        get_metadata(key)?
+                                            <AnnotatedKey metadata={get_metadata(key)} key_name={key} create_mode={!!creating}/>:
+                                            // Otherwise, just show the key
+                                            <Typography variant="subtitle2" component="span" textAlign="right">
+                                                {key}
+                                            </Typography>
                                     }
                                 </Stack>
                             </TableCell>
                             <TableCell key={`value_${i}`} align="left">
                                 <Stack alignItems="stretch" justifyContent="flex-start">
-                                    <Prettify
-                                        nest_level={_nest_level}
-                                        edit_mode={_edit_mode}
-                                        create_mode={!!creating}
-                                        onEdit={edit_fun_factory(key)}
-                                        target={_value[key]}
-                                        lock_type={get_metadata(key)?.lock_type}
-                                        lock_child_type_to={get_child_type(key)}
-                                    />
+                                    {get_metadata(key).api_type === 'choice'?
+                                        <ChoiceSelect
+                                            choices={get_metadata(key).choices}
+                                            edit_fun_factory={edit_fun_factory(key)}
+                                            value={_value[key] ?? get_metadata(key).default}
+                                            disabled={is_read_only(key) || !_edit_mode}
+                                        /> :
+                                        <Prettify
+                                            nest_level={_nest_level}
+                                            edit_mode={_edit_mode}
+                                            create_mode={!!creating}
+                                            onEdit={edit_fun_factory(key)}
+                                            target={_value[key]}
+                                            lock_type={get_metadata(key)?.lock_type}
+                                            lock_child_type_to={get_child_type(key)}
+                                        />
+                                    }
                                 </Stack>
                             </TableCell>
                         </TableRow>})}

@@ -22,7 +22,7 @@ import {TypeChangerAutocompleteKey, TypeChangerLookupKey} from "./prettify/TypeC
  * Because of its verbosity, TypeValueNotation is not very suitable for long lists of values of the same type.
  */
 export type TypeValueNotation = {
-    _type: "string" | "number" | "boolean" | "null" | "attachment" | "object" | "array" |
+    _type: "string" | "number" | "boolean" | "null" | "attachment" | "object" | "array" | "datetime" |
         TypeChangerLookupKey | TypeChangerAutocompleteKey
     _value: string | number | boolean | null | TypeValueNotation[] | TypeValueNotationWrapper
 }
@@ -186,7 +186,7 @@ export const to_type_value_notation = (v: Serializable, field_info?: Field): Typ
     // Where field_info is provided, it's a hint to the type of the value
     if (field_info?.type) {
         // Arrays use the field_info.type property to determine the type of their elements
-        if (field_info.many)
+        if (field_info.many && v instanceof Array)
             return {
                 _type: 'array',
                 _value: (v as Serializable[]).map(x => to_type_value_notation(x, {...field_info, many: false}))
@@ -217,7 +217,7 @@ export const to_type_value_notation = (v: Serializable, field_info?: Field): Typ
     }
     return {
         _type: "string",
-        _value: String(v)
+        _value: v === null? '' : String(v)
     }
 }
 export const to_type_value_notation_wrapper = (v: SerializableObject, lookup_key?: LookupKey): TypeValueNotationWrapper => {

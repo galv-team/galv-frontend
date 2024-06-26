@@ -5,17 +5,16 @@
 # By Matt Jaquiery <matt.jaquiery@dtc.ox.ac.uk>
 
 # Download datasets from the REST API.
-# Downloads all data for all columns for the dataset and reads them
-# into a Dict object. Data are under datasets[x] as DataFrames.
-#
-# Dataset and column metadata are under dataset_metadata[x] and 
-# column_metadata[x] respectively.
+# Metadata are in dataset_metadata[id] and data are in [parquets[id]
+# where id is the UUID of the dataset (listed in dataset_ids).
 
 using Pkg
 
-Pkg.add(["HTTP", "JSON", "DataFrames"])
+Pkg.add(["HTTP", "JSON", "Parquet2"])
 using HTTP
+using Downloads
 using JSON
+using Parquet2: Dataset, appendall!
 using DataFrames
 
 host = "GALV_API_HOST"
@@ -29,8 +28,7 @@ dataset_ids = String[
     "GALV_DATASET_IDS"
 ]
 dataset_metadata = Dict{String, Dict{String, Any}}()
-column_metadata = Dict{String, Dict{Int64, Any}}()
-datasets = Dict{String, DataFrame}()
+parquets = Dict{String, Dataset}()
 
 function vprintln(s)
     if verbose
@@ -38,59 +36,6 @@ function vprintln(s)
     end
 end
 
-function get_column_values(dataset_id, column)
-    url = column["values"]
-    if url == ""
-        return
-    end
-
-    column_name = column["name"]
-    dtype = column["data_type"]
-
-    vprintln("Downloading values for column $dataset_id:$column_name [$url]")
-    
-    response = HTTP.request("GET", url, headers)
-    
-    try
-        body = String(response.body)
-        str_values = split(body, '\n')
-        values = Vector{String}(str_values[begin:end-1])
-        if dtype == "float"
-            return map((x -> parse(Float64, x)), values)
-        elseif dtype == "int"
-            return map((x -> parse(Int64, x)), values)
-        else
-            return map((x -> convert(String, x)), values)
-        end
-    catch e
-        println("Error parsing values $dataset_id:$column_name [$url]")
-        throw(e)
-        return
-    end
-
-end
-
-function get_column(dataset_id, url)
-    vprintln("Downloading column $url")
-    
-    response = HTTP.request("GET", url, headers)
-    column = Dict{String, Any}()
-    
-    try
-        column = JSON.parse(String(response.body))
-    catch
-        println("Error parsing JSON for column $url")
-        return
-    end
-    
-    # Download column values
-    values = get_column_values(dataset_id, column)
-    pop!(column, "values", "")
-
-    datasets[dataset_id][!, column["name_in_file"]] = values
-
-    return column
-end
 
 function get_dataset(id)
     vprintln("Downloading dataset $id")
@@ -106,21 +51,35 @@ function get_dataset(id)
     end
     dataset_metadata[id] = body
     
-    # Download columns
-    columns = dataset_metadata[id]["columns"]
-    len = length(columns)
-    vprintln("Downloading $len columns for dataset $id")
+    # Download parquets
+    parquet_partitions = dataset_metadata[id]["parquet_partitions"]
+    len = length(parquet_partitions)
+    vprintln("Downloading $len parquet_partitions for dataset $id")
 
-    datasets[id] = DataFrame()
-    column_metadata[id] = Dict{Int64, Any}()
+    dataset_dir = mktempdir(prefix="jl_$id")
     
-    for (i, col) in enumerate(columns)
-        timings = @timed column = get_column(id, col)
-        column_metadata[id][i] = column
-        n = column["name"]
+    for (i, pp) in enumerate(parquet_partitions)
+        vprintln("Downloading partition $i from $pp")
+        partition = HTTP.request("GET", pp, headers)
+        parquet = Dict{String, Any}()
+    
+        try
+            parquet = JSON.parse(String(partition.body))
+        catch
+            println("Error parsing JSON for dataset $id parquet partition $i")
+        end
+        pq_file = parquet["parquet_file"]
+        vprintln("Downloading .parquet from $pq_file")
+        path = joinpath(dataset_dir, "$i.parquet")
+        timings = @timed Downloads.download(pq_file, path, headers=headers)
         s = round(timings.time, digits = 2)
-        vprintln("Column $n completed in $s seconds")
+        vprintln("Partition $i downloaded in $s seconds")
     end
+
+    # Add parquet from directory
+    parquets[id] = Dataset(dataset_dir)
+    # If you want to filter by columns, etc. then don't appendall here. This is to demonstrate loading everything.
+    appendall!(parquets[id])
 
     vprintln("Completed.")
 end
@@ -132,3 +91,7 @@ for id in dataset_ids
 end
 
 vprintln("All datasets complete.")
+
+# Load a dataset as a DataFrame
+df = DataFrame(parquets[dataset_ids[1]]; copycols=false)  # copycols=false unless you want to write to df
+df
