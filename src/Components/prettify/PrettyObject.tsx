@@ -277,16 +277,17 @@ export default function PrettyObject<
             "read_access_level", "edit_access_level", "delete_access_level"
         ]
         for (const key of access_level_keys) {
-            if (get_metadata(key)) {
+            const metadata = get_metadata(key)
+            if (Object.keys(metadata).length > 0) {
                 let v = _value[key]?._value
                 if (v === undefined) {
-                    v = Number(get_metadata(key).default ?? "null")  // Number(null) is 0
+                    v = Number(metadata.default ?? "null")  // Number(null) is 0
                     if (isNaN(v)) {
                         if (
-                            get_metadata(key).api_type === 'choice' &&
-                            get_metadata(key).choices !== null
+                            metadata.api_type === 'choice' &&
+                            metadata.choices !== null
                         ) {
-                            const choices = Object.keys(get_metadata(key).choices!)
+                            const choices = Object.keys(metadata.choices!)
                             v = choices[choices.length - 1]
                         } else
                             v = ''
