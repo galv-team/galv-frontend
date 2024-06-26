@@ -793,7 +793,7 @@ export const FIELDS = {
         ...generic_fields,
         name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         lab: {read_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
-        quota: {read_only: true, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
+        quota_bytes: {read_only: true, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
         bytes_used: {read_only: true, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
         priority: {read_only: false, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
         enabled: {read_only: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},

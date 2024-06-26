@@ -22,8 +22,18 @@ to provide a modern, responsive, and intuitive user interface to the backend `RE
 
    GettingStarted
    UserGuide
+   HowToAWS
+   DeploymentGuide
    DevelopmentGuide
 
+
+Backend and Harvester documentation
+--------------------------------------------------------------------------------------
+
+The backend and harvester documentation can be found at the following links:
+
+* `Galv Backend <https://galv-team.github.io/galv-backend/>`_
+* `Galv Harvester <https://pypi.org/project/galv-harvester/>`_
 
 
 Indices and tables
