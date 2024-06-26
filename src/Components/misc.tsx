@@ -1,4 +1,5 @@
 import {is_lookup_key, LookupKey, PATHS, Serializable} from "../constants";
+import {AxiosError} from "axios";
 
 export type ObjectReferenceProps =
     { id: string } |
@@ -51,4 +52,8 @@ export function get_url_components(url: string):
 
 export function deep_copy<T extends Serializable>(obj: T): T {
     return JSON.parse(JSON.stringify(obj))
+}
+
+export function is_axios_error(error: unknown): error is AxiosError {
+    return error instanceof Object && 'isAxiosError' in error && error.isAxiosError === true
 }

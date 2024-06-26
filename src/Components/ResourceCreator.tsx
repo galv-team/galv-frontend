@@ -1,5 +1,5 @@
 import CardActionBar from "./CardActionBar";
-import {get_url_components} from "./misc";
+import {get_url_components, is_axios_error} from "./misc";
 import PrettyObject from "./prettify/PrettyObject";
 import useStyles from "../styles/UseStyles";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
@@ -32,7 +32,7 @@ import {
     CreateTokenApi,
     type CreateKnoxTokenRequest,
     type KnoxTokenFull,
-    ArbitraryFile, ArbitraryFilesApiArbitraryFilesCreateRequest
+    ArbitraryFilesApiArbitraryFilesCreateRequest
 } from "@galv/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import Select from "@mui/material/Select";
@@ -47,6 +47,8 @@ import {
 } from "./TypeValueNotation";
 import {useAttachmentUpload} from "./AttachmentUploadContext";
 import {useFetchResource} from "./FetchResourceContext";
+import Alert from "@mui/material/Alert";
+import AxiosErrorAlert from "./AxiosErrorAlert";
 
 export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: boolean) => void} & CardProps) {
     const { classes } = useStyles()
@@ -188,6 +190,7 @@ export function ResourceCreator<T extends BaseResource>(
     { lookup_key, initial_data, onCreate, onDiscard, ...cardProps}: ResourceCreatorProps
 ) {
     const { classes } = useStyles();
+    const [error, setError] = useState<AxiosError|string|undefined>(undefined)
 
     const {file, getUploadMutation} = useAttachmentUpload()
 
@@ -264,22 +267,21 @@ export function ResourceCreator<T extends BaseResource>(
                 },
                 on_error: (error, variables) => {
                     console.error(error, {variables})
-                    const d = error.response?.data as SerializableObject
-                    const firstError = Object.entries(d)[0]
-                    postSnackbarMessage({
-                        message: <Stack>
-                            <span>{`Error creating new ${DISPLAY_NAMES[lookup_key]} 
-                        (HTTP ${error.response?.status} - ${error.response?.statusText}).`}</span>
-                            <span style={{fontWeight: "bold"}}>{`${firstError[0]}: ${firstError[1]}`}</span>
-                            {Object.keys(d).length > 1 && <span>+ {Object.keys(d).length - 1} more</span>}
-                        </Stack>,
-                        severity: 'error'
-                    })
+                    setError(error)
                     onCreate(undefined, error)
                     return undefined
                 },
             })
-    const create_attachment_mutation = getUploadMutation(onCreate)
+    const create_attachment_mutation = getUploadMutation(
+        (new_data_url, error) => {
+            if (error) {
+                setError(is_axios_error(error)? error : String(error))
+                onCreate(undefined, error)
+            } else {
+                onCreate(new_data_url)
+            }
+        }
+    )
 
     // The card action bar controls the expanded state and editing state
     const action = <CardActionBar
@@ -307,15 +309,19 @@ export function ResourceCreator<T extends BaseResource>(
                     }
                 })
                 if (okay) {
-                    if (!file) throw new Error("No file to upload")
                     const d = UndoRedo.current as unknown as Omit<ArbitraryFilesApiArbitraryFilesCreateRequest, "file">
-                    if (!d)
-                        throw new Error("No data to upload")
-                    if (!d.name)
-                        throw new Error("No name for the file")
-                    if (!d.team)
-                        throw new Error("Files must belong to a Team")
-                    create_attachment_mutation.mutate({...d, file})
+
+                    if (!file) {
+                        setError("No file to upload")
+                    } else if (!d) {
+                        setError("No data to upload")
+                    } else if (!d.name) {
+                        setError("No name for the file")
+                    } else if (!d.team) {
+                        setError("Files must belong to a Team")
+                    } else {
+                        create_attachment_mutation.mutate({...d, file})
+                    }
                     close = false  // handled by the mutation
                 }
             } else {
@@ -356,8 +362,16 @@ export function ResourceCreator<T extends BaseResource>(
             lookup_key={lookup_key}
             edit_mode={true}
             creating={true}
-            onEdit={(v) => UndoRedo.update(from_type_value_notation(v) as SerializableObject)}
+            onEdit={(v) => {
+                UndoRedo.update(from_type_value_notation(v) as SerializableObject)
+                setError(undefined)
+            }}
         />}
+        {error && (
+            is_axios_error(error)?
+                <AxiosErrorAlert error={error} maxErrors={1}/> :
+                <Alert severity="error">{error}</Alert>
+        )}
     </CardContent>
 
     return <Card
