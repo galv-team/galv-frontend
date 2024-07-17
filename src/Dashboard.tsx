@@ -2,9 +2,7 @@ import {DISPLAY_NAMES_PLURAL, ICONS, LOOKUP_KEYS, LookupKey} from "./constants";
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {
-    Configuration,
-    FilesApi,
-    ObservedFile, PaginatedObservedFileList,
+    ObservedFile,
     PaginatedSchemaValidationList,
     SchemaValidation,
     SchemaValidationsApi
@@ -17,7 +15,7 @@ import ListItem from "@mui/material/ListItem";
 import Tooltip from "@mui/material/Tooltip";
 import {ResourceChip} from "./Components/ResourceChip";
 import Stack from "@mui/material/Stack";
-import React, {ReactNode, useEffect, useState} from "react";
+import React, {ReactNode, useState} from "react";
 import Button from "@mui/material/Button";
 import {useCurrentUser} from "./Components/CurrentUserContext";
 import List from "@mui/material/List";
@@ -304,7 +302,9 @@ export function DatasetStatus() {
                     open?
                         <List>
                             {files_needing_input.map(f => <ListItem key={f.id}>
-                                <ICONS.validation_status_INPUT_REQUIRED color="warning" />
+                                <Tooltip title={f.state}>
+                                    <ICONS.validation_status_INPUT_REQUIRED color="warning" />
+                                </Tooltip>
                                 <ResourceChip resource_id={f.id} lookup_key={LOOKUP_KEYS.FILE} short_name={false} />
                             </ListItem>)}
                         </List> :

@@ -180,6 +180,7 @@ export default makeStyles()((theme) => {
     },
     itemChip: {
       width: "min-content",
+      justifyContent: "flex-start",
       minWidth: theme.spacing(5),
       margin: theme.spacing(0.5),
       borderRadius: theme.spacing(0.5),
@@ -363,6 +364,26 @@ export default makeStyles()((theme) => {
       marginLeft: theme.spacing(1),
       marginRight: theme.spacing(1),
       color: theme.palette.text.disabled
-    }
+    },
+    resourceSummary: {
+      "& > .MuiStack-root": {
+        display: "flex",
+        lineHeight: "2em",
+        alignItems: "center",
+        "& .MuiChip-root": {
+          minWidth: "10em",
+        }
+      },
+    },
+    chipList: {
+      overflowX: "auto",
+      overflowY: "hidden",
+      display: "flex",
+      lineHeight: "2em",
+      alignItems: "center",
+      "& .MuiChip-root": {
+        minWidth: "10em",
+      }
+    },
   }
 });

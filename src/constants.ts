@@ -547,8 +547,8 @@ export const FIELDS = {
         ...generic_fields,
         name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         lab: {read_only: true, type: "string", priority: PRIORITY_LEVELS.CONTEXT},
-        last_check_in: {read_only: true, type: "datetime", priority: PRIORITY_LEVELS.SUMMARY},
-        last_check_in_job: {read_only: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        last_check_in: {read_only: true, type: "datetime", },
+        last_check_in_job: {read_only: true, type: "string", },
         sleep_time: {read_only: false, type: "number"},
         environment_variables: {read_only: true, type: "object"},
         active: {read_only: false, type: "boolean", priority: PRIORITY_LEVELS.CONTEXT},
@@ -558,36 +558,36 @@ export const FIELDS = {
         path: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         regex: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         stable_time: {read_only: false, type: "number"},
-        active: {read_only: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        active: {read_only: false, type: "boolean", },
         maximum_partition_line_count: {read_only: false, type: "number"},
         harvester: {
             read_only: true,
             type: key_to_type(LOOKUP_KEYS.HARVESTER),
-            priority: PRIORITY_LEVELS.SUMMARY,
+            
             create_only: true,
             fetch_in_download: true
         },
-        files: {read_only: true, type: key_to_type(LOOKUP_KEYS.FILE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        files: {read_only: true, type: key_to_type(LOOKUP_KEYS.FILE), many: true, },
         ...team_fields,
     },
     [LOOKUP_KEYS.PARQUET_PARTITION]: {
         ...generic_fields,
-        observed_file: {read_only: true, type: key_to_type(LOOKUP_KEYS.FILE), priority: PRIORITY_LEVELS.SUMMARY},
+        observed_file: {read_only: true, type: key_to_type(LOOKUP_KEYS.FILE), },
         partition_number: {read_only: true, type: "number", priority: PRIORITY_LEVELS.IDENTITY},
-        uploaded: {read_only: true, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        uploaded: {read_only: true, type: "boolean", },
         upload_errors: {read_only: true, type: "string", many: true},
-        parquet_file: {read_only: true, type: "attachment", priority: PRIORITY_LEVELS.SUMMARY},
+        parquet_file: {read_only: true, type: "attachment", },
     },
     [LOOKUP_KEYS.FILE]: {
         ...generic_fields,
         name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        state: {read_only: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        path: {read_only: true, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        state: {read_only: true, type: "string", },
+        path: {read_only: true, type: "string", },
         parser: {read_only: true, type: "string"},
         harvester: {read_only: true, type: key_to_type(LOOKUP_KEYS.HARVESTER)},
         last_observed_size: {read_only: true, type: "number"},
         last_observed_time: {read_only: true, type: "datetime"},
-        data_generation_date: {read_only: true, type: "datetime", priority: PRIORITY_LEVELS.SUMMARY},
+        data_generation_date: {read_only: true, type: "datetime", },
         inferred_format: {read_only: true, type: "string"},
         num_rows: {read_only: true, type: "number"},
         first_sample_no: {read_only: true, type: "number"},
@@ -605,7 +605,7 @@ export const FIELDS = {
     [LOOKUP_KEYS.MAPPING]: {
         ...generic_fields,
         name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        is_valid: {read_only: true, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        is_valid: {read_only: true, type: "boolean", },
         map: {read_only: false, type: "object"},
         missing: {read_only: true, type: "number"},  // only appears as part of a FILE response
         ...team_fields
@@ -616,9 +616,9 @@ export const FIELDS = {
         is_default: {read_only: true, type: "boolean"},
         is_required: {read_only: true, type: "boolean"},
         name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {read_only: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        data_type: {read_only: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
-        unit: {read_only: false, type: key_to_type(LOOKUP_KEYS.UNIT), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
+        description: {read_only: false, type: "string", },
+        data_type: {read_only: false, type: "string", },
+        unit: {read_only: false, type: key_to_type(LOOKUP_KEYS.UNIT), fetch_in_download: true},
         ...team_fields
     },
     [LOOKUP_KEYS.UNIT]: {
@@ -627,7 +627,7 @@ export const FIELDS = {
         is_default: {read_only: true, type: "boolean"},
         name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         symbol: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {read_only: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        description: {read_only: false, type: "string", },
         ...team_fields
     },
     [LOOKUP_KEYS.EXPERIMENT]: {
@@ -636,15 +636,15 @@ export const FIELDS = {
         authors: {read_only: false, type: key_to_type(LOOKUP_KEYS.USER), many: true, priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
         protocol: {read_only: false, type: "string"},
         protocol_file: {read_only: false, type: "string"},
-        cycler_tests: {read_only: false, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
+        cycler_tests: {read_only: false, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, fetch_in_download: true},
         ...team_fields,
     },
     [LOOKUP_KEYS.CYCLER_TEST]: {
         ...generic_fields,
-        cell: {read_only: false, type: key_to_type(LOOKUP_KEYS.CELL), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
-        schedule: {read_only: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE), priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
-        equipment: {read_only: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
-        files: {read_only: false, type: key_to_type(LOOKUP_KEYS.FILE), many: true, priority: PRIORITY_LEVELS.SUMMARY, fetch_in_download: true},
+        cell: {read_only: false, type: key_to_type(LOOKUP_KEYS.CELL), fetch_in_download: true},
+        schedule: {read_only: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE), fetch_in_download: true},
+        equipment: {read_only: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, fetch_in_download: true},
+        files: {read_only: false, type: key_to_type(LOOKUP_KEYS.FILE), many: true, fetch_in_download: true},
         rendered_schedule: {read_only: true, type: "string", many: true},
         ...team_fields,
     },
@@ -679,7 +679,7 @@ export const FIELDS = {
         model: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
         form_factor: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR), priority: PRIORITY_LEVELS.CONTEXT},
         chemistry: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_CHEMISTRY), priority: PRIORITY_LEVELS.CONTEXT},
-        cells: {read_only: true, type: key_to_type(LOOKUP_KEYS.CELL), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        cells: {read_only: true, type: key_to_type(LOOKUP_KEYS.CELL), many: true, },
         nominal_voltage_v: {read_only: false, type: "number"},
         nominal_capacity: {read_only: false, type: "number"},
         initial_ac_impedance: {read_only: false, type: "number"},
@@ -694,7 +694,7 @@ export const FIELDS = {
         manufacturer: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
         model: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
         type: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE), priority: PRIORITY_LEVELS.CONTEXT},
-        equipment: {read_only: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        equipment: {read_only: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, },
         in_use: {read_only: true, type: "boolean"},
     },
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: {
@@ -704,7 +704,7 @@ export const FIELDS = {
         description: {read_only: false, type: "string"},
         ambient_temperature: {read_only: false, type: "number"},
         pybamm_template: {read_only: false, type: "object"},
-        schedules: {read_only: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        schedules: {read_only: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE), many: true, },
         in_use: {read_only: true, type: "boolean"},
     },
     [LOOKUP_KEYS.TEAM]: {
@@ -716,14 +716,14 @@ export const FIELDS = {
             read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            priority: PRIORITY_LEVELS.SUMMARY,
+            
             fetch_in_download: true
         },
         admin_group: {
             read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            priority: PRIORITY_LEVELS.SUMMARY,
+            
             fetch_in_download: true
         },
         monitored_paths: {read_only: true, type: key_to_type(LOOKUP_KEYS.PATH), many: true},
@@ -740,12 +740,12 @@ export const FIELDS = {
         ...generic_fields,
         lab: {read_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
         name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {read_only: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        description: {read_only: false, type: "string", },
         file: {
             read_only: true,
             create_only: true,
             type: "attachment",
-            priority: PRIORITY_LEVELS.SUMMARY
+            
         },
         team: team_fields.team,
     },
@@ -759,17 +759,17 @@ export const FIELDS = {
         ...always_fields,
         id: {read_only: true, type: "number"},
         name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {read_only: false, type: "string", priority: PRIORITY_LEVELS.SUMMARY},
+        description: {read_only: false, type: "string", },
         admin_group: {
             read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            priority: PRIORITY_LEVELS.SUMMARY,
+            
             fetch_in_download: true
         },
         storages: {read_only: true, type: key_to_type(LOOKUP_KEYS.ADDITIONAL_STORAGE), many: true},
-        teams: {read_only: true, type: key_to_type(LOOKUP_KEYS.TEAM), many: true, priority: PRIORITY_LEVELS.SUMMARY},
-        harvesters: {read_only: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), many: true, priority: PRIORITY_LEVELS.SUMMARY},
+        teams: {read_only: true, type: key_to_type(LOOKUP_KEYS.TEAM), many: true, },
+        harvesters: {read_only: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), many: true, },
     },
     [LOOKUP_KEYS.USER]: {
         ...always_fields,
@@ -787,31 +787,31 @@ export const FIELDS = {
         id: {read_only: true, type: "number"},
         name: {read_only: true, type: "string", create_only: true, priority: PRIORITY_LEVELS.IDENTITY},
         created: {read_only: true, type: "string"},
-        expiry: {read_only: true, type: "datetime", priority: PRIORITY_LEVELS.SUMMARY},
+        expiry: {read_only: true, type: "datetime", },
     },
     [LOOKUP_KEYS.GALV_STORAGE]: {
         ...generic_fields,
         name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         lab: {read_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
-        quota_bytes: {read_only: true, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
-        bytes_used: {read_only: true, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
-        priority: {read_only: false, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
-        enabled: {read_only: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        quota_bytes: {read_only: true, type: "number", },
+        bytes_used: {read_only: true, type: "number", },
+        priority: {read_only: false, type: "number", },
+        enabled: {read_only: false, type: "boolean", },
     },
     [LOOKUP_KEYS.ADDITIONAL_STORAGE]: {
         ...generic_fields,
         name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
         lab: {read_only: true, create_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
-        quota: {read_only: false, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
-        bytes_used: {read_only: true, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
-        priority: {read_only: false, type: "number", priority: PRIORITY_LEVELS.SUMMARY},
+        quota: {read_only: false, type: "number", },
+        bytes_used: {read_only: true, type: "number", },
+        priority: {read_only: false, type: "number", },
         bucket_name: {read_only: false, type: "string"},
         location: {read_only: false, type: "string"},
         access_key: {read_only: false, type: "string"},
         secret_key: {read_only: false, type: "string"},
         region_name: {read_only: false, type: "string"},
         custom_domain: {read_only: false, type: "string"},
-        enabled: {read_only: false, type: "boolean", priority: PRIORITY_LEVELS.SUMMARY},
+        enabled: {read_only: false, type: "boolean", },
     },
     [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: autocomplete_fields,
     [AUTOCOMPLETE_KEYS.CELL_MODEL]: autocomplete_fields,
@@ -1043,7 +1043,7 @@ The team that owns a particular resource has the authority to alter its permissi
 **Members** have the ability to view and edit all resources owned by the team, unless specific restrictions have been applied to certain resources. 
 This collaborative access allows team members to work seamlessly on shared projects and data.
 
-**Administrators**, on the other hand, possess additional privileges beyond those of regular members. 
+**Admins**, on the other hand, possess additional privileges beyond those of regular members. 
 In addition to the viewing and editing capabilities, admins can also alter the team's permissions, granting or revoking access to resources as needed. 
 This level of control enables administrators to manage the team's structure, membership, and resource access effectively.
 
@@ -1099,7 +1099,8 @@ You may consider using additional storage if you have a large amount of data to 
 
 You have the option to set a quota for the storage resource, ensuring that your teams do not accidentally exceed any storage limits you may have in place.
 
-The priority setting determines the order in which the storage resources are utilised for storing data. Higher priority numbers are used first.
+The priority setting determines the order in which the storage resources are utilised for storing data. Storages with higher priority numbers are used first.
+Storages are shown in the order of their priority, with the highest priority storage at the top of the list.
     `,
     DASHBOARD: `
 The dashboard provides an overview of the resources pertinent to you and your teams. 
