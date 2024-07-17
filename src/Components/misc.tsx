@@ -57,3 +57,11 @@ export function deep_copy<T extends Serializable>(obj: T): T {
 export function is_axios_error(error: unknown): error is AxiosError {
     return error instanceof Object && 'isAxiosError' in error && error.isAxiosError === true
 }
+
+export function humanize_bytes(bytes: number): string {
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+    if (bytes <= 0) return '0 Bytes'
+    if (bytes === 1) return '1 Bytes'
+    const i = Math.floor(Math.log(bytes) / Math.log(1024))
+    return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`
+}

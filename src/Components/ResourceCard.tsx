@@ -60,9 +60,19 @@ import {
 } from "./TypeValueNotation";
 import Typography from "@mui/material/Typography";
 import {Theme} from "@mui/material/styles";
-import ResourceStatuses from "./ResourceStatuses";
 import AuthImage from "./AuthImage";
 import {Axios} from "./FetchResourceContext";
+import ArbitraryFileSummary from "./summaries/ArbitraryFileSummary";
+import AdditionalStorageSummary from "./summaries/AdditionalStorageSummary";
+import HarvesterSummary from "./summaries/HarvesterSummary";
+import TeamSummary from "./summaries/TeamSummary";
+import LabSummary from "./summaries/LabSummary";
+import UnitSummary from "./summaries/UnitSummary";
+import ColumnSummary from "./summaries/ColumnSummary";
+import PathSummary from "./summaries/PathSummary";
+import FileSummary from "./summaries/FileSummary";
+import CyclerTestSummary from "./summaries/CyclerTestSummary";
+import ExperimentSummary from "./summaries/ExperimentSummary";
 
 export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
 type child_keys = "cells"|"equipment"|"schedules"
@@ -93,6 +103,93 @@ function PropertiesDivider({children, ...props}: PropsWithChildren<DividerProps>
     >
         <Typography variant="h5">{children}</Typography>
     </Divider>
+}
+
+/**
+ * Resources with custom summaries.
+ */
+const CUSTOM_SUMMARIES: Partial<Record<LookupKey, (resource: {resource: BaseResource}) => ReactNode>> = {
+    [LOOKUP_KEYS.ARBITRARY_FILE]: ArbitraryFileSummary,
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: AdditionalStorageSummary,
+    [LOOKUP_KEYS.HARVESTER]: HarvesterSummary,
+    [LOOKUP_KEYS.TEAM]: TeamSummary,
+    [LOOKUP_KEYS.LAB]: LabSummary,
+    [LOOKUP_KEYS.UNIT]: UnitSummary,
+    [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnSummary,
+    [LOOKUP_KEYS.PATH]: PathSummary,
+    [LOOKUP_KEYS.FILE]: FileSummary,
+    [LOOKUP_KEYS.CYCLER_TEST]: CyclerTestSummary,
+    [LOOKUP_KEYS.EXPERIMENT]: ExperimentSummary,
+} as const
+
+/**
+ * Present summary information for a resource.
+ * If there's a specific summary component, use that. 
+ * Otherwise, pull out fields with PRIORITY_LEVELS.SUMMARY and display them.
+ */
+function Summary<T extends BaseResource>({apiResource, lookup_key}: {apiResource?: T, lookup_key: LookupKey}) {
+    if (apiResource === undefined)
+        return null
+
+    if (Object.keys(CUSTOM_SUMMARIES).includes(lookup_key)) {
+        const COMPONENT = CUSTOM_SUMMARIES[lookup_key as keyof typeof CUSTOM_SUMMARIES]!
+        return <COMPONENT resource={apiResource} />
+    }
+
+    const is_family_child = (child_key: LookupKey, family_key: LookupKey) => {
+        if (!get_is_family(family_key)) return false
+        if (!get_has_family(child_key)) return false
+        return CHILD_LOOKUP_KEYS[family_key] === child_key
+    }
+
+    const summarise = (
+        data: Serializable,
+        many: boolean,
+        key: string,
+        lookup?: LookupKey|AutocompleteKey
+    ): ReactNode => {
+        if (!data || data instanceof Array && data.length === 0)
+            return <Typography variant="body2">None</Typography>
+        if (many) {
+            const preview_count = 3
+            const items = data instanceof Array && data.length > preview_count?
+                data.slice(0, preview_count) : data
+            return <Grid container sx={{alignItems: "center"}}>
+                {
+                    items instanceof Array ?
+                        items.map((d, i) => <Grid key={i}>{summarise(d, false, key, lookup)}</Grid>) :
+                        <Grid>{summarise(data, false, key, lookup)}</Grid>
+                }
+                {
+                    data instanceof Array && data.length > preview_count && <Grid>+ {data.length - preview_count} more</Grid>
+                }
+            </Grid>
+        }
+        const field = key? FIELDS[lookup_key] : undefined
+        const field_info = field? field[key as keyof typeof field] : undefined
+        return lookup && is_lookup_key(lookup) ?
+            <ResourceChip
+                resource_id={id_from_ref_props<string>(data as string | number)}
+                lookup_key={lookup}
+                short_name={is_family_child(lookup, lookup_key)}
+            /> : <Prettify target={to_type_value_notation(data, field_info)}/>
+    }
+
+    return <>
+        {lookup_key === LOOKUP_KEYS.FILE && apiResource?.has_required_columns && apiResource.png &&
+            <Stack spacing={2}>
+                <AuthImage file={apiResource as unknown as {id: string, path: string, png: string}} />
+            </Stack>
+        }
+        {apiResource && <Grid container spacing={1}>{
+            Object.entries(FIELDS[lookup_key])
+                .filter((e) => e[1].priority === PRIORITY_LEVELS.SUMMARY)
+                .map(([k, v]) => <Grid key={k} container xs={12} sx={{alignItems: "center"}}>
+                    <Grid xs={2} lg={1}><Typography variant="subtitle2">{k.replace(/_/g, ' ')}</Typography></Grid>
+                    <Grid xs={10} lg={11}>{summarise(apiResource[k], v.many, k, type_to_key(v.type))}</Grid>
+                </Grid>)
+        }</Grid>}
+    </>
 }
 
 function ResourceCard<T extends BaseResource>(
@@ -366,59 +463,8 @@ The file will be added to the Harvester's usual queue for processing.
         </Stack>
     </CardContent>
 
-    const is_family_child = (child_key: LookupKey, family_key: LookupKey) => {
-        if (!get_is_family(family_key)) return false
-        if (!get_has_family(child_key)) return false
-        return CHILD_LOOKUP_KEYS[family_key] === child_key
-    }
-
-    const summarise = (
-        data: Serializable,
-        many: boolean,
-        key: string,
-        lookup?: LookupKey|AutocompleteKey
-    ): ReactNode => {
-        if (!data || data instanceof Array && data.length === 0)
-            return <Typography variant="body2">None</Typography>
-        if (many) {
-            const preview_count = 3
-            const items = data instanceof Array && data.length > preview_count?
-                data.slice(0, preview_count) : data
-            return <Grid container sx={{alignItems: "center"}}>
-                {
-                    items instanceof Array ?
-                        items.map((d, i) => <Grid key={i}>{summarise(d, false, key, lookup)}</Grid>) :
-                        <Grid>{summarise(data, false, key, lookup)}</Grid>
-                }
-                {
-                    data instanceof Array && data.length > preview_count && <Grid>+ {data.length - preview_count} more</Grid>
-                }
-            </Grid>
-        }
-        const field = key? FIELDS[lookup_key] : undefined
-        const field_info = field? field[key as keyof typeof field] : undefined
-        return lookup && is_lookup_key(lookup) ?
-            <ResourceChip
-                resource_id={id_from_ref_props<string>(data as string | number)}
-                lookup_key={lookup}
-                short_name={is_family_child(lookup, lookup_key)}
-            /> : <Prettify target={to_type_value_notation(data, field_info)}/>
-    }
-
     const cardSummary = <CardContent>
-        {lookup_key === LOOKUP_KEYS.FILE && apiResource?.has_required_columns && apiResource.png &&
-            <Stack spacing={2}>
-                <AuthImage file={apiResource as unknown as {id: string, path: string, png: string}} />
-            </Stack>
-        }
-        {apiResource && <Grid container spacing={1}>{
-            Object.entries(FIELDS[lookup_key])
-                .filter((e) => e[1].priority === PRIORITY_LEVELS.SUMMARY)
-                .map(([k, v]) => <Grid key={k} container xs={12} sx={{alignItems: "center"}}>
-                    <Grid xs={2} lg={1}><Typography variant="subtitle2">{k.replace(/_/g, ' ')}</Typography></Grid>
-                    <Grid xs={10} lg={11}>{summarise(apiResource[k], v.many, k, type_to_key(v.type))}</Grid>
-                </Grid>)
-        }</Grid>}
+        <Summary apiResource={apiResource} lookup_key={lookup_key} />
     </CardContent>
 
     const forkModal = passesFilters({apiResource, family}, lookup_key) &&
@@ -482,7 +528,6 @@ The file will be added to the Harvester's usual queue for processing.
             />
             {isExpanded? cardBody : cardSummary}
             {forkModal}
-            <ResourceStatuses lookup_key={lookup_key}/>
         </Card>
 
     const getErrorBody: QueryDependentElement = (queries) => <ErrorCard
