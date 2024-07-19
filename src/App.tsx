@@ -24,6 +24,7 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import HelpIcon from '@mui/icons-material/Help';
 
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -139,6 +140,17 @@ export function Core() {
                         The Battery Development Metadata Secretary
                     </Typography>
                     <UserLogin />
+                    <Tooltip title={"Open help in new tab"} arrow>
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            component={Link}
+                            to="https://galv-team.github.io/galv-frontend/"
+                            target="_blank"
+                        >
+                            <HelpIcon />
+                        </IconButton>
+                    </Tooltip>
                 </Toolbar>
             </AppBar>
             <Drawer
