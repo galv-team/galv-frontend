@@ -14,6 +14,7 @@ def run(*args, **kwargs):
 # in generall we use environment variables to pass values to conf.py, see below
 # and runs the build as we did locally
 def build_doc(tag):
+    print(f"  ----  Building {tag}  ----  ")
     os.environ["current_version"] = tag
     run("git checkout " + tag)
     run("git checkout main -- source/conf.py")
@@ -23,7 +24,7 @@ def build_doc(tag):
 # a move dir method because we run multiple builds and bring the html folders to a
 # location which we then push to github pages
 def move_dir(src, dst):
-  run(["mkdir", "-p", dst])
+  run(f"mkdir -p {dst}")
   run(f"mv {src}* {dst}")
 
 # to separate a single local build from all builds we have a flag, see conf.py
