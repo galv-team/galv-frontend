@@ -15,16 +15,16 @@ def run(*args, **kwargs):
 # and runs the build as we did locally
 def build_doc(tag):
     os.environ["current_version"] = tag
-    run("git checkout " + tag
-    run("git checkout main -- source/conf.py"
-    run("git checkout main -- tags.json"
-    run("make html"
+    run("git checkout " + tag)
+    run("git checkout main -- source/conf.py")
+    run("git checkout main -- tags.json")
+    run("make html")
 
 # a move dir method because we run multiple builds and bring the html folders to a
 # location which we then push to github pages
 def move_dir(src, dst):
   run(["mkdir", "-p", dst])
-  run(f"mv {src}* {dst}"
+  run(f"mv {src}* {dst}")
 
 # to separate a single local build from all builds we have a flag, see conf.py
 os.environ["build_all_docs"] = str(True)
