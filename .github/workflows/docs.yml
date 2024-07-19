@@ -33,7 +33,7 @@ jobs:
         run: |
           # ... installation of all tools ...
           sudo apt-get install -y python3-sphinx
-          sudo pip3 install sphinx-rtd-theme sphinxcontrib-images
+          sudo pip3 install sphinx-rtd-theme 
 
       - name: build
         run: |
@@ -48,7 +48,7 @@ jobs:
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
           path: './pages'
