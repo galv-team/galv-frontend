@@ -25,7 +25,8 @@ jobs:
           node-version: 'latest'
 
       - name: Install dependencies
-        run: npm install
+        # Required while react-smooth-dnd is not updated to support latest React version
+        run: npm install --legacy-peer-deps
 
       - name: Run tests
         run: npm test
