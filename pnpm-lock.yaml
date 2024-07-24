@@ -56,6 +56,9 @@ dependencies:
   dotenv:
     specifier: ^16.4.5
     version: 16.4.5
+  immer:
+    specifier: ^10.1.1
+    version: 10.1.1
   parquet-wasm:
     specifier: 0.6.1
     version: 0.6.1
@@ -88,7 +91,7 @@ dependencies:
     version: 4.9.10(@emotion/react@11.13.0)(@mui/material@5.16.4)(react@18.3.1)
   use-immer:
     specifier: ^0.10.0
-    version: 0.10.0(immer@10.0.3)(react@18.3.1)
+    version: 0.10.0(immer@10.1.1)(react@18.3.1)
   usehooks-ts:
     specifier: ^3.1.0
     version: 3.1.0(react@18.3.1)
@@ -3804,8 +3807,8 @@ packages:
     engines: {node: '>= 4'}
     dev: true
 
-  /immer@10.0.3:
-    resolution: {integrity: sha512-pwupu3eWfouuaowscykeckFmVTpqbzW+rXFCX8rQLkZzM9ftBmU/++Ra+o+L27mz03zJTlyV4UUr+fdKNffo4A==}
+  /immer@10.1.1:
+    resolution: {integrity: sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==}
     dev: false
 
   /import-fresh@3.3.0:
@@ -5808,13 +5811,13 @@ packages:
       requires-port: 1.0.0
     dev: true
 
-  /use-immer@0.10.0(immer@10.0.3)(react@18.3.1):
+  /use-immer@0.10.0(immer@10.1.1)(react@18.3.1):
     resolution: {integrity: sha512-/eVwNR4TG9Tm/dd+aHYLLaI0FLfYKlkTqKMkn78Ah/EYVzWd/zJIgpkdoFEKbhQJOGo8XN7/mWrTx0exp1c+Ug==}
     peerDependencies:
       immer: '>=8.0.0'
       react: ^16.8.0 || ^17.0.1 || ^18.0.0
     dependencies:
-      immer: 10.0.3
+      immer: 10.1.1
       react: 18.3.1
     dev: false
 
