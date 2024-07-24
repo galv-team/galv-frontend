@@ -1,4 +1,3 @@
-import {BaseResource} from "../ResourceCard";
 import {AdditionalS3StorageType} from "@galv/galv";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
@@ -7,8 +6,9 @@ import Alert from "@mui/material/Alert";
 import {humanize_bytes} from "../misc";
 import {ReactNode} from "react";
 import Typography from "@mui/material/Typography";
+import {GalvResource} from "../../constants";
 
-export default function AdditionalStorageSummary({ resource } : { resource: BaseResource}) {
+export default function AdditionalStorageSummary({ resource } : { resource: GalvResource}) {
     const {classes} = useStyles();
     const r = resource as unknown as AdditionalS3StorageType
 

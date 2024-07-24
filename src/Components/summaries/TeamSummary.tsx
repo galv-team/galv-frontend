@@ -1,11 +1,12 @@
-import {BaseResource} from "../ResourceCard";
 import {Team} from "@galv/galv";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
 import Stack from "@mui/material/Stack";
 import ChipList from "./ChipList";
 
-export default function TeamSummary({ resource } : { resource: BaseResource}) {
+import {GalvResource} from "../../constants";
+
+export default function TeamSummary({ resource } : { resource: GalvResource}) {
     const {classes} = useStyles();
     const r = resource as unknown as Team
 

@@ -7,33 +7,19 @@
 import {LOOKUP_KEYS} from "../constants";
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import axios from 'axios';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {FilterContextProvider} from "../Components/filtering/FilterContext";
 import {MemoryRouter} from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import FetchResourceContextProvider from "../Components/FetchResourceContext";
 import AttachmentUploadContextProvider from "../Components/AttachmentUploadContext";
+import {vi, it} from 'vitest';
+import WrappedResourceCreator from "../Components/ResourceCreator";
 
-jest.mock('../Components/CardActionBar')
-jest.mock('../Components/prettify/PrettyObject')
-
-// Mock jest and set the type
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-const ResourceCreator = jest.requireActual('../Components/ResourceCreator').default;
-
-const family_data = {
-    id: "1000-1000-1000-1000",
-    identifier: 'Test Cell Family 1',
-    team: "http://example.com/teams/1"
-}
-const results = [family_data]
+vi.mock('../Components/CardActionBar')
+vi.mock('../Components/prettify/PrettyObject')
 
 it('renders', async () => {
-    mockedAxios.request.mockResolvedValue({data: {results}});
-
     const queryClient = new QueryClient();
 
     render(
@@ -42,7 +28,7 @@ it('renders', async () => {
                 <FetchResourceContextProvider>
                     <FilterContextProvider>
                         <AttachmentUploadContextProvider>
-                            <ResourceCreator lookup_key={LOOKUP_KEYS.CELL} />
+                            <WrappedResourceCreator lookup_key={LOOKUP_KEYS.CELL}/>
                         </AttachmentUploadContextProvider>
                     </FilterContextProvider>
                 </FetchResourceContextProvider>

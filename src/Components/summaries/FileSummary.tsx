@@ -1,11 +1,10 @@
-import {BaseResource} from "../ResourceCard";
 import {FilesApi, ObservedFile} from "@galv/galv";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
 import Stack from "@mui/material/Stack";
 import Alert, {AlertColor, AlertProps} from "@mui/material/Alert";
 import React, {ReactNode} from "react";
-import {ICONS, PATHS} from "../../constants";
+import {GalvResource, ICONS, PATHS} from "../../constants";
 import Collapse from "@mui/material/Collapse";
 import {DB_MappingResource} from "../Mapping";
 import Button from "@mui/material/Button";
@@ -13,6 +12,7 @@ import {Link} from "react-router-dom";
 import {useCurrentUser} from "../CurrentUserContext";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {AxiosError, AxiosResponse} from "axios";
+import IconButton from "@mui/material/IconButton";
 
 function StatusAlert(
     {message, fix_button, children, ...alertProps}:
@@ -26,7 +26,7 @@ function StatusAlert(
             {message}
             <Stack direction="row" alignItems="center">
                 {fix_button}
-                {children && <EXPAND_ICON onClick={() => setOpen(!open)} sx={{cursor: "pointer"}} />}
+                {children && <IconButton onClick={() => setOpen(!open)} aria-label="expand"><EXPAND_ICON /></IconButton>}
             </Stack>
         </Stack>
         <Collapse in={open} unmountOnExit>
@@ -101,15 +101,15 @@ function FileStatus(file: ObservedFile, mappings: DB_MappingResource[]) {
     }
 }
 
-export default function FileSummary({ resource } : { resource: BaseResource}) {
+export default function FileSummary({ resource } : { resource: GalvResource}) {
     const {classes} = useStyles();
     const r = resource as unknown as ObservedFile
     // look up mappings from file
     const fileApiHandler = new FilesApi(useCurrentUser().api_config)
     const queryClient = useQueryClient()
-    const applicableMappingsQuery = useQuery<AxiosResponse<DB_MappingResource[]>, AxiosError>(
-        ["applicable_mappings", r.id],
-        async () => {
+    const applicableMappingsQuery = useQuery<AxiosResponse<DB_MappingResource[]>, AxiosError>({
+        queryKey: ["applicable_mappings", r.id],
+        queryFn: async () => {
             const data = await fileApiHandler.filesApplicableMappingsRetrieve(
                 {id: r.id as string}
             )
@@ -122,8 +122,8 @@ export default function FileSummary({ resource } : { resource: BaseResource}) {
                 })
             } as unknown as AxiosResponse<DB_MappingResource[]>
         },
-        {enabled: !!r.id}
-    )
+        enabled: !!r.id
+    })
     const mappings = applicableMappingsQuery.data?.data ?? []
 
     let state_severity: AlertColor

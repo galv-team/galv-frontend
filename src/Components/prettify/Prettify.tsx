@@ -2,8 +2,8 @@ import React, {PropsWithChildren, useEffect, useState} from "react";
 import TextField, {TextFieldProps} from "@mui/material/TextField";
 import Typography, {TypographyProps} from "@mui/material/Typography";
 import {SvgIconProps} from "@mui/material/SvgIcon"
-import CheckIcon from "@mui/icons-material/Check";
-import ClearIcon from "@mui/icons-material/Clear";
+import { MdCheck } from 'react-icons/md';
+import { MdClear } from 'react-icons/md';
 import PrettyObject from "./PrettyObject";
 import Checkbox, {CheckboxProps} from "@mui/material/Checkbox";
 import PrettyArray from "./PrettyArray";
@@ -160,7 +160,7 @@ const PrettyBoolean = (
         onChange={(e) => onChange({_type: "boolean", _value: e.currentTarget.checked})}
         {...childProps as CheckboxProps}
     /> :
-    target._value? <CheckIcon {...childProps as SvgIconProps} /> : <ClearIcon {...childProps as SvgIconProps} />
+    target._value? <MdCheck {...childProps as SvgIconProps} /> : <MdClear {...childProps as SvgIconProps} />
 
 const TypeChangeWrapper = ({children, ...props}: PropsWithChildren<TypeChangerProps>) =>
     <Stack direction="row" spacing={0.5}>

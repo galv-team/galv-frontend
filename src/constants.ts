@@ -1,99 +1,124 @@
-import PollIcon from "@mui/icons-material/Poll";
-import MultilineChartIcon from "@mui/icons-material/MultilineChart";
-import DatasetLinkedIcon from "@mui/icons-material/DatasetLinked";
-import BatteryFullIcon from "@mui/icons-material/BatteryFull";
-import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
-import HomeIcon from "@mui/icons-material/Home";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import HolidayVillageIcon from "@mui/icons-material/HolidayVillage";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import BatchPredictionIcon from '@mui/icons-material/BatchPrediction';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import CloudSyncIcon from '@mui/icons-material/CloudSync';
-import PersonIcon from '@mui/icons-material/Person';
-import FolderIcon from '@mui/icons-material/Folder';
-import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SchemaIcon from '@mui/icons-material/Schema';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import PendingIcon from '@mui/icons-material/Pending';
-import HideSourceIcon from '@mui/icons-material/HideSource';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import DownloadIcon from '@mui/icons-material/Download';
-import ForkRightIcon from '@mui/icons-material/ForkRight';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import SubscriptIcon from '@mui/icons-material/Subscript';
-import SplitscreenIcon from '@mui/icons-material/Splitscreen';
-import ExtensionIcon from '@mui/icons-material/Extension';
-import SuccessIcon from '@mui/icons-material/Done';
-import InfoIcon from '@mui/icons-material/Info';
-import WarningIcon from '@mui/icons-material/Warning';
-import ErrorIcon from '@mui/icons-material/Error';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import SdStorageIcon from '@mui/icons-material/SdStorage';
+import {
+    MdAddCircle,
+    MdAssignment,
+    MdAttachFile,
+    MdBatchPrediction,
+    MdBatteryFull,
+    MdCancel,
+    MdCheckCircle,
+    MdCloudSync,
+    MdCompareArrows,
+    MdDatasetLinked,
+    MdDelete,
+    MdDownload,
+    MdError,
+    MdExpandLess,
+    MdExpandMore,
+    MdExtension,
+    MdFolder,
+    MdForkRight,
+    MdHideSource,
+    MdHolidayVillage,
+    MdHome,
+    MdInfo,
+    MdLogout,
+    MdManageAccounts,
+    MdMultilineChart,
+    MdPending,
+    MdPeopleAlt,
+    MdPerson,
+    MdPoll,
+    MdPrecisionManufacturing,
+    MdSave,
+    MdSchema,
+    MdSdStorage,
+    MdSplitscreen,
+    MdSubscript,
+    MdVpnKey,
+    MdWarning
+} from 'react-icons/md';
 
 import {
-    CellChemistriesApi,
-    CellFamiliesApi,
-    CellFormFactorsApi,
-    CellManufacturersApi,
-    CellModelsApi,
-    CellsApi,
-    CyclerTestsApi,
-    EquipmentApi,
-    EquipmentFamiliesApi,
-    EquipmentManufacturersApi,
-    EquipmentModelsApi,
-    EquipmentTypesApi,
-    ExperimentsApi,
-    FilesApi,
-    HarvestersApi,
-    LabsApi,
-    MonitoredPathsApi,
-    ParquetPartitionsApi,
-    ScheduleFamiliesApi,
-    ScheduleIdentifiersApi,
-    SchedulesApi,
-    TeamsApi,
-    TokensApi,
-    UsersApi,
-    ValidationSchemasApi,
-    ArbitraryFilesApi, ColumnTypesApi, UnitsApi,
-    ColumnMappingsApi,
-    GalvStorageApi,
+    AdditionalS3StorageType,
     AdditionalStorageApi,
-    CellChemistriesApiFp,
-    CellFamiliesApiFp,
-    CellFormFactorsApiFp,
-    CellManufacturersApiFp,
-    CellModelsApiFp,
-    CellsApiFp,
-    CyclerTestsApiFp,
-    EquipmentApiFp,
-    EquipmentFamiliesApiFp,
-    EquipmentManufacturersApiFp,
-    EquipmentModelsApiFp,
-    EquipmentTypesApiFp,
-    ExperimentsApiFp,
-    FilesApiFp,
-    HarvestersApiFp,
-    LabsApiFp,
-    MonitoredPathsApiFp,
-    ParquetPartitionsApiFp,
-    ScheduleFamiliesApiFp,
-    ScheduleIdentifiersApiFp,
-    SchedulesApiFp,
-    TeamsApiFp,
-    TokensApiFp,
-    UsersApiFp,
-    ValidationSchemasApiFp,
-    ArbitraryFilesApiFp, ColumnTypesApiFp, UnitsApiFp,
-    ColumnMappingsApiFp,
-    GalvStorageApiFp,
     AdditionalStorageApiFp,
+    ArbitraryFile,
+    ArbitraryFilesApi,
+    ArbitraryFilesApiFp,
+    Cell,
+    CellChemistriesApi,
+    CellChemistriesApiFp,
+    CellFamiliesApi,
+    CellFamiliesApiFp,
+    CellFamily,
+    CellFormFactorsApi,
+    CellFormFactorsApiFp,
+    CellManufacturersApi,
+    CellManufacturersApiFp,
+    CellModelsApi,
+    CellModelsApiFp,
+    CellsApi,
+    CellsApiFp,
+    ColumnMapping,
+    ColumnMappingsApi,
+    ColumnMappingsApiFp,
+    ColumnTypesApi,
+    ColumnTypesApiFp,
+    CyclerTest,
+    CyclerTestsApi,
+    CyclerTestsApiFp,
+    DataColumnType,
+    DataUnit,
+    Equipment,
+    EquipmentApi,
+    EquipmentApiFp,
+    EquipmentFamiliesApi,
+    EquipmentFamiliesApiFp,
+    EquipmentFamily,
+    EquipmentManufacturersApi,
+    EquipmentManufacturersApiFp,
+    EquipmentModelsApi,
+    EquipmentModelsApiFp,
+    EquipmentTypesApi,
+    EquipmentTypesApiFp,
+    Experiment,
+    ExperimentsApi,
+    ExperimentsApiFp,
+    FilesApi,
+    FilesApiFp,
+    GalvStorageApi,
+    GalvStorageApiFp,
+    Harvester,
+    HarvestersApi,
+    HarvestersApiFp,
+    Lab,
+    LabsApi,
+    LabsApiFp,
+    MonitoredPath,
+    MonitoredPathsApi,
+    MonitoredPathsApiFp,
+    ObservedFile,
+    ParquetPartitionsApi,
+    ParquetPartitionsApiFp,
+    Schedule,
+    ScheduleFamiliesApi,
+    ScheduleFamiliesApiFp,
+    ScheduleFamily,
+    ScheduleIdentifiersApi,
+    ScheduleIdentifiersApiFp,
+    SchedulesApi,
+    SchedulesApiFp,
+    Team,
+    TeamsApi,
+    TeamsApiFp,
+    TokensApi,
+    TokensApiFp,
+    UnitsApi,
+    UnitsApiFp,
+    UsersApi,
+    UsersApiFp,
+    ValidationSchemasApi,
+    ValidationSchemasApiFp,
 } from "@galv/galv";
 import {
     TypeChangerAutocompleteKey,
@@ -101,14 +126,21 @@ import {
     TypeChangerSupportedTypeName
 } from "./Components/prettify/TypeChanger";
 import {TypeValueNotation} from "./Components/TypeValueNotation";
-import SaveIcon from "@mui/icons-material/Save";
-import DeleteIcon from "@mui/icons-material/Delete";
+
+export type ChildResource = Cell | Equipment | Schedule
+export type FamilyResource = CellFamily | EquipmentFamily | ScheduleFamily
+export type StandaloneResource =
+    ArbitraryFile | AdditionalS3StorageType | Harvester | Team | Lab |
+    DataUnit | DataColumnType | MonitoredPath | ObservedFile | CyclerTest | Experiment |
+    ColumnMapping
+export type GalvResource = ChildResource | FamilyResource | StandaloneResource
 
 /**
  * The basic unit of data passed around the frontend is a Serializable.
  * This is a type that can be serialized to JSON.
  */
 export type Serializable =
+    GalvResource |
     string |
     number |
     boolean |
@@ -117,7 +149,7 @@ export type Serializable =
     Serializable[] |
     undefined |
     null
-export type SerializableObject = { [key: string]: Serializable }
+export type SerializableObject = GalvResource | { [key: string]: Serializable }
 export type NonNullSerializable = Exclude<Serializable, null | undefined>
 
 /**
@@ -207,52 +239,52 @@ export const is_autocomplete_key = (key: unknown): key is AutocompleteKey =>
  * Currently all families share the same icon.
  */
 export const ICONS = {
-    [LOOKUP_KEYS.HARVESTER]: CloudSyncIcon,
-    [LOOKUP_KEYS.PATH]: FolderIcon,
-    [LOOKUP_KEYS.PARQUET_PARTITION]: ExtensionIcon,
-    [LOOKUP_KEYS.FILE]: PollIcon,
-    [LOOKUP_KEYS.MAPPING]: CompareArrowsIcon,
-    [LOOKUP_KEYS.UNIT]: SubscriptIcon,
-    [LOOKUP_KEYS.COLUMN_FAMILY]: SplitscreenIcon,
-    [LOOKUP_KEYS.CELL_FAMILY]: BatchPredictionIcon,
-    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: BatchPredictionIcon,
-    [LOOKUP_KEYS.SCHEDULE_FAMILY]: BatchPredictionIcon,
-    [LOOKUP_KEYS.EXPERIMENT]: DatasetLinkedIcon,
-    [LOOKUP_KEYS.CYCLER_TEST]: MultilineChartIcon,
-    [LOOKUP_KEYS.CELL]: BatteryFullIcon,
-    [LOOKUP_KEYS.EQUIPMENT]: PrecisionManufacturingIcon,
-    [LOOKUP_KEYS.SCHEDULE]: AssignmentIcon,
-    [LOOKUP_KEYS.ARBITRARY_FILE]: AttachFileIcon,
-    [LOOKUP_KEYS.VALIDATION_SCHEMA]: SchemaIcon,
-    [LOOKUP_KEYS.LAB]: HolidayVillageIcon,
-    [LOOKUP_KEYS.TEAM]: PeopleAltIcon,
-    [LOOKUP_KEYS.USER]: PersonIcon,
-    [LOOKUP_KEYS.TOKEN]: VpnKeyIcon,
-    STORAGE: SdStorageIcon,
-    [LOOKUP_KEYS.GALV_STORAGE]: SdStorageIcon,
-    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: SdStorageIcon,
-    DASHBOARD: HomeIcon,
-    MANAGE_ACCOUNT: ManageAccountsIcon,
-    LOGOUT: LogoutIcon,
-    CREATE: AddCircleIcon,
-    DELETE: DeleteIcon,
-    SAVE: SaveIcon,
-    FORK: ForkRightIcon,
-    CANCEL: CancelIcon,
-    CHECK: CheckCircleIcon,
-    EXPAND_MORE: ExpandMoreIcon,
-    EXPAND_LESS: ExpandLessIcon,
-    DOWNLOAD: DownloadIcon,
-    validation_status_ERROR: ErrorIcon,
-    validation_status_UNCHECKED: PendingIcon,
-    validation_status_INPUT_REQUIRED: PendingIcon,
-    validation_status_VALID: CheckCircleIcon,
-    validation_status_INVALID: CancelIcon,
-    validation_status_SKIPPED: HideSourceIcon,
-    SUCCESS: SuccessIcon,
-    INFO: InfoIcon,
-    WARNING: WarningIcon,
-    ERROR: ErrorIcon
+    [LOOKUP_KEYS.HARVESTER]: MdCloudSync,
+    [LOOKUP_KEYS.PATH]: MdFolder,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: MdExtension,
+    [LOOKUP_KEYS.FILE]: MdPoll,
+    [LOOKUP_KEYS.MAPPING]: MdCompareArrows,
+    [LOOKUP_KEYS.UNIT]: MdSubscript,
+    [LOOKUP_KEYS.COLUMN_FAMILY]: MdSplitscreen,
+    [LOOKUP_KEYS.CELL_FAMILY]: MdBatchPrediction,
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: MdBatchPrediction,
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: MdBatchPrediction,
+    [LOOKUP_KEYS.EXPERIMENT]: MdDatasetLinked,
+    [LOOKUP_KEYS.CYCLER_TEST]: MdMultilineChart,
+    [LOOKUP_KEYS.CELL]: MdBatteryFull,
+    [LOOKUP_KEYS.EQUIPMENT]: MdPrecisionManufacturing,
+    [LOOKUP_KEYS.SCHEDULE]: MdAssignment,
+    [LOOKUP_KEYS.ARBITRARY_FILE]: MdAttachFile,
+    [LOOKUP_KEYS.VALIDATION_SCHEMA]: MdSchema,
+    [LOOKUP_KEYS.LAB]: MdHolidayVillage,
+    [LOOKUP_KEYS.TEAM]: MdPeopleAlt,
+    [LOOKUP_KEYS.USER]: MdPerson,
+    [LOOKUP_KEYS.TOKEN]: MdVpnKey,
+    STORAGE: MdSdStorage,
+    [LOOKUP_KEYS.GALV_STORAGE]: MdSdStorage,
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: MdSdStorage,
+    DASHBOARD: MdHome,
+    MANAGE_ACCOUNT: MdManageAccounts,
+    LOGOUT: MdLogout,
+    CREATE: MdAddCircle,
+    DELETE: MdDelete,
+    SAVE: MdSave,
+    FORK: MdForkRight,
+    CANCEL: MdCancel,
+    CHECK: MdCheckCircle,
+    EXPAND_MORE: MdExpandMore,
+    EXPAND_LESS: MdExpandLess,
+    DOWNLOAD: MdDownload,
+    validation_status_ERROR: MdError,
+    validation_status_UNCHECKED: MdPending,
+    validation_status_INPUT_REQUIRED: MdPending,
+    validation_status_VALID: MdCheckCircle,
+    validation_status_INVALID: MdCancel,
+    validation_status_SKIPPED: MdHideSource,
+    SUCCESS: MdCheckCircle,
+    INFO: MdInfo,
+    WARNING: MdWarning,
+    ERROR: MdError
 } as const
 
 /**
@@ -408,7 +440,7 @@ export const API_SLUGS = {
 /**
  * API handlers for each resource type.
  * Instantiated with new API_HANDLERS[lookup_key]().
- * 
+ *
  * Used when we don't know the order of the arguments to the API function.
  */
 export const API_HANDLERS = {
@@ -448,7 +480,7 @@ export const API_HANDLERS = {
 /**
  * API Functional Interface for each resource type.
  * Instantiated with new API_HANDLERS[lookup_key]().
- * 
+ *
  * This is used when we don't know the name of the parameters we want to set.
  */
 export const API_HANDLERS_FP = {
@@ -563,7 +595,7 @@ export const FIELDS = {
         harvester: {
             read_only: true,
             type: key_to_type(LOOKUP_KEYS.HARVESTER),
-            
+
             create_only: true,
             fetch_in_download: true
         },
@@ -716,14 +748,14 @@ export const FIELDS = {
             read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            
+
             fetch_in_download: true
         },
         admin_group: {
             read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            
+
             fetch_in_download: true
         },
         monitored_paths: {read_only: true, type: key_to_type(LOOKUP_KEYS.PATH), many: true},
@@ -745,7 +777,7 @@ export const FIELDS = {
             read_only: true,
             create_only: true,
             type: "attachment",
-            
+
         },
         team: team_fields.team,
     },
@@ -764,7 +796,7 @@ export const FIELDS = {
             read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            
+
             fetch_in_download: true
         },
         storages: {read_only: true, type: key_to_type(LOOKUP_KEYS.ADDITIONAL_STORAGE), many: true},
@@ -1130,4 +1162,4 @@ By applying the above criteria, the best mapping is selected. A mapping will nev
 
 When creating mappings, be cautious of potential conflicts where two mappings are equally suitable. In such cases, all affected files will require manual disambiguation to choose the correct mapping.
     `,
-} as const
+} as const // Map API resources to their corresponding summaries

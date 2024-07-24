@@ -16,8 +16,8 @@ import {Table, tableFromIPC } from "apache-arrow";
 import Paper from "@mui/material/Paper";
 import MobileStepper from "@mui/material/MobileStepper";
 import Button from "@mui/material/Button";
-import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
-import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import { KeyboardArrowRight } from 'react-icons/md';
+import { KeyboardArrowLeft } from 'react-icons/md';
 import * as wasm from "parquet-wasm/bundler/arrow1"
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;

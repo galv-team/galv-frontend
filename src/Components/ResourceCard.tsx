@@ -1,5 +1,5 @@
 import CardActionBar from "./CardActionBar";
-import {deep_copy, id_from_ref_props} from "./misc";
+import {deep_copy, has, id_from_ref_props} from "./misc";
 import PrettyObject, {PrettyObjectFromQuery} from "./prettify/PrettyObject";
 import useStyles from "../styles/UseStyles";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
@@ -20,14 +20,15 @@ import QueryWrapper, {QueryDependentElement} from "./QueryWrapper";
 import {AxiosError, AxiosResponse} from "axios";
 import Divider, {DividerProps} from "@mui/material/Divider";
 import {
-    API_HANDLERS, API_HANDLERS_FP,
+    API_HANDLERS,
+    API_HANDLERS_FP,
     API_SLUGS,
     AutocompleteKey,
     CHILD_LOOKUP_KEYS,
     CHILD_PROPERTY_NAMES,
     DISPLAY_NAMES,
     FAMILY_LOOKUP_KEYS,
-    FIELDS,
+    FIELDS, GalvResource,
     get_has_family,
     get_is_family,
     ICONS,
@@ -73,20 +74,7 @@ import PathSummary from "./summaries/PathSummary";
 import FileSummary from "./summaries/FileSummary";
 import CyclerTestSummary from "./summaries/CyclerTestSummary";
 import ExperimentSummary from "./summaries/ExperimentSummary";
-
-export type Permissions = { read?: boolean, write?: boolean, create?: boolean, destroy?: boolean }
-type child_keys = "cells"|"equipment"|"schedules"
-type CoreProperties = {
-    url: string,
-    permissions?: Permissions,
-    team?: string|null,
-    family?: string,
-    cycler_tests?: string[],
-} & {[key in child_keys]?: string[]} & SerializableObject
-export type BaseResource = { id: string|number } & CoreProperties
-export type Family = BaseResource & ({cells: string[]} | {equipment: string[]} | {schedules: string[]})
-export type Resource = { family: string, cycler_tests: string[] } & BaseResource
-export type AutocompleteResource = { value: string, ld_value: string, url: string, id: number }
+import {ObservedFile} from "@galv/galv";
 
 export type ResourceCardProps = {
     resource_id: string|number
@@ -108,7 +96,7 @@ function PropertiesDivider({children, ...props}: PropsWithChildren<DividerProps>
 /**
  * Resources with custom summaries.
  */
-const CUSTOM_SUMMARIES: Partial<Record<LookupKey, (resource: {resource: BaseResource}) => ReactNode>> = {
+const CUSTOM_SUMMARIES: Partial<Record<LookupKey, (resource: {resource: GalvResource}) => ReactNode>> = {
     [LOOKUP_KEYS.ARBITRARY_FILE]: ArbitraryFileSummary,
     [LOOKUP_KEYS.ADDITIONAL_STORAGE]: AdditionalStorageSummary,
     [LOOKUP_KEYS.HARVESTER]: HarvesterSummary,
@@ -124,10 +112,10 @@ const CUSTOM_SUMMARIES: Partial<Record<LookupKey, (resource: {resource: BaseReso
 
 /**
  * Present summary information for a resource.
- * If there's a specific summary component, use that. 
+ * If there's a specific summary component, use that.
  * Otherwise, pull out fields with PRIORITY_LEVELS.SUMMARY and display them.
  */
-function Summary<T extends BaseResource>({apiResource, lookup_key}: {apiResource?: T, lookup_key: LookupKey}) {
+function Summary<T extends GalvResource>({apiResource, lookup_key}: {apiResource?: T, lookup_key: LookupKey}) {
     if (apiResource === undefined)
         return null
 
@@ -143,7 +131,7 @@ function Summary<T extends BaseResource>({apiResource, lookup_key}: {apiResource
     }
 
     const summarise = (
-        data: Serializable,
+        data: unknown,
         many: boolean,
         key: string,
         lookup?: LookupKey|AutocompleteKey
@@ -172,27 +160,36 @@ function Summary<T extends BaseResource>({apiResource, lookup_key}: {apiResource
                 resource_id={id_from_ref_props<string>(data as string | number)}
                 lookup_key={lookup}
                 short_name={is_family_child(lookup, lookup_key)}
-            /> : <Prettify target={to_type_value_notation(data, field_info)}/>
+            /> : <Prettify target={to_type_value_notation(data as Serializable, field_info)}/>
+    }
+
+    const img_preview = (lookup_key: LookupKey, apiResource: GalvResource) => {
+        if (lookup_key === LOOKUP_KEYS.FILE) {
+            const r = apiResource as ObservedFile
+            if (r.has_required_columns && r.png)
+                return <AuthImage file={apiResource as unknown as {id: string, path: string, png: string}} />
+        }
+        return null
     }
 
     return <>
-        {lookup_key === LOOKUP_KEYS.FILE && apiResource?.has_required_columns && apiResource.png &&
-            <Stack spacing={2}>
-                <AuthImage file={apiResource as unknown as {id: string, path: string, png: string}} />
-            </Stack>
-        }
+        {img_preview(lookup_key, apiResource)}
         {apiResource && <Grid container spacing={1}>{
             Object.entries(FIELDS[lookup_key])
                 .filter((e) => e[1].priority === PRIORITY_LEVELS.SUMMARY)
                 .map(([k, v]) => <Grid key={k} container xs={12} sx={{alignItems: "center"}}>
-                    <Grid xs={2} lg={1}><Typography variant="subtitle2">{k.replace(/_/g, ' ')}</Typography></Grid>
-                    <Grid xs={10} lg={11}>{summarise(apiResource[k], v.many, k, type_to_key(v.type))}</Grid>
+                    <Grid xs={2} lg={1}>
+                        <Typography variant="subtitle2">{k.replace(/_/g, ' ')}</Typography>
+                    </Grid>
+                    <Grid xs={10} lg={11}>
+                        {summarise(apiResource[k as keyof typeof apiResource], v.many, k, type_to_key(v.type))}
+                    </Grid>
                 </Grid>)
         }</Grid>}
     </>
 }
 
-function ResourceCard<T extends BaseResource>(
+function ResourceCard<T extends GalvResource>(
     {
         resource_id,
         lookup_key,
@@ -209,7 +206,7 @@ function ResourceCard<T extends BaseResource>(
     const {passesFilters} = useContext(FilterContext)
     const {apiResource, apiResourceDescription, family, apiQuery} = useApiResource<T>()
     // useContext is wrapped in useRef because we update the context in our useEffect API data hook
-    const UndoRedo = useUndoRedoContext<SerializableObject>()
+    const UndoRedo = useUndoRedoContext<T>()
     const UndoRedoRef = useRef(UndoRedo)
     const {refresh_user} = useCurrentUser()
 
@@ -225,12 +222,12 @@ function ResourceCard<T extends BaseResource>(
             const data = deep_copy(apiResource)
             Object.entries(FIELDS[lookup_key]).forEach(([k, v]) => {
                 if (v.read_only) {
-                    delete data[k]
+                    delete data[k as keyof typeof data]
                 }
             })
             apiResourceDescription && Object.entries(apiResourceDescription).forEach(([k, v]) => {
-                if (v.read_only && data[k] !== undefined) {
-                    delete data[k]
+                if (v.read_only && data[k as keyof typeof data] !== undefined) {
+                    delete data[k as keyof typeof data]
                 }
             })
             UndoRedoRef.current.set(data)
@@ -251,34 +248,33 @@ function ResourceCard<T extends BaseResource>(
         ] as (id: string, data: Partial<T>) => Promise<(axios: Axios, basePath: string) => Promise<AxiosResponse<T>>>
     const queryClient = useQueryClient()
     const update_mutation =
-        useMutation<AxiosResponse<T>, AxiosError, Partial<T>>(
-            (data: Partial<T>) => patch(String(resource_id), data)
+        useMutation<AxiosResponse<T>, AxiosError, Partial<T>>({
+            mutationFn: (data: Partial<T>) => patch(String(resource_id), data)
                 .then((request) => request(api_skeleton.axios, api_skeleton.basePath)),
-            {
-                onSuccess: (data, variables, context) => {
-                    if (data === undefined) {
-                        console.warn("No data in mutation response", {data, variables, context})
-                        return
-                    }
-                    queryClient.setQueryData([lookup_key, resource_id], data)
-                    // Also invalidate autocomplete cache because we may have updated options
-                    queryClient.invalidateQueries(['autocomplete'])
-                },
-                onError: (error, variables, context) => {
-                    console.error(error, {variables, context})
-                    const d = error.response?.data as Partial<T>
-                    const firstError = Object.entries(d)[0]
-                    postSnackbarMessage({
-                        message: <Stack>
+            onSuccess: (data, variables, context) => {
+                if (data === undefined) {
+                    console.warn("No data in mutation response", {data, variables, context})
+                    return
+                }
+                queryClient.setQueryData([lookup_key, resource_id], data)
+                // Also invalidate autocomplete cache because we may have updated options
+                queryClient.invalidateQueries({queryKey: ['autocomplete']})
+            },
+            onError: (error, variables, context) => {
+                console.error(error, {variables, context})
+                const d = error.response?.data as Partial<T>
+                const firstError = Object.entries(d)[0]
+                postSnackbarMessage({
+                    message: <Stack>
                             <span>{`Error updating ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
                         (HTTP ${error.response?.status} - ${error.response?.statusText}).`}</span>
-                            <span style={{fontWeight: "bold"}}>{`${firstError[0]}: ${firstError[1]}`}</span>
-                            {Object.keys(d).length > 1 && <span>+ {Object.keys(d).length - 1} more</span>}
-                        </Stack>,
-                        severity: 'error'
-                    })
-                },
-            })
+                        <span style={{fontWeight: "bold"}}>{`${firstError[0]}: ${firstError[1]}`}</span>
+                        {Object.keys(d).length > 1 && <span>+ {Object.keys(d).length - 1} more</span>}
+                    </Stack>,
+                    severity: 'error'
+                })
+            },
+        })
 
     const family_key = get_has_family(lookup_key)?
         FAMILY_LOOKUP_KEYS[lookup_key] : undefined
@@ -312,7 +308,10 @@ function ResourceCard<T extends BaseResource>(
             UndoRedo.reset()
             return true
         }}
-        destroyable={apiResource?.permissions?.destroy && !apiResource.in_use}
+        destroyable={
+            has(apiResource, "in_use") && !apiResource.in_use &&
+            has(apiResource?.permissions, "destroy") && apiResource.permissions.destroy
+        }
         onDestroy={() => {
             if (!window.confirm(`Delete ${DISPLAY_NAMES[lookup_key]}/${resource_id}?`))
                 return
@@ -322,10 +321,10 @@ function ResourceCard<T extends BaseResource>(
             destroy.bind(api_handler)({id: String(resource_id)})
                 .then(() => {
                     navigate(PATHS[lookup_key])
-                    queryClient.removeQueries([lookup_key, resource_id])
+                    queryClient.removeQueries({queryKey: [lookup_key, resource_id]})
                 })
                 .then(() => {
-                    queryClient.invalidateQueries([lookup_key, 'list'])
+                    queryClient.invalidateQueries({queryKey: [lookup_key, 'list']})
                     if (lookup_key === LOOKUP_KEYS.LAB) {
                         refresh_user()
                     }
@@ -338,7 +337,11 @@ function ResourceCard<T extends BaseResource>(
                     })
                 })
         }}
-        reimportable={lookup_key === LOOKUP_KEYS.FILE && apiResource?.permissions?.write && apiResource.state !== "RETRY IMPORT"}
+        reimportable={
+            lookup_key === LOOKUP_KEYS.FILE &&
+            apiResource?.permissions?.write &&
+            has(apiResource, 'state') && apiResource.state !== "RETRY IMPORT"
+        }
         onReImport={() => {
             if (!window.confirm(`
 Re-import ${DISPLAY_NAMES[lookup_key]}/${resource_id}?
@@ -351,7 +354,7 @@ The file will be added to the Harvester's usual queue for processing.
                 `${API_SLUGS[lookup_key]}ReimportRetrieve` as keyof typeof api_handler
                 ] as (requestParams: {id: string}) => Promise<AxiosResponse<T>>
             reimport.bind(api_handler)({id: String(resource_id)})
-                .then(() => queryClient.invalidateQueries([lookup_key, resource_id]))
+                .then(() => queryClient.invalidateQueries({queryKey: [lookup_key, resource_id]}))
                 .catch(e => {
                     postSnackbarMessage({
                         message: `Error re-importing ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
@@ -394,17 +397,17 @@ The file will be added to the Harvester's usual queue for processing.
                     const data = deep_copy(d)
                     Object.entries(FIELDS[lookup_key]).forEach(([k, v]) => {
                         if (!v.read_only)
-                            delete data[k]
+                            delete data[k as keyof typeof data]
                     })
                     apiResourceDescription && Object.entries(apiResourceDescription).forEach(([k, v]) => {
-                        if (!v.read_only && data[k] !== undefined)
-                            delete data[k]
+                        if (!v.read_only && data[k as keyof typeof data] !== undefined)
+                            delete data[k as keyof typeof data]
                     })
                     // Unrecognised fields are always editable
                     Object.keys(data).forEach(k => {
                         const in_description = apiResourceDescription && Object.keys(apiResourceDescription).includes(k)
                         if (!Object.keys(FIELDS[lookup_key]).includes(k) && !in_description)
-                            delete data[k]
+                            delete data[k as keyof typeof data]
                     })
                     return data
                 }}
@@ -425,21 +428,31 @@ The file will be added to the Harvester's usual queue for processing.
                 }
                 edit_mode={isEditMode}
                 lookup_key={lookup_key}
-                onEdit={(v: TypeValueNotation|TypeValueNotationWrapper) => UndoRedo.update({
-                    ...from_type_value_notation(v) as SerializableObject,
-                    custom_properties: UndoRedo.current.custom_properties
-                })}
+                onEdit={(v: TypeValueNotation|TypeValueNotationWrapper) => {
+                    const core_properties = from_type_value_notation(v) as T
+                    if (has(UndoRedo.current, "custom_properties")) {
+                        UndoRedo.update({
+                            ...core_properties,
+                            custom_properties: UndoRedo.current.custom_properties
+                        })
+                    } else {
+                        UndoRedo.update(core_properties)
+                    }
+                }}
             />}
-            <PropertiesDivider>Custom properties</PropertiesDivider>
-            {UndoRedo.current && <PrettyObject<TypeValueNotationWrapper>
-                key="custom-props"
-                // custom_properties are already TypeValue notated
-                target={{...(UndoRedo.current.custom_properties as TypeValueNotationWrapper)}}
-                edit_mode={isEditMode}
-                lookup_key={lookup_key}
-                onEdit={(v: Serializable) => UndoRedo.update({...UndoRedo.current, custom_properties: v})}
-                canEditKeys
-            />}
+            {has(apiResource, "custom_properties") && <PropertiesDivider>Custom properties</PropertiesDivider>}
+            {has(apiResource, "custom_properties") &&
+                has(UndoRedo.current, "custom_properties") &&
+                UndoRedo.current &&
+                <PrettyObject<TypeValueNotationWrapper>
+                    key="custom-props"
+                    // custom_properties are already TypeValue notated
+                    target={{...(UndoRedo.current.custom_properties as TypeValueNotationWrapper)}}
+                    edit_mode={isEditMode}
+                    lookup_key={lookup_key}
+                    onEdit={(v: Serializable) => UndoRedo.update({...UndoRedo.current, custom_properties: v})}
+                    canEditKeys
+                />}
             {family && <PropertiesDivider>
                 Inherited from
                 {family?
@@ -452,11 +465,11 @@ The file will be added to the Harvester's usual queue for processing.
                 resource_id={family.id as string}
                 lookup_key={family_key}
                 filter={(d, lookup_key) => {
-                    const data = deep_copy(d)
-                    if (get_is_family(lookup_key))
+                    const data = deep_copy(d) as T
+                    if (get_is_family(lookup_key) && has(data, CHILD_PROPERTY_NAMES[lookup_key]))
                         delete data[CHILD_PROPERTY_NAMES[lookup_key]]
                     // Keys child has are not inherited
-                    Object.keys(d).forEach(k => apiResource?.[k] !== undefined && delete data[k])
+                    Object.keys(d).forEach(k => apiResource?.[k as keyof T] !== undefined && delete data[k as keyof T])
                     return data
                 }}
             />}
@@ -518,9 +531,9 @@ The file will be added to the Harvester's usual queue for processing.
                 </A>}
                 subheader={<Stack direction="row" spacing={1} alignItems="center">
                     <A component={Link} to={PATHS[lookup_key]}>{DISPLAY_NAMES[lookup_key]}</A>
-                    {apiResource?.team !== undefined && apiResource?.team !== null && <ResourceChip
+                    {has(apiResource, "team") && apiResource.team !== null && <ResourceChip
                         lookup_key="TEAM"
-                        resource_id={id_from_ref_props<number>(apiResource?.team)}
+                        resource_id={id_from_ref_props<number>(apiResource.team)}
                         sx={{fontSize: "smaller"}}
                     />}
                 </Stack>}
@@ -552,7 +565,7 @@ The file will be added to the Harvester's usual queue for processing.
     />
 }
 
-export default function WrappedResourceCard<T extends BaseResource>(props: ResourceCardProps & CardProps) {
+export default function WrappedResourceCard<T extends GalvResource>(props: ResourceCardProps & CardProps) {
     return <UndoRedoProvider>
         <ErrorBoundary
             fallback={(error: Error) => <ErrorCard

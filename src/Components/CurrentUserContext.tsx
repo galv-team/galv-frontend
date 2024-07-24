@@ -50,21 +50,19 @@ export default function CurrentUserContextProvider({children}: {children: ReactN
         password
     })
     const api_handler = new LoginApi(get_config())
-    const Login = useMutation<AxiosResponse<KnoxUser>, AxiosError, void>(
-        () => {
+    const Login = useMutation<AxiosResponse<KnoxUser>, AxiosError, void>({
+        mutationFn: () => {
             setLastError(undefined)
             return api_handler.loginCreate.bind(new LoginApi(get_config()))()
         },
-        {
-            onSuccess: (data) => {
+        onSuccess: (data) => {
                 window.localStorage.setItem('user', JSON.stringify(data.data))
                 setUser(data.data as unknown as LoginUser)
                 queryClient.removeQueries({predicate: () => true})
                 onSuccess && onSuccess(data)
             },
             onError: setLastError
-        }
-    )
+    })
 
     const Logout = () => {
         if (user) {

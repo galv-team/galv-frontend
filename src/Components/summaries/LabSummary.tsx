@@ -1,4 +1,3 @@
-import {BaseResource} from "../ResourceCard";
 import {Lab} from "@galv/galv";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
@@ -6,8 +5,10 @@ import Stack from "@mui/material/Stack";
 import ChipList from "./ChipList";
 import Typography from "@mui/material/Typography";
 
+import {GalvResource} from "../../constants";
 
-export default function LabSummary({ resource } : { resource: BaseResource}) {
+
+export default function LabSummary({ resource } : { resource: GalvResource}) {
     const {classes} = useStyles();
     const r = resource as unknown as Lab
 

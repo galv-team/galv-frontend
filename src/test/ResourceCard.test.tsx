@@ -8,157 +8,30 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 import {LOOKUP_KEYS} from "../constants";
 import React from 'react';
 import {render, screen, within, waitFor, cleanup} from '@testing-library/react';
-import axios, {AxiosResponse, AxiosRequestConfig} from 'axios';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {FilterContextProvider} from "../Components/filtering/FilterContext";
 import {MemoryRouter} from "react-router-dom";
 import FetchResourceContextProvider from "../Components/FetchResourceContext";
-import {Cell, PermittedAccessLevels, CellFamily, Team} from "@galv/galv";
+import {Cell} from "@galv/galv";
 import SelectionManagementContextProvider from "../Components/SelectionManagementContext";
-import access_levels_response from './fixtures/access_levels.json';
 import {act} from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
+import {vi, it, expect, describe, beforeEach} from "vitest";
+import axios from "axios";
+import WrappedResourceCard from "../Components/ResourceCard";
 
-jest.mock('../Components/Representation')
-jest.mock('../Components/ResourceChip')
-jest.mock('../DatasetChart')
+import {cell_families, cells} from './fixtures/fixtures';
 
-// Mock jest and set the type
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+vi.mock('../Components/Representation')
+vi.mock('../Components/ResourceChip')
+vi.mock('../DatasetChart')
 
-const ResourceCard = jest.requireActual('../Components/ResourceCard').default;
+const req = vi.spyOn(axios, 'request')
 
-const api_data: {
-    cell: Cell,
-    cell_family: CellFamily,
-    cell_family_2: CellFamily,
-    team: Team,
-    access_levels: PermittedAccessLevels
-} = {
-    cell: {
-        url: "http://example.com/cells/0001-0001-0001-0001",
-        id: "0001-0001-0001-0001",
-        identifier: 'Test Cell 1',
-        family: "http://example.com/cell_families/1000-1000-1000-1000",
-        team: "http://example.com/teams/1",
-        in_use: true,
-        cycler_tests: [
-            "http://example.com/cycler_tests/5001-0002-0003-0004",
-            "http://example.com/cycler_tests/5005-0006-0007-0008"
-        ],
-        permissions: {
-            read: true,
-            write: true,
-            create: false
-        },
-        read_access_level: 2,
-        edit_access_level: 3,
-        delete_access_level: 3,
-        custom_properties: {
-            exists: {_type: "boolean", _value: true},
-            "key with space": {_type: "string", _value: "this works too!"},
-            value: {_type: "string", _value: "custom"},
-            PI: {_type: "number", _value: 3.14159},
-            nested: {
-                _type: "object",
-                _value: {
-                    exists: {_type: "boolean", _value: true},
-                    str_key: {_type: "string", _value: "yes"},
-                    value: {
-                        _type: "array",
-                        _value: [
-                            {_type: "string", _value: "yes"},
-                            {_type: "string", _value: "nested"},
-                            {_type: "galv_TEAM", _value: "http://example.com/teams/1"}
-                        ]
-                    }
-                }
-            },
-            str: {_type: "string", _value: "custom"},
-            num: {_type: "number", _value: 3.14159},
-            bool: {_type: "boolean", _value: true},
-            date: {_type: "datetime", _value: "2024-04-10T15:43:20.522000Z"},
-            arr: {
-                _type: "array",
-                _value: [
-                    {_type: "string", _value: "element 1"},
-                    {_type: "string", _value: "element 2"}
-                ]
-            },
-            obj: {
-                _type: "object",
-                _value: {
-                    key1: {_type: "string", _value: "value1"},
-                    key2: {_type: "string", _value: "value2"}
-                }
-            },
-            cf: {_type: "galv_CELL_FAMILY", _value: "http://example.com/cell_families/1000-1000-1000-1000"}
-        }
-    },
-    cell_family: {
-        url: "http://example.com/cell_families/1000-1000-1000-1000",
-        id: "1000-1000-1000-1000",
-        model: "Best Cell",
-        manufacturer: "PowerCorp",
-        team: "http://example.com/teams/1",
-        chemistry: "",
-        form_factor: "",
-        cells: ["http://example.com/cells/0001-0001-0001-0001"],
-        in_use: true,
-        permissions: {
-            read: true,
-            write: true,
-            create: false
-        },
-        nominal_voltage_v: 3.7
-    },
-    cell_family_2: {
-        url: "http://example.com/cell_families/1200-1200-1200-1200",
-        id: "1200-1200-1200-1200",
-        model: "Value Cell",
-        manufacturer: "BudgetCorp",
-        team: "http://example.com/teams/1",
-        chemistry: "",
-        form_factor: "",
-        cells: [],
-        in_use: false,
-        permissions: {
-            read: true,
-            write: true,
-            create: false
-        },
-        nominal_voltage_v: 3.1
-    },
-    team: {
-        url: "http://example.com/teams/1",
-        id: 1,
-        name: "Test Team 1",
-        lab: "http://example.com/labs/1",
-        monitored_paths: [],
-        cellfamily_resources: ["http://example.com/cell_families/1000-1000-1000-1000"],
-        cell_resources: ["http://example.com/cells/0001-0001-0001-0001"],
-        equipmentfamily_resources: [],
-        equipment_resources: [],
-        cyclertest_resources: [],
-        permissions: {
-            read: true,
-            write: true,
-            create: false
-        },
-        schedule_resources: [],
-        schedulefamily_resources: [],
-        experiment_resources: []
-    },
-    access_levels: access_levels_response
-}
+const cell_resource = cells[0]
+const cell_family = cell_families.find(cf => cf.url === cell_resource.family)
 
-const make_axios_response = (data: object, etc: Partial<AxiosResponse>) => {
-    return Promise.resolve({status: 200, statusText: "OK", ...etc, data} as AxiosResponse)
-}
-const make_paged_axios_response = (data: unknown[], etc: Partial<AxiosResponse>) => {
-    return make_axios_response({count: data.length, next: null, previous: null, results: data}, etc)
-}
+if (!cell_family) throw new Error(`Could not find cell family for cell ${cell_resource.id}`)
 
 const ContextStack = ({children}: {children: React.ReactNode}) => {
     const queryClient = new QueryClient();
@@ -178,45 +51,14 @@ const ContextStack = ({children}: {children: React.ReactNode}) => {
 }
 
 const do_render = async () => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     cleanup()
-
-    // Set up a mini mock server to respond to axios requests
-    mockedAxios.request.mockImplementation((config: AxiosRequestConfig) => {
-        if (config.url) {
-            const url = config.url
-                .replace(/\?.*$/, "")
-                .replace(/\/$/, "")
-            if (url.endsWith(api_data.cell.id))
-                return make_axios_response(api_data.cell, {config})
-            if (url.endsWith(api_data.cell_family.id))
-                return make_axios_response(api_data.cell_family, {config})
-            if (url.endsWith(api_data.cell_family_2.id))
-                return make_axios_response(api_data.cell_family_2, {config})
-            if (/access_levels/.test(url))
-                return make_axios_response(access_levels_response, {config})
-            if (/cell_families$/.test(url))
-                return make_paged_axios_response([api_data.cell_family, api_data.cell_family_2], {config})
-            if (/teams$/.test(url))
-                return make_paged_axios_response([api_data.team], {config})
-            if (url.endsWith('applicable_mappings'))
-                return make_axios_response([], {config})
-            // handle cell_models etc
-            let key = /cell_(\w+)$/.exec(url)?.[1]
-            key = key?.replace(/ies$/, "y")
-            key = key?.replace(/s$/, "")
-            if (key && Object.keys(api_data.cell_family).includes(key))
-                return make_paged_axios_response([api_data.cell_family[key as keyof CellFamily]], {config})
-        }
-        console.error(`Unexpected axios request`, config)
-        throw new Error(`Unexpected axios request to ${config.url ?? "unspecified URL"}`)
-    })
 
     render(
         <ContextStack>
-            <ResourceCard<Cell>
+            <WrappedResourceCard<Cell>
                 lookup_key={LOOKUP_KEYS.CELL}
-                resource_id="0001-0001-0001-0001"
+                resource_id={cells[0].id}
                 expanded
             />
         </ContextStack>
@@ -235,8 +77,6 @@ function wait(ms: number = 100) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-jest.setTimeout(30000)
-
 describe('ResourceCard', () => {
     beforeEach(async () => await do_render())
 
@@ -245,9 +85,9 @@ describe('ResourceCard', () => {
             const read_only_heading = await screen.findByRole('heading', { name: /^Read-only properties$/ });
             const read_only_table = read_only_heading.parentElement!.parentElement!.nextElementSibling;
             expect(read_only_table).not.toBe(null);
-            const id_heading = within(read_only_table as HTMLElement).getByText(/id/);
+            const id_heading = await within(read_only_table as HTMLElement).findByText(/id/);
             within(id_heading.parentElement!.parentElement!.nextElementSibling as HTMLElement)
-                .getByText(api_data.cell.id);
+                .getByText(cell_resource.id);
 
             const editable_heading = await screen.findByRole('heading', { name: /^Editable properties$/ });
             // Editable properties has a permissions table as its first sibling
@@ -256,7 +96,7 @@ describe('ResourceCard', () => {
             const identifier_heading = within(editable_table as HTMLElement)
                 .getByRole("rowheader", {name: /identifier/});
             within(identifier_heading.parentElement! as HTMLElement)
-                .getByRole("cell", {name: api_data.cell.identifier});
+                .getByRole("cell", {name: cell_resource.identifier});
 
             const custom_heading = await screen.findByRole('heading', { name: /^Custom properties$/ });
             const custom_table = custom_heading.parentElement!.parentElement!.nextElementSibling;
@@ -264,7 +104,7 @@ describe('ResourceCard', () => {
             const nested_heading = within(custom_table as HTMLElement)
                 .getByRole("rowheader", {name: /key with space/});
             within(nested_heading.parentElement! as HTMLElement)
-                .getByRole("cell", {name: api_data.cell.custom_properties!["key with space"]._value});
+                .getByRole("cell", {name: cell_resource.custom_properties!["key with space"]._value});
 
             const inherited_heading = await screen.findByRole('heading', { name: /^Inherited from / });
             const inherited_table = inherited_heading.parentElement!.parentElement!.nextElementSibling;
@@ -272,7 +112,7 @@ describe('ResourceCard', () => {
             const nominal_voltage_v_heading = within(inherited_table as HTMLElement)
                 .getByRole("rowheader", {name:/nominal_voltage_v/});
             within(nominal_voltage_v_heading.parentElement! as HTMLElement)
-                .getByRole("cell", {name: api_data.cell_family.nominal_voltage_v!.toString()});
+                .getByRole("cell", {name: cell_family.nominal_voltage_v!.toString()});
         })
 
         it('expands and collapses', () => {
@@ -301,8 +141,7 @@ describe('ResourceCard', () => {
             // Save the changes
             await user.click(screen.getByRole('button', {name: /Save/i}));
             await screen.findByRole('button', {name: /Edit this /i});
-            const last_call = mockedAxios.request.mock.lastCall?
-                mockedAxios.request.mock.lastCall[0] : undefined;
+            const last_call = req.mock.lastCall? req.mock.lastCall[0] : undefined;
             expect(last_call).toHaveProperty("method", "PATCH");
             expect(JSON.parse(last_call?.data).identifier === new_value).toBeTruthy();
         })
@@ -330,20 +169,20 @@ describe('ResourceCard', () => {
             // Click the undo button
             expect(undo_button).toBeEnabled();
             await user.click(undo_button);
-            await waitFor(() => expect(input).toHaveValue(old_value), {timeout: 1000});
+            await waitFor(() => expect(input).toHaveValue(old_value), {timeout: 500});
 
             expect(undo_button).toBeDisabled();
             expect(redo_button).toBeEnabled();
 
             await user.click(redo_button);
-            await waitFor(() => expect(input).toHaveValue(""), {timeout: 1000});
+            await waitFor(() => expect(input).toHaveValue(""), {timeout: 500});
             expect(undo_button).toBeEnabled();
             expect(redo_button).toBeDisabled();
         })
 
         it('supports resetting', async () => {
-            const confirmSpy = jest.spyOn(window, 'confirm');
-            confirmSpy.mockImplementation(jest.fn(() => true));
+            const confirmSpy = vi.spyOn(window, 'confirm');
+            confirmSpy.mockImplementation(vi.fn(() => true));
             const user = userEvent.setup();
 
             // Change the identifier
@@ -366,7 +205,7 @@ describe('ResourceCard', () => {
                 expect(screen.queryByRole('button', {name: /Save/i})).toBe(null);
                 expect(screen.queryByRole('button', {name: /Edit this /i})).not.toBe(null);
                 within(id_label.parentElement! as HTMLElement).getByRole('cell', {name: old_value!});
-            }, {timeout: 1000});
+            }, {timeout: 500});
         })
 
         it('prevents editing non-editable properties', async () => {
@@ -375,7 +214,7 @@ describe('ResourceCard', () => {
             const id_label = screen.getByRole("rowheader", {name: /url/});
             expect(within(id_label).queryByRole('textarea')).toBeNull();
             const value = within(id_label.parentElement! as HTMLElement)
-                .queryByRole('cell', {name: api_data.cell.url});
+                .queryByRole('cell', {name: cell_resource.url});
             expect(within(value!).queryByRole('textbox')).toBeNull();
         })
 
@@ -388,7 +227,7 @@ describe('ResourceCard', () => {
             const id_label = screen.getByRole('rowheader', {name: /key with space/})
             const input = within(id_label.parentElement! as HTMLElement)
                 .getAllByRole('textbox')
-                .filter(e => e instanceof HTMLInputElement && e.value === api_data.cell.custom_properties!["key with space"]._value)
+                .filter(e => e instanceof HTMLInputElement && e.value === cell_resource.custom_properties!["key with space"]._value)
                 .pop()!;
             await user.click(input)
             await user.clear(input)
@@ -397,8 +236,7 @@ describe('ResourceCard', () => {
             // Save the changes
             await user.click(screen.getByRole('button', {name: /Save/i}));
             await screen.findByRole('button', {name: /Edit this /i});
-            const last_call = mockedAxios.request.mock.lastCall?
-                mockedAxios.request.mock.lastCall[0] : undefined;
+            const last_call = req.mock.lastCall? req.mock.lastCall[0] : undefined;
             expect(last_call).toHaveProperty("method", "PATCH");
             expect(JSON.parse(last_call?.data).custom_properties["key with space"]._value === new_value).toBeTruthy();
         })
@@ -414,7 +252,7 @@ describe('ResourceCard', () => {
                 .getByRole('rowheader', {name: /str_key/});
             const input = within(id_label.parentElement! as HTMLElement)
                 .getAllByRole('textbox')
-                .filter(e => e instanceof HTMLInputElement && e.value === api_data.cell.custom_properties!.nested._value.str_key._value)
+                .filter(e => e instanceof HTMLInputElement && e.value === cell_resource.custom_properties!.nested._value.str_key._value)
                 .pop()!;
             await user.click(input)
             await user.clear(input)
@@ -423,8 +261,7 @@ describe('ResourceCard', () => {
             // Save the changes
             await user.click(screen.getByRole('button', {name: /Save/i}));
             await screen.findByRole('button', {name: /Edit this /i});
-            const last_call = mockedAxios.request.mock.lastCall?
-                mockedAxios.request.mock.lastCall[0] : undefined;
+            const last_call = req.mock.lastCall? req.mock.lastCall[0] : undefined;
             expect(last_call).toHaveProperty("method", "PATCH");
             expect(JSON.parse(last_call?.data).custom_properties.nested._value.str_key._value === new_value).toBeTruthy();
         })
@@ -443,6 +280,7 @@ describe('ResourceCard', () => {
                 expect(add_button).toBeNull();
             }
         })
+
         it('allows adding new custom_properties', async () => {
             const user = userEvent.setup();
             await user.click(screen.getByRole('button', {name: /^Edit this /i}));
@@ -460,8 +298,7 @@ describe('ResourceCard', () => {
 
             // Save the changes
             await user.click(screen.getByRole('button', {name: /Save/i}));
-            const last_call = mockedAxios.request.mock.lastCall?
-                mockedAxios.request.mock.lastCall[0] : undefined;
+            const last_call = req.mock.lastCall? req.mock.lastCall[0] : undefined;
             expect(last_call).toHaveProperty("method", "PATCH");
             expect(JSON.parse(last_call?.data).custom_properties.x).toStrictEqual({_type: "string", _value: ""});
         })
@@ -536,7 +373,8 @@ describe('ResourceCard', () => {
         it('allows removing array elements', async () => {
             const {user, row} = await get_array();
             const old_element_count = within(row).getAllByRole('textbox').length;
-            const first_remove_button = within(row).getAllByTestId('RemoveIcon').shift()!;
+            screen.debug(row.querySelector('.smooth-dnd-draggable-wrapper')!)
+            const first_remove_button = within(row).getAllByRole('button', {name: /^Remove /i}).shift()!;
             await user.click(first_remove_button);
             await wait();
             const new_element_count = within(row).getAllByRole('textbox').length;
@@ -598,15 +436,15 @@ describe('ResourceCard', () => {
             await user.click(screen.getByRole('button', {name: /^Edit this /i}));
             const id_label = screen.getByRole("rowheader", {name: /^key cf$/});
             const input = within(id_label.parentElement! as HTMLElement).getByRole('combobox');
-            expect(input).toHaveValue(`representation: CELL_FAMILY [${api_data.cell_family.id}]`);
+            expect(input).toHaveValue(`representation: CELL_FAMILY [${cell_family.id}]`);
             await user.click(input)
             await user.clear(input)
             await user.keyboard("2")  // should match the second cell family
             const autocomplete = await screen.findByRole('listbox');
-            const option = within(autocomplete).getByText(`representation: CELL_FAMILY [${api_data.cell_family_2.id}]`);
+            const option = within(autocomplete).getByText(`representation: CELL_FAMILY [${cell_families[1].id}]`);
             await user.click(option);
             await wait()
-            expect(input).toHaveValue(`representation: CELL_FAMILY [${api_data.cell_family_2.id}]`);
+            expect(input).toHaveValue(`representation: CELL_FAMILY [${cell_families[1].id}]`);
         })
     })
 
@@ -705,7 +543,7 @@ describe('ResourceCard', () => {
             const row = await setup("key num", "string");
             // Expect the length to be 4: key, key, value, and add new key
             expect(within(row).getAllByRole('textbox').pop())
-                .toHaveValue(api_data.cell.custom_properties?.num._value.toString());
+                .toHaveValue(cell_resource.custom_properties?.num._value.toString());
         })
         it('allows changing the type of a number to a boolean', async () => {
             const row = await setup("key num", "boolean");
@@ -788,7 +626,7 @@ describe('ResourceCard', () => {
         it('allows changing the type of a datetime to a string', async () => {
             const row = await setup("key date", "string");
             expect(within(row).getAllByRole('textbox').pop())
-                .toHaveValue(api_data.cell.custom_properties?.date._value);
+                .toHaveValue(cell_resource.custom_properties?.date._value);
         })
         it('allows changing the type of a datetime to a boolean', async () => {
             const row = await setup("key date", "boolean");

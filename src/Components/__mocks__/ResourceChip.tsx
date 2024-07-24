@@ -3,8 +3,8 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import dummy from "./DummyComponent"
-import {ResourceFamilyChipProps} from "../ResourceChip";
+import {ResourceChipProps} from "../ResourceChip";
 
-export default function ResourceChip(params: ResourceFamilyChipProps) {
+export default function ResourceChip(params: ResourceChipProps) {
 	return dummy("ResourceChip", params)
 }

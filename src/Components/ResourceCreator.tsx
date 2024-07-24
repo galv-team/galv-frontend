@@ -16,15 +16,14 @@ import ErrorCard from "./error/ErrorCard";
 import {AxiosError, AxiosResponse} from "axios";
 import {
     DISPLAY_NAMES,
-    FIELDS,
+    FIELDS, GalvResource,
     ICONS,
     LOOKUP_KEYS,
     LookupKey,
-    PRIORITY_LEVELS, Serializable, SerializableObject
+    PRIORITY_LEVELS, Serializable
 } from "../constants";
 import ErrorBoundary from "./ErrorBoundary";
 import UndoRedoProvider, {useUndoRedoContext} from "./UndoRedoContext";
-import {BaseResource} from "./ResourceCard";
 import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
 import {useSnackbarMessenger} from "./SnackbarMessengerContext";
@@ -42,7 +41,7 @@ import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
 import {
     from_type_value_notation,
-    to_type_value_notation_wrapper,
+    to_type_value_notation_wrapper, TypeValueNotation,
     TypeValueNotationWrapper
 } from "./TypeValueNotation";
 import {useAttachmentUpload} from "./AttachmentUploadContext";
@@ -61,18 +60,16 @@ export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: 
     const queryClient = useQueryClient()
     const create_mutation = useMutation<
         AxiosResponse<KnoxTokenFull>, AxiosError, CreateKnoxTokenRequest
-    >(
-        (data) => new CreateTokenApi(api_config)
+    >({
+        mutationFn: (data) => new CreateTokenApi(api_config)
             .createTokenCreate({createKnoxTokenRequest: data}),
-        {
-            onSuccess: (data) => {
-                setErr("")
-                setResponseData(data.data)
-                queryClient.invalidateQueries([lookup_key, 'list'], {exact: true})
-            },
-            onError: (err) => {setErr(err.message)}
-        }
-    )
+        onSuccess: (data) => {
+            setErr("")
+            setResponseData(data.data)
+            queryClient.invalidateQueries({ queryKey: [lookup_key, 'list'], exact: true})
+        },
+        onError: (err) => {setErr(err.message)}
+    })
 
     const update_ttl = (v: number|undefined) => {
         const x = (v ?? 0) * timeUnit
@@ -112,7 +109,7 @@ export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: 
                     step={1}
                     min={0}
                     value={ttl || 0}
-                    onChange={(_e, v) => update_ttl(v)}
+                    onChange={(_e, v) => update_ttl(v ?? 0)}
                 />
                 <Select
                     labelId="select-time-unit-label"
@@ -124,11 +121,11 @@ export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: 
                     {Object.entries(time_units).map(([k, v]) => <MenuItem key={v} value={v}>{k}</MenuItem>)}
                 </Select>
             </Stack>
-            {ttl === undefined && <Typography>Tokens with no TTL value will be valid forever.</Typography>}
+            {!ttl && <Alert severity="info">Tokens with no TTL value will be valid forever.</Alert>}
             <Button
                 variant="contained"
                 color="success"
-                onClick={() => create_mutation.mutate({name, ttl})} disabled={name === ""}
+                onClick={() => create_mutation.mutate({name, ttl: ttl || undefined})} disabled={name === ""}
             >
                 Create
             </Button>
@@ -172,7 +169,7 @@ export function TokenCreator({setModalOpen,...cardProps}: {setModalOpen: (open: 
             m: 2
         }}>
             {err && showErr}
-            {create_mutation.isLoading? <Skeleton variant="rounded" height="6em"/> :
+            {create_mutation.isPending? <Skeleton variant="rounded" height="6em"/> :
                 responseData? showResponse :
                     cardBody}
         </CardContent>
@@ -186,7 +183,7 @@ export type ResourceCreatorProps = {
     onDiscard: () => void
 } & CardProps
 
-export function ResourceCreator<T extends BaseResource>(
+export function ResourceCreator<T extends GalvResource>(
     { lookup_key, initial_data, onCreate, onDiscard, ...cardProps}: ResourceCreatorProps
 ) {
     const { classes } = useStyles();
@@ -195,31 +192,34 @@ export function ResourceCreator<T extends BaseResource>(
     const {file, getUploadMutation} = useAttachmentUpload()
 
     // Ref wrapper for updating UndoRedo in useEffect
-    const UndoRedo = useUndoRedoContext<SerializableObject>()
+    const UndoRedo = useUndoRedoContext<TypeValueNotationWrapper>()
     const UndoRedoRef = useRef(UndoRedo)
 
     useEffect(() => {
-        const template_object: {[key: string]: Serializable} = {}
-        Object.entries(FIELDS[lookup_key])
-            .filter((v) => v[1].priority !== PRIORITY_LEVELS.HIDDEN)
-            .forEach(([k, v]) => {
-                if (!v.read_only || v.create_only) {
-                    if (initial_data?.[k as keyof typeof initial_data] !== undefined)
-                        template_object[k] = initial_data[k as keyof typeof initial_data]
-                    else
-                        template_object[k] = v.many?
-                            {_type: "array", _value: []} :
-                            {_type: v.type, _value: v.default_value ?? null}
-                }
-            })
-        if (initial_data !== undefined) {
-            Object.entries(initial_data).forEach(([k, v]) => {
-                if (!(k in FIELDS[lookup_key]))
-                    template_object[k] = v as Serializable
-            })
+        if (Object.keys(UndoRedoRef.current).includes("set")) {
+            // Set up the initial data for the UndoRedo
+            const template_object: typeof UndoRedo.current = {}
+            Object.entries(FIELDS[lookup_key])
+                .filter((v) => v[1].priority !== PRIORITY_LEVELS.HIDDEN)
+                .forEach(([k, v]) => {
+                    if (!v.read_only || v.create_only) {
+                        if (initial_data?.[k as keyof typeof initial_data] !== undefined)
+                            template_object[k] = initial_data[k as keyof typeof initial_data]
+                        else
+                            template_object[k] = v.many?
+                                {_type: "array", _value: []} :
+                                {_type: v.type, _value: v.default_value ?? null}
+                    }
+                })
+            if (initial_data !== undefined) {
+                Object.entries(initial_data).forEach(([k, v]) => {
+                    if (!(k in FIELDS[lookup_key]))
+                        template_object[k] = v as TypeValueNotation
+                })
+            }
+            UndoRedoRef.current.set(template_object)
         }
-        UndoRedoRef.current.set(template_object)
-    }, [initial_data, lookup_key])
+    }, [initial_data, lookup_key, UndoRedoRef.current])
 
     const {useCreateQuery} = useFetchResource()
 
@@ -227,7 +227,7 @@ export function ResourceCreator<T extends BaseResource>(
     const {postSnackbarMessage} = useSnackbarMessenger()
     const queryClient = useQueryClient()
 
-    const clean = <T extends BaseResource>(data: Partial<T>) => {
+    const clean = <T extends GalvResource>(data: Partial<T>) => {
         const cleaned: typeof data = {}
         Object.entries(data).forEach(([k, v]) => {
             if (v instanceof Array) {
@@ -255,14 +255,17 @@ export function ResourceCreator<T extends BaseResource>(
                         if (typeof url !== "string") return
                         const components = get_url_components(url)
                         if (components)
-                            queryClient.invalidateQueries([components.lookup_key, components.resource_id], {exact: true})
+                            queryClient.invalidateQueries({
+                                queryKey: [components.lookup_key, components.resource_id],
+                                exact: true
+                            })
                     }
                     Object.values(data.data).forEach((v) => {
                         if (typeof v === 'string' || v instanceof Array)
                             invalidate(v)
                     })
                     // Also invalidate autocomplete cache because we may have updated options
-                    queryClient.invalidateQueries(['autocomplete'])
+                    queryClient.invalidateQueries({queryKey: ['autocomplete']})
                     onCreate(data.data.url as string ?? undefined)
                 },
                 on_error: (error, variables) => {
@@ -363,7 +366,7 @@ export function ResourceCreator<T extends BaseResource>(
             edit_mode={true}
             creating={true}
             onEdit={(v) => {
-                UndoRedo.update(from_type_value_notation(v) as SerializableObject)
+                UndoRedo.update(from_type_value_notation(v) as TypeValueNotationWrapper)
                 setError(undefined)
             }}
         />}
@@ -385,7 +388,7 @@ export function ResourceCreator<T extends BaseResource>(
 
 export const get_modal_title = (lookup_key: LookupKey, suffix: string) => `create-${lookup_key}-modal-${suffix}`
 
-export default function WrappedResourceCreator<T extends BaseResource>(props: {lookup_key: LookupKey} & CardProps) {
+export default function WrappedResourceCreator<T extends GalvResource>(props: {lookup_key: LookupKey} & CardProps) {
     const [modalOpen, setModalOpen] = useState(false)
     const {user, refresh_user} = useCurrentUser()
 

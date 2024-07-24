@@ -75,6 +75,7 @@ export default makeStyles()((theme) => {
     },
     root: {
       display: 'flex',
+      "& svg": {fontSize: "1.8em"},
     },
     toolbar: {
       paddingRight: 24, // keep right padding when drawer closed
@@ -154,7 +155,11 @@ export default makeStyles()((theme) => {
     },
     deleteIcon: {
       "&:hover": {color: theme.palette.error.light},
-      "&:focus": {color: theme.palette.error.light}
+      "&:focus": {color: theme.palette.error.light},
+    },
+    dangerIcon: {
+      cursor: "pointer",
+      color: theme.palette.error.main,
     },
     paper: {marginBottom: theme.spacing(2)},
     text: {},

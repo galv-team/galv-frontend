@@ -15,7 +15,7 @@ import {
     API_HANDLERS,
     API_SLUGS,
     Field,
-    FIELDS,
+    FIELDS, GalvResource,
     LOOKUP_KEYS,
     LookupKey,
     PRIORITY_LEVELS,
@@ -23,7 +23,6 @@ import {
 } from "../../constants";
 import {AxiosError, AxiosResponse} from "axios";
 import {useQuery} from "@tanstack/react-query";
-import {BaseResource} from "../ResourceCard";
 import {AccessLevelsApi, PermittedAccessLevels} from "@galv/galv";
 import MenuItem from "@mui/material/MenuItem";
 import Select, {SelectProps} from "@mui/material/Select";
@@ -126,7 +125,7 @@ export type PrettyObjectFromQueryProps = {
     filter?: (d: SerializableObject, lookup_key: LookupKey) => SerializableObject
 } & Omit<PrettyObjectProps<TypeValueNotationWrapper>, "target">
 
-export function PrettyObjectFromQuery<T extends BaseResource>(
+export function PrettyObjectFromQuery<T extends GalvResource>(
     { resource_id, lookup_key, filter, ...prettyObjectProps}: PrettyObjectFromQueryProps
 ) {
     const {api_config} = useCurrentUser()

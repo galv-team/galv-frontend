@@ -4,7 +4,6 @@ import {useMutation, UseMutationResult, useQueryClient} from "@tanstack/react-qu
 import {AxiosResponse} from "axios";
 import {useCurrentUser} from "./CurrentUserContext";
 import {LOOKUP_KEYS} from "../constants";
-import {is_axios_error} from "./misc";
 
 export interface IAttachmentUploadContext {
     file: File|null
@@ -30,21 +29,19 @@ export default function AttachmentUploadContextProvider({children}: PropsWithChi
     const queryClient = useQueryClient()
     const {api_config} = useCurrentUser()
     const api_handler = new ArbitraryFilesApi(api_config)
-    const UploadMutation: IAttachmentUploadContext["getUploadMutation"] = callback => useMutation(
-        (data: ArbitraryFilesApiArbitraryFilesCreateRequest) => {
+    const UploadMutation: IAttachmentUploadContext["getUploadMutation"] = callback => useMutation({
+        mutationFn: (data: ArbitraryFilesApiArbitraryFilesCreateRequest) => {
             return api_handler.arbitraryFilesCreate.bind(api_handler)(data)
         },
-        {
-            onSuccess: async (data: AxiosResponse<ArbitraryFile>) => {
-                queryClient.setQueryData([LOOKUP_KEYS.ARBITRARY_FILE, data.data.id], data.data)
-                await queryClient.invalidateQueries([LOOKUP_KEYS.ARBITRARY_FILE, "list"])
-                callback(data.data.url)
-            },
-            onError: (error: unknown) => {
-                callback(undefined, error)
-            }
+        onSuccess: async (data: AxiosResponse<ArbitraryFile>) => {
+            queryClient.setQueryData([LOOKUP_KEYS.ARBITRARY_FILE, data.data.id], data.data)
+            await queryClient.invalidateQueries({ queryKey: [LOOKUP_KEYS.ARBITRARY_FILE, "list"] })
+            callback(data.data.url)
+        },
+        onError: (error: unknown) => {
+            callback(undefined, error)
         }
-    )
+    })
 
     return <AttachmentUploadContext.Provider value={{file, setFile, getUploadMutation: UploadMutation}}>
         {children}

@@ -11,12 +11,12 @@ import clsx from "clsx";
 import Grid from "@mui/material/Unstable_Grid2";
 import CircularProgress from "@mui/material/CircularProgress";
 import Skeleton from "@mui/material/Skeleton";
-import ResourceCard, {BaseResource} from "./ResourceCard";
+import ResourceCard from "./ResourceCard";
 import ResourceCreator from "./ResourceCreator";
 import {
     DEFAULT_FETCH_LIMIT,
     DISPLAY_NAMES_PLURAL,
-    FAMILY_LOOKUP_KEYS,
+    FAMILY_LOOKUP_KEYS, GalvResource,
     get_has_family,
     LOOKUP_KEYS,
     LookupKey
@@ -34,7 +34,7 @@ export type ResourceListProps = {
     lookup_key: LookupKey
 }
 
-export function ResourceList<T extends BaseResource>({lookup_key}: ResourceListProps) {
+export function ResourceList<T extends GalvResource>({lookup_key}: ResourceListProps) {
     const { classes } = useStyles();
     const { useListQuery } = useFetchResource();
 

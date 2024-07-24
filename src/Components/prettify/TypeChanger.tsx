@@ -2,15 +2,14 @@ import Tooltip from "@mui/material/Tooltip";
 import React, {useEffect, useState} from "react";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
-import AbcIcon from "@mui/icons-material/Abc";
-import NumbersIcon from "@mui/icons-material/Numbers";
-import DataObjectIcon from "@mui/icons-material/DataObject";
-import DataArrayIcon from "@mui/icons-material/DataArray";
-import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { MdAbc } from 'react-icons/md';
+import { MdNumbers } from 'react-icons/md';
+import { MdDataObject } from 'react-icons/md';
+import { MdDataArray } from 'react-icons/md';
+import { MdPowerSettingsNew } from 'react-icons/md';
+import { MdCalendarMonth } from 'react-icons/md';
 import IconButton from "@mui/material/IconButton";
 import Popover, {PopoverProps} from "@mui/material/Popover";
-import {SvgIconTypeMap} from "@mui/material/SvgIcon";
 import clsx from "clsx";
 import useStyles from "../../styles/UseStyles";
 import Stack from "@mui/material/Stack";
@@ -27,9 +26,8 @@ import {
     PATHS,
     type_to_key
 } from "../../constants";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import {OverridableComponent} from "@mui/material/OverridableComponent";
+import { MdMoreVert } from 'react-icons/md';
+import { MdArrowDropDown } from 'react-icons/md';
 import {
     from_type_value_notation,
     is_tvn,
@@ -39,7 +37,8 @@ import {
     TypeValueNotation,
     TypeValueNotationWrapper
 } from "../TypeValueNotation";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { MdAttachFile } from 'react-icons/md';
+import {IconType} from "react-icons";
 
 
 export const is_type_changer_supported_tv_notation = (v: TypeValueNotation): v is TypeValueNotation & {_type: TypeChangerSupportedTypeName} => {
@@ -135,31 +134,31 @@ const arr = (v: TypeValueNotation): {_type: "array", _value: TypeValueNotation[]
 
 const type_map = {
     string: {
-        icon: AbcIcon,
+        icon: MdAbc,
         tooltip: "String"
     },
     number: {
-        icon: NumbersIcon,
+        icon: MdNumbers,
         tooltip: "Number"
     },
     boolean: {
-        icon: PowerSettingsNewIcon,
+        icon: MdPowerSettingsNew,
         tooltip: "Boolean"
     },
     datetime: {
-        icon: CalendarMonthIcon,
+        icon: MdCalendarMonth,
         tooltip: "Datetime"
     },
     attachment: {
-        icon: AttachFileIcon,
+        icon: MdAttachFile,
         tooltip: "Attachment"
     },
     object: {
-        icon: DataObjectIcon,
+        icon: MdDataObject,
         tooltip: "Object (JSON strings will be parsed)"
     },
     array: {
-        icon: DataArrayIcon,
+        icon: MdDataArray,
         tooltip: "Array (JSON strings will be parsed)"
     }
 } as const
@@ -270,7 +269,7 @@ function TypeChangePopover({value, onTypeChange, ...props}: TypeChangerPopoverPr
         }
     }, [props.open, value]);
 
-    const get_icon = ({icon}: {icon: OverridableComponent<SvgIconTypeMap> & {muiName: string}}) => {
+    const get_icon = ({icon}: {icon: IconType}) => {
         const ICON = icon
         return <ICON />
     }
@@ -300,7 +299,7 @@ function TypeChangePopover({value, onTypeChange, ...props}: TypeChangerPopoverPr
             />
             <IconButton onClick={() => setResourcePopoverOpen(!resourcePopoverOpen)}>
                 <Tooltip title="Resource types" arrow placement="bottom" describeChild={true}>
-                    <MoreVertIcon />
+                    <MdMoreVert />
                 </Tooltip>
             </IconButton>
         </Stack>
@@ -350,7 +349,7 @@ export default function TypeChanger(
                             React.createElement(type_map.string.icon) :
                             React.createElement(type_map[value as keyof typeof type_map].icon)
                 }
-                { !lock_type && <ArrowDropDownIcon />}
+                { !lock_type && <MdArrowDropDown />}
             </IconButton>
         </span>
     </Tooltip>

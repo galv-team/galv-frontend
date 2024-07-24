@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Box from "@mui/material/Box";
-import {LoginUser, useCurrentUser} from "./Components/CurrentUserContext";
+import {useCurrentUser} from "./Components/CurrentUserContext";
 import UseStyles from "./styles/UseStyles";
 import Popover from "@mui/material/Popover";
 import {ICONS, LOOKUP_KEYS, PATHS, SerializableObject} from "./constants";
@@ -52,30 +52,29 @@ function RegisterForm({onSuccess}: {onSuccess?: (data: AxiosResponse<User>, pass
     const {api_config} = useCurrentUser()
     const users_handler = new UsersApi(api_config)
     const registration_mutation: UseMutationResult<AxiosResponse<User>, AxiosError, UserRequest> =
-        useMutation(
-            (data) => users_handler.usersCreate({userRequest: data}),
-            {
-                onSuccess: (data, variables, context) => {
-                    if (data === undefined) {
-                        console.warn("No data in mutation response", {data, variables, context})
-                        return
-                    }
-                    queryClient.setQueryData([LOOKUP_KEYS.USER, data.data.id], data)
-                    postSnackbarMessage({
-                        message: `Activation code sent to ${data.data.email}`,
-                        severity: 'success'
-                    })
-                    clear_form()
-                    onSuccess && onSuccess(data, password)
-                },
-                onError: (error: AxiosError, variables, context) => {
-                    console.error(error, {variables, context})
-                    if (error.response?.data instanceof Object)
-                        setRegErrors(Object.values(error.response?.data as SerializableObject).map(s => String(s)))
-                    else
-                        setRegErrors(["An error occurred"])
-                },
-            })
+        useMutation({
+            mutationFn: (data) => users_handler.usersCreate({userRequest: data}),
+            onSuccess: (data, variables, context) => {
+                if (data === undefined) {
+                    console.warn("No data in mutation response", {data, variables, context})
+                    return
+                }
+                queryClient.setQueryData([LOOKUP_KEYS.USER, data.data.id], data)
+                postSnackbarMessage({
+                    message: `Activation code sent to ${data.data.email}`,
+                    severity: 'success'
+                })
+                clear_form()
+                onSuccess && onSuccess(data, password)
+            },
+            onError: (error: AxiosError, variables, context) => {
+                console.error(error, {variables, context})
+                if (error.response?.data instanceof Object)
+                    setRegErrors(Object.values(error.response?.data as SerializableObject).map(s => String(s)))
+                else
+                    setRegErrors(["An error occurred"])
+            },
+        })
 
     const do_register = () => {
         if (username === "" || password === "" || email === "" || confirmPassword === "") return

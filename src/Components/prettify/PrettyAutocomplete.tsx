@@ -1,13 +1,12 @@
-import {AutocompleteKey} from "../../constants";
+import {AutocompleteKey, GalvResource} from "../../constants";
 import TextField from "@mui/material/TextField";
 import {PrettyComponentProps, PrettyString} from "./Prettify";
 import Autocomplete, {AutocompleteProps} from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 import {TypographyProps} from "@mui/material/Typography";
-import {BaseResource} from "../ResourceCard";
 import {useFetchResource} from "../FetchResourceContext";
 
-export type AutcompleteEntry = BaseResource & {
+export type AutcompleteEntry = GalvResource & {
     value: string
 }
 

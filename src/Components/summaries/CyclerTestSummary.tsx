@@ -1,4 +1,3 @@
-import {BaseResource} from "../ResourceCard";
 import {CyclerTest} from "@galv/galv";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
@@ -6,9 +5,10 @@ import Stack from "@mui/material/Stack";
 import ChipList from "./ChipList";
 import {get_url_components} from "../misc";
 import {ResourceChip} from "../ResourceChip";
+import {GalvResource} from "../../constants";
 
 
-export default function CyclerTestSummary({ resource } : { resource: BaseResource}) {
+export default function CyclerTestSummary({ resource } : { resource: GalvResource}) {
     const {classes} = useStyles();
     const r = resource as unknown as CyclerTest
 

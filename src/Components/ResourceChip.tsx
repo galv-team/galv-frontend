@@ -6,22 +6,21 @@ import React, {useContext} from "react";
 import LoadingChip from "./LoadingChip";
 import QueryWrapper, {QueryWrapperProps} from "./QueryWrapper";
 import ErrorChip from "./error/ErrorChip";
-import {PATHS, FAMILY_LOOKUP_KEYS, LookupKey} from "../constants";
-import {Family} from "./ResourceCard";
+import {PATHS, FAMILY_LOOKUP_KEYS, LookupKey, GalvResource} from "../constants";
 import ErrorBoundary from "./ErrorBoundary";
 import Representation from "./Representation";
 import {FilterContext} from "./filtering/FilterContext";
 import ApiResourceContextProvider, {useApiResource} from "./ApiResourceContext";
 import LookupKeyIcon from "./LookupKeyIcon";
 
-export type ResourceFamilyChipProps = {
+export type ResourceChipProps = {
     resource_id: string|number
     lookup_key: LookupKey
     short_name?: boolean
 } & Partial<QueryWrapperProps> & ChipProps & {component?: React.ElementType}
 
-export function ResourceChip<T extends Family>(
-    {resource_id, lookup_key, loading, error, success, short_name, ...chipProps}: ResourceFamilyChipProps
+export function ResourceChip<T extends GalvResource>(
+    {resource_id, lookup_key, loading, error, success, short_name, ...chipProps}: ResourceChipProps
 ) {
     // console.log(`ResourceChip`, {id, lookup_key, loading, error, success, chipProps})
     const { classes } = useStyles();
@@ -90,7 +89,7 @@ export function ResourceChip<T extends Family>(
     />
 }
 
-export default function WrappedResourceChip<T extends Family>(props: ResourceFamilyChipProps) {
+export default function WrappedResourceChip<T extends GalvResource>(props: ResourceChipProps) {
     return <ErrorBoundary
         fallback={(error: Error) => <ErrorChip
             target={`${props.lookup_key} ${props.resource_id}`}

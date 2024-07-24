@@ -65,3 +65,13 @@ export function humanize_bytes(bytes: number): string {
     const i = Math.floor(Math.log(bytes) / Math.log(1024))
     return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`
 }
+
+/**
+ * Type guarded hasOwnProperty check
+ */
+export const has = <T, P extends string>(
+    target: T,
+    property: P
+): target is T & Record<P, P extends keyof T? T[P] : any>  => {
+    return target instanceof Object && Object.keys(target).includes(property)
+}

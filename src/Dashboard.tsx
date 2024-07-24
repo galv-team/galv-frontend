@@ -57,7 +57,7 @@ const get_color = (status: SchemaValidation["status"]|"INPUT_REQUIRED") => {
     }
 }
 
-function StatusIcon(
+function MdStatus(
     {status, count, ...props}: {status: SchemaValidation["status"], count?: number} & SvgIconProps
 ) {
     const ICON = ICONS[`validation_status_${status}` as keyof typeof ICONS]
@@ -111,7 +111,7 @@ function KeySummary(
                     arrow
                 >
                     <div>
-                        <StatusIcon
+                        <MdStatus
                             status={status as SchemaValidation["status"]}
                             count={status_counts[status as keyof typeof status_counts] &&
                                 Object.entries(status_counts[status as keyof typeof status_counts]!)
@@ -136,7 +136,7 @@ function KeySummary(
                             <List>
                                 {data.filter(d => d.resource_id === id && ["ERROR", "INVALID"].includes(d.detail.status))
                                     .map(d => <ListItem key={d.detail.schema}>
-                                        <ListItemIcon><StatusIcon status={d.detail.status}/></ListItemIcon>
+                                        <ListItemIcon><MdStatus status={d.detail.status}/></ListItemIcon>
                                         <ResourceChip
                                             resource_id={id_from_ref_props(d.detail.schema)}
                                             lookup_key={LOOKUP_KEYS.VALIDATION_SCHEMA}
@@ -280,7 +280,7 @@ export function DatasetStatus() {
                             arrow
                         >
                             <div>
-                                <StatusIcon
+                                <MdStatus
                                     key={status}
                                     status={status as SchemaValidation["status"]}
                                     count={Object.entries(counts).reduce((a, c) => a + c[1], 0)}

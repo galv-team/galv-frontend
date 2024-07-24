@@ -22,9 +22,9 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import HelpIcon from '@mui/icons-material/Help';
+import {
+    MdMenu, MdChevronLeft, MdHelp
+} from 'react-icons/md';
 
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -127,7 +127,7 @@ export function Core() {
                         onClick={toggleDrawerOpen}
                         className={clsx(classes.menuButton)}
                     >
-                        <MenuIcon />
+                        <MdMenu />
                     </IconButton>
                     <Link to={PATHS.DASHBOARD} className={classes.title}>
                         <Tooltip title="Galv" describeChild={true} placement="bottom-start" arrow>
@@ -148,7 +148,7 @@ export function Core() {
                             to="https://galv-team.github.io/galv-frontend/"
                             target="_blank"
                         >
-                            <HelpIcon />
+                            <MdHelp />
                         </IconButton>
                     </Tooltip>
                 </Toolbar>
@@ -162,7 +162,7 @@ export function Core() {
             >
                 <div className={classes.toolbarIcon}>
                     <IconButton onClick={handleDrawerClose}>
-                        <ChevronLeftIcon />
+                        <MdChevronLeft />
                     </IconButton>
                 </div>
                 <Divider />
@@ -244,7 +244,7 @@ export function Core() {
 
 export default function WrappedCore() {
     // CurrentUserContextProvider relies on SnackbarMessengerContextProvider to alert when
-    // the user is logged out by the server
+    // the user is logged out by the server.
     return <SnackbarMessengerContextProvider>
         <CurrentUserContextProvider>
             <FetchResourceContextProvider>

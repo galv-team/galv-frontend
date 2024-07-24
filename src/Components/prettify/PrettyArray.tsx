@@ -4,9 +4,9 @@ import {arrayMoveImmutable} from "array-move";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import DragHandleIcon from "@mui/icons-material/DragHandle";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import RemoveIcon from '@mui/icons-material/Remove';
+import { MdDragHandle } from 'react-icons/md';
+import { MdArrowRight } from 'react-icons/md';
+import { MdRemove } from 'react-icons/md';
 import {PrettyObjectProps} from "./PrettyObject";
 import {ListProps} from "@mui/material";
 import Prettify from "./Prettify";
@@ -17,6 +17,7 @@ import {
 } from "./TypeChanger";
 import {useImmer} from "use-immer";
 import {TypeValueNotation} from "../TypeValueNotation";
+import IconButton from "@mui/material/IconButton";
 
 export type PrettyArrayProps = Pick<PrettyObjectProps, "nest_level" | "edit_mode"> & {
     target: TypeValueNotation & {_value: TypeValueNotation[]}
@@ -70,7 +71,7 @@ export default function PrettyArray(
                         <Draggable key={i}>
                             <ListItem alignItems="flex-start">
                                 <ListItemIcon key={`action_${i}`} className="drag-handle">
-                                    <DragHandleIcon aria-label="Reorder" />
+                                    <MdDragHandle aria-label="Reorder" />
                                 </ListItemIcon>
                                 <Prettify
                                     key={`item_${i}`}
@@ -86,15 +87,17 @@ export default function PrettyArray(
                                     lock_type={!!child_type}
                                 />
                                 <ListItemIcon key={`remove_${i}`}>
-                                    <RemoveIcon
-                                        sx={{cursor: "pointer", color: "error"}}
+                                    <IconButton
+                                        className={clsx(classes.deleteIcon, classes.dangerIcon)}
                                         aria-label="Remove item"
                                         onClick={() => {
                                             const newItems = [...items]
                                             newItems.splice(i, 1)
                                             setItems(newItems)
                                             _onEdit({_type: "array", _value: newItems})
-                                        }} />
+                                        }} >
+                                        <MdRemove />
+                                    </IconButton>
                                 </ListItemIcon>
                             </ListItem>
                         </Draggable>
@@ -120,7 +123,7 @@ export default function PrettyArray(
                 </Container> :
                 items.map((item, i) => <ListItem key={i} alignItems="flex-start">
                     <ListItemIcon key={`action_${i}`}>
-                        <ArrowRightIcon />
+                        <MdArrowRight />
                     </ListItemIcon>
                     <Prettify
                         key={i}

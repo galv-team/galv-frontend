@@ -1,4 +1,3 @@
-import {BaseResource} from "../ResourceCard";
 import {Harvester} from "@galv/galv";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
@@ -8,9 +7,11 @@ import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
+import {GalvResource} from "../../constants";
+
 dayjs.extend(relativeTime)
 
-export default function HarvesterSummary({ resource } : { resource: BaseResource}) {
+export default function HarvesterSummary({ resource } : { resource: GalvResource}) {
     const {classes} = useStyles();
     const r = resource as unknown as Harvester
 

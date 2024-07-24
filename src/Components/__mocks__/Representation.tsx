@@ -4,10 +4,9 @@
 
 import dummy from "./DummyComponent";
 import {RepresentationProps} from "../Representation";
-import {BaseResource} from "../ResourceCard";
-import {LookupKey} from "../../constants";
+import {GalvResource, LookupKey} from "../../constants";
 
-export function representation(params: {data: BaseResource, lookup_key: LookupKey}): string {
+export function representation(params: {data: GalvResource, lookup_key: LookupKey}): string {
     return `representation: ${params.lookup_key} [${params.data.id}]`
 }
 

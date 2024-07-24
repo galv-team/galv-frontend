@@ -1,5 +1,5 @@
 import {ICONS, key_to_type, LOOKUP_KEYS, PATHS} from "../constants";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Stack from "@mui/material/Stack";
 import ApiResourceContextProvider, {useApiResource} from "./ApiResourceContext";
 import Button from "@mui/material/Button";
@@ -31,7 +31,6 @@ import Modal from "@mui/material/Modal";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import TextField from "@mui/material/TextField";
 import FilledInput from "@mui/material/FilledInput";
-import {BaseResource, Permissions} from "./ResourceCard";
 import PrettyResource from "./prettify/PrettyResource";
 import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
@@ -39,59 +38,37 @@ import {to_type_value_notation_wrapper, TypeValueNotation, TypeValueNotationWrap
 import PrettyObject from "./prettify/PrettyObject";
 import {Theme} from "@mui/material/styles";
 import IconButton from "@mui/material/IconButton";
-import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import { MdArrowLeft } from 'react-icons/md';
+import { MdArrowRight } from 'react-icons/md';
 import {useQuery, useQueryClient} from "@tanstack/react-query";
-import {FilesApi} from "@galv/galv";
+import {
+    FilesApi, DataColumnType, ColumnMapping, ObservedFile,
+    ColumnMappingDeleteAccessLevelEnum, ColumnMappingReadAccessLevelEnum, ColumnMappingEditAccessLevelEnum
+} from "@galv/galv";
 import {useCurrentUser} from "./CurrentUserContext";
 import {AxiosError, AxiosResponse} from "axios";
-
-type ColumnType = {
-    url: string,
-    id: number,
-    name: string,
-    description: string,
-    data_type: "bool"|"float"|"int"|"str"|"datetime64[ns]",
-    is_default: boolean,
-    is_required: boolean
-}
-type ObservedFile = BaseResource & {
-    id: string
-    summary: Record<string, Record<string, string|number>>
-    applicable_mappings: string
-    mapping?: string
-}
+import {deep_copy} from "./misc";
 
 type MapEntry = {
     name?: string,
     addition?: number,
     multiplier?: number,
-    column_type: ColumnType
+    column_type: DataColumnType
 }
 type Map = Record<string, MapEntry>
-type MappingResource = {
-    id: string
-    url: string
-    name: string
-    is_valid: boolean
-    in_use?: boolean
-    map: Map
-    missing?: number
-    team: string|null
-    permissions?: Permissions
-    read_access_level?: number
-    edit_access_level?: number
-    delete_access_level?: number
-}
+type MappingResource = Omit<ColumnMapping, "map"> & {map: Map}
 
 // A Map but the column_type is an id, as stored in the database
-type DB_MapEntry = {column_type: number} & Omit<MapEntry, "column_type">
+type DB_MapEntry = Omit<MapEntry, "column_type"> & {column_type: number}
 type DB_Map = Record<string, DB_MapEntry>
-export type DB_MappingResource = Omit<MappingResource, "map"> & {map: DB_Map}
+export type DB_MappingResource = Omit<ColumnMapping, "map"> & {map: DB_Map}
 
-const col_id_to_col = (col_id: number, columns: ColumnType[]) => columns.find(c => c.id === col_id)
+// The server wraps mappings in an object that includes information about how many columns in the File are unmapped
+type ApplicableMappingResource = {mapping: DB_MappingResource, missing: number}
 
-const db_map_to_map = (db_map: DB_MappingResource, columns: ColumnType[]): MappingResource => {
+const col_id_to_col = (col_id: number, columns: DataColumnType[]) => columns.find(c => c.id === col_id)
+
+const db_map_to_map = (db_map: DB_MappingResource, columns: DataColumnType[]): MappingResource => {
     if (!db_map.map) return {...db_map, map: {}}
     return {
         ...db_map,
@@ -153,7 +130,7 @@ function CreateColumnType(
     >
         <>
             <UndoRedoProvider>
-                <ResourceCreator<ColumnType>
+                <ResourceCreator<DataColumnType>
                     onCreate={(new_resource_url) => {
                         setOpen(false)
                         onCreate(new_resource_url)
@@ -168,10 +145,10 @@ function CreateColumnType(
 
 function SelectColumnType(
     {selected_id, setSelected, reset_name}:
-        {selected_id: number|null, setSelected: (s?: ColumnType) => void, reset_name: string}
+        {selected_id: number|null, setSelected: (s?: DataColumnType) => void, reset_name: string}
 ) {
     const {useListQuery} = useFetchResource()
-    const query = useListQuery<ColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
+    const query = useListQuery<DataColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
     const {classes} = useStyles();
     const [createModalOpen, setCreateModalOpen] = useState(false)
 
@@ -296,7 +273,7 @@ function MappingTable(
 
     /* Any new column is int/float */
     const has_numeric_columns = Object.values(map).reduce(
-        (prev, cur) => prev || ["int", "float"].includes(cur.column_type.data_type),
+        (prev, cur) => prev || ["int", "float"].includes(cur.column_type.data_type ?? ""),
         false
     )
     // Recognised columns can be renamed if they're not the core required columns
@@ -318,7 +295,7 @@ function MappingTable(
             disabled={!dataRows}
             size="small"
         >
-            <ArrowLeftIcon />
+            <MdArrowLeft />
         </IconButton>
         {Math.min(dataRows, longest_column.length)}
         <IconButton
@@ -326,7 +303,7 @@ function MappingTable(
             disabled={dataRows >= longest_column.length}
             size="small"
         >
-            <ArrowRightIcon />
+            <MdArrowRight />
         </IconButton>
         rows
     </Box>
@@ -411,7 +388,7 @@ function MappingTable(
                         Object.keys(summary).map((key, i) => {
                                 if (!mappingResource.permissions?.write) return <TableCell key={i}>
                                     <Tooltip title={`You do not have permission to edit '${mappingResource.name}'`}>
-                                        {["int", "float"].includes(map[key]?.column_type.data_type) ?
+                                        {["int", "float"].includes(map[key]?.column_type.data_type ?? "") ?
                                             <Typography className={clsx(classes.mappingRebase)}>
                                                 x' = (x &#43; {map[key]?.addition ?? 0}) &#183; {map[key]?.multiplier ?? 1}
                                             </Typography> :
@@ -556,23 +533,27 @@ function MappingManager(
     {file, applicable_mappings, summary}:
         {
             file: ObservedFile,
-            applicable_mappings: DB_MappingResource[],
+            applicable_mappings: ApplicableMappingResource[],
             summary: Record<string, Record<string, string|number>>
         }
 ) {
-    const blank_map = () => ({
-        id: "", url: "", name: "", team: null, is_valid: false, map: {},
-        permissions: {read: true, write: true, admin: true},
-        read_access_level: 2, edit_access_level: 3, delete_access_level: 3
+    const blank_map = (): ApplicableMappingResource => ({
+        mapping: {
+            id: "", url: "", name: "", team: null, is_valid: false, map: {},
+            permissions: {read: true, write: true, create: true},
+            read_access_level: 2, edit_access_level: 3, delete_access_level: 3,
+            rendered_map: {}, missing_required_columns: [], in_use: false
+        },
+        missing: Infinity
     })
     const {classes} = useStyles()
-    const {useListQuery, useCreateQuery, useUpdateQuery, useDeleteQuery} = useFetchResource()
-    const col_query = useListQuery<ColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
+    const {useListQuery, useCreateQuery, useUpdateQuery} = useFetchResource()
+    const col_query = useListQuery<DataColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
     const [more, setMore] = React.useState(false)
     const [advancedPropertiesOpen, setAdvancedPropertiesOpen] = React.useState(false)
-    const [mapping, setMapping] = useState<DB_MappingResource>(
+    const [mapping, setMapping] = useState<ApplicableMappingResource>(
         () => {
-            const m = applicable_mappings?.find(m => m.url === file.mapping)
+            const m = applicable_mappings?.find(m => m.mapping.url === file.mapping)
             return m? {...m} : blank_map()
         }
     )
@@ -586,57 +567,65 @@ function MappingManager(
         LOOKUP_KEYS.MAPPING,
         { after_cache: (r) => updateFile(r.data) }
     )
-    const createMap = (data: Omit<DB_MappingResource, "url"|"id"|"is_valid">) =>
-        createMapMutation.mutate(data, {onSuccess: (data) => updateFile(data.data)})
+    const createMap = (data: ApplicableMappingResource) => {
+        const d: Partial<DB_MappingResource> = deep_copy(data.mapping)
+        for (const k of ["url", "id", "is_valid", "missing_required_columns", "rendered_map", "in_use"])
+            delete d[k as keyof typeof d]
+        return createMapMutation.mutate(d, {onSuccess: (data) => updateFile(data.data)})
+    }
     const updateMapMutation = useUpdateQuery<DB_MappingResource>(LOOKUP_KEYS.MAPPING)
     const updateMap = (data: DB_MappingResource) => updateMapMutation.mutate(
         data,
         {onSuccess: () => navigate(0)}
     )
-    const deleteMapMutation = useDeleteQuery<DB_MappingResource>(LOOKUP_KEYS.MAPPING)
-    const deleteMap = (data: DB_MappingResource) => deleteMapMutation.mutate(data, {onSuccess: () => navigate(0)})
+    // TODO: Implement deleteMapMutation when backend supplies delete permissions
+    // const deleteMapMutation = useDeleteQuery<DB_MappingResource>(LOOKUP_KEYS.MAPPING)
+    // const deleteMap = (data: DB_MappingResource) => deleteMapMutation.mutate(data, {onSuccess: () => navigate(0)})
 
     if (col_query?.hasNextPage && !col_query.isFetchingNextPage)
         col_query.fetchNextPage()
 
-    const columns = col_query?.results
+    // Don't render the table until all the columns are loaded
+    const columns = !col_query?.hasNextPage && col_query?.results
 
     // Summary data with children in array form
     const array_summary: Record<string, (string|number|boolean)[]> = {}
 
-    const original_mapping = applicable_mappings?.find((m) => m.id === mapping.id)
+    const original_mapping = applicable_mappings?.find((m) => m.mapping.id === mapping.mapping.id)
 
-    const file_mapping_has_changed = original_mapping?.url !== file?.mapping
-    const mapping_map_has_changed = JSON.stringify(mapping.map) !== JSON.stringify(original_mapping?.map)
+    const file_mapping_has_changed = original_mapping?.mapping.url !== file?.mapping
+    const mapping_map_has_changed = JSON.stringify(mapping.mapping.map) !== JSON.stringify(original_mapping?.mapping.map)
     const mapping_has_changed =  mapping_map_has_changed ||
-        mapping.name !== original_mapping?.name ||
-        mapping.team !== original_mapping?.team ||
-        mapping.read_access_level !== original_mapping?.read_access_level ||
-        mapping.edit_access_level !== original_mapping?.edit_access_level ||
-        mapping.delete_access_level !== original_mapping?.delete_access_level
+        mapping.mapping.name !== original_mapping?.mapping.name ||
+        mapping.mapping.team !== original_mapping?.mapping.team ||
+        mapping.mapping.read_access_level !== original_mapping?.mapping.read_access_level ||
+        mapping.mapping.edit_access_level !== original_mapping?.mapping.edit_access_level ||
+        mapping.mapping.delete_access_level !== original_mapping?.mapping.delete_access_level
 
     const mapping_is_dirty = // new map with unsaved changes
-        (mapping.id === "" && Object.keys(mapping.map).length > 0) ||
+        (mapping.mapping.id === "" && Object.keys(mapping.mapping.map).length > 0) ||
         // old map with unsaved changes
-        (mapping.id !== "" && mapping_has_changed)
+        (mapping.mapping.id !== "" && mapping_has_changed)
 
     const mapping_can_be_saved = mapping_is_dirty &&
-        mapping.name !== "" &&
-        mapping.team !== null && mapping.team !== "" &&
-        (mapping.permissions?.write ?? false)
+        mapping.mapping.name !== "" &&
+        mapping.mapping.team !== null && mapping.mapping.team !== "" &&
+        (mapping.mapping.permissions?.write ?? false)
 
-    const map_can_be_applied = mapping.id !== "" && file_mapping_has_changed && (file?.permissions?.write ?? false)
+    const map_can_be_applied = mapping.mapping.id !== "" &&
+        file_mapping_has_changed &&
+        (file?.permissions?.write ?? false)
 
     const missing_column_names = Object.values(columns ?? [])
         .filter((c) => c.is_required)
-        .filter((c) => Object.values(mapping.map ?? {}).find((m) => m.column_type === c.id) === undefined)
+        .filter((c) => Object.values(mapping.mapping.map ?? {}).find((m) => m.column_type === c.id) === undefined)
         .map(c => c.name)
 
     const safeSetMapping = (value?: string) => {
-        const new_mapping = applicable_mappings?.find((m) => m.id === value)
+        const new_mapping = applicable_mappings?.find((m) => m.mapping.id === value)
         // Check whether we need to warn about discarding changes.
         if (mapping_is_dirty &&
-            !window.confirm(`Discard unsaved changes${mapping.name? ` to mapping '${mapping.name}'` : ""}?`))
+            !window.confirm(`Discard unsaved changes${mapping.mapping.name? ` to mapping '${mapping.mapping.name}'` : ""}?`))
             return
         setMapping(new_mapping? {...new_mapping} : blank_map())
     }
@@ -708,7 +697,7 @@ function MappingManager(
                         <Select
                             aria-label="Load mapping"
                             data-testid="load-mapping-select"
-                            value={mapping?.id || "new"}
+                            value={mapping?.mapping.id || "new"}
                             onChange={(event) => safeSetMapping(
                                 event.target.value === "new" ? "" : event.target.value
                             )}
@@ -716,13 +705,15 @@ function MappingManager(
                             <MenuItem key='reset' value="new"><Typography>Create new mapping</Typography></MenuItem>
                             {
                                 applicable_mappings?.sort((a, b) => {
-                                    if (a.is_valid && !b.is_valid) return -1
-                                    if (!a.is_valid && b.is_valid) return 1
+                                    const am = a.mapping
+                                    const bm = b.mapping
+                                    if (am.is_valid && !bm.is_valid) return -1
+                                    if (!am.is_valid && bm.is_valid) return 1
                                     if ((a.missing ?? Infinity) < (b.missing ?? Infinity)) return -1
                                     if ((a.missing ?? Infinity) > (b.missing ?? Infinity)) return 1
-                                    return a.name.localeCompare(b.name)
+                                    return am.name.localeCompare(bm.name)
                                 })
-                                    .map((m) => <MenuItem key={m.id} value={m.id}>{m.name}</MenuItem>)
+                                    .map((m) => <MenuItem key={m.mapping.id} value={m.mapping.id}>{m.mapping.name}</MenuItem>)
                             }
                         </Select>
                         <Button
@@ -731,22 +722,18 @@ function MappingManager(
                                 let confirmed = false
                                 if (mapping_can_be_saved) {
                                     if (missing_column_names.length > 0 && !confirm(`
-Mapping '${mapping.name}' is missing columns ${missing_column_names.join(", ")}.
+Mapping '${mapping.mapping.name}' is missing columns ${missing_column_names.join(", ")}.
 
 You may still save the mapping, but the data may not be suitable for meta-analysis.
                                     `))
                                         return
-                                    if (!mapping.id) {
-                                        createMap({
-                                            name: mapping.name,
-                                            team: mapping.team,
-                                            map: mapping.map
-                                        })
+                                    if (!mapping.mapping.id) {
+                                        createMap(mapping)
                                         return  // automatically applies on creation
                                     } else {
-                                        if (mapping_map_has_changed && mapping.in_use) {
+                                        if (mapping_map_has_changed && mapping.mapping.in_use) {
                                             if (!window.confirm(`
-Mapping '${mapping.name}' is in use. 
+Mapping '${mapping.mapping.name}' is in use. 
 
 Updating its map will cause affected datafiles to be re-imported. This can be an long operation, especially where multiple files are affected.
 
@@ -755,7 +742,7 @@ Do you wish to continue?`
                                                 return
                                             confirmed = true
                                         }
-                                        updateMap(mapping)
+                                        updateMap(mapping.mapping)
                                     }
                                 }
                                 if (map_can_be_applied) {
@@ -764,12 +751,12 @@ Do you wish to continue?`
                                             return
                                         }
                                     }
-                                    updateFile(mapping)
+                                    updateFile(mapping.mapping)
                                 }
                             }}
                             disabled={!mapping_can_be_saved && !map_can_be_applied}
                         >
-                            {mapping_can_be_saved && (mapping.id?
+                            {mapping_can_be_saved && (mapping.mapping.id?
                                     map_can_be_applied?
                                         "Update and apply mapping": "Update mapping" :
                                     "Create"
@@ -778,23 +765,23 @@ Do you wish to continue?`
                         </Button>
                     </Stack>
                     <Stack className={clsx(classes.mappingWarnings)} spacing={1}>
-                        { !mapping_can_be_saved && mapping.permissions?.write &&
+                        { !mapping_can_be_saved && mapping.mapping.permissions?.write &&
                             <>
                                 {Object.keys(mapping).length === 0 &&
                                     <Alert severity="info"><Typography>
                                         Mappings must recognise at least one column.
                                     </Typography></Alert>}
-                                {mapping.name === "" &&
+                                {mapping.mapping.name === "" &&
                                     <Alert severity="info"><Typography>
                                         Mappings must have a name.
                                     </Typography></Alert>}
-                                {(mapping.team === null || mapping.team === "") &&
+                                {(mapping.mapping.team === null || mapping.mapping.team === "") &&
                                     <Alert severity="info"><Typography>
                                         Mappings must belong to a team.
                                     </Typography></Alert>}
                             </>
                         }
-                        { mapping.permissions?.write && missing_column_names.length > 0 &&
+                        { mapping.mapping.permissions?.write && missing_column_names.length > 0 &&
                             <Alert severity="warning">
                                 <Typography>
                                     Mapping should include required columns.
@@ -804,7 +791,7 @@ Do you wish to continue?`
                             </Alert>
                         }
                         {
-                            mapping.in_use && mapping_map_has_changed &&
+                            mapping.mapping.in_use && mapping_map_has_changed &&
                             <Alert severity="warning">
                                 <Typography>
                                     Updating a map that is used for datafiles will cause those datafiles to be re-parsed.
@@ -815,25 +802,31 @@ Do you wish to continue?`
                     {
                         <Stack>
                             <Stack direction="row" alignItems="center" spacing={1}>
-                                { mapping.permissions?.write && <>
+                                { mapping.mapping.permissions?.write && <>
                                     <TextField
                                         label="Mapping name"
-                                        value={mapping.name}
-                                        onChange={(e) => setMapping({...mapping, name: e.target.value})}
+                                        value={mapping.mapping.name}
+                                        onChange={(e) => setMapping({
+                                            missing: mapping.missing,
+                                            mapping: {...mapping.mapping, name: e.target.value}
+                                        })}
                                     />
                                     <PrettyResource
-                                        target={{_type: key_to_type(LOOKUP_KEYS.TEAM), _value: mapping.team}}
+                                        target={{_type: key_to_type(LOOKUP_KEYS.TEAM), _value: mapping.mapping.team}}
                                         lookup_key={LOOKUP_KEYS.TEAM}
                                         edit_mode={true}
                                         allow_new={false}
                                         onChange={(v: TypeValueNotation) => {
                                             if (typeof v._value !== "string") return
-                                            setMapping({...mapping, team: v._value})
+                                            setMapping({
+                                                missing: mapping.missing,
+                                                mapping: {...mapping.mapping, team: v._value}
+                                            })
                                         }}
                                     />
                                 </>}
                                 {
-                                    mapping.permissions?.write && <Button
+                                    mapping.mapping.permissions?.write && <Button
                                         onClick={() => setAdvancedPropertiesOpen(!advancedPropertiesOpen)}
                                     >
                                         { advancedPropertiesOpen? "Hide " : "Edit " } advanced properties
@@ -848,24 +841,30 @@ Do you wish to continue?`
                                 >
                                     <PrettyObject
                                         target={to_type_value_notation_wrapper({
-                                            read_access_level: mapping.read_access_level,
-                                            edit_access_level: mapping.edit_access_level,
-                                            delete_access_level: mapping.delete_access_level
+                                            read_access_level: mapping.mapping.read_access_level,
+                                            edit_access_level: mapping.mapping.edit_access_level,
+                                            delete_access_level: mapping.mapping.delete_access_level
                                         })}
-                                        edit_mode={mapping.permissions?.read ?? false}
+                                        edit_mode={mapping.mapping.permissions?.read ?? false}
                                         onEdit={(v: TypeValueNotationWrapper) => {
                                             const is_number = (x: unknown): x is number => typeof x === "number"
                                             const as_number = (x: unknown) => is_number(x)? x : undefined
                                             setMapping({
-                                                ...mapping,
-                                                read_access_level: as_number(v.read_access_level._value) ?? mapping.read_access_level,
-                                                edit_access_level: as_number(v.edit_access_level._value) ?? mapping.edit_access_level,
-                                                delete_access_level: as_number(v.delete_access_level._value) ?? mapping.delete_access_level
+                                                missing: mapping.missing,
+                                                mapping: {
+                                                    ...mapping.mapping,
+                                                    // TODO: Nice access manager that queries description for available values
+                                                    read_access_level: (as_number(v.read_access_level._value) ?? mapping.mapping.read_access_level) as ColumnMappingReadAccessLevelEnum,
+                                                    edit_access_level: (as_number(v.edit_access_level._value) ?? mapping.mapping.edit_access_level) as ColumnMappingEditAccessLevelEnum,
+                                                    delete_access_level: (as_number(v.delete_access_level._value) ?? mapping.mapping.delete_access_level) as ColumnMappingDeleteAccessLevelEnum
+                                                }
                                             })
                                         }}
                                         extractPermissions={true}
                                         canEditKeys={false}
                                     />
+                                    {/*
+                                    TODO: Backend needs to supply a destroy permission
                                     <Button
                                         color={mapping.permissions?.destroy? "error" : undefined}
                                         variant="contained"
@@ -878,7 +877,7 @@ Do you wish to continue?`
                                         disabled={mapping.id === "" || !mapping.permissions?.destroy}
                                     >
                                         Delete mapping {mapping.name || original_mapping?.name }
-                                    </Button>
+                                    </Button>*/}
                                 </Stack>
                             </Collapse>
                         </Stack>
@@ -886,8 +885,11 @@ Do you wish to continue?`
                     {array_summary && mapping && columns &&
                         <Box sx={{paddingBottom: 1}}>
                             <MappingTable
-                                mappingResource={db_map_to_map(mapping, columns)}
-                                setMappingResource={(map) => setMapping(map_to_db_map(map))}
+                                mappingResource={db_map_to_map(mapping.mapping, columns)}
+                                setMappingResource={(map) => setMapping({
+                                    missing: mapping.missing,
+                                    mapping: map_to_db_map(map)
+                                })}
                                 summary={array_summary}
                             />
                         </Box>
@@ -916,30 +918,26 @@ export function Mapping() {
 
     const fileApiHandler = new FilesApi(useCurrentUser().api_config)
     const queryClient = useQueryClient()
-    const applicableMappingsQuery = useQuery<AxiosResponse<DB_MappingResource[]>, AxiosError>(
-        ["applicable_mappings", file?.id],
-        async () => {
+    const applicableMappingsQuery = useQuery<AxiosResponse<ApplicableMappingResource[]>, AxiosError>({
+        queryKey: ["applicable_mappings", file?.id],
+        queryFn: async () => {
             const data = await fileApiHandler.filesApplicableMappingsRetrieve({id: file!.id})
-            queryClient.setQueryData(["applicable_mappings", file!.id], data)
-            const content = data.data as unknown as {mapping: DB_MappingResource, missing: number}[]
             return {
                 ...data,
-                data: content.map(m => {
-                    return {...m.mapping, missing: m.missing}
-                })
-            } as unknown as AxiosResponse<DB_MappingResource[]>
+                data: data.data as unknown as ApplicableMappingResource[]
+            }
         },
-        {enabled: !!file?.id}
-    )
-    const summaryQuery = useQuery<AxiosResponse<Record<string, Record<string, string|number>>>, AxiosError>(
-        ["summary", file?.id],
-        async () => {
+        enabled: !!file?.id
+    })
+    const summaryQuery = useQuery<AxiosResponse<Record<string, Record<string, string|number>>>, AxiosError>({
+        queryKey: ["summary", file?.id],
+        queryFn: async () => {
             const data = await fileApiHandler.filesSummaryRetrieve({id: file!.id})
             queryClient.setQueryData(["summary", file!.id], data)
             return data as unknown as AxiosResponse<Record<string, Record<string, string|number>>>
         },
-        {enabled: !!file?.id}
-    )
+        enabled: !!file?.id
+    })
 
     return <QueryWrapper
         queries={fileQuery?
@@ -960,10 +958,16 @@ export default function WrappedMapping() {
     const navigate = useNavigate()
     const {id} = useParams<{id: string}>()
 
-    if (!id) {
-        navigate(PATHS.DASHBOARD)
-        return <></>
-    }
+    useEffect(
+        () => {
+            if (!id) {
+                navigate(PATHS.DASHBOARD)
+            }
+        },
+        [id, navigate]
+    )
+
+    if (!id) return null
 
     return <ErrorBoundary
         fallback={(error: Error) => <ErrorCard

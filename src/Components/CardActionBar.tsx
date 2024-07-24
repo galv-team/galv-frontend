@@ -1,20 +1,20 @@
 import React, {ReactNode} from "react";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
-import EditIcon from "@mui/icons-material/Edit";
-import UndoIcon from "@mui/icons-material/Undo";
-import RedoIcon from "@mui/icons-material/Redo";
-import CloseIcon from "@mui/icons-material/Close";
+import { MdEdit } from 'react-icons/md';
+import { MdUndo } from 'react-icons/md';
+import { MdRedo } from 'react-icons/md';
+import { MdClose } from 'react-icons/md';
 import Stack from "@mui/material/Stack";
 import CountBadge from "./CountBadge";
 import {Link} from "react-router-dom";
-import RemoveIcon from "@mui/icons-material/Remove";
-import AddIcon from "@mui/icons-material/Add";
-import RepartitionIcon from '@mui/icons-material/Repartition';
+import { MdRemove } from 'react-icons/md';
+import { MdAdd } from 'react-icons/md';
+import { MdRepartition } from 'react-icons/md';
 import {
     DISPLAY_NAMES,
     DISPLAY_NAMES_PLURAL,
-    FIELDS,
+    FIELDS, GalvResource,
     ICONS,
     is_lookup_key, LOOKUP_KEYS,
     LookupKey,
@@ -22,7 +22,6 @@ import {
 } from "../constants";
 import {useApiResource} from "./ApiResourceContext";
 import LookupKeyIcon from "./LookupKeyIcon";
-import {BaseResource} from "./ResourceCard";
 import {SvgIconProps} from "@mui/material/SvgIcon";
 import {id_from_ref_props} from "./misc";
 import clsx from "clsx";
@@ -80,7 +79,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                 const relative_lookup_key = v.type as LookupKey
                 let content: ReactNode
                 if (v.many) {
-                    const relative_value = apiResource?.[k] as BaseResource[]|undefined
+                    const relative_value = apiResource?.[k] as GalvResource[]|undefined
                     content = <CountBadge
                         key={`highlight`}
                         icon={<LookupKeyIcon lookupKey={relative_lookup_key} tooltip={false} {...iconProps}/>}
@@ -88,7 +87,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                         url={PATHS[relative_lookup_key]}
                     />
                 } else {
-                    const relative_value = apiResource?.[k] as BaseResource|undefined
+                    const relative_value = apiResource?.[k] as GalvResource|undefined
                     const relative_id = relative_value? id_from_ref_props(relative_value) : undefined
                     content = <IconButton
                         component={Link}
@@ -124,7 +123,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                 key="edit"
             >
                 <IconButton onClick={() => props.setEditing!(true)}>
-                    <EditIcon {...iconProps}/>
+                    <MdEdit {...iconProps}/>
                 </IconButton>
             </Tooltip>
         } else {
@@ -145,14 +144,14 @@ export default function CardActionBar(props: CardActionBarProps) {
                 {props.onUndo && <Tooltip title={`Undo`} arrow describeChild key="undo">
                 <span>
                 <IconButton onClick={props.onUndo!} disabled={!props.undoable}>
-                    <UndoIcon {...iconProps}/>
+                    <MdUndo {...iconProps}/>
                 </IconButton>
                 </span>
                 </Tooltip>}
                 {props.onRedo && <Tooltip title={`Redo`} arrow describeChild key="redo">
                     <span>
                     <IconButton onClick={props.onRedo!} disabled={!props.redoable}>
-                        <RedoIcon {...iconProps}/>
+                        <MdRedo {...iconProps}/>
                     </IconButton>
                     </span>
                 </Tooltip>}
@@ -161,7 +160,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                         if (props.onEditDiscard!())
                             props.setEditing!(false)
                     }}>
-                        <CloseIcon {...iconProps} color="error"/>
+                        <MdClose {...iconProps} color="error"/>
                     </IconButton>
                 </Tooltip>
             </>
@@ -177,7 +176,7 @@ export default function CardActionBar(props: CardActionBarProps) {
         >
             <span>
                 <IconButton onClick={() => props.onReImport && props.onReImport()} disabled={!props.reimportable}>
-                    <RepartitionIcon {...iconProps} className={clsx(classes.deleteIcon)} {...iconProps}/>
+                    <MdRepartition {...iconProps} className={clsx(classes.deleteIcon)} {...iconProps}/>
                 </IconButton>
             </span>
         </Tooltip>}
@@ -225,7 +224,7 @@ export default function CardActionBar(props: CardActionBarProps) {
             props.setExpanded !== undefined &&
             <Tooltip title={props.expanded ? "Hide Details" : "Show Details"} arrow describeChild key="expand">
                 <IconButton onClick={() => props.setExpanded!(!props.expanded)}>
-                    {props.expanded ? <RemoveIcon {...iconProps}/> : <AddIcon {...iconProps}/>}
+                    {props.expanded ? <MdRemove {...iconProps}/> : <MdAdd {...iconProps}/>}
                 </IconButton>
             </Tooltip>}
     </Stack>

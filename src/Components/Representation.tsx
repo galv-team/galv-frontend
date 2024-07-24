@@ -1,9 +1,8 @@
-import {DISPLAY_NAMES, FIELDS, LookupKey, PRIORITY_LEVELS} from "../constants";
-import {BaseResource} from "./ResourceCard";
+import {DISPLAY_NAMES, FIELDS, GalvResource, LookupKey, PRIORITY_LEVELS} from "../constants";
 import {ReactNode} from "react";
 import {useFetchResource} from "./FetchResourceContext";
 
-export function representation({data, lookup_key}: {data: BaseResource, lookup_key: LookupKey}): string {
+export function representation({data, lookup_key}: {data: GalvResource, lookup_key: LookupKey}): string {
     try {
         const id_fields = Object.entries(FIELDS[lookup_key])
             .filter((e) => e[1].priority >= PRIORITY_LEVELS.IDENTITY)
@@ -28,14 +27,13 @@ export type RepresentationProps = {
     suffix?: ReactNode
 }
 
-export default function Representation<T extends BaseResource>(
+export default function Representation<T extends GalvResource>(
     {resource_id, lookup_key, prefix, suffix}: RepresentationProps
 ) {
     const {useRetrieveQuery} = useFetchResource()
     const query = useRetrieveQuery<T>(
         lookup_key,
         resource_id,
-        {on_error: () => undefined}
     )
 
     return <>

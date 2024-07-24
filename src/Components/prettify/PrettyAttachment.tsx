@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 import {useAttachmentUpload} from "../AttachmentUploadContext";
 import {PrettyComponentProps} from "./Prettify";
-import PrettyResource, {PrettyResourceSelect} from "./PrettyResource";
+import {PrettyResourceSelect} from "./PrettyResource";
 import AuthFile from "../AuthFile";
 
 const VisuallyHiddenInput = styled('input')({

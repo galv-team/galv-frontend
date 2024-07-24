@@ -1,4 +1,3 @@
-import {BaseResource} from "../ResourceCard";
 import {DataColumnType} from "@galv/galv";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
@@ -6,9 +5,10 @@ import Stack from "@mui/material/Stack";
 import {get_url_components} from "../misc";
 import {ResourceChip} from "../ResourceChip";
 import Typography from "@mui/material/Typography";
+import {GalvResource} from "../../constants";
 
 
-export default function UnitSummary({ resource } : { resource: BaseResource}) {
+export default function UnitSummary({ resource } : { resource: GalvResource}) {
     const {classes} = useStyles();
     const r = resource as unknown as DataColumnType
 

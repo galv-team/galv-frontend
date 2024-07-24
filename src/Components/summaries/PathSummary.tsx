@@ -1,4 +1,3 @@
-import {BaseResource} from "../ResourceCard";
 import {MonitoredPath} from "@galv/galv";
 import useStyles from "../../styles/UseStyles";
 import clsx from "clsx";
@@ -7,9 +6,10 @@ import ChipList from "./ChipList";
 import Alert from "@mui/material/Alert";
 import {get_url_components} from "../misc";
 import {ResourceChip} from "../ResourceChip";
+import {GalvResource} from "../../constants";
 
 
-export default function PathSummary({ resource } : { resource: BaseResource}) {
+export default function PathSummary({ resource } : { resource: GalvResource}) {
     const {classes} = useStyles();
     const r = resource as unknown as MonitoredPath
 

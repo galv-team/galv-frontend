@@ -1,4 +1,4 @@
-import {DISPLAY_NAMES, FAMILY_LOOKUP_KEYS, FIELDS, LOOKUP_KEYS, LookupKey} from "../../constants";
+import {DISPLAY_NAMES, FAMILY_LOOKUP_KEYS, FIELDS, GalvResource, LOOKUP_KEYS, LookupKey} from "../../constants";
 import {ChipProps} from "@mui/material/Chip";
 import React, {useEffect, useState} from "react";
 import useStyles from "../../styles/UseStyles";
@@ -12,7 +12,6 @@ import Autocomplete, {AutocompleteProps, createFilterOptions} from "@mui/materia
 import CircularProgress from "@mui/material/CircularProgress";
 import {representation} from "../Representation";
 import {useFetchResource} from "../FetchResourceContext";
-import {BaseResource} from "../ResourceCard";
 import {get_modal_title, ResourceCreator} from "../ResourceCreator";
 import Modal from "@mui/material/Modal";
 import UndoRedoProvider from "../UndoRedoContext";
@@ -22,7 +21,7 @@ export type PrettyResourceSelectProps = {
     allow_new?: boolean  // defaults to true if the lookup_key has a 'team' field
 } & PrettyComponentProps<string|null> & Partial<Omit<ChipProps, "onChange">>
 
-export const PrettyResourceSelect = <T extends BaseResource>(
+export const PrettyResourceSelect = <T extends GalvResource>(
     {target, onChange, allow_new, lookup_key, edit_mode, ...autocompleteProps}:
         PrettyResourceSelectProps & Partial<Omit<AutocompleteProps<string, false, false, true>, "onChange">>
 ) => {
@@ -39,7 +38,7 @@ export const PrettyResourceSelect = <T extends BaseResource>(
 
     const family_lookup_key = Object.keys(FAMILY_LOOKUP_KEYS).includes(lookup_key)?
         FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS] : undefined
-    const family_query = useListQuery<BaseResource>(family_lookup_key)
+    const family_query = useListQuery<GalvResource>(family_lookup_key)
 
     if (family_query?.hasNextPage && !family_query.isFetchingNextPage)
         family_query.fetchNextPage()
