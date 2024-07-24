@@ -4,35 +4,38 @@
 
 // globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-import {LOOKUP_KEYS} from "../constants";
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {FilterContextProvider} from "../Components/filtering/FilterContext";
-import {MemoryRouter} from "react-router-dom";
-import FetchResourceContextProvider from "../Components/FetchResourceContext";
-import {vi, it, expect} from 'vitest';
-import {cells} from './fixtures/fixtures';
-import {ResourceChip} from "../Components/ResourceChip";
+import { LOOKUP_KEYS } from '../constants'
+import React from 'react'
+import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { FilterContextProvider } from '../Components/filtering/FilterContext'
+import { MemoryRouter } from 'react-router-dom'
+import FetchResourceContextProvider from '../Components/FetchResourceContext'
+import { vi, it, expect } from 'vitest'
+import { cells } from './fixtures/fixtures'
+import { ResourceChip } from '../Components/ResourceChip'
 
 vi.mock('../Components/Representation')
 
 const cell = cells[0]
 
 it('renders', async () => {
-    const queryClient = new QueryClient();
+    const queryClient = new QueryClient()
 
     render(
-        <MemoryRouter initialEntries={["/"]}>
+        <MemoryRouter initialEntries={['/']}>
             <QueryClientProvider client={queryClient}>
                 <FetchResourceContextProvider>
                     <FilterContextProvider>
-                        <ResourceChip lookup_key={LOOKUP_KEYS.CELL} resource_id={cell.id} />
+                        <ResourceChip
+                            lookup_key={LOOKUP_KEYS.CELL}
+                            resource_id={cell.id}
+                        />
                     </FilterContextProvider>
                 </FetchResourceContextProvider>
             </QueryClientProvider>
-        </MemoryRouter>
+        </MemoryRouter>,
     )
     await screen.findByText(/DummyRepresentation/)
-    expect(screen.getByText(t => t.includes(cell.id))).toBeInTheDocument()
+    expect(screen.getByText((t) => t.includes(cell.id))).toBeInTheDocument()
 })

@@ -24,21 +24,17 @@ export default defineConfig(({ mode }) => {
     return {
         define: envWithProcessPrefix,
         build: {
-            commonjsOptions: { transformMixedEsModules: true }
+            commonjsOptions: { transformMixedEsModules: true },
         },
         server: {
             // disable file watching because it makes vite hang which makes docker containers unresponsive
-            watch: null
+            watch: null,
         },
-        plugins: [
-            wasm(),
-            topLevelAwait(),
-            react()
-        ],
+        plugins: [wasm(), topLevelAwait(), react()],
         test: {
             environment: 'jsdom',
             globals: true,
-            setupFiles: './src/test/setup.ts'
-        }
+            setupFiles: './src/test/setup.ts',
+        },
     }
 })

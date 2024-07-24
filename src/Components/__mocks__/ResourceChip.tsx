@@ -2,9 +2,9 @@
 // Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
-import dummy from "./DummyComponent"
-import {ResourceChipProps} from "../ResourceChip";
+import dummy from './DummyComponent'
+import { ResourceChipProps } from '../ResourceChip'
 
 export default function ResourceChip(params: ResourceChipProps) {
-	return dummy("ResourceChip", params)
+    return dummy('ResourceChip', params)
 }

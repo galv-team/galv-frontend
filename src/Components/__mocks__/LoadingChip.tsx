@@ -2,9 +2,9 @@
 // Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
-import dummy from "./DummyComponent"
-import {LoadingChipProps} from "../LoadingChip";
+import dummy from './DummyComponent'
+import { LoadingChipProps } from '../LoadingChip'
 
 export default function LoadingChip(params: LoadingChipProps) {
-	return dummy("LoadingChip", params)
+    return dummy('LoadingChip', params)
 }
