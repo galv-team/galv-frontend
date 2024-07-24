@@ -1,4 +1,4 @@
-name: Jest CI
+name: ViTest CI
 on:
   push:
   workflow_dispatch:
@@ -19,13 +19,10 @@ jobs:
         uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
-      - name: Setup docker-compose
-        run: |
-            sudo apt-get update
-            sudo apt-get install -y docker-compose
-
-      - name: Build test container
-        run: docker-compose build frontend_test
-
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+          cache: 'pnpm'
       - name: Run tests
-        run: docker-compose run --rm frontend_test
+        run: npm test
