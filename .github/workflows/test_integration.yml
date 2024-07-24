@@ -19,10 +19,16 @@ jobs:
         uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
+      - uses: pnpm/action-setup@v2
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 'latest'
           cache: 'pnpm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: PNPM install
+        run: pnpm install
+
       - name: Run tests
-        run: npm test
+        run: pnpm test
