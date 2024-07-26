@@ -9,116 +9,162 @@ import {
     Link,
     useNavigate,
     useLocation,
-    matchPath, useParams, useSearchParams,
-} from "react-router-dom";
-import UserLogin from "./UserLogin"
-import CssBaseline from '@mui/material/CssBaseline';
+    matchPath,
+    useParams,
+    useSearchParams,
+} from 'react-router-dom'
+import UserLogin from './UserLogin'
+import CssBaseline from '@mui/material/CssBaseline'
 
-import clsx from 'clsx';
-import Drawer from '@mui/material/Drawer';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import HelpIcon from '@mui/icons-material/Help';
+import clsx from 'clsx'
+import Drawer from '@mui/material/Drawer'
+import AppBar from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
+import List from '@mui/material/List'
+import Typography from '@mui/material/Typography'
+import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
+import { MdMenu, MdChevronLeft, MdHelp } from 'react-icons/md'
 
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import {ReactSVG} from 'react-svg';
-import Stack from "@mui/material/Stack";
-import {PATHS, ICONS, LookupKey, LOOKUP_KEYS, DISPLAY_NAMES_PLURAL} from "./constants";
-import ErrorBoundary from "./Components/ErrorBoundary";
-import ResourceCard from "./Components/ResourceCard";
-import FilterBar from "./Components/filtering/FilterBar";
-import {FilterContextProvider} from "./Components/filtering/FilterContext";
-import {ResourceList} from "./Components/ResourceList";
-import CurrentUserContextProvider from "./Components/CurrentUserContext";
-import useStyles from "./styles/UseStyles";
-import {SnackbarMessenger, SnackbarMessengerContextProvider} from "./Components/SnackbarMessengerContext";
-import Tooltip from "@mui/material/Tooltip";
-import LookupKeyIcon from "./Components/LookupKeyIcon";
-import Dashboard from "./Dashboard";
-import SelectionManagementContextProvider from "./Components/SelectionManagementContext";
-import {SelectedResourcesPane} from "./Components/SelectedResourcesPane";
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import { ReactSVG } from 'react-svg'
+import Stack from '@mui/material/Stack'
+import {
+    PATHS,
+    ICONS,
+    LookupKey,
+    LOOKUP_KEYS,
+    DISPLAY_NAMES_PLURAL,
+} from './constants'
+import ErrorBoundary from './Components/ErrorBoundary'
+import ResourceCard from './Components/ResourceCard'
+import FilterBar from './Components/filtering/FilterBar'
+import { FilterContextProvider } from './Components/filtering/FilterContext'
+import { ResourceList } from './Components/ResourceList'
+import CurrentUserContextProvider from './Components/CurrentUserContext'
+import useStyles from './styles/UseStyles'
+import {
+    SnackbarMessenger,
+    SnackbarMessengerContextProvider,
+} from './Components/SnackbarMessengerContext'
+import Tooltip from '@mui/material/Tooltip'
+import LookupKeyIcon from './Components/LookupKeyIcon'
+import Dashboard from './Dashboard'
+import SelectionManagementContextProvider from './Components/SelectionManagementContext'
+import { SelectedResourcesPane } from './Components/SelectedResourcesPane'
 
-import {useState} from "react";
-import FetchResourceContextProvider from "./Components/FetchResourceContext";
-import AttachmentUploadContextProvider from "./Components/AttachmentUploadContext";
-import Mapping from "./Components/Mapping";
-import Paper from "@mui/material/Paper";
+import { useState } from 'react'
+import FetchResourceContextProvider from './Components/FetchResourceContext'
+import AttachmentUploadContextProvider from './Components/AttachmentUploadContext'
+import Mapping from './Components/Mapping'
+import Paper from '@mui/material/Paper'
 
-export const pathMatches = (path: string, pathname: string) => matchPath({path: path, end: true}, pathname) !== null
+export const pathMatches = (path: string, pathname: string) =>
+    matchPath({ path: path, end: true }, pathname) !== null
 
 export function Core() {
-    const { pathname } = useLocation();
+    const { pathname } = useLocation()
     const pathIs = (path: string) => pathMatches(path, pathname)
 
-    const { classes } = useStyles();
+    const { classes } = useStyles()
 
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(false)
     const toggleDrawerOpen = () => {
-        setOpen(!open);
-    };
+        setOpen(!open)
+    }
     const handleDrawerClose = () => {
-        setOpen(false);
-    };
+        setOpen(false)
+    }
 
-    const LI = ({lookupKey}: { lookupKey: LookupKey }) => <ListItemButton
-        selected={pathIs(PATHS[lookupKey])}
-        component={Link}
-        to={PATHS[lookupKey]}
-        key={lookupKey}
-    >
-        <ListItemIcon key="icon">
-            <LookupKeyIcon lookupKey={lookupKey} tooltip={!open} tooltipProps={{placement: "right"}} plural />
-        </ListItemIcon>
-        <ListItemText key="text" primary={DISPLAY_NAMES_PLURAL[lookupKey]} />
-    </ListItemButton>
+    const LI = ({ lookupKey }: { lookupKey: LookupKey }) => (
+        <ListItemButton
+            selected={pathIs(PATHS[lookupKey])}
+            component={Link}
+            to={PATHS[lookupKey]}
+            key={lookupKey}
+        >
+            <ListItemIcon key="icon">
+                <LookupKeyIcon
+                    lookupKey={lookupKey}
+                    tooltip={!open}
+                    tooltipProps={{ placement: 'right' }}
+                    plural
+                />
+            </ListItemIcon>
+            <ListItemText
+                key="text"
+                primary={DISPLAY_NAMES_PLURAL[lookupKey]}
+            />
+        </ListItemButton>
+    )
 
     const mainListItems = (
         <Stack>
-            <ListItemButton key="dashboard" selected={pathIs(PATHS.DASHBOARD)} component={Link} to={PATHS.DASHBOARD}>
+            <ListItemButton
+                key="dashboard"
+                selected={pathIs(PATHS.DASHBOARD)}
+                component={Link}
+                to={PATHS.DASHBOARD}
+            >
                 <ListItemIcon>
                     <ICONS.DASHBOARD />
                 </ListItemIcon>
                 <ListItemText primary="Dashboard" />
             </ListItemButton>
-            <Divider component="li" key="div0">{open && "Outputs"}</Divider>
-            {[LOOKUP_KEYS.EXPERIMENT, LOOKUP_KEYS.CYCLER_TEST].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
-            <Divider component="li" key="div2">{open && "Resources"}</Divider>
+            <Divider component="li" key="div0">
+                {open && 'Outputs'}
+            </Divider>
+            {[LOOKUP_KEYS.EXPERIMENT, LOOKUP_KEYS.CYCLER_TEST].map(
+                (lookupKey) => (
+                    <LI key={lookupKey} lookupKey={lookupKey} />
+                ),
+            )}
+            <Divider component="li" key="div2">
+                {open && 'Resources'}
+            </Divider>
             {[
                 LOOKUP_KEYS.FILE,
                 LOOKUP_KEYS.CELL,
                 LOOKUP_KEYS.EQUIPMENT,
                 LOOKUP_KEYS.SCHEDULE,
-                LOOKUP_KEYS.ARBITRARY_FILE
-            ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
-            <Divider component="li" key="div3">{open && "Inputs"}</Divider>
+                LOOKUP_KEYS.ARBITRARY_FILE,
+            ].map((lookupKey) => (
+                <LI key={lookupKey} lookupKey={lookupKey} />
+            ))}
+            <Divider component="li" key="div3">
+                {open && 'Inputs'}
+            </Divider>
             {[
                 LOOKUP_KEYS.PATH,
                 LOOKUP_KEYS.VALIDATION_SCHEMA,
                 LOOKUP_KEYS.COLUMN_FAMILY,
-                LOOKUP_KEYS.UNIT
-            ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
-            <Divider component="li" key="div4">{open && "Management"}</Divider>
+                LOOKUP_KEYS.UNIT,
+            ].map((lookupKey) => (
+                <LI key={lookupKey} lookupKey={lookupKey} />
+            ))}
+            <Divider component="li" key="div4">
+                {open && 'Management'}
+            </Divider>
             {[
                 LOOKUP_KEYS.LAB,
                 LOOKUP_KEYS.TEAM,
                 LOOKUP_KEYS.HARVESTER,
                 LOOKUP_KEYS.ADDITIONAL_STORAGE,
-            ].map(lookupKey => <LI key={lookupKey} lookupKey={lookupKey} />)}
+            ].map((lookupKey) => (
+                <LI key={lookupKey} lookupKey={lookupKey} />
+            ))}
         </Stack>
-    );
+    )
 
     const Layout = (
         <div className={classes.root}>
             <CssBaseline />
-            <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
+            <AppBar
+                position="absolute"
+                className={clsx(classes.appBar, open && classes.appBarShift)}
+            >
                 <Toolbar className={classes.toolbar}>
                     <IconButton
                         edge="start"
@@ -127,20 +173,34 @@ export function Core() {
                         onClick={toggleDrawerOpen}
                         className={clsx(classes.menuButton)}
                     >
-                        <MenuIcon />
+                        <MdMenu />
                     </IconButton>
                     <Link to={PATHS.DASHBOARD} className={classes.title}>
-                        <Tooltip title="Galv" describeChild={true} placement="bottom-start" arrow>
+                        <Tooltip
+                            title="Galv"
+                            describeChild={true}
+                            placement="bottom-start"
+                            arrow
+                        >
                             <div>
-                                <ReactSVG className={classes.galvLogo} src="/Galv-logo.svg" />
+                                <ReactSVG
+                                    className={classes.galvLogo}
+                                    src="/Galv-logo.svg"
+                                />
                             </div>
                         </Tooltip>
                     </Link>
-                    <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
+                    <Typography
+                        component="h1"
+                        variant="h6"
+                        color="inherit"
+                        noWrap
+                        className={classes.title}
+                    >
                         The Battery Development Metadata Secretary
                     </Typography>
                     <UserLogin />
-                    <Tooltip title={"Open help in new tab"} arrow>
+                    <Tooltip title={'Open help in new tab'} arrow>
                         <IconButton
                             edge="end"
                             color="inherit"
@@ -148,7 +208,7 @@ export function Core() {
                             to="https://galv-team.github.io/galv-frontend/"
                             target="_blank"
                         >
-                            <HelpIcon />
+                            <MdHelp />
                         </IconButton>
                     </Tooltip>
                 </Toolbar>
@@ -156,13 +216,16 @@ export function Core() {
             <Drawer
                 variant="permanent"
                 classes={{
-                    paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
+                    paper: clsx(
+                        classes.drawerPaper,
+                        !open && classes.drawerPaperClose,
+                    ),
                 }}
                 open={open}
             >
                 <div className={classes.toolbarIcon}>
                     <IconButton onClick={handleDrawerClose}>
-                        <ChevronLeftIcon />
+                        <MdChevronLeft />
                     </IconButton>
                 </div>
                 <Divider />
@@ -179,7 +242,7 @@ export function Core() {
             </main>
             <SnackbarMessenger autoHideDuration={6000} />
         </div>
-    );
+    )
 
     function MyFallbackComponent(error: Error) {
         return (
@@ -190,16 +253,18 @@ export function Core() {
         )
     }
 
-    function get_lookup_key_from_pathname(pathname: string|undefined): LookupKey | undefined {
-        return (
-            (Object.entries(PATHS).find((e) => e[1] === `/${pathname}`)?.[0] as keyof typeof PATHS)
-        ) as LookupKey
+    function get_lookup_key_from_pathname(
+        pathname: string | undefined,
+    ): LookupKey | undefined {
+        return Object.entries(PATHS).find(
+            (e) => e[1] === `/${pathname}`,
+        )?.[0] as keyof typeof PATHS as LookupKey
     }
 
     function ResourceCardWrapper() {
         const navigate = useNavigate()
-        const {type, id} = useParams()
-        const [searchParams] = useSearchParams();
+        const { type, id } = useParams()
+        const [searchParams] = useSearchParams()
         const lookup_key = get_lookup_key_from_pathname(type)
 
         if (!lookup_key || !id) {
@@ -207,17 +272,19 @@ export function Core() {
             return <></>
         }
 
-        return <ResourceCard
-            resource_id={id ?? -1}
-            lookup_key={lookup_key ?? "CYCLER_TEST"}
-            expanded={true}
-            editing={searchParams.get('editing') === 'true'}
-        />
+        return (
+            <ResourceCard
+                resource_id={id ?? -1}
+                lookup_key={lookup_key ?? 'CYCLER_TEST'}
+                expanded={true}
+                editing={searchParams.get('editing') === 'true'}
+            />
+        )
     }
 
     function ResourceListWrapper() {
         const navigate = useNavigate()
-        const {type} = useParams()
+        const { type } = useParams()
         const lookup_key = get_lookup_key_from_pathname(type)
 
         if (!lookup_key) {
@@ -225,35 +292,50 @@ export function Core() {
             return <></>
         }
 
-        return <ResourceList lookup_key={lookup_key ?? "CYCLER_TEST"}/>
+        return <ResourceList lookup_key={lookup_key ?? 'CYCLER_TEST'} />
     }
 
     /* A <Routes> looks through its children <Route>s and renders the first one that matches the current URL. */
-    return <ErrorBoundary fallback={MyFallbackComponent}>
-        <Routes>
-            <Route path={PATHS.DASHBOARD} element={Layout}>
-                {/*<Route path={PATHS.GRAPH} element={<DatasetChart />} />*/}
-                <Route path={`${PATHS.MAPPING}/:id`} element={<Mapping/>}/>
-                <Route path="/:type/:id" element={<ResourceCardWrapper/>}/>  {/* Handles direct resource lookups */}
-                <Route path={"/:type"} element={<ResourceListWrapper/>}/>  {/* Handles resource lists */}
-                <Route index element={<Dashboard key="dashboard" />} />
-            </Route>
-        </Routes>
-    </ErrorBoundary>
+    return (
+        <ErrorBoundary fallback={MyFallbackComponent}>
+            <Routes>
+                <Route path={PATHS.DASHBOARD} element={Layout}>
+                    {/*<Route path={PATHS.GRAPH} element={<DatasetChart />} />*/}
+                    <Route
+                        path={`${PATHS.MAPPING}/:id`}
+                        element={<Mapping />}
+                    />
+                    <Route
+                        path="/:type/:id"
+                        element={<ResourceCardWrapper />}
+                    />{' '}
+                    {/* Handles direct resource lookups */}
+                    <Route
+                        path={'/:type'}
+                        element={<ResourceListWrapper />}
+                    />{' '}
+                    {/* Handles resource lists */}
+                    <Route index element={<Dashboard key="dashboard" />} />
+                </Route>
+            </Routes>
+        </ErrorBoundary>
+    )
 }
 
 export default function WrappedCore() {
     // CurrentUserContextProvider relies on SnackbarMessengerContextProvider to alert when
-    // the user is logged out by the server
-    return <SnackbarMessengerContextProvider>
-        <CurrentUserContextProvider>
-            <FetchResourceContextProvider>
-                <SelectionManagementContextProvider>
-                    <AttachmentUploadContextProvider>
-                        <Core />
-                    </AttachmentUploadContextProvider>
-                </SelectionManagementContextProvider>
-            </FetchResourceContextProvider>
-        </CurrentUserContextProvider>
-    </SnackbarMessengerContextProvider>
+    // the user is logged out by the server.
+    return (
+        <SnackbarMessengerContextProvider>
+            <CurrentUserContextProvider>
+                <FetchResourceContextProvider>
+                    <SelectionManagementContextProvider>
+                        <AttachmentUploadContextProvider>
+                            <Core />
+                        </AttachmentUploadContextProvider>
+                    </SelectionManagementContextProvider>
+                </FetchResourceContextProvider>
+            </CurrentUserContextProvider>
+        </SnackbarMessengerContextProvider>
+    )
 }

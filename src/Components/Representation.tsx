@@ -1,9 +1,20 @@
-import {DISPLAY_NAMES, FIELDS, LookupKey, PRIORITY_LEVELS} from "../constants";
-import {BaseResource} from "./ResourceCard";
-import {ReactNode} from "react";
-import {useFetchResource} from "./FetchResourceContext";
+import {
+    DISPLAY_NAMES,
+    FIELDS,
+    GalvResource,
+    LookupKey,
+    PRIORITY_LEVELS,
+} from '../constants'
+import { ReactNode } from 'react'
+import { useFetchResource } from './FetchResourceContext'
 
-export function representation({data, lookup_key}: {data: BaseResource, lookup_key: LookupKey}): string {
+export function representation({
+    data,
+    lookup_key,
+}: {
+    data: GalvResource
+    lookup_key: LookupKey
+}): string {
     try {
         const id_fields = Object.entries(FIELDS[lookup_key])
             .filter((e) => e[1].priority >= PRIORITY_LEVELS.IDENTITY)
@@ -12,35 +23,43 @@ export function representation({data, lookup_key}: {data: BaseResource, lookup_k
         const s = Object.entries(data)
             .filter((e) => id_fields.includes(e[0]))
             .map((e) => e[1])
-            .join(" ")
+            .join(' ')
 
-        return s.length? s : `${DISPLAY_NAMES[lookup_key]} ${data.id ?? data.id}`
+        return s.length
+            ? s
+            : `${DISPLAY_NAMES[lookup_key]} ${data.id ?? data.id}`
     } catch (error) {
-        console.error(`Could not represent ${lookup_key} ${data?.id ?? data?.id}`, {args: {data, lookup_key}, error})
+        console.error(
+            `Could not represent ${lookup_key} ${data?.id ?? data?.id}`,
+            { args: { data, lookup_key }, error },
+        )
     }
     return String(data.id ?? data.id ?? 'unknown')
 }
 
 export type RepresentationProps = {
-    resource_id: string|number
+    resource_id: string | number
     lookup_key: LookupKey
     prefix?: ReactNode
     suffix?: ReactNode
 }
 
-export default function Representation<T extends BaseResource>(
-    {resource_id, lookup_key, prefix, suffix}: RepresentationProps
-) {
-    const {useRetrieveQuery} = useFetchResource()
-    const query = useRetrieveQuery<T>(
-        lookup_key,
-        resource_id,
-        {on_error: () => undefined}
-    )
+export default function Representation<T extends GalvResource>({
+    resource_id,
+    lookup_key,
+    prefix,
+    suffix,
+}: RepresentationProps) {
+    const { useRetrieveQuery } = useFetchResource()
+    const query = useRetrieveQuery<T>(lookup_key, resource_id)
 
-    return <>
-        {prefix ?? ""}
-        {query.data? representation({data: query.data.data, lookup_key}) : resource_id}
-        {suffix ?? ""}
-    </>
+    return (
+        <>
+            {prefix ?? ''}
+            {query.data
+                ? representation({ data: query.data.data, lookup_key })
+                : resource_id}
+            {suffix ?? ''}
+        </>
+    )
 }

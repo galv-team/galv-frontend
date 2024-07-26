@@ -4,35 +4,33 @@
 
 // globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-import {LOOKUP_KEYS} from "../constants";
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import axios from 'axios';
-import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import FetchResourceContextProvider from "../Components/FetchResourceContext";
-
-// Mock jest and set the type
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-const Representation = jest.requireActual('../Components/Representation').default;
+import { LOOKUP_KEYS } from '../constants'
+import React from 'react'
+import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import FetchResourceContextProvider from '../Components/FetchResourceContext'
+import { it, expect } from 'vitest'
+import Representation from '../Components/Representation'
+import { teams } from './fixtures/fixtures'
 
 it('renders', async () => {
-  mockedAxios.request.mockResolvedValue({
-    data: {
-      id: 1,
-      name: 'Joe Doe'
-    }
-  });
+    const queryClient = new QueryClient()
+    const team = teams[0]
 
-  const queryClient = new QueryClient();
+    render(
+        <QueryClientProvider client={queryClient}>
+            <FetchResourceContextProvider>
+                <Representation
+                    lookup_key={LOOKUP_KEYS.TEAM}
+                    resource_id={team.id}
+                    prefix="T"
+                    suffix="!"
+                />
+            </FetchResourceContextProvider>
+        </QueryClientProvider>,
+    )
 
-  render(
-      <QueryClientProvider client={queryClient}>
-        <FetchResourceContextProvider>
-          <Representation lookup_key={LOOKUP_KEYS.TEAM} resource_id={1} prefix="T" suffix="!" />
-        </FetchResourceContextProvider>
-      </QueryClientProvider>
-  )
-  expect(screen.getByText('T1!')).toBeInTheDocument();
+    expect(screen.getByText(`T${team.id}!`)).toBeInTheDocument()
+    const updated_name = await screen.findByText(`T${team.name}!`)
+    expect(updated_name).toBeInTheDocument()
 })

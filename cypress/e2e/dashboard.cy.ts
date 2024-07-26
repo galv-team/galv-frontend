@@ -1,25 +1,26 @@
-import {PATHS} from "../../src/constants";
+import { PATHS } from '../../src/constants'
 
 describe('template spec', () => {
-
     it('passes', () => {
-        cy.intercept({
+        cy.intercept(
+            {
                 method: 'GET',
-                url: `${PATHS.CELL}`
+                url: `${PATHS.CELL}`,
             },
-            { fixture: PATHS.CELL.replace(/^\//, "") }
+            { fixture: PATHS.CELL.replace(/^\//, '') },
         )
-        cy.intercept({
+        cy.intercept(
+            {
                 method: 'GET',
-                url: `${PATHS.CELL}/*`
+                url: `${PATHS.CELL}/*`,
             },
             async (req) => {
                 const id = req.url.split('/').pop()
-                const cells = await cy.fixture(PATHS.CELL.replace(/^\//, ""))
+                const cells = await cy.fixture(PATHS.CELL.replace(/^\//, ''))
                 req.reply({
-                    body: cells.results.find((cell) => cell.uuid === id)
+                    body: cells.results.find((cell) => cell.uuid === id),
                 })
-            }
+            },
         )
         cy.visit('http://localhost/')
     })

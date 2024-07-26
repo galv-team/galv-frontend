@@ -4,44 +4,37 @@
 
 // globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-import {LOOKUP_KEYS} from "../constants";
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import axios from 'axios';
-import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import FetchResourceContextProvider from "../Components/FetchResourceContext";
+import { LOOKUP_KEYS } from '../constants'
+import React from 'react'
+import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import FetchResourceContextProvider from '../Components/FetchResourceContext'
+import { vi, it, expect } from 'vitest'
+import { cells } from './fixtures/fixtures'
+import WrappedResourceList from '../Components/ResourceList'
 
-jest.mock('../Components/IntroText')
-jest.mock('../Components/ResourceCard')
-jest.mock('../ClientCodeDemo')
-
-// Mock jest and set the type
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-const ResourceList = jest.requireActual('../Components/ResourceList').default;
-const results = [
-    {id: "0001-0001-0001-0001", identifier: 'Test Cell 1', family: "http://example.com/cell_families/1000-1000-1000-1000"},
-    {id: "0002-0002-0002-0002", identifier: 'Test Cell 2', family: "http://example.com/cell_families/1000-1000-1000-1000"},
-    {id: "0003-0003-0003-0003", identifier: 'Test Cell 3', family: "http://example.com/cell_families/2000-2000-2000-2000"},
-]
-
+vi.mock('../Components/IntroText')
+vi.mock('../Components/ResourceCard')
+vi.mock('../ClientCodeDemo')
 
 it('renders', async () => {
-    mockedAxios.request.mockResolvedValue({data: {results}});
-
-    const queryClient = new QueryClient();
+    const queryClient = new QueryClient()
 
     render(
         <QueryClientProvider client={queryClient}>
             <FetchResourceContextProvider>
-                <ResourceList lookup_key={LOOKUP_KEYS.CELL} />
+                <WrappedResourceList lookup_key={LOOKUP_KEYS.CELL} />
             </FetchResourceContextProvider>
-        </QueryClientProvider>
+        </QueryClientProvider>,
     )
-    await screen.findByText(t => t.includes(results[0].id))
+    await screen.findByText((t) => t.includes(cells[0].id))
 
-    expect(screen.getByRole('heading', {name: 'Cells'})).toBeInTheDocument();
-    expect(screen.getAllByText(/ResourceCard/)).toHaveLength(3);
-    expect(screen.getAllByText((c, e) => e instanceof HTMLElement && e.dataset.key === 'lookup_key')).toHaveLength(3);
+    expect(screen.getByRole('heading', { name: 'Cells' })).toBeInTheDocument()
+    expect(screen.getAllByText(/ResourceCard/)).toHaveLength(cells.length)
+    expect(
+        screen.getAllByText(
+            (c, e) =>
+                e instanceof HTMLElement && e.dataset.key === 'lookup_key',
+        ),
+    ).toHaveLength(cells.length)
 })

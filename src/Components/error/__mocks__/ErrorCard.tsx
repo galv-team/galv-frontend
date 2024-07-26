@@ -3,8 +3,10 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 export default function ErrorCard(props: unknown) {
-    return <div>
-        <p>ErrorCard</p>
-        <p>{JSON.stringify(props)}</p>
-    </div>
+    return (
+        <div>
+            <p>ErrorCard</p>
+            <p>{JSON.stringify(props)}</p>
+        </div>
+    )
 }

@@ -2,21 +2,18 @@
 // Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import './styles/index.css';
-import App from './App';
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import './styles/index.css'
+import App from './App'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { BrowserRouter as Router } from 'react-router-dom'
-import reportWebVitals from "./reportWebVitals";
+import reportWebVitals from './reportWebVitals'
 
-const rootElement = document.getElementById("root");
+const rootElement = document.getElementById('root')
 if (!(rootElement instanceof HTMLElement)) {
-    throw new Error("Could not find root element");
+    throw new Error('Could not find root element')
 }
 const root = createRoot(rootElement)
 
@@ -39,10 +36,10 @@ root.render(
                 <App />
             </Router>
         </QueryClientProvider>
-    </React.StrictMode>
-);
+    </React.StrictMode>,
+)
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+reportWebVitals()

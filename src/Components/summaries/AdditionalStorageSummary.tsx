@@ -1,15 +1,19 @@
-import {BaseResource} from "../ResourceCard";
-import {AdditionalS3StorageType} from "@galv/galv";
-import useStyles from "../../styles/UseStyles";
-import clsx from "clsx";
-import Stack from "@mui/material/Stack";
-import Alert from "@mui/material/Alert";
-import {humanize_bytes} from "../misc";
-import {ReactNode} from "react";
-import Typography from "@mui/material/Typography";
+import { AdditionalS3StorageType } from '@galv/galv'
+import useStyles from '../../styles/UseStyles'
+import clsx from 'clsx'
+import Stack from '@mui/material/Stack'
+import Alert from '@mui/material/Alert'
+import { humanize_bytes } from '../misc'
+import { ReactNode } from 'react'
+import Typography from '@mui/material/Typography'
+import { GalvResource } from '../../constants'
 
-export default function AdditionalStorageSummary({ resource } : { resource: BaseResource}) {
-    const {classes} = useStyles();
+export default function AdditionalStorageSummary({
+    resource,
+}: {
+    resource: GalvResource
+}) {
+    const { classes } = useStyles()
     const r = resource as unknown as AdditionalS3StorageType
 
     let usage: ReactNode
@@ -22,8 +26,12 @@ export default function AdditionalStorageSummary({ resource } : { resource: Base
         usage = <Typography>{usage_text}</Typography>
     }
 
-    return <Stack className={clsx(classes.resourceSummary)} spacing={1}>
-        {!r.enabled && <Alert severity="warning">This storage is disabled</Alert>}
-        {usage}
-    </Stack>
+    return (
+        <Stack className={clsx(classes.resourceSummary)} spacing={1}>
+            {!r.enabled && (
+                <Alert severity="warning">This storage is disabled</Alert>
+            )}
+            {usage}
+        </Stack>
+    )
 }

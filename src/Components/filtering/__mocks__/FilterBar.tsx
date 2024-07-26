@@ -3,8 +3,10 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 export default function FilterBar(props: unknown) {
-    return <div>
-        <p>FilterBar</p>
-        <p>{JSON.stringify(props)}</p>
-    </div>
+    return (
+        <div>
+            <p>FilterBar</p>
+            <p>{JSON.stringify(props)}</p>
+        </div>
+    )
 }

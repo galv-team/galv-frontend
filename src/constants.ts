@@ -1,123 +1,164 @@
-import PollIcon from "@mui/icons-material/Poll";
-import MultilineChartIcon from "@mui/icons-material/MultilineChart";
-import DatasetLinkedIcon from "@mui/icons-material/DatasetLinked";
-import BatteryFullIcon from "@mui/icons-material/BatteryFull";
-import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
-import HomeIcon from "@mui/icons-material/Home";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import HolidayVillageIcon from "@mui/icons-material/HolidayVillage";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import BatchPredictionIcon from '@mui/icons-material/BatchPrediction';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import CloudSyncIcon from '@mui/icons-material/CloudSync';
-import PersonIcon from '@mui/icons-material/Person';
-import FolderIcon from '@mui/icons-material/Folder';
-import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SchemaIcon from '@mui/icons-material/Schema';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import PendingIcon from '@mui/icons-material/Pending';
-import HideSourceIcon from '@mui/icons-material/HideSource';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import DownloadIcon from '@mui/icons-material/Download';
-import ForkRightIcon from '@mui/icons-material/ForkRight';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import SubscriptIcon from '@mui/icons-material/Subscript';
-import SplitscreenIcon from '@mui/icons-material/Splitscreen';
-import ExtensionIcon from '@mui/icons-material/Extension';
-import SuccessIcon from '@mui/icons-material/Done';
-import InfoIcon from '@mui/icons-material/Info';
-import WarningIcon from '@mui/icons-material/Warning';
-import ErrorIcon from '@mui/icons-material/Error';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import SdStorageIcon from '@mui/icons-material/SdStorage';
+import {
+    MdAddCircle,
+    MdAssignment,
+    MdAttachFile,
+    MdBatchPrediction,
+    MdBatteryFull,
+    MdCancel,
+    MdCheckCircle,
+    MdCloudSync,
+    MdCompareArrows,
+    MdDatasetLinked,
+    MdDelete,
+    MdDownload,
+    MdError,
+    MdExpandLess,
+    MdExpandMore,
+    MdExtension,
+    MdFolder,
+    MdForkRight,
+    MdHideSource,
+    MdHolidayVillage,
+    MdHome,
+    MdInfo,
+    MdLogout,
+    MdManageAccounts,
+    MdMultilineChart,
+    MdPending,
+    MdPeopleAlt,
+    MdPerson,
+    MdPoll,
+    MdPrecisionManufacturing,
+    MdSave,
+    MdSchema,
+    MdSdStorage,
+    MdSplitscreen,
+    MdSubscript,
+    MdVpnKey,
+    MdWarning,
+} from 'react-icons/md'
 
 import {
-    CellChemistriesApi,
-    CellFamiliesApi,
-    CellFormFactorsApi,
-    CellManufacturersApi,
-    CellModelsApi,
-    CellsApi,
-    CyclerTestsApi,
-    EquipmentApi,
-    EquipmentFamiliesApi,
-    EquipmentManufacturersApi,
-    EquipmentModelsApi,
-    EquipmentTypesApi,
-    ExperimentsApi,
-    FilesApi,
-    HarvestersApi,
-    LabsApi,
-    MonitoredPathsApi,
-    ParquetPartitionsApi,
-    ScheduleFamiliesApi,
-    ScheduleIdentifiersApi,
-    SchedulesApi,
-    TeamsApi,
-    TokensApi,
-    UsersApi,
-    ValidationSchemasApi,
-    ArbitraryFilesApi, ColumnTypesApi, UnitsApi,
-    ColumnMappingsApi,
-    GalvStorageApi,
+    AdditionalS3StorageType,
     AdditionalStorageApi,
-    CellChemistriesApiFp,
-    CellFamiliesApiFp,
-    CellFormFactorsApiFp,
-    CellManufacturersApiFp,
-    CellModelsApiFp,
-    CellsApiFp,
-    CyclerTestsApiFp,
-    EquipmentApiFp,
-    EquipmentFamiliesApiFp,
-    EquipmentManufacturersApiFp,
-    EquipmentModelsApiFp,
-    EquipmentTypesApiFp,
-    ExperimentsApiFp,
-    FilesApiFp,
-    HarvestersApiFp,
-    LabsApiFp,
-    MonitoredPathsApiFp,
-    ParquetPartitionsApiFp,
-    ScheduleFamiliesApiFp,
-    ScheduleIdentifiersApiFp,
-    SchedulesApiFp,
-    TeamsApiFp,
-    TokensApiFp,
-    UsersApiFp,
-    ValidationSchemasApiFp,
-    ArbitraryFilesApiFp, ColumnTypesApiFp, UnitsApiFp,
-    ColumnMappingsApiFp,
-    GalvStorageApiFp,
     AdditionalStorageApiFp,
-} from "@galv/galv";
+    ArbitraryFile,
+    ArbitraryFilesApi,
+    ArbitraryFilesApiFp,
+    Cell,
+    CellChemistriesApi,
+    CellChemistriesApiFp,
+    CellFamiliesApi,
+    CellFamiliesApiFp,
+    CellFamily,
+    CellFormFactorsApi,
+    CellFormFactorsApiFp,
+    CellManufacturersApi,
+    CellManufacturersApiFp,
+    CellModelsApi,
+    CellModelsApiFp,
+    CellsApi,
+    CellsApiFp,
+    ColumnMapping,
+    ColumnMappingsApi,
+    ColumnMappingsApiFp,
+    ColumnTypesApi,
+    ColumnTypesApiFp,
+    CyclerTest,
+    CyclerTestsApi,
+    CyclerTestsApiFp,
+    DataColumnType,
+    DataUnit,
+    Equipment,
+    EquipmentApi,
+    EquipmentApiFp,
+    EquipmentFamiliesApi,
+    EquipmentFamiliesApiFp,
+    EquipmentFamily,
+    EquipmentManufacturersApi,
+    EquipmentManufacturersApiFp,
+    EquipmentModelsApi,
+    EquipmentModelsApiFp,
+    EquipmentTypesApi,
+    EquipmentTypesApiFp,
+    Experiment,
+    ExperimentsApi,
+    ExperimentsApiFp,
+    FilesApi,
+    FilesApiFp,
+    GalvStorageApi,
+    GalvStorageApiFp,
+    Harvester,
+    HarvestersApi,
+    HarvestersApiFp,
+    Lab,
+    LabsApi,
+    LabsApiFp,
+    MonitoredPath,
+    MonitoredPathsApi,
+    MonitoredPathsApiFp,
+    ObservedFile,
+    ParquetPartitionsApi,
+    ParquetPartitionsApiFp,
+    Schedule,
+    ScheduleFamiliesApi,
+    ScheduleFamiliesApiFp,
+    ScheduleFamily,
+    ScheduleIdentifiersApi,
+    ScheduleIdentifiersApiFp,
+    SchedulesApi,
+    SchedulesApiFp,
+    Team,
+    TeamsApi,
+    TeamsApiFp,
+    TokensApi,
+    TokensApiFp,
+    UnitsApi,
+    UnitsApiFp,
+    UsersApi,
+    UsersApiFp,
+    ValidationSchemasApi,
+    ValidationSchemasApiFp,
+} from '@galv/galv'
 import {
     TypeChangerAutocompleteKey,
     TypeChangerLookupKey,
-    TypeChangerSupportedTypeName
-} from "./Components/prettify/TypeChanger";
-import {TypeValueNotation} from "./Components/TypeValueNotation";
-import SaveIcon from "@mui/icons-material/Save";
-import DeleteIcon from "@mui/icons-material/Delete";
+    TypeChangerSupportedTypeName,
+} from './Components/prettify/TypeChanger'
+import { TypeValueNotation } from './Components/TypeValueNotation'
+
+export type ChildResource = Cell | Equipment | Schedule
+export type FamilyResource = CellFamily | EquipmentFamily | ScheduleFamily
+export type StandaloneResource =
+    | ArbitraryFile
+    | AdditionalS3StorageType
+    | Harvester
+    | Team
+    | Lab
+    | DataUnit
+    | DataColumnType
+    | MonitoredPath
+    | ObservedFile
+    | CyclerTest
+    | Experiment
+    | ColumnMapping
+export type GalvResource = ChildResource | FamilyResource | StandaloneResource
 
 /**
  * The basic unit of data passed around the frontend is a Serializable.
  * This is a type that can be serialized to JSON.
  */
 export type Serializable =
-    string |
-    number |
-    boolean |
-    TypeValueNotation |
-    SerializableObject |
-    Serializable[] |
-    undefined |
-    null
-export type SerializableObject = { [key: string]: Serializable }
+    | GalvResource
+    | string
+    | number
+    | boolean
+    | TypeValueNotation
+    | SerializableObject
+    | Serializable[]
+    | undefined
+    | null
+export type SerializableObject = GalvResource | { [key: string]: Serializable }
 export type NonNullSerializable = Exclude<Serializable, null | undefined>
 
 /**
@@ -125,11 +166,15 @@ export type NonNullSerializable = Exclude<Serializable, null | undefined>
  * When used as a TypeValueNotation type, they are prefixed with "galv_".
  * @param t - TypeValueNotation type name
  */
-export const type_to_key = (t: TypeChangerSupportedTypeName): AutocompleteKey | LookupKey | undefined => {
+export const type_to_key = (
+    t: TypeChangerSupportedTypeName,
+): AutocompleteKey | LookupKey | undefined => {
     if (t.startsWith('galv_')) {
         const k = t.replace('galv_', '')
         if (is_autocomplete_key(k) || is_lookup_key(k)) return k
-        console.error(`Type ${t} starts with galv_ but is not a LookupKey or AutocompleteKey`)
+        console.error(
+            `Type ${t} starts with galv_ but is not a LookupKey or AutocompleteKey`,
+        )
     }
     return undefined
 }
@@ -140,9 +185,10 @@ export const type_to_key = (t: TypeChangerSupportedTypeName): AutocompleteKey | 
  *
  * @param k - AutocompleteKey or LookupKey
  */
-export const key_to_type = (k: unknown): TypeChangerAutocompleteKey|TypeChangerLookupKey => {
-    if (is_autocomplete_key(k) || is_lookup_key(k))
-        return `galv_${k}`
+export const key_to_type = (
+    k: unknown,
+): TypeChangerAutocompleteKey | TypeChangerLookupKey => {
+    if (is_autocomplete_key(k) || is_lookup_key(k)) return `galv_${k}`
     throw new Error(`key_to_type: ${k} is not a valid key`)
 }
 
@@ -158,101 +204,101 @@ export const DEFAULT_FETCH_LIMIT = 10
  * TODO: Eventually these could all be exposed as part of a useLookupKey context.
  */
 export const LOOKUP_KEYS = {
-    HARVESTER: "HARVESTER",
-    PATH: "PATH",
-    PARQUET_PARTITION: "PARQUET_PARTITION",
-    FILE: "FILE",
-    MAPPING: "MAPPING",
-    CELL_FAMILY: "CELL_FAMILY",
-    CELL: "CELL",
-    EQUIPMENT_FAMILY: "EQUIPMENT_FAMILY",
-    EQUIPMENT: "EQUIPMENT",
-    SCHEDULE_FAMILY: "SCHEDULE_FAMILY",
-    SCHEDULE: "SCHEDULE",
-    EXPERIMENT: "EXPERIMENT",
-    CYCLER_TEST: "CYCLER_TEST",
-    ARBITRARY_FILE: "ARBITRARY_FILE",
-    VALIDATION_SCHEMA: "VALIDATION_SCHEMA",
-    LAB: "LAB",
-    TEAM: "TEAM",
-    USER: "USER",
-    TOKEN: "TOKEN",
-    UNIT: "UNIT",
-    COLUMN_FAMILY: "COLUMN_FAMILY",
-    GALV_STORAGE: "GALV_STORAGE",
-    ADDITIONAL_STORAGE: "ADDITIONAL_STORAGE",
+    HARVESTER: 'HARVESTER',
+    PATH: 'PATH',
+    PARQUET_PARTITION: 'PARQUET_PARTITION',
+    FILE: 'FILE',
+    MAPPING: 'MAPPING',
+    CELL_FAMILY: 'CELL_FAMILY',
+    CELL: 'CELL',
+    EQUIPMENT_FAMILY: 'EQUIPMENT_FAMILY',
+    EQUIPMENT: 'EQUIPMENT',
+    SCHEDULE_FAMILY: 'SCHEDULE_FAMILY',
+    SCHEDULE: 'SCHEDULE',
+    EXPERIMENT: 'EXPERIMENT',
+    CYCLER_TEST: 'CYCLER_TEST',
+    ARBITRARY_FILE: 'ARBITRARY_FILE',
+    VALIDATION_SCHEMA: 'VALIDATION_SCHEMA',
+    LAB: 'LAB',
+    TEAM: 'TEAM',
+    USER: 'USER',
+    TOKEN: 'TOKEN',
+    UNIT: 'UNIT',
+    COLUMN_FAMILY: 'COLUMN_FAMILY',
+    GALV_STORAGE: 'GALV_STORAGE',
+    ADDITIONAL_STORAGE: 'ADDITIONAL_STORAGE',
 } as const
 
 export const AUTOCOMPLETE_KEYS = {
-    CELL_MANUFACTURER: "CELL_MANUFACTURER",
-    CELL_MODEL: "CELL_MODEL",
-    CELL_FORM_FACTOR: "CELL_FORM_FACTOR",
-    CELL_CHEMISTRY: "CELL_CHEMISTRY",
-    EQUIPMENT_TYPE: "EQUIPMENT_TYPE",
-    EQUIPMENT_MANUFACTURER: "EQUIPMENT_MANUFACTURER",
-    EQUIPMENT_MODEL: "EQUIPMENT_MODEL",
-    SCHEDULE_IDENTIFIER: "SCHEDULE_IDENTIFIER",
+    CELL_MANUFACTURER: 'CELL_MANUFACTURER',
+    CELL_MODEL: 'CELL_MODEL',
+    CELL_FORM_FACTOR: 'CELL_FORM_FACTOR',
+    CELL_CHEMISTRY: 'CELL_CHEMISTRY',
+    EQUIPMENT_TYPE: 'EQUIPMENT_TYPE',
+    EQUIPMENT_MANUFACTURER: 'EQUIPMENT_MANUFACTURER',
+    EQUIPMENT_MODEL: 'EQUIPMENT_MODEL',
+    SCHEDULE_IDENTIFIER: 'SCHEDULE_IDENTIFIER',
 } as const
 
 export type LookupKey = keyof typeof LOOKUP_KEYS
 export const is_lookup_key = (key: unknown): key is LookupKey =>
-    typeof key === "string" && Object.keys(LOOKUP_KEYS).includes(key)
+    typeof key === 'string' && Object.keys(LOOKUP_KEYS).includes(key)
 
 export type AutocompleteKey = keyof typeof AUTOCOMPLETE_KEYS
 export const is_autocomplete_key = (key: unknown): key is AutocompleteKey =>
-    typeof key === "string" && Object.keys(AUTOCOMPLETE_KEYS).includes(key)
+    typeof key === 'string' && Object.keys(AUTOCOMPLETE_KEYS).includes(key)
 
 /**
  * Icons for each resource type.
  * Currently all families share the same icon.
  */
 export const ICONS = {
-    [LOOKUP_KEYS.HARVESTER]: CloudSyncIcon,
-    [LOOKUP_KEYS.PATH]: FolderIcon,
-    [LOOKUP_KEYS.PARQUET_PARTITION]: ExtensionIcon,
-    [LOOKUP_KEYS.FILE]: PollIcon,
-    [LOOKUP_KEYS.MAPPING]: CompareArrowsIcon,
-    [LOOKUP_KEYS.UNIT]: SubscriptIcon,
-    [LOOKUP_KEYS.COLUMN_FAMILY]: SplitscreenIcon,
-    [LOOKUP_KEYS.CELL_FAMILY]: BatchPredictionIcon,
-    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: BatchPredictionIcon,
-    [LOOKUP_KEYS.SCHEDULE_FAMILY]: BatchPredictionIcon,
-    [LOOKUP_KEYS.EXPERIMENT]: DatasetLinkedIcon,
-    [LOOKUP_KEYS.CYCLER_TEST]: MultilineChartIcon,
-    [LOOKUP_KEYS.CELL]: BatteryFullIcon,
-    [LOOKUP_KEYS.EQUIPMENT]: PrecisionManufacturingIcon,
-    [LOOKUP_KEYS.SCHEDULE]: AssignmentIcon,
-    [LOOKUP_KEYS.ARBITRARY_FILE]: AttachFileIcon,
-    [LOOKUP_KEYS.VALIDATION_SCHEMA]: SchemaIcon,
-    [LOOKUP_KEYS.LAB]: HolidayVillageIcon,
-    [LOOKUP_KEYS.TEAM]: PeopleAltIcon,
-    [LOOKUP_KEYS.USER]: PersonIcon,
-    [LOOKUP_KEYS.TOKEN]: VpnKeyIcon,
-    STORAGE: SdStorageIcon,
-    [LOOKUP_KEYS.GALV_STORAGE]: SdStorageIcon,
-    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: SdStorageIcon,
-    DASHBOARD: HomeIcon,
-    MANAGE_ACCOUNT: ManageAccountsIcon,
-    LOGOUT: LogoutIcon,
-    CREATE: AddCircleIcon,
-    DELETE: DeleteIcon,
-    SAVE: SaveIcon,
-    FORK: ForkRightIcon,
-    CANCEL: CancelIcon,
-    CHECK: CheckCircleIcon,
-    EXPAND_MORE: ExpandMoreIcon,
-    EXPAND_LESS: ExpandLessIcon,
-    DOWNLOAD: DownloadIcon,
-    validation_status_ERROR: ErrorIcon,
-    validation_status_UNCHECKED: PendingIcon,
-    validation_status_INPUT_REQUIRED: PendingIcon,
-    validation_status_VALID: CheckCircleIcon,
-    validation_status_INVALID: CancelIcon,
-    validation_status_SKIPPED: HideSourceIcon,
-    SUCCESS: SuccessIcon,
-    INFO: InfoIcon,
-    WARNING: WarningIcon,
-    ERROR: ErrorIcon
+    [LOOKUP_KEYS.HARVESTER]: MdCloudSync,
+    [LOOKUP_KEYS.PATH]: MdFolder,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: MdExtension,
+    [LOOKUP_KEYS.FILE]: MdPoll,
+    [LOOKUP_KEYS.MAPPING]: MdCompareArrows,
+    [LOOKUP_KEYS.UNIT]: MdSubscript,
+    [LOOKUP_KEYS.COLUMN_FAMILY]: MdSplitscreen,
+    [LOOKUP_KEYS.CELL_FAMILY]: MdBatchPrediction,
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: MdBatchPrediction,
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: MdBatchPrediction,
+    [LOOKUP_KEYS.EXPERIMENT]: MdDatasetLinked,
+    [LOOKUP_KEYS.CYCLER_TEST]: MdMultilineChart,
+    [LOOKUP_KEYS.CELL]: MdBatteryFull,
+    [LOOKUP_KEYS.EQUIPMENT]: MdPrecisionManufacturing,
+    [LOOKUP_KEYS.SCHEDULE]: MdAssignment,
+    [LOOKUP_KEYS.ARBITRARY_FILE]: MdAttachFile,
+    [LOOKUP_KEYS.VALIDATION_SCHEMA]: MdSchema,
+    [LOOKUP_KEYS.LAB]: MdHolidayVillage,
+    [LOOKUP_KEYS.TEAM]: MdPeopleAlt,
+    [LOOKUP_KEYS.USER]: MdPerson,
+    [LOOKUP_KEYS.TOKEN]: MdVpnKey,
+    STORAGE: MdSdStorage,
+    [LOOKUP_KEYS.GALV_STORAGE]: MdSdStorage,
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: MdSdStorage,
+    DASHBOARD: MdHome,
+    MANAGE_ACCOUNT: MdManageAccounts,
+    LOGOUT: MdLogout,
+    CREATE: MdAddCircle,
+    DELETE: MdDelete,
+    SAVE: MdSave,
+    FORK: MdForkRight,
+    CANCEL: MdCancel,
+    CHECK: MdCheckCircle,
+    EXPAND_MORE: MdExpandMore,
+    EXPAND_LESS: MdExpandLess,
+    DOWNLOAD: MdDownload,
+    validation_status_ERROR: MdError,
+    validation_status_UNCHECKED: MdPending,
+    validation_status_INPUT_REQUIRED: MdPending,
+    validation_status_VALID: MdCheckCircle,
+    validation_status_INVALID: MdCancel,
+    validation_status_SKIPPED: MdHideSource,
+    SUCCESS: MdCheckCircle,
+    INFO: MdInfo,
+    WARNING: MdWarning,
+    ERROR: MdError,
 } as const
 
 /**
@@ -262,102 +308,102 @@ export const ICONS = {
  * like they might be resource URLs.
  */
 export const PATHS = {
-    [LOOKUP_KEYS.HARVESTER]: "/harvesters",
-    [LOOKUP_KEYS.PATH]: "/paths",
-    [LOOKUP_KEYS.PARQUET_PARTITION]: "/parquet_partitions",
-    [LOOKUP_KEYS.FILE]: "/files",
-    [LOOKUP_KEYS.COLUMN_FAMILY]: "/column_types",
-    [LOOKUP_KEYS.UNIT]: "/units",
-    DASHBOARD: "/",
-    [LOOKUP_KEYS.MAPPING]: "/mapping",
-    [LOOKUP_KEYS.EXPERIMENT]: "/experiments",
-    [LOOKUP_KEYS.CYCLER_TEST]: "/cycler_tests",
-    GRAPH: "/graphs",
-    [LOOKUP_KEYS.CELL]: "/cells",
-    [LOOKUP_KEYS.CELL_FAMILY]: "/cell_families",
-    [LOOKUP_KEYS.EQUIPMENT]: "/equipment",
-    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "/equipment_families",
-    [LOOKUP_KEYS.SCHEDULE]: "/schedules",
-    [LOOKUP_KEYS.SCHEDULE_FAMILY]: "/schedule_families",
-    [LOOKUP_KEYS.ARBITRARY_FILE]: "/arbitrary_files",
-    [LOOKUP_KEYS.VALIDATION_SCHEMA]: "/validation_schemas",
-    [LOOKUP_KEYS.LAB]: "/labs",
-    [LOOKUP_KEYS.TEAM]: "/teams",
-    [LOOKUP_KEYS.USER]: "/users",
-    [LOOKUP_KEYS.TOKEN]: "/tokens",
-    [LOOKUP_KEYS.GALV_STORAGE]: "/galv_storage",
-    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "/additional_storage",
-    PROFILE: "/profile",
-    [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: "/cell_manufacturers",
-    [AUTOCOMPLETE_KEYS.CELL_MODEL]: "/cell_models",
-    [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: "/cell_form_factors",
-    [AUTOCOMPLETE_KEYS.CELL_CHEMISTRY]: "/cell_chemistries",
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE]: "/equipment_types",
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: "/equipment_manufacturers",
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: "/equipment_models",
-    [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: "/schedule_identifiers",
+    [LOOKUP_KEYS.HARVESTER]: '/harvesters',
+    [LOOKUP_KEYS.PATH]: '/paths',
+    [LOOKUP_KEYS.PARQUET_PARTITION]: '/parquet_partitions',
+    [LOOKUP_KEYS.FILE]: '/files',
+    [LOOKUP_KEYS.COLUMN_FAMILY]: '/column_types',
+    [LOOKUP_KEYS.UNIT]: '/units',
+    DASHBOARD: '/',
+    [LOOKUP_KEYS.MAPPING]: '/mapping',
+    [LOOKUP_KEYS.EXPERIMENT]: '/experiments',
+    [LOOKUP_KEYS.CYCLER_TEST]: '/cycler_tests',
+    GRAPH: '/graphs',
+    [LOOKUP_KEYS.CELL]: '/cells',
+    [LOOKUP_KEYS.CELL_FAMILY]: '/cell_families',
+    [LOOKUP_KEYS.EQUIPMENT]: '/equipment',
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: '/equipment_families',
+    [LOOKUP_KEYS.SCHEDULE]: '/schedules',
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: '/schedule_families',
+    [LOOKUP_KEYS.ARBITRARY_FILE]: '/arbitrary_files',
+    [LOOKUP_KEYS.VALIDATION_SCHEMA]: '/validation_schemas',
+    [LOOKUP_KEYS.LAB]: '/labs',
+    [LOOKUP_KEYS.TEAM]: '/teams',
+    [LOOKUP_KEYS.USER]: '/users',
+    [LOOKUP_KEYS.TOKEN]: '/tokens',
+    [LOOKUP_KEYS.GALV_STORAGE]: '/galv_storage',
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: '/additional_storage',
+    PROFILE: '/profile',
+    [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: '/cell_manufacturers',
+    [AUTOCOMPLETE_KEYS.CELL_MODEL]: '/cell_models',
+    [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: '/cell_form_factors',
+    [AUTOCOMPLETE_KEYS.CELL_CHEMISTRY]: '/cell_chemistries',
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE]: '/equipment_types',
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: '/equipment_manufacturers',
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: '/equipment_models',
+    [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: '/schedule_identifiers',
 } as const
 
 /**
  * Display names are in Title Case.
  */
 export const DISPLAY_NAMES = {
-    [LOOKUP_KEYS.HARVESTER]: "Harvester",
-    [LOOKUP_KEYS.PATH]: "Path",
-    [LOOKUP_KEYS.PARQUET_PARTITION]: "Parquet Partition",
-    [LOOKUP_KEYS.FILE]: "File",
-    [LOOKUP_KEYS.MAPPING]: "Mapping",
-    [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
-    [LOOKUP_KEYS.UNIT]: "Unit",
-    DASHBOARD: "Dashboard",
-    [LOOKUP_KEYS.EXPERIMENT]: "Experiment",
-    [LOOKUP_KEYS.CYCLER_TEST]: "Cycler Test",
-    DATASET: "Dataset",
-    [LOOKUP_KEYS.CELL]: "Cell",
-    [LOOKUP_KEYS.CELL_FAMILY]: "Cell Family",
-    [LOOKUP_KEYS.EQUIPMENT]: "Equipment",
-    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "Equipment Family",
-    [LOOKUP_KEYS.SCHEDULE]: "Schedule",
-    [LOOKUP_KEYS.SCHEDULE_FAMILY]: "Schedule Family",
-    [LOOKUP_KEYS.ARBITRARY_FILE]: "Attachment",
-    [LOOKUP_KEYS.VALIDATION_SCHEMA]: "Validation Schema",
-    [LOOKUP_KEYS.LAB]: "Lab",
-    [LOOKUP_KEYS.TEAM]: "Team",
-    [LOOKUP_KEYS.USER]: "User",
-    [LOOKUP_KEYS.TOKEN]: "Token",
-    [LOOKUP_KEYS.GALV_STORAGE]: "Galv Storage",
-    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "Additional Storage",
+    [LOOKUP_KEYS.HARVESTER]: 'Harvester',
+    [LOOKUP_KEYS.PATH]: 'Path',
+    [LOOKUP_KEYS.PARQUET_PARTITION]: 'Parquet Partition',
+    [LOOKUP_KEYS.FILE]: 'File',
+    [LOOKUP_KEYS.MAPPING]: 'Mapping',
+    [LOOKUP_KEYS.COLUMN_FAMILY]: 'Column Type',
+    [LOOKUP_KEYS.UNIT]: 'Unit',
+    DASHBOARD: 'Dashboard',
+    [LOOKUP_KEYS.EXPERIMENT]: 'Experiment',
+    [LOOKUP_KEYS.CYCLER_TEST]: 'Cycler Test',
+    DATASET: 'Dataset',
+    [LOOKUP_KEYS.CELL]: 'Cell',
+    [LOOKUP_KEYS.CELL_FAMILY]: 'Cell Family',
+    [LOOKUP_KEYS.EQUIPMENT]: 'Equipment',
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: 'Equipment Family',
+    [LOOKUP_KEYS.SCHEDULE]: 'Schedule',
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: 'Schedule Family',
+    [LOOKUP_KEYS.ARBITRARY_FILE]: 'Attachment',
+    [LOOKUP_KEYS.VALIDATION_SCHEMA]: 'Validation Schema',
+    [LOOKUP_KEYS.LAB]: 'Lab',
+    [LOOKUP_KEYS.TEAM]: 'Team',
+    [LOOKUP_KEYS.USER]: 'User',
+    [LOOKUP_KEYS.TOKEN]: 'Token',
+    [LOOKUP_KEYS.GALV_STORAGE]: 'Galv Storage',
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: 'Additional Storage',
 } as const
 
 /**
  * Title Case, as with DISPLAY_NAMES. Plural.
  */
 export const DISPLAY_NAMES_PLURAL = {
-    [LOOKUP_KEYS.HARVESTER]: "Harvesters",
-    [LOOKUP_KEYS.PATH]: "Paths",
-    [LOOKUP_KEYS.PARQUET_PARTITION]: "Parquet Partitions",
-    [LOOKUP_KEYS.FILE]: "Files",
-    [LOOKUP_KEYS.MAPPING]: "Mappings",
-    [LOOKUP_KEYS.COLUMN_FAMILY]: "Column Type",
-    [LOOKUP_KEYS.UNIT]: "Unit",
-    DASHBOARD: "Dashboard",
-    [LOOKUP_KEYS.EXPERIMENT]: "Experiments",
-    [LOOKUP_KEYS.CYCLER_TEST]: "Cycler Tests",
-    DATASET: "Datasets",
-    [LOOKUP_KEYS.CELL]: "Cells",
-    [LOOKUP_KEYS.CELL_FAMILY]: "Cell Families",
-    [LOOKUP_KEYS.EQUIPMENT]: "Equipment",
-    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "Equipment Families",
-    [LOOKUP_KEYS.SCHEDULE]: "Schedules",
-    [LOOKUP_KEYS.SCHEDULE_FAMILY]: "Schedule Families",
-    [LOOKUP_KEYS.ARBITRARY_FILE]: "Attachments",
-    [LOOKUP_KEYS.VALIDATION_SCHEMA]: "Validation Schemas",
-    [LOOKUP_KEYS.LAB]: "Labs",
-    [LOOKUP_KEYS.TEAM]: "Teams",
-    [LOOKUP_KEYS.USER]: "Users",
-    [LOOKUP_KEYS.TOKEN]: "Tokens",
-    [LOOKUP_KEYS.GALV_STORAGE]: "Galv Storage",
-    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "Additional Storage",
+    [LOOKUP_KEYS.HARVESTER]: 'Harvesters',
+    [LOOKUP_KEYS.PATH]: 'Paths',
+    [LOOKUP_KEYS.PARQUET_PARTITION]: 'Parquet Partitions',
+    [LOOKUP_KEYS.FILE]: 'Files',
+    [LOOKUP_KEYS.MAPPING]: 'Mappings',
+    [LOOKUP_KEYS.COLUMN_FAMILY]: 'Column Type',
+    [LOOKUP_KEYS.UNIT]: 'Unit',
+    DASHBOARD: 'Dashboard',
+    [LOOKUP_KEYS.EXPERIMENT]: 'Experiments',
+    [LOOKUP_KEYS.CYCLER_TEST]: 'Cycler Tests',
+    DATASET: 'Datasets',
+    [LOOKUP_KEYS.CELL]: 'Cells',
+    [LOOKUP_KEYS.CELL_FAMILY]: 'Cell Families',
+    [LOOKUP_KEYS.EQUIPMENT]: 'Equipment',
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: 'Equipment Families',
+    [LOOKUP_KEYS.SCHEDULE]: 'Schedules',
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: 'Schedule Families',
+    [LOOKUP_KEYS.ARBITRARY_FILE]: 'Attachments',
+    [LOOKUP_KEYS.VALIDATION_SCHEMA]: 'Validation Schemas',
+    [LOOKUP_KEYS.LAB]: 'Labs',
+    [LOOKUP_KEYS.TEAM]: 'Teams',
+    [LOOKUP_KEYS.USER]: 'Users',
+    [LOOKUP_KEYS.TOKEN]: 'Tokens',
+    [LOOKUP_KEYS.GALV_STORAGE]: 'Galv Storage',
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: 'Additional Storage',
 } as const
 
 /**
@@ -372,43 +418,43 @@ export const DISPLAY_NAMES_PLURAL = {
  * ```
  */
 export const API_SLUGS = {
-    [LOOKUP_KEYS.HARVESTER]: "harvesters",
-    [LOOKUP_KEYS.PATH]: "monitoredPaths",
-    [LOOKUP_KEYS.PARQUET_PARTITION]: "parquetPartitions",
-    [LOOKUP_KEYS.FILE]: "files",
-    [LOOKUP_KEYS.MAPPING]: "columnMappings",
-    [LOOKUP_KEYS.COLUMN_FAMILY]: "columnTypes",
-    [LOOKUP_KEYS.UNIT]: "units",
-    [LOOKUP_KEYS.CELL]: "cells",
-    [LOOKUP_KEYS.EQUIPMENT]: "equipment",
-    [LOOKUP_KEYS.SCHEDULE]: "schedules",
-    [LOOKUP_KEYS.CELL_FAMILY]: "cellFamilies",
-    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "equipmentFamilies",
-    [LOOKUP_KEYS.SCHEDULE_FAMILY]: "scheduleFamilies",
-    [LOOKUP_KEYS.EXPERIMENT]: "experiments",
-    [LOOKUP_KEYS.CYCLER_TEST]: "cyclerTests",
-    [LOOKUP_KEYS.ARBITRARY_FILE]: "arbitraryFiles",
-    [LOOKUP_KEYS.VALIDATION_SCHEMA]: "validationSchemas",
-    [LOOKUP_KEYS.LAB]: "labs",
-    [LOOKUP_KEYS.TEAM]: "teams",
-    [LOOKUP_KEYS.USER]: "users",
-    [LOOKUP_KEYS.TOKEN]: "tokens",
-    [LOOKUP_KEYS.GALV_STORAGE]: "galvStorage",
-    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: "additionalStorage",
-    [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: "cellManufacturers",
-    [AUTOCOMPLETE_KEYS.CELL_MODEL]: "cellModels",
-    [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: "cellFormFactors",
-    [AUTOCOMPLETE_KEYS.CELL_CHEMISTRY]: "cellChemistries",
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE]: "equipmentTypes",
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: "equipmentManufacturers",
-    [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: "equipmentModels",
-    [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: "scheduleIdentifiers",
+    [LOOKUP_KEYS.HARVESTER]: 'harvesters',
+    [LOOKUP_KEYS.PATH]: 'monitoredPaths',
+    [LOOKUP_KEYS.PARQUET_PARTITION]: 'parquetPartitions',
+    [LOOKUP_KEYS.FILE]: 'files',
+    [LOOKUP_KEYS.MAPPING]: 'columnMappings',
+    [LOOKUP_KEYS.COLUMN_FAMILY]: 'columnTypes',
+    [LOOKUP_KEYS.UNIT]: 'units',
+    [LOOKUP_KEYS.CELL]: 'cells',
+    [LOOKUP_KEYS.EQUIPMENT]: 'equipment',
+    [LOOKUP_KEYS.SCHEDULE]: 'schedules',
+    [LOOKUP_KEYS.CELL_FAMILY]: 'cellFamilies',
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: 'equipmentFamilies',
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: 'scheduleFamilies',
+    [LOOKUP_KEYS.EXPERIMENT]: 'experiments',
+    [LOOKUP_KEYS.CYCLER_TEST]: 'cyclerTests',
+    [LOOKUP_KEYS.ARBITRARY_FILE]: 'arbitraryFiles',
+    [LOOKUP_KEYS.VALIDATION_SCHEMA]: 'validationSchemas',
+    [LOOKUP_KEYS.LAB]: 'labs',
+    [LOOKUP_KEYS.TEAM]: 'teams',
+    [LOOKUP_KEYS.USER]: 'users',
+    [LOOKUP_KEYS.TOKEN]: 'tokens',
+    [LOOKUP_KEYS.GALV_STORAGE]: 'galvStorage',
+    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: 'additionalStorage',
+    [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: 'cellManufacturers',
+    [AUTOCOMPLETE_KEYS.CELL_MODEL]: 'cellModels',
+    [AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR]: 'cellFormFactors',
+    [AUTOCOMPLETE_KEYS.CELL_CHEMISTRY]: 'cellChemistries',
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE]: 'equipmentTypes',
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: 'equipmentManufacturers',
+    [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: 'equipmentModels',
+    [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: 'scheduleIdentifiers',
 } as const
 
 /**
  * API handlers for each resource type.
  * Instantiated with new API_HANDLERS[lookup_key]().
- * 
+ *
  * Used when we don't know the order of the arguments to the API function.
  */
 export const API_HANDLERS = {
@@ -448,7 +494,7 @@ export const API_HANDLERS = {
 /**
  * API Functional Interface for each resource type.
  * Instantiated with new API_HANDLERS[lookup_key]().
- * 
+ *
  * This is used when we don't know the name of the parameters we want to set.
  */
 export const API_HANDLERS_FP = {
@@ -485,7 +531,6 @@ export const API_HANDLERS_FP = {
     [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: ScheduleIdentifiersApiFp,
 } as const
 
-
 /**
  * Priority levels govern how visible field information is.
  * IDENTITY fields form part of the resource's display name.
@@ -501,7 +546,7 @@ export const PRIORITY_LEVELS = {
     DETAIL: 0,
     SUMMARY: 1,
     CONTEXT: 2,
-    IDENTITY: 3
+    IDENTITY: 3,
 } as const
 
 export type Field = {
@@ -521,23 +566,23 @@ export type Field = {
     // when the parent resource is downloaded, set this to true.
     fetch_in_download?: boolean
 }
-const always_fields: {[key: string]: Field} = {
-    url: {read_only: true, type: "string"},
-    permissions: {read_only: true, type: "object"},
+const always_fields: { [key: string]: Field } = {
+    url: { read_only: true, type: 'string' },
+    permissions: { read_only: true, type: 'object' },
 }
-const team_fields: {[key: string]: Field} = {
-    team: {read_only: true, type: "galv_TEAM", create_only: true},
-    validation_results: {read_only: true, type: "object", many: true},
+const team_fields: { [key: string]: Field } = {
+    team: { read_only: true, type: 'galv_TEAM', create_only: true },
+    validation_results: { read_only: true, type: 'object', many: true },
 }
-const generic_fields: {[key: string]: Field} = {
-    id: {read_only: true, type: "string"},
+const generic_fields: { [key: string]: Field } = {
+    id: { read_only: true, type: 'string' },
     ...always_fields,
 }
-const autocomplete_fields: {[key: string]: Field} = {
-    url: {read_only: true, type: "string"},
-    id: {read_only: true, type: "number"},
-    value: {read_only: true, type: "string"},
-    ld_value: {read_only: true, type: "string"},
+const autocomplete_fields: { [key: string]: Field } = {
+    url: { read_only: true, type: 'string' },
+    id: { read_only: true, type: 'number' },
+    value: { read_only: true, type: 'string' },
+    ld_value: { read_only: true, type: 'string' },
 }
 /**
  * Lookup map to get the properties of the fields in each resource type.
@@ -545,273 +590,564 @@ const autocomplete_fields: {[key: string]: Field} = {
 export const FIELDS = {
     [LOOKUP_KEYS.HARVESTER]: {
         ...generic_fields,
-        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        lab: {read_only: true, type: "string", priority: PRIORITY_LEVELS.CONTEXT},
-        last_check_in: {read_only: true, type: "datetime", },
-        last_check_in_job: {read_only: true, type: "string", },
-        sleep_time: {read_only: false, type: "number"},
-        environment_variables: {read_only: true, type: "object"},
-        active: {read_only: false, type: "boolean", priority: PRIORITY_LEVELS.CONTEXT},
+        name: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        lab: {
+            read_only: true,
+            type: 'string',
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        last_check_in: { read_only: true, type: 'datetime' },
+        last_check_in_job: { read_only: true, type: 'string' },
+        sleep_time: { read_only: false, type: 'number' },
+        environment_variables: { read_only: true, type: 'object' },
+        active: {
+            read_only: false,
+            type: 'boolean',
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
     },
     [LOOKUP_KEYS.PATH]: {
         ...generic_fields,
-        path: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        regex: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        stable_time: {read_only: false, type: "number"},
-        active: {read_only: false, type: "boolean", },
-        maximum_partition_line_count: {read_only: false, type: "number"},
+        path: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        regex: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        stable_time: { read_only: false, type: 'number' },
+        active: { read_only: false, type: 'boolean' },
+        maximum_partition_line_count: { read_only: false, type: 'number' },
         harvester: {
             read_only: true,
             type: key_to_type(LOOKUP_KEYS.HARVESTER),
-            
+
             create_only: true,
-            fetch_in_download: true
+            fetch_in_download: true,
         },
-        files: {read_only: true, type: key_to_type(LOOKUP_KEYS.FILE), many: true, },
+        files: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.FILE),
+            many: true,
+        },
         ...team_fields,
     },
     [LOOKUP_KEYS.PARQUET_PARTITION]: {
         ...generic_fields,
-        observed_file: {read_only: true, type: key_to_type(LOOKUP_KEYS.FILE), },
-        partition_number: {read_only: true, type: "number", priority: PRIORITY_LEVELS.IDENTITY},
-        uploaded: {read_only: true, type: "boolean", },
-        upload_errors: {read_only: true, type: "string", many: true},
-        parquet_file: {read_only: true, type: "attachment", },
+        observed_file: { read_only: true, type: key_to_type(LOOKUP_KEYS.FILE) },
+        partition_number: {
+            read_only: true,
+            type: 'number',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        uploaded: { read_only: true, type: 'boolean' },
+        upload_errors: { read_only: true, type: 'string', many: true },
+        parquet_file: { read_only: true, type: 'attachment' },
     },
     [LOOKUP_KEYS.FILE]: {
         ...generic_fields,
-        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        state: {read_only: true, type: "string", },
-        path: {read_only: true, type: "string", },
-        parser: {read_only: true, type: "string"},
-        harvester: {read_only: true, type: key_to_type(LOOKUP_KEYS.HARVESTER)},
-        last_observed_size: {read_only: true, type: "number"},
-        last_observed_time: {read_only: true, type: "datetime"},
-        data_generation_date: {read_only: true, type: "datetime", },
-        inferred_format: {read_only: true, type: "string"},
-        num_rows: {read_only: true, type: "number"},
-        first_sample_no: {read_only: true, type: "number"},
-        last_sample_no: {read_only: true, type: "number"},
-        extra_metadata: {read_only: true, type: "string", priority: PRIORITY_LEVELS.HIDDEN},
-        has_required_columns: {read_only: true, type: "boolean"},
-        upload_errors: {read_only: true, type: "string", many: true},
-        column_errors: {read_only: true, type: "string", many: true},
-        upload_info: {read_only: true, type: "string"},
-        parquet_partitions: {read_only: true, type: key_to_type(LOOKUP_KEYS.PARQUET_PARTITION), many: true},
-        applicable_mappings: {read_only: true, type: 'string', priority: PRIORITY_LEVELS.HIDDEN},
-        mapping: {read_only: true, type: key_to_type(LOOKUP_KEYS.MAPPING)},
-        summary: {read_only: true, type: "string", priority: PRIORITY_LEVELS.HIDDEN},
+        name: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        state: { read_only: true, type: 'string' },
+        path: { read_only: true, type: 'string' },
+        parser: { read_only: true, type: 'string' },
+        harvester: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.HARVESTER),
+        },
+        last_observed_size: { read_only: true, type: 'number' },
+        last_observed_time: { read_only: true, type: 'datetime' },
+        data_generation_date: { read_only: true, type: 'datetime' },
+        inferred_format: { read_only: true, type: 'string' },
+        num_rows: { read_only: true, type: 'number' },
+        first_sample_no: { read_only: true, type: 'number' },
+        last_sample_no: { read_only: true, type: 'number' },
+        extra_metadata: {
+            read_only: true,
+            type: 'string',
+            priority: PRIORITY_LEVELS.HIDDEN,
+        },
+        has_required_columns: { read_only: true, type: 'boolean' },
+        upload_errors: { read_only: true, type: 'string', many: true },
+        column_errors: { read_only: true, type: 'string', many: true },
+        upload_info: { read_only: true, type: 'string' },
+        parquet_partitions: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.PARQUET_PARTITION),
+            many: true,
+        },
+        applicable_mappings: {
+            read_only: true,
+            type: 'string',
+            priority: PRIORITY_LEVELS.HIDDEN,
+        },
+        mapping: { read_only: true, type: key_to_type(LOOKUP_KEYS.MAPPING) },
+        summary: {
+            read_only: true,
+            type: 'string',
+            priority: PRIORITY_LEVELS.HIDDEN,
+        },
     },
     [LOOKUP_KEYS.MAPPING]: {
         ...generic_fields,
-        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        is_valid: {read_only: true, type: "boolean", },
-        map: {read_only: false, type: "object"},
-        missing: {read_only: true, type: "number"},  // only appears as part of a FILE response
-        ...team_fields
+        name: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        is_valid: { read_only: true, type: 'boolean' },
+        map: { read_only: false, type: 'object' },
+        missing: { read_only: true, type: 'number' }, // only appears as part of a FILE response
+        ...team_fields,
     },
     [LOOKUP_KEYS.COLUMN_FAMILY]: {
         ...always_fields,
-        id: {read_only: true, type: "number"},
-        is_default: {read_only: true, type: "boolean"},
-        is_required: {read_only: true, type: "boolean"},
-        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {read_only: false, type: "string", },
-        data_type: {read_only: false, type: "string", },
-        unit: {read_only: false, type: key_to_type(LOOKUP_KEYS.UNIT), fetch_in_download: true},
-        ...team_fields
+        id: { read_only: true, type: 'number' },
+        is_default: { read_only: true, type: 'boolean' },
+        is_required: { read_only: true, type: 'boolean' },
+        name: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        description: { read_only: false, type: 'string' },
+        data_type: { read_only: false, type: 'string' },
+        unit: {
+            read_only: false,
+            type: key_to_type(LOOKUP_KEYS.UNIT),
+            fetch_in_download: true,
+        },
+        ...team_fields,
     },
     [LOOKUP_KEYS.UNIT]: {
         ...always_fields,
-        id: {read_only: true, type: "number"},
-        is_default: {read_only: true, type: "boolean"},
-        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        symbol: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {read_only: false, type: "string", },
-        ...team_fields
+        id: { read_only: true, type: 'number' },
+        is_default: { read_only: true, type: 'boolean' },
+        name: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        symbol: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        description: { read_only: false, type: 'string' },
+        ...team_fields,
     },
     [LOOKUP_KEYS.EXPERIMENT]: {
-        title: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {read_only: false, type: "string"},
-        authors: {read_only: false, type: key_to_type(LOOKUP_KEYS.USER), many: true, priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
-        protocol: {read_only: false, type: "string"},
-        protocol_file: {read_only: false, type: "string"},
-        cycler_tests: {read_only: false, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, fetch_in_download: true},
+        title: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        description: { read_only: false, type: 'string' },
+        authors: {
+            read_only: false,
+            type: key_to_type(LOOKUP_KEYS.USER),
+            many: true,
+            priority: PRIORITY_LEVELS.CONTEXT,
+            fetch_in_download: true,
+        },
+        protocol: { read_only: false, type: 'string' },
+        protocol_file: { read_only: false, type: 'string' },
+        cycler_tests: {
+            read_only: false,
+            type: key_to_type(LOOKUP_KEYS.CYCLER_TEST),
+            many: true,
+            fetch_in_download: true,
+        },
         ...team_fields,
     },
     [LOOKUP_KEYS.CYCLER_TEST]: {
         ...generic_fields,
-        cell: {read_only: false, type: key_to_type(LOOKUP_KEYS.CELL), fetch_in_download: true},
-        schedule: {read_only: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE), fetch_in_download: true},
-        equipment: {read_only: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, fetch_in_download: true},
-        files: {read_only: false, type: key_to_type(LOOKUP_KEYS.FILE), many: true, fetch_in_download: true},
-        rendered_schedule: {read_only: true, type: "string", many: true},
+        cell: {
+            read_only: false,
+            type: key_to_type(LOOKUP_KEYS.CELL),
+            fetch_in_download: true,
+        },
+        schedule: {
+            read_only: false,
+            type: key_to_type(LOOKUP_KEYS.SCHEDULE),
+            fetch_in_download: true,
+        },
+        equipment: {
+            read_only: false,
+            type: key_to_type(LOOKUP_KEYS.EQUIPMENT),
+            many: true,
+            fetch_in_download: true,
+        },
+        files: {
+            read_only: false,
+            type: key_to_type(LOOKUP_KEYS.FILE),
+            many: true,
+            fetch_in_download: true,
+        },
+        rendered_schedule: { read_only: true, type: 'string', many: true },
         ...team_fields,
     },
     [LOOKUP_KEYS.CELL]: {
         ...generic_fields,
-        identifier: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        family: {read_only: false, type: key_to_type(LOOKUP_KEYS.CELL_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
+        identifier: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        family: {
+            read_only: false,
+            type: key_to_type(LOOKUP_KEYS.CELL_FAMILY),
+            priority: PRIORITY_LEVELS.CONTEXT,
+            fetch_in_download: true,
+        },
         ...team_fields,
-        cycler_tests: {read_only: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true},
-        in_use: {read_only: true, type: "boolean"},
+        cycler_tests: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.CYCLER_TEST),
+            many: true,
+        },
+        in_use: { read_only: true, type: 'boolean' },
     },
     [LOOKUP_KEYS.EQUIPMENT]: {
         ...generic_fields,
-        identifier: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        family: {read_only: false, type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
+        identifier: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        family: {
+            read_only: false,
+            type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY),
+            priority: PRIORITY_LEVELS.CONTEXT,
+            fetch_in_download: true,
+        },
         ...team_fields,
-        calibration_date: {read_only: false, type: "string"},
-        in_use: {read_only: true, type: "boolean"},
+        calibration_date: { read_only: false, type: 'string' },
+        in_use: { read_only: true, type: 'boolean' },
     },
     [LOOKUP_KEYS.SCHEDULE]: {
         ...generic_fields,
-        family: {read_only: false, type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
+        family: {
+            read_only: false,
+            type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY),
+            priority: PRIORITY_LEVELS.CONTEXT,
+            fetch_in_download: true,
+        },
         ...team_fields,
-        schedule_file: {read_only: false, type: "string"},
-        pybamm_schedule_variables: {read_only: false, type: "object"},
-        in_use: {read_only: true, type: "boolean"},
+        schedule_file: { read_only: false, type: 'string' },
+        pybamm_schedule_variables: { read_only: false, type: 'object' },
+        in_use: { read_only: true, type: 'boolean' },
     },
     [LOOKUP_KEYS.CELL_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        manufacturer: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
-        model: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
-        form_factor: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR), priority: PRIORITY_LEVELS.CONTEXT},
-        chemistry: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.CELL_CHEMISTRY), priority: PRIORITY_LEVELS.CONTEXT},
-        cells: {read_only: true, type: key_to_type(LOOKUP_KEYS.CELL), many: true, },
-        nominal_voltage_v: {read_only: false, type: "number"},
-        nominal_capacity: {read_only: false, type: "number"},
-        initial_ac_impedance: {read_only: false, type: "number"},
-        initial_dc_resistance: {read_only: false, type: "number"},
-        energy_density: {read_only: false, type: "number"},
-        power_density: {read_only: false, type: "number"},
-        in_use: {read_only: true, type: "boolean"},
+        manufacturer: {
+            read_only: false,
+            type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MANUFACTURER),
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        model: {
+            read_only: false,
+            type: key_to_type(AUTOCOMPLETE_KEYS.CELL_MODEL),
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        form_factor: {
+            read_only: false,
+            type: key_to_type(AUTOCOMPLETE_KEYS.CELL_FORM_FACTOR),
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        chemistry: {
+            read_only: false,
+            type: key_to_type(AUTOCOMPLETE_KEYS.CELL_CHEMISTRY),
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        cells: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.CELL),
+            many: true,
+        },
+        nominal_voltage_v: { read_only: false, type: 'number' },
+        nominal_capacity: { read_only: false, type: 'number' },
+        initial_ac_impedance: { read_only: false, type: 'number' },
+        initial_dc_resistance: { read_only: false, type: 'number' },
+        energy_density: { read_only: false, type: 'number' },
+        power_density: { read_only: false, type: 'number' },
+        in_use: { read_only: true, type: 'boolean' },
     },
     [LOOKUP_KEYS.EQUIPMENT_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        manufacturer: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER), priority: PRIORITY_LEVELS.IDENTITY},
-        model: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL), priority: PRIORITY_LEVELS.IDENTITY},
-        type: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE), priority: PRIORITY_LEVELS.CONTEXT},
-        equipment: {read_only: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, },
-        in_use: {read_only: true, type: "boolean"},
+        manufacturer: {
+            read_only: false,
+            type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER),
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        model: {
+            read_only: false,
+            type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL),
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        type: {
+            read_only: false,
+            type: key_to_type(AUTOCOMPLETE_KEYS.EQUIPMENT_TYPE),
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        equipment: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.EQUIPMENT),
+            many: true,
+        },
+        in_use: { read_only: true, type: 'boolean' },
     },
     [LOOKUP_KEYS.SCHEDULE_FAMILY]: {
         ...generic_fields,
         ...team_fields,
-        identifier: {read_only: false, type: key_to_type(AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER), priority: PRIORITY_LEVELS.IDENTITY},
-        description: {read_only: false, type: "string"},
-        ambient_temperature: {read_only: false, type: "number"},
-        pybamm_template: {read_only: false, type: "object"},
-        schedules: {read_only: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE), many: true, },
-        in_use: {read_only: true, type: "boolean"},
+        identifier: {
+            read_only: false,
+            type: key_to_type(AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER),
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        description: { read_only: false, type: 'string' },
+        ambient_temperature: { read_only: false, type: 'number' },
+        pybamm_template: { read_only: false, type: 'object' },
+        schedules: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.SCHEDULE),
+            many: true,
+        },
+        in_use: { read_only: true, type: 'boolean' },
     },
     [LOOKUP_KEYS.TEAM]: {
         ...always_fields,
-        id: {read_only: true, type: "number"},
-        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        lab: {read_only: true, create_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT, fetch_in_download: true},
+        id: { read_only: true, type: 'number' },
+        name: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        lab: {
+            read_only: true,
+            create_only: true,
+            type: key_to_type(LOOKUP_KEYS.LAB),
+            priority: PRIORITY_LEVELS.CONTEXT,
+            fetch_in_download: true,
+        },
         member_group: {
             read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            
-            fetch_in_download: true
+
+            fetch_in_download: true,
         },
         admin_group: {
             read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            
-            fetch_in_download: true
+
+            fetch_in_download: true,
         },
-        monitored_paths: {read_only: true, type: key_to_type(LOOKUP_KEYS.PATH), many: true},
-        cellfamily_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.CELL_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        cell_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.CELL), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        equipmentfamily_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        equipment_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.EQUIPMENT), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        schedulefamily_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        schedule_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.SCHEDULE), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        cyclertest_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.CYCLER_TEST), many: true, priority: PRIORITY_LEVELS.CONTEXT},
-        experiment_resources: {read_only: true, type: key_to_type(LOOKUP_KEYS.EXPERIMENT), many: true, priority: PRIORITY_LEVELS.CONTEXT},
+        monitored_paths: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.PATH),
+            many: true,
+        },
+        cellfamily_resources: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.CELL_FAMILY),
+            many: true,
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        cell_resources: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.CELL),
+            many: true,
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        equipmentfamily_resources: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.EQUIPMENT_FAMILY),
+            many: true,
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        equipment_resources: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.EQUIPMENT),
+            many: true,
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        schedulefamily_resources: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.SCHEDULE_FAMILY),
+            many: true,
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        schedule_resources: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.SCHEDULE),
+            many: true,
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        cyclertest_resources: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.CYCLER_TEST),
+            many: true,
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        experiment_resources: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.EXPERIMENT),
+            many: true,
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
     },
     [LOOKUP_KEYS.ARBITRARY_FILE]: {
         ...generic_fields,
-        lab: {read_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
-        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {read_only: false, type: "string", },
+        lab: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.LAB),
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        name: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        description: { read_only: false, type: 'string' },
         file: {
             read_only: true,
             create_only: true,
-            type: "attachment",
-            
+            type: 'attachment',
         },
         team: team_fields.team,
     },
     [LOOKUP_KEYS.VALIDATION_SCHEMA]: {
         ...generic_fields,
-        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        schema: {read_only: false, type: "object"},
+        name: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        schema: { read_only: false, type: 'object' },
         ...team_fields,
     },
     [LOOKUP_KEYS.LAB]: {
         ...always_fields,
-        id: {read_only: true, type: "number"},
-        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        description: {read_only: false, type: "string", },
+        id: { read_only: true, type: 'number' },
+        name: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        description: { read_only: false, type: 'string' },
         admin_group: {
             read_only: false,
             type: key_to_type(LOOKUP_KEYS.USER),
             many: true,
-            
-            fetch_in_download: true
+
+            fetch_in_download: true,
         },
-        storages: {read_only: true, type: key_to_type(LOOKUP_KEYS.ADDITIONAL_STORAGE), many: true},
-        teams: {read_only: true, type: key_to_type(LOOKUP_KEYS.TEAM), many: true, },
-        harvesters: {read_only: true, type: key_to_type(LOOKUP_KEYS.HARVESTER), many: true, },
+        storages: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.ADDITIONAL_STORAGE),
+            many: true,
+        },
+        teams: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.TEAM),
+            many: true,
+        },
+        harvesters: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.HARVESTER),
+            many: true,
+        },
     },
     [LOOKUP_KEYS.USER]: {
         ...always_fields,
-        id: {read_only: true, type: "number"},
-        username: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        email: {read_only: false, type: "string"},
-        first_name: {read_only: false, type: "string"},
-        last_name: {read_only: false, type: "string"},
-        is_staff: {read_only: true, type: "boolean", priority: PRIORITY_LEVELS.HIDDEN},
-        is_superuser: {read_only: true, type: "boolean"},
-        groups: {read_only: true, type: "object", many: true, priority: PRIORITY_LEVELS.HIDDEN},
+        id: { read_only: true, type: 'number' },
+        username: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        email: { read_only: false, type: 'string' },
+        first_name: { read_only: false, type: 'string' },
+        last_name: { read_only: false, type: 'string' },
+        is_staff: {
+            read_only: true,
+            type: 'boolean',
+            priority: PRIORITY_LEVELS.HIDDEN,
+        },
+        is_superuser: { read_only: true, type: 'boolean' },
+        groups: {
+            read_only: true,
+            type: 'object',
+            many: true,
+            priority: PRIORITY_LEVELS.HIDDEN,
+        },
     },
     [LOOKUP_KEYS.TOKEN]: {
         ...always_fields,
-        id: {read_only: true, type: "number"},
-        name: {read_only: true, type: "string", create_only: true, priority: PRIORITY_LEVELS.IDENTITY},
-        created: {read_only: true, type: "string"},
-        expiry: {read_only: true, type: "datetime", },
+        id: { read_only: true, type: 'number' },
+        name: {
+            read_only: true,
+            type: 'string',
+            create_only: true,
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        created: { read_only: true, type: 'string' },
+        expiry: { read_only: true, type: 'datetime' },
     },
     [LOOKUP_KEYS.GALV_STORAGE]: {
         ...generic_fields,
-        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        lab: {read_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
-        quota_bytes: {read_only: true, type: "number", },
-        bytes_used: {read_only: true, type: "number", },
-        priority: {read_only: false, type: "number", },
-        enabled: {read_only: false, type: "boolean", },
+        name: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        lab: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.LAB),
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        quota_bytes: { read_only: true, type: 'number' },
+        bytes_used: { read_only: true, type: 'number' },
+        priority: { read_only: false, type: 'number' },
+        enabled: { read_only: false, type: 'boolean' },
     },
     [LOOKUP_KEYS.ADDITIONAL_STORAGE]: {
         ...generic_fields,
-        name: {read_only: false, type: "string", priority: PRIORITY_LEVELS.IDENTITY},
-        lab: {read_only: true, create_only: true, type: key_to_type(LOOKUP_KEYS.LAB), priority: PRIORITY_LEVELS.CONTEXT},
-        quota: {read_only: false, type: "number", },
-        bytes_used: {read_only: true, type: "number", },
-        priority: {read_only: false, type: "number", },
-        bucket_name: {read_only: false, type: "string"},
-        location: {read_only: false, type: "string"},
-        access_key: {read_only: false, type: "string"},
-        secret_key: {read_only: false, type: "string"},
-        region_name: {read_only: false, type: "string"},
-        custom_domain: {read_only: false, type: "string"},
-        enabled: {read_only: false, type: "boolean", },
+        name: {
+            read_only: false,
+            type: 'string',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        lab: {
+            read_only: true,
+            create_only: true,
+            type: key_to_type(LOOKUP_KEYS.LAB),
+            priority: PRIORITY_LEVELS.CONTEXT,
+        },
+        quota: { read_only: false, type: 'number' },
+        bytes_used: { read_only: true, type: 'number' },
+        priority: { read_only: false, type: 'number' },
+        bucket_name: { read_only: false, type: 'string' },
+        location: { read_only: false, type: 'string' },
+        access_key: { read_only: false, type: 'string' },
+        secret_key: { read_only: false, type: 'string' },
+        region_name: { read_only: false, type: 'string' },
+        custom_domain: { read_only: false, type: 'string' },
+        enabled: { read_only: false, type: 'boolean' },
     },
     [AUTOCOMPLETE_KEYS.CELL_MANUFACTURER]: autocomplete_fields,
     [AUTOCOMPLETE_KEYS.CELL_MODEL]: autocomplete_fields,
@@ -846,32 +1182,36 @@ export const FIELDS = {
  * Lookup map to get the family lookup key for each resource type.
  */
 export const FAMILY_LOOKUP_KEYS = {
-    [LOOKUP_KEYS.CELL]: "CELL_FAMILY",
-    [LOOKUP_KEYS.EQUIPMENT]: "EQUIPMENT_FAMILY",
-    [LOOKUP_KEYS.SCHEDULE]: "SCHEDULE_FAMILY",
+    [LOOKUP_KEYS.CELL]: 'CELL_FAMILY',
+    [LOOKUP_KEYS.EQUIPMENT]: 'EQUIPMENT_FAMILY',
+    [LOOKUP_KEYS.SCHEDULE]: 'SCHEDULE_FAMILY',
 } as const
 
-export const get_has_family = (key: string|number): key is keyof typeof FAMILY_LOOKUP_KEYS =>
+export const get_has_family = (
+    key: string | number,
+): key is keyof typeof FAMILY_LOOKUP_KEYS =>
     Object.keys(FAMILY_LOOKUP_KEYS).includes(key as string)
 /**
  * Lookup map to get the child lookup key for each resource family.
  */
 export const CHILD_LOOKUP_KEYS = {
-    [LOOKUP_KEYS.CELL_FAMILY]: "CELL",
-    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "EQUIPMENT",
-    [LOOKUP_KEYS.SCHEDULE_FAMILY]: "SCHEDULE",
+    [LOOKUP_KEYS.CELL_FAMILY]: 'CELL',
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: 'EQUIPMENT',
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: 'SCHEDULE',
 } as const
 
 /**
  * Lookup map to get the child field name for each resource family.
  */
-export const CHILD_PROPERTY_NAMES  = {
-    [LOOKUP_KEYS.CELL_FAMILY]: "cells",
-    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: "equipment",
-    [LOOKUP_KEYS.SCHEDULE_FAMILY]: "schedules",
+export const CHILD_PROPERTY_NAMES = {
+    [LOOKUP_KEYS.CELL_FAMILY]: 'cells',
+    [LOOKUP_KEYS.EQUIPMENT_FAMILY]: 'equipment',
+    [LOOKUP_KEYS.SCHEDULE_FAMILY]: 'schedules',
 } as const
 
-export const get_is_family = (key: string|number): key is keyof typeof CHILD_PROPERTY_NAMES =>
+export const get_is_family = (
+    key: string | number,
+): key is keyof typeof CHILD_PROPERTY_NAMES =>
     Object.keys(CHILD_PROPERTY_NAMES).includes(key as string)
 
 export const INTRODUCTIONS = {
@@ -1130,4 +1470,4 @@ By applying the above criteria, the best mapping is selected. A mapping will nev
 
 When creating mappings, be cautious of potential conflicts where two mappings are equally suitable. In such cases, all affected files will require manual disambiguation to choose the correct mapping.
     `,
-} as const
+} as const // Map API resources to their corresponding summaries
