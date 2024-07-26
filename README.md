@@ -5,7 +5,6 @@
 ![GitHub package.json dynamic](https://img.shields.io/github/package-json/version/galv-team/galv-frontend)
 
 [![Jest CI](https://github.com/galv-team/galv-frontend/actions/workflows/test_unit.yml/badge.svg)](https://github.com/galv-team/galv-frontend/actions/workflows/test_unit.yml)
-[![Cypress CI](https://github.com/galv-team/galv-frontend/actions/workflows/test_e2e.yml/badge.svg)](https://github.com/galv-team/galv-frontend/actions/workflows/test_e2e.yml)
 [![Build docs](https://github.com/galv-team/galv-frontend/actions/workflows/docs.yml/badge.svg)](https://github.com/galv-team/galv-frontend/actions/workflows/docs.yml)
 
 The Galv frontend is a user-friendly web interface for interacting with the [Galv REST API](https://github.com/galv-team/galv-backend).
