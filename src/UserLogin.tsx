@@ -378,7 +378,7 @@ export function LoginForm() {
     }
 
     const config = new Configuration({
-        basePath: process.env.VITE_GALV_API_BASE_URL,
+        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
     })
 
     const request_reset = () => {

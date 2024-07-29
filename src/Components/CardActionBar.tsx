@@ -35,7 +35,6 @@ import { representation } from './Representation'
 export type CardActionBarProps = {
     lookup_key: LookupKey
     selectable?: boolean
-    resource_id?: string | number
     excludeContext?: boolean
     editable?: boolean
     editing?: boolean
@@ -81,7 +80,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                     const relative_lookup_key = v.type as LookupKey
                     let content: ReactNode
                     if (v.many) {
-                        const relative_value = apiResource?.[k] as
+                        const relative_value = apiResource?.[k as keyof typeof apiResource] as
                             | GalvResource[]
                             | undefined
                         content = (
@@ -99,7 +98,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                             />
                         )
                     } else {
-                        const relative_value = apiResource?.[k] as
+                        const relative_value = apiResource?.[k as keyof typeof apiResource] as
                             | GalvResource
                             | undefined
                         const relative_id = relative_value

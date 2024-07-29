@@ -293,7 +293,7 @@ export default function FetchResourceContextProvider({
         >
         if (lookup_key) {
             const api_handler = new API_HANDLERS[lookup_key]({
-                basePath: process.env.VITE_GALV_API_BASE_URL,
+                basePath: import.meta.env.VITE_GALV_API_BASE_URL,
             } as Configuration)
             const describe = api_handler[
                 `${API_SLUGS[lookup_key]}DescribeRetrieve` as keyof typeof api_handler
@@ -344,7 +344,7 @@ export default function FetchResourceContextProvider({
             ? options.after_cache
             : (r: AxiosResponse<T>, v: UpdateTVariables<T>) => ({ r, v })
         // Need v so TS recognises the function as callable with 2 arguments
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         const on_error_fn = options?.on_error
             ? options.on_error
             : (e: AxiosError, v: UpdateTVariables<T>) => {

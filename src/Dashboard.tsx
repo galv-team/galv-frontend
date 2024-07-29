@@ -513,7 +513,7 @@ export default function Dashboard() {
                 Metadata Validations
             </Typography>
             <SchemaValidationList />
-            {process.env.NODE_ENV == 'development' && <Dev />}
+            {import.meta.env.NODE_ENV == 'development' && <Dev />}
         </Stack>
     )
 }
