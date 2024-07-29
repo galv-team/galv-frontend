@@ -7,7 +7,7 @@ import {LOOKUP_KEYS} from "../constants";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-    title: 'LoadingChip',
+    title: 'Utilities/LoadingChip',
     component: LoadingChip,
     decorators: [withRouter],
     parameters: {

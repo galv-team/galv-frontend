@@ -18,7 +18,7 @@ import Card from "@mui/material/Card";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-    title: 'CardActionBar',
+    title: 'Utilities/CardActionBar',
     component: CardActionBar,
     decorators: [
         withRouter,
