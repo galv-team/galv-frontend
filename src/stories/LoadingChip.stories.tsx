@@ -30,7 +30,10 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+/**
+ * When the LoadingChip has a URL it will be a link so the user doesn't have to wait
+ * for it to load to visit the resource.
+ */
 export const WithURL: Story = {
     args: {
         url: 'http://example.com/',
@@ -38,6 +41,9 @@ export const WithURL: Story = {
     },
 }
 
+/**
+ *  When the LoadingChip has no URL it will be disabled and not clickable.
+ */
 export const NoURL: Story = {
     args: {
         icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />

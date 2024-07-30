@@ -1,7 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { fn } from '@storybook/test'
-import { withRouter } from 'storybook-addon-remix-react-router'
-import {cell_families, cells, column_mappings, column_types, files, teams} from "../test/fixtures/fixtures";
+import type {Meta, StoryObj} from '@storybook/react'
+import {withRouter} from 'storybook-addon-remix-react-router'
+import {cells} from "../test/fixtures/fixtures";
 import {http, HttpResponse} from "msw";
 import JSONDump from "./JSONDump";
 import {restHandlers} from "../test/handlers";
@@ -58,12 +57,25 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+/**
+ * The `JSONDump` component just dumps JSON and has a button to issue an axios.get request to the URL provided.
+ *
+ * I used it to figure out how to get MSW mocking to work with Storybook.
+ *
+ * This example uses a hardcoded response in this story file.
+ */
 export const Default: Story = {
     args: {
     },
 }
 
+/**
+ * This story uses the fixtures in the `fixtures.ts` file to provide JSON responses
+ * that are more representative of the actual API.
+ *
+ * The `restHandlers` are defined in the `handlers.ts` file, and are the ones used by the
+ * stories for the real components.
+ */
 export const Cell: Story = {
     args: {
         initial_json: cells[0],

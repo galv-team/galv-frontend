@@ -6,7 +6,6 @@ import {cell_families, cells, column_mappings, column_types, files, teams} from 
 import {restHandlers} from "../test/handlers";
 import FetchResourceContextProvider from "../Components/FetchResourceContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {http, HttpResponse} from "msw";
 import {ReactElement} from "react";
 import ApiResourceContextProvider from "../Components/ApiResourceContext";
 import SelectionManagementContextProvider from "../Components/SelectionManagementContext";

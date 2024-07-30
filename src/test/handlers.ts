@@ -1,23 +1,24 @@
-import { HttpResponse, http, HttpResponseResolver } from 'msw'
+import {http, HttpResponse, HttpResponseResolver} from 'msw'
 import {
     access_levels,
-    cells,
-    cell_families,
-    teams,
-    column_types,
-    files,
-    cell_models,
-    cell_manufacturers,
-    cell_form_factors,
     cell_chemistries,
-    equipment_types,
+    cell_families,
+    cell_form_factors,
+    cell_manufacturers,
+    cell_models,
+    cells,
+    column_mappings,
+    column_types,
     equipment_manufacturers,
     equipment_models,
-    schedule_identifiers,
-    column_mappings,
-    file_summary,
+    equipment_types,
     file_applicable_mappings,
+    file_summary,
+    files,
+    schedule_identifiers,
+    teams,
 } from './fixtures/fixtures'
+import {SerializerDescriptionSerializer} from '../Components/FetchResourceContext'
 
 const resources = {
     cells,
@@ -35,8 +36,6 @@ const resources = {
     schedule_identifiers,
     column_mappings,
 } as const
-
-import { SerializerDescriptionSerializer } from '../Components/FetchResourceContext'
 
 const DEBUG_TESTS = false
 
@@ -74,86 +73,115 @@ const paginate = (results: unknown[], url: string) => {
     }
 }
 
+/**
+ * Mock responses for error testing
+ *
+ * Specifying these as either the root part of the URL or as the id of a resource will prompt the appropriate error.
+ * E.g. `/error-404/` will return a 404 error, as will `/files/error-404/`
+ *
+ * The generic error simulates a network error.
+ */
+export const error_responses: Record<string, () => HttpResponse> = {
+    'error-generic': () => HttpResponse.error(),
+    'error-404': () => HttpResponse.json({detail: "Not found."}, { status: 404 }),
+    'error-500': () => new HttpResponse(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Error</title>
+</head>
+<body>
+<h1>Server Error</h1>
+<p>Sorry, the server has encountered an error.</p>
+</body>`, { status: 500 }),
+}
+
 const build_get_endpoints =
-    (resource_name: keyof typeof resources): HttpResponseResolver =>
-    ({ request }) => {
-        const url_extras = request.url.split(resource_name).pop() ?? ''
+    (resource_name: keyof typeof resources): (args: {request: {url: string}}) => HttpResponse =>
+        ({ request }) => {
+            const url_extras = request.url.split(resource_name).pop() ?? ''
 
-        const data = resources[resource_name]
-        // If there's a description request, return the description
-        if (/describe\/$/.test(url_extras)) {
-            const d = data[0]
-            const dict: SerializerDescriptionSerializer = {}
-            for (const key in d) {
-                if (['custom_properties'].includes(key)) continue
-                dict[key as keyof typeof d] = {
-                    type: typeof d[key as keyof typeof d],
-                    many: Array.isArray(d[key as keyof typeof d]),
-                    help_text: key,
-                    required: false,
-                    read_only: ['id', 'url'].includes(key),
-                    write_only: false,
-                    create_only: false,
-                    allow_null: false,
-                    default: null,
-                    choices: null,
+            const data = resources[resource_name]
+            // If there's a description request, return the description
+            if (/describe\/$/.test(url_extras)) {
+                const d = data[0]
+                const dict: SerializerDescriptionSerializer = {}
+                for (const key in d) {
+                    if (['custom_properties'].includes(key)) continue
+                    dict[key as keyof typeof d] = {
+                        type: typeof d[key as keyof typeof d],
+                        many: Array.isArray(d[key as keyof typeof d]),
+                        help_text: key,
+                        required: false,
+                        read_only: ['id', 'url'].includes(key),
+                        write_only: false,
+                        create_only: false,
+                        allow_null: false,
+                        default: null,
+                        choices: null,
+                    }
                 }
+                debug('request.url', request.url.toString(), '-> description')
+                return HttpResponse.json(dict)
             }
-            debug('request.url', request.url.toString(), '-> description')
-            return HttpResponse.json(dict)
-        }
 
-        const parts = url_extras
-            .split('/')
-            .filter((x) => x && /^\?/.test(x) === false)
-        if (parts.length > 0) {
-            if (resource_name === 'files' && parts.length > 1) {
-                // Files are a special case because they have sub-pages mapped with /files/:id/:subpage
-                if (parts[0] !== files[0].id) {
-                    throw new Error(
-                        `Sub-pages are only implemented for file ${files[0].id}`,
-                    )
+            const parts = url_extras
+                .split('/')
+                .filter((x) => x && /^\?/.test(x) === false)
+            if (parts.length > 0) {
+                const id = parts[0]
+
+                // Handle mocking errors
+                if (id in error_responses) {
+                    debug('request.url', request.url.toString(), '-> error')
+                    return error_responses[id]()
                 }
-                if (parts[1] === 'summary') {
-                    debug(
-                        'request.url',
-                        request.url.toString(),
-                        '-> summary',
-                    )
-                    return HttpResponse.json(file_summary)
+
+                if (resource_name === 'files' && parts.length > 1) {
+                    // Files are a special case because they have sub-pages mapped with /files/:id/:subpage
+                    if (id !== files[0].id) {
+                        throw new Error(
+                            `Sub-pages are only implemented for file ${files[0].id}`,
+                        )
+                    }
+                    if (parts[1] === 'summary') {
+                        debug(
+                            'request.url',
+                            request.url.toString(),
+                            '-> summary',
+                        )
+                        return HttpResponse.json(file_summary)
+                    }
+                    if (parts[1] === 'applicable_mappings') {
+                        debug(
+                            'request.url',
+                            request.url.toString(),
+                            '-> applicable_mappings',
+                        )
+                        return HttpResponse.json(file_applicable_mappings)
+                    }
                 }
-                if (parts[1] === 'applicable_mappings') {
-                    debug(
-                        'request.url',
-                        request.url.toString(),
-                        '-> applicable_mappings',
-                    )
-                    return HttpResponse.json(file_applicable_mappings)
-                }
+                debug('request.url', request.url.toString(), '-> resource')
+                return HttpResponse.json(data.find((x) => String(x.id) === id))
             }
-            const id = parts[0]
-            debug('request.url', request.url.toString(), '-> resource')
-            return HttpResponse.json(data.find((x) => String(x.id) === id))
+            debug('request.url', request.url.toString(), '-> list')
+            return HttpResponse.json(paginate(data, request.url.toString()))
         }
-        debug('request.url', request.url.toString(), '-> list')
-        return HttpResponse.json(paginate(data, request.url.toString()))
-    }
 
 const build_stub_endpoints =
     (resource_name: keyof typeof resources): HttpResponseResolver =>
-    ({ request }) => {
-        debug(request.method, request.url.toString())
-        const url_extras = request.url.split(resource_name).pop() ?? ''
-        const data = resources[resource_name]
-        const parts = url_extras
-            .split('/')
-            .filter((x) => x && /^\?/.test(x) === false)
-        if (parts.length > 0) {
-            const id = parts[0]
-            return HttpResponse.json(data.find((x) => x.id === id))
+        ({ request }) => {
+            debug(request.method, request.url.toString())
+            const url_extras = request.url.split(resource_name).pop() ?? ''
+            const data = resources[resource_name]
+            const parts = url_extras
+                .split('/')
+                .filter((x) => x && /^\?/.test(x) === false)
+            if (parts.length > 0) {
+                const id = parts[0]
+                return HttpResponse.json(data.find((x) => x.id === id))
+            }
+            throw new Error(`No id found in ${request.url.toString()}`)
         }
-        throw new Error(`No id found in ${request.url.toString()}`)
-    }
 
 export const restHandlers = [
     ...Object.keys(resources).map((r) =>
@@ -177,6 +205,10 @@ export const restHandlers = [
     http.get(/access_levels/, () => {
         return HttpResponse.json(access_levels)
     }),
+    // Errors
+    ...Object.entries(error_responses).map(([k, v]) =>
+        http.get(RegExp(`/${k}/`), v),
+    ),
     // http.get('*', ({ request }) => {
     //     console.error(`Please add a handler for ${request.url.toString()}`)
     //     return HttpResponse.error()

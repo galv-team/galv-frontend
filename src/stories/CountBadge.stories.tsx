@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { fn } from '@storybook/test'
-import { withRouter } from 'storybook-addon-remix-react-router'
+import type {Meta, StoryObj} from '@storybook/react'
+import {fn} from '@storybook/test'
+import {withRouter} from 'storybook-addon-remix-react-router'
 import CountBadge from '../Components/CountBadge'
 import LookupKeyIcon from "../Components/LookupKeyIcon";
 import {LOOKUP_KEYS} from "../constants";
@@ -31,7 +31,14 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+/**
+ * The `CountBadge` component is used to display a count of items, with an optional icon and tooltip.
+ * It is used when showing the number of related resources a resource has, for example.
+ *
+ * The `tooltip` prop accepts a string that will be displayed when the user hovers over the badge.
+ *
+ * The `badgeContent` prop is part of the underlying Material-UI Badge component.
+ */
 export const WithURL: Story = {
     args: {
         url: 'http://example.com/',
@@ -41,6 +48,9 @@ export const WithURL: Story = {
     },
 }
 
+/**
+ * If there is no URL, the badge will not be clickable.
+ */
 export const NoURL: Story = {
     args: {
         icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />,
@@ -48,6 +58,9 @@ export const NoURL: Story = {
     },
 }
 
+/**
+ * If there is no count, the icon will still be displayed, but the badge will be hidden.
+ */
 export const NoCount: Story = {
     args: {
         icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />,

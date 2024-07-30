@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { withRouter } from 'storybook-addon-remix-react-router'
+import type {Meta, StoryObj} from '@storybook/react'
+import {withRouter} from 'storybook-addon-remix-react-router'
 import LookupKeyIcon from '../Components/LookupKeyIcon'
 import {LOOKUP_KEYS} from "../constants";
 
@@ -25,15 +25,34 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const Cell: Story = {
+/**
+ * LookupKeyIcon is a utility component that displays an icon representing a lookup key.
+ * It's used in various places in the UI to help users quickly identify the type of data they're looking at.
+ * 
+ * It ties in with the `LOOKUP_KEYS` constant, so it should be easy to add new icons as needed.
+ *
+ * **Note**: Currently the `tooltip` prop is not working as expected in Storybook.
+ * It displays sometimes and not others. 
+ */
+export const Basic: Story = {
     args: {},
 }
 
+/**
+ * This story demonstrates the `tooltip` prop, which adds a tooltip to the icon.
+ *
+ * The tooltip's text is the lookup key's name.
+ * If absolutely required, the tooltip text can be overridden by using the `tooltipProps` `title` prop.
+ */
 export const WithTooltip: Story = {
     args: {tooltip: true},
 }
 
+/**
+ * When the `plural` prop is set to `true`, the tooltip will display the plural form of the lookup key's name.
+ *
+ * If `tooltip` is `false`, the `plural` prop has no effect.
+ */
 export const WithPluralTooltip: Story = {
     args: {tooltip: true, plural: true},
 }

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type {Meta, StoryObj} from '@storybook/react'
 import AxiosErrorAlert from '../Components/AxiosErrorAlert'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -83,11 +83,22 @@ Or at least could be, if that's what we want to do.
 export default meta
 type Story = StoryObj<typeof meta>
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+/**
+ * The `AxiosErrorAlert` component is used to display error messages from Axios responses by the Django backend.
+ * It can handle both field-specific errors and general errors.
+ *
+ * Where there are multiple errors, the component will display the first `maxErrors` errors,
+ * and provide a button to show the rest.
+ */
 export const Basic: Story = {
     args: {},
 }
 
+/**
+ * Some error messages may be very longwinded.
+ *
+ * A low priority todo item is to truncate these messages to a certain length.
+ */
 export const LongError: Story = {
     args: {
         // @ts-expect-error mapping keys
@@ -95,6 +106,11 @@ export const LongError: Story = {
     },
 }
 
+/**
+ * Sometimes there are many errors, e.g. when posting a form with many fields.
+ *
+ * The `maxErrors` prop can be used to limit the number of errors displayed.
+ */
 export const LotsOfErrors: Story = {
     args: {
         // @ts-expect-error mapping keys
@@ -102,6 +118,11 @@ export const LotsOfErrors: Story = {
     },
 }
 
+/**
+ * The `maxErrors` prop can be used to limit the number of errors displayed.
+ *
+ * Not using it can result in a very long list of errors.
+ */
 export const UncappedLotsOfErrors: Story = {
     args: {
         // @ts-expect-error mapping keys

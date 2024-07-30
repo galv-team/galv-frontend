@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { withRouter } from 'storybook-addon-remix-react-router'
+import type {Meta, StoryObj} from '@storybook/react'
+import {withRouter} from 'storybook-addon-remix-react-router'
 import IntroText from '../Components/IntroText'
 import {LOOKUP_KEYS} from "../constants";
 
@@ -25,7 +25,11 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+/**
+ * The `IntroText` component is used to display a short introduction to a page.
+ *
+ * It takes text from the `constants.ts` file and feeds it through a Markdown parser.
+ */
 export const Cell: Story = {
     args: {},
 }

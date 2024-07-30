@@ -1,16 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { withRouter } from 'storybook-addon-remix-react-router'
+import type {Meta, StoryObj} from '@storybook/react'
+import {withRouter} from 'storybook-addon-remix-react-router'
 import ResourceList from '../Components/ResourceList'
 import {LOOKUP_KEYS} from "../constants";
-import {cell_families, cells, column_mappings, column_types, files, teams} from "../test/fixtures/fixtures";
-import {restHandlers} from "../test/handlers";
+import {error_responses, restHandlers} from "../test/handlers";
 import FetchResourceContextProvider from "../Components/FetchResourceContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {http, HttpResponse} from "msw";
 import {ReactElement} from "react";
 import {ListActionBarProps} from "../Components/ListActionBar";
 import SelectionManagementContextProvider from "../Components/SelectionManagementContext";
-import ApiResourceContextProvider from "../Components/ApiResourceContext";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -39,7 +36,8 @@ const meta = {
     // More on argTypes: https://storybook.js.org/docs/api/argtypes
     argTypes: {
         lookup_key: {
-            options: Object.values(LOOKUP_KEYS),
+            control: 'select',
+            options: [...Object.values(LOOKUP_KEYS), ...Object.keys(error_responses)],
         },
     },
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
@@ -51,7 +49,24 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+/**
+ * The `ResourceList` displays a list of `ResourceCard` components.
+ * The list forms the main body of the page for many views.
+ *
+ * It also includes some `IntroText` to explain the purpose of the list.
+ *
+ * Lists also handle pagination and filtering.
+ */
 export const Basic: Story = {
     args: {},
+}
+
+/**
+ * If the API returns an error, it will be caught by the `ResourceList`'s error boundary.
+ */
+export const ApiError: Story = {
+    args: {
+        // @ts-expect-error deliberately setting a value that will cause an API error
+        lookup_key: Object.keys(error_responses)[0]
+    }
 }
