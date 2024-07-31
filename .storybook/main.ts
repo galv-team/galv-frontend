@@ -1,5 +1,4 @@
 import type { StorybookConfig } from '@storybook/react-vite'
-import {mergeConfig} from "vite";
 
 const config: StorybookConfig = {
     stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
@@ -8,10 +7,12 @@ const config: StorybookConfig = {
         '@storybook/addon-essentials',
         '@chromatic-com/storybook',
         '@storybook/addon-interactions',
-        '@storybook/addon-styling',
         'storybook-addon-remix-react-router',
-        'msw-storybook-addon'
+        'msw-storybook-addon',
     ],
+    core: {
+        builder: '@storybook/builder-vite',
+    },
     framework: {
         name: '@storybook/react-vite',
         options: {},
@@ -39,5 +40,13 @@ const config: StorybookConfig = {
         ...config,
         EXAMPLE_VAR: 'An environment variable configured in Storybook',
     }),
+    async viteFinal(config) {
+        // Merge custom configuration into the default config
+        const { mergeConfig } = await import('vite')
+
+        return mergeConfig(config, {
+            minify: 'terser',
+        })
+    },
 }
 export default config
