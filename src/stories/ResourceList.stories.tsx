@@ -6,7 +6,6 @@ import {error_responses, restHandlers} from "../test/handlers";
 import FetchResourceContextProvider from "../Components/FetchResourceContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {ReactElement} from "react";
-import {ListActionBarProps} from "../Components/ListActionBar";
 import SelectionManagementContextProvider from "../Components/SelectionManagementContext";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -15,7 +14,7 @@ const meta = {
     component: ResourceList,
     decorators: [
         withRouter,
-        (Story: ReactElement, context: { args: ListActionBarProps & {resource_id? : string}}) => (
+        (Story: ReactElement) => (
             <QueryClientProvider client={new QueryClient()}>
                 <SelectionManagementContextProvider>
                     <FetchResourceContextProvider>
