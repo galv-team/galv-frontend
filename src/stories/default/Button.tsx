@@ -1,17 +1,17 @@
 // button.component.tsx
 
-import React from 'react';
+import React from 'react'
 import {
-  Button as MuiButton,
-  ButtonProps as MuiButtonProps,
-} from '@mui/material';
+    Button as MuiButton,
+    ButtonProps as MuiButtonProps,
+} from '@mui/material'
 
 export interface ButtonProps extends MuiButtonProps {
-  label?: string;
+    label?: string
 }
 
 export const Button = ({ label, ...rest }: ButtonProps) => (
-  <MuiButton {...rest}>{label ?? "Button"}</MuiButton>
-);
+    <MuiButton {...rest}>{label ?? 'Button'}</MuiButton>
+)
 
-export default Button;
+export default Button

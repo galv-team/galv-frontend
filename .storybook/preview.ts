@@ -1,9 +1,8 @@
 import type { Preview } from '@storybook/react'
-import {initialize, mswLoader} from "msw-storybook-addon";
-import {restHandlers} from "../src/test/setup";
+import { initialize, mswLoader } from 'msw-storybook-addon'
+import { restHandlers } from '../src/test/setup'
 
-
-initialize();
+initialize()
 
 const preview: Preview = {
     loaders: [mswLoader],

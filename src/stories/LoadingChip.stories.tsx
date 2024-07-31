@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { fn } from '@storybook/test'
 import { withRouter } from 'storybook-addon-remix-react-router'
 import LoadingChip from '../Components/LoadingChip'
-import LookupKeyIcon from "../Components/LookupKeyIcon";
-import {LOOKUP_KEYS} from "../constants";
+import LookupKeyIcon from '../Components/LookupKeyIcon'
+import { LOOKUP_KEYS } from '../constants'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -20,8 +20,13 @@ const meta = {
     argTypes: {
         icon: {
             options: Object.values(LOOKUP_KEYS),
-            mapping: Object.fromEntries(Object.values(LOOKUP_KEYS).map((lookupKey) => [lookupKey, <LookupKeyIcon lookupKey={lookupKey} />])),
-        }
+            mapping: Object.fromEntries(
+                Object.values(LOOKUP_KEYS).map((lookupKey) => [
+                    lookupKey,
+                    <LookupKeyIcon lookupKey={lookupKey} />,
+                ]),
+            ),
+        },
     },
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
     args: { onClick: fn() },
@@ -37,7 +42,7 @@ type Story = StoryObj<typeof meta>
 export const WithURL: Story = {
     args: {
         url: 'http://example.com/',
-        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />
+        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />,
     },
 }
 
@@ -46,6 +51,6 @@ export const WithURL: Story = {
  */
 export const NoURL: Story = {
     args: {
-        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />
+        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />,
     },
 }

@@ -1,15 +1,22 @@
-import type {Meta, StoryObj} from '@storybook/react'
-import {withRouter} from 'storybook-addon-remix-react-router'
+import type { Meta, StoryObj } from '@storybook/react'
+import { withRouter } from 'storybook-addon-remix-react-router'
 import ResourceCard from '../Components/ResourceCard'
-import {LOOKUP_KEYS} from "../constants";
-import {cell_families, cells, column_mappings, column_types, files, teams} from "../test/fixtures/fixtures";
-import {error_responses, restHandlers} from "../test/handlers";
-import FetchResourceContextProvider from "../Components/FetchResourceContext";
-import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {ReactElement} from "react";
-import {CardActionBarProps} from "../Components/CardActionBar";
-import SelectionManagementContextProvider from "../Components/SelectionManagementContext";
-import ApiResourceContextProvider from "../Components/ApiResourceContext";
+import { LOOKUP_KEYS } from '../constants'
+import {
+    cell_families,
+    cells,
+    column_mappings,
+    column_types,
+    files,
+    teams,
+} from '../test/fixtures/fixtures'
+import { error_responses, restHandlers } from '../test/handlers'
+import FetchResourceContextProvider from '../Components/FetchResourceContext'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactElement } from 'react'
+import { CardActionBarProps } from '../Components/CardActionBar'
+import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
+import ApiResourceContextProvider from '../Components/ApiResourceContext'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -17,26 +24,34 @@ const meta = {
     component: ResourceCard,
     decorators: [
         withRouter,
-        (Story: ReactElement, context: { args: CardActionBarProps & {resource_id? : string}}) => (
+        (
+            Story: ReactElement,
+            context: { args: CardActionBarProps & { resource_id?: string } },
+        ) => (
             <QueryClientProvider client={new QueryClient()}>
                 <SelectionManagementContextProvider>
                     <FetchResourceContextProvider>
                         <ApiResourceContextProvider
-                            lookup_key={context.args.lookup_key ?? LOOKUP_KEYS.CELL}
-                            resource_id={context.args.resource_id ?? cells[0].id}
+                            lookup_key={
+                                context.args.lookup_key ?? LOOKUP_KEYS.CELL
+                            }
+                            resource_id={
+                                context.args.resource_id ?? cells[0].id
+                            }
                         >
                             <Story />
                         </ApiResourceContextProvider>
                     </FetchResourceContextProvider>
                 </SelectionManagementContextProvider>
-            </QueryClientProvider>),
+            </QueryClientProvider>
+        ),
     ],
     parameters: {
         // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
         layout: 'centered',
         msw: {
             handlers: restHandlers,
-        }
+        },
     },
     // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
     tags: ['autodocs'],
@@ -44,7 +59,10 @@ const meta = {
     argTypes: {
         lookup_key: {
             control: 'select',
-            options: [...Object.values(LOOKUP_KEYS), ...Object.keys(error_responses)],
+            options: [
+                ...Object.values(LOOKUP_KEYS),
+                ...Object.keys(error_responses),
+            ],
         },
         resource_id: {
             control: 'select',
@@ -57,14 +75,14 @@ const meta = {
                     ...files,
                     ...column_mappings,
                 ].map((r) => r.id),
-                ...Object.keys(error_responses)
+                ...Object.keys(error_responses),
             ],
         },
     },
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
     args: {
         resource_id: cells[0].id,
-        lookup_key: LOOKUP_KEYS.CELL
+        lookup_key: LOOKUP_KEYS.CELL,
     },
 } satisfies Meta<typeof ResourceCard>
 
@@ -94,8 +112,8 @@ export const Basic: Story = {
  */
 export const Expanded: Story = {
     args: {
-        expanded: true
-    }
+        expanded: true,
+    },
 }
 
 /**
@@ -104,8 +122,8 @@ export const Expanded: Story = {
  */
 export const Editing: Story = {
     args: {
-        editing: true
-    }
+        editing: true,
+    },
 }
 
 /**
@@ -113,6 +131,6 @@ export const Editing: Story = {
  */
 export const ApiError: Story = {
     args: {
-        resource_id: Object.keys(error_responses)[0]
+        resource_id: Object.keys(error_responses)[0],
     },
 }

@@ -80,9 +80,9 @@ export default function CardActionBar(props: CardActionBarProps) {
                     const relative_lookup_key = v.type as LookupKey
                     let content: ReactNode
                     if (v.many) {
-                        const relative_value = apiResource?.[k as keyof typeof apiResource] as
-                            | GalvResource[]
-                            | undefined
+                        const relative_value = apiResource?.[
+                            k as keyof typeof apiResource
+                        ] as GalvResource[] | undefined
                         content = (
                             <CountBadge
                                 key={`highlight`}
@@ -98,9 +98,9 @@ export default function CardActionBar(props: CardActionBarProps) {
                             />
                         )
                     } else {
-                        const relative_value = apiResource?.[k as keyof typeof apiResource] as
-                            | GalvResource
-                            | undefined
+                        const relative_value = apiResource?.[
+                            k as keyof typeof apiResource
+                        ] as GalvResource | undefined
                         const relative_id = relative_value
                             ? id_from_ref_props(relative_value)
                             : undefined

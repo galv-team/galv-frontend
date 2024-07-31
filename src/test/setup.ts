@@ -2,7 +2,7 @@ import { cleanup } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import { afterAll, afterEach, beforeAll } from 'vitest'
 import { setupServer } from 'msw/node'
-import {restHandlers} from "./handlers";
+import { restHandlers } from './handlers'
 
 const server = setupServer(...restHandlers)
 

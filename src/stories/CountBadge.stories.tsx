@@ -1,9 +1,9 @@
-import type {Meta, StoryObj} from '@storybook/react'
-import {fn} from '@storybook/test'
-import {withRouter} from 'storybook-addon-remix-react-router'
+import type { Meta, StoryObj } from '@storybook/react'
+import { fn } from '@storybook/test'
+import { withRouter } from 'storybook-addon-remix-react-router'
 import CountBadge from '../Components/CountBadge'
-import LookupKeyIcon from "../Components/LookupKeyIcon";
-import {LOOKUP_KEYS} from "../constants";
+import LookupKeyIcon from '../Components/LookupKeyIcon'
+import { LOOKUP_KEYS } from '../constants'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -20,7 +20,12 @@ const meta = {
     argTypes: {
         icon: {
             options: Object.values(LOOKUP_KEYS),
-            mapping: Object.fromEntries(Object.values(LOOKUP_KEYS).map((lookupKey) => [lookupKey, <LookupKeyIcon lookupKey={lookupKey} />])),
+            mapping: Object.fromEntries(
+                Object.values(LOOKUP_KEYS).map((lookupKey) => [
+                    lookupKey,
+                    <LookupKeyIcon lookupKey={lookupKey} />,
+                ]),
+            ),
         },
         badgeContent: { control: 'number' },
     },
@@ -43,7 +48,7 @@ export const WithURL: Story = {
     args: {
         url: 'http://example.com/',
         icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />,
-        tooltip: "Go to example.com",
+        tooltip: 'Go to example.com',
         badgeContent: 10,
     },
 }

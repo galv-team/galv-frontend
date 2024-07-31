@@ -344,7 +344,7 @@ export default function FetchResourceContextProvider({
             ? options.after_cache
             : (r: AxiosResponse<T>, v: UpdateTVariables<T>) => ({ r, v })
         // Need v so TS recognises the function as callable with 2 arguments
-         
+
         const on_error_fn = options?.on_error
             ? options.on_error
             : (e: AxiosError, v: UpdateTVariables<T>) => {

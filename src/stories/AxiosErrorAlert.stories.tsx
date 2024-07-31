@@ -1,4 +1,4 @@
-import type {Meta, StoryObj} from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react'
 import AxiosErrorAlert from '../Components/AxiosErrorAlert'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -14,43 +14,57 @@ const meta = {
     // More on argTypes: https://storybook.js.org/docs/api/argtypes
     argTypes: {
         error: {
-            options: ['field_errors', 'non_field_errors', 'both', 'lots_of_errors', 'long_error'],
+            options: [
+                'field_errors',
+                'non_field_errors',
+                'both',
+                'lots_of_errors',
+                'long_error',
+            ],
             mapping: {
                 field_errors: {
                     response: {
                         data: {
-                            "field1": "This is an error for field1",
-                            "field2": "This is an error for field2",
+                            field1: 'This is an error for field1',
+                            field2: 'This is an error for field2',
                         },
-                    }
+                    },
                 },
                 non_field_errors: {
                     response: {
                         data: {
-                            "non_field_errors": "Some errors don't apply to a specific field",
+                            non_field_errors:
+                                "Some errors don't apply to a specific field",
                         },
-                    }
+                    },
                 },
                 both: {
                     response: {
                         data: {
-                            "non_field_errors": "Some errors don't apply to a specific field",
-                            "field1": "This is an error for field1",
+                            non_field_errors:
+                                "Some errors don't apply to a specific field",
+                            field1: 'This is an error for field1',
                         },
-                    }
+                    },
                 },
                 lots_of_errors: {
                     response: {
-                        data: Object.fromEntries(Array.from({length: 12}, (_, i) => {
-                            const field_name = i === 0 ? 'non_field_errors' : `field${i}`;
-                            return [`${field_name}`, `Error in ${field_name}`]
-                        })),
-                    }
+                        data: Object.fromEntries(
+                            Array.from({ length: 12 }, (_, i) => {
+                                const field_name =
+                                    i === 0 ? 'non_field_errors' : `field${i}`
+                                return [
+                                    `${field_name}`,
+                                    `Error in ${field_name}`,
+                                ]
+                            }),
+                        ),
+                    },
                 },
                 long_error: {
                     response: {
                         data: {
-                            "SomeQuiteLongFieldNameForBalance": `
+                            SomeQuiteLongFieldNameForBalance: `
 This is a very long error message that should be truncated.
 It is so long that it will be truncated by the AxiosErrorAlert component.
 Or at least could be, if that's what we want to do.
@@ -66,11 +80,11 @@ It is so long that it will be truncated by the AxiosErrorAlert component.
 Or at least could be, if that's what we want to do.
                             `,
                         },
-                    }
+                    },
                 },
-            }
+            },
         },
-        maxErrors: {control: "number"},
+        maxErrors: { control: 'number' },
     },
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
     args: {

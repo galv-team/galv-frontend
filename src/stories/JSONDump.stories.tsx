@@ -1,9 +1,9 @@
-import type {Meta, StoryObj} from '@storybook/react'
-import {withRouter} from 'storybook-addon-remix-react-router'
-import {cells} from "../test/fixtures/fixtures";
-import {http, HttpResponse} from "msw";
-import JSONDump from "./JSONDump";
-import {restHandlers} from "../test/handlers";
+import type { Meta, StoryObj } from '@storybook/react'
+import { withRouter } from 'storybook-addon-remix-react-router'
+import { cells } from '../test/fixtures/fixtures'
+import { http, HttpResponse } from 'msw'
+import JSONDump from './JSONDump'
+import { restHandlers } from '../test/handlers'
 // const restHandlers: unknown[] = []
 const TestData = {
     user: {
@@ -27,7 +27,7 @@ const TestData = {
             status: 'approved',
         },
     ],
-};
+}
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -40,17 +40,17 @@ const meta = {
         msw: {
             handlers: [
                 http.get('*', () => {
-                    return HttpResponse.json(TestData);
+                    return HttpResponse.json(TestData)
                 }),
             ],
-        }
+        },
     },
     // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
     tags: ['autodocs'],
     // More on argTypes: https://storybook.js.org/docs/api/argtypes
     argTypes: {
         initial_json: {},
-        url: {}
+        url: {},
     },
 } satisfies Meta<typeof JSONDump>
 
@@ -65,8 +65,7 @@ type Story = StoryObj<typeof meta>
  * This example uses a hardcoded response in this story file.
  */
 export const Default: Story = {
-    args: {
-    },
+    args: {},
 }
 
 /**
@@ -79,9 +78,9 @@ export const Default: Story = {
 export const Cell: Story = {
     args: {
         initial_json: cells[0],
-        url: cells[1].url
+        url: cells[1].url,
     },
     parameters: {
-        msw: {handlers: restHandlers}
+        msw: { handlers: restHandlers },
     },
 }
