@@ -1,6 +1,8 @@
 import { http, HttpResponse, HttpResponseResolver } from 'msw'
 import {
     access_levels,
+    additional_storages,
+    arbitrary_files,
     cell_chemistries,
     cell_families,
     cell_form_factors,
@@ -9,14 +11,20 @@ import {
     cells,
     column_mappings,
     column_types,
+    cycler_tests,
     data_units,
+    equipment,
+    equipment_families,
     equipment_manufacturers,
     equipment_models,
     equipment_types,
+    experiments,
     file_applicable_mappings,
     file_summary,
     files,
+    schedule_families,
     schedule_identifiers,
+    schedules,
     teams,
 } from './fixtures/fixtures'
 import { SerializerDescriptionSerializer } from '../Components/FetchResourceContext'
@@ -37,6 +45,14 @@ const resources = {
     schedule_identifiers,
     column_mappings,
     data_units,
+    additional_storages,
+    arbitrary_files,
+    cycler_tests,
+    equipment,
+    equipment_families,
+    schedules,
+    schedule_families,
+    experiments,
 } as const
 
 const DEBUG_TESTS = false
@@ -145,8 +161,8 @@ const build_get_endpoints =
                 return error_responses[id]()
             }
 
+            // Files are a special case because they have sub-pages mapped with /files/:id/:subpage
             if (resource_name === 'files' && parts.length > 1) {
-                // Files are a special case because they have sub-pages mapped with /files/:id/:subpage
                 if (id !== files[0].id) {
                     throw new Error(
                         `Sub-pages are only implemented for file ${files[0].id}`,
@@ -164,7 +180,28 @@ const build_get_endpoints =
                     )
                     return HttpResponse.json(file_applicable_mappings)
                 }
+                if (parts[1] === 'png') {
+                    // Return a PNG image
+                    const buffer = new ArrayBuffer(3)
+                    const view = new Uint8Array(buffer)
+                    view.set([1, 2, 3])
+                    return HttpResponse.arrayBuffer(buffer, {
+                        headers: {
+                            'Content-Type': 'image/png',
+                        },
+                    })
+                }
             }
+
+            // Other special cases are urls that match /:type/:id/file/ and expect a file response
+            if (parts.length > 1 && parts[1] === 'file') {
+                debug('request.url', request.url.toString(), '-> file')
+                const buffer = new ArrayBuffer(3)
+                const view = new Uint8Array(buffer)
+                view.set([1, 2, 3])
+                HttpResponse.arrayBuffer(buffer)
+            }
+
             debug('request.url', request.url.toString(), '-> resource')
             return HttpResponse.json(data.find((x) => String(x.id) === id))
         }
@@ -189,6 +226,19 @@ const build_stub_endpoints =
     }
 
 export const restHandlers = [
+    // /:resource/:id/file/ cases should return a file
+    ...['arbitrary_files', 'parquet_partitions'].map((r) =>
+        http.get(RegExp(`/${r}/[a-zA-Z0-9-]+/file/`), () => {
+            const buffer = new ArrayBuffer(3)
+            const view = new Uint8Array(buffer)
+            view.set([1, 2, 3])
+            return HttpResponse.arrayBuffer(buffer, {
+                headers: {
+                    'Content-Type': 'application/octet-stream',
+                },
+            })
+        }),
+    ),
     ...Object.keys(resources).map((r) =>
         http.get(
             RegExp(`/${r}/`),

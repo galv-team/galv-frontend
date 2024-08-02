@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import ColumnSummary from '../../Components/summaries/ColumnSummary'
-import { column_types } from '../../test/fixtures/fixtures'
+import ExperimentSummary from '../../Components/summaries/ExperimentSummary'
+import { experiments } from '../../test/fixtures/fixtures'
 import { withRouter } from 'storybook-addon-remix-react-router'
 import SummaryDecorator from './SummaryDecorator'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-    title: 'Summaries/Column',
-    component: ColumnSummary,
+    title: 'Summaries/Experiment',
+    component: ExperimentSummary,
     /**
      * withRouter is required for the Link parts of the ResourceChip component to work.
      */
@@ -22,27 +22,27 @@ const meta = {
     argTypes: {
         resource: {
             control: 'select',
-            options: column_types.map(
-                (column_type) => column_type.name ?? column_type.id,
+            options: experiments.map(
+                (experiment) => experiment.title ?? experiment.id,
             ),
             mapping: Object.fromEntries(
-                column_types.map((column_type) => [
-                    column_type.name ?? column_type.id,
-                    column_type,
+                experiments.map((experiment) => [
+                    experiment.title ?? experiment.id,
+                    experiment,
                 ]),
             ),
         },
     },
     args: {
-        resource: column_types[0],
+        resource: experiments[0],
     },
-} satisfies Meta<typeof ColumnSummary>
+} satisfies Meta<typeof ExperimentSummary>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * The `ColumnSummary` summarises details for a particular resource on its unexpanded `ResourceCard`.
+ * The `ExperimentSummary` shows the Cycler Tests that comprise the Experiment.
  */
 export const Basic: Story = {
     args: {},

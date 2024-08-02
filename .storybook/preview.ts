@@ -1,6 +1,6 @@
 import type { Preview } from '@storybook/react'
 import { initialize, mswLoader } from 'msw-storybook-addon'
-import { restHandlers } from '../src/test/setup'
+import { restHandlers } from '../src/test/handlers'
 
 initialize()
 
@@ -14,9 +14,9 @@ const preview: Preview = {
                 date: /Date$/i,
             },
         },
-        // msw: {
-        //     handlers: restHandlers,
-        // },
+        msw: {
+            handlers: restHandlers,
+        },
     },
 }
 

@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import ColumnSummary from '../../Components/summaries/ColumnSummary'
-import { column_types } from '../../test/fixtures/fixtures'
+import ArbitraryFileSummary from '../../Components/summaries/ArbitraryFileSummary'
+import { arbitrary_files } from '../../test/fixtures/fixtures'
 import { withRouter } from 'storybook-addon-remix-react-router'
 import SummaryDecorator from './SummaryDecorator'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-    title: 'Summaries/Column',
-    component: ColumnSummary,
+    title: 'Summaries/Attachment',
+    component: ArbitraryFileSummary,
     /**
      * withRouter is required for the Link parts of the ResourceChip component to work.
      */
@@ -22,28 +22,50 @@ const meta = {
     argTypes: {
         resource: {
             control: 'select',
-            options: column_types.map(
-                (column_type) => column_type.name ?? column_type.id,
+            options: arbitrary_files.map(
+                (arbitrary_file) => arbitrary_file.name ?? arbitrary_file.id,
             ),
             mapping: Object.fromEntries(
-                column_types.map((column_type) => [
-                    column_type.name ?? column_type.id,
-                    column_type,
+                arbitrary_files.map((arbitrary_file) => [
+                    arbitrary_file.name ?? arbitrary_file.id,
+                    arbitrary_file,
                 ]),
             ),
         },
     },
     args: {
-        resource: column_types[0],
+        resource: arbitrary_files[0],
     },
-} satisfies Meta<typeof ColumnSummary>
+} satisfies Meta<typeof ArbitraryFileSummary>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * The `ColumnSummary` summarises details for a particular resource on its unexpanded `ResourceCard`.
+ * The `ArbitraryFileSummary` summary shows a Download button and a description.
  */
 export const Basic: Story = {
     args: {},
+}
+
+/**
+ * Some descriptions can be quite long.
+ */
+export const LongDescription: Story = {
+    args: {
+        resource: arbitrary_files.find((arbitrary_file) =>
+            /Long/i.test(arbitrary_file.name),
+        ),
+    },
+}
+
+/**
+ * Some files don't have a description.
+ */
+export const NoDescription: Story = {
+    args: {
+        resource: arbitrary_files.find(
+            (arbitrary_file) => !arbitrary_file.description,
+        ),
+    },
 }
