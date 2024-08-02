@@ -7,17 +7,22 @@ jobs:
     name: Run Chromatic
     runs-on: ubuntu-latest
     environment: storybook
+    strategy:
+      matrix:
+        node-version: [ 20 ]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
+          version: 9
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
       - name: Install dependencies
-        # ⚠️ See your package manager's documentation for the correct command to install dependencies in a CI environment.
-        run: npm ci
+        run: pnpm install
       - name: Run Chromatic
         uses: chromaui/action@latest
         with:
