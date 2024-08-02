@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { withRouter } from 'storybook-addon-remix-react-router'
-import CardActionBar, { CardActionBarProps } from '../Components/CardActionBar'
-import { LOOKUP_KEYS } from '../constants'
+import CardActionBar, {
+    CardActionBarProps,
+} from '../../Components/CardActionBar'
+import { LOOKUP_KEYS } from '../../constants'
 import {
     cell_families,
     cells,
@@ -9,13 +11,13 @@ import {
     column_types,
     files,
     teams,
-} from '../test/fixtures/fixtures'
-import { restHandlers } from '../test/handlers'
-import FetchResourceContextProvider from '../Components/FetchResourceContext'
+} from '../../test/fixtures/fixtures'
+import { restHandlers } from '../../test/handlers'
+import FetchResourceContextProvider from '../../Components/FetchResourceContext'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactElement } from 'react'
-import ApiResourceContextProvider from '../Components/ApiResourceContext'
-import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
+import ApiResourceContextProvider from '../../Components/ApiResourceContext'
+import SelectionManagementContextProvider from '../../Components/SelectionManagementContext'
 import { fn } from '@storybook/test'
 import { useArgs } from '@storybook/preview-api'
 import CardContent from '@mui/material/CardContent'

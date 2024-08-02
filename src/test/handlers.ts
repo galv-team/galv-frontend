@@ -9,6 +9,7 @@ import {
     cells,
     column_mappings,
     column_types,
+    data_units,
     equipment_manufacturers,
     equipment_models,
     equipment_types,
@@ -35,6 +36,7 @@ const resources = {
     equipment_models,
     schedule_identifiers,
     column_mappings,
+    data_units,
 } as const
 
 const DEBUG_TESTS = false

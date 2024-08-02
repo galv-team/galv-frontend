@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { withRouter } from 'storybook-addon-remix-react-router'
-import LookupKeyIcon from '../Components/LookupKeyIcon'
-import { LOOKUP_KEYS } from '../constants'
+import LookupKeyIcon from '../../Components/LookupKeyIcon'
+import { LOOKUP_KEYS } from '../../constants'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {

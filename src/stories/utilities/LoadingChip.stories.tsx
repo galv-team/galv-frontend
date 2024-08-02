@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { fn } from '@storybook/test'
 import { withRouter } from 'storybook-addon-remix-react-router'
-import LoadingChip from '../Components/LoadingChip'
-import LookupKeyIcon from '../Components/LookupKeyIcon'
-import { LOOKUP_KEYS } from '../constants'
+import LoadingChip from '../../Components/LoadingChip'
+import LookupKeyIcon from '../../Components/LookupKeyIcon'
+import { LOOKUP_KEYS } from '../../constants'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {

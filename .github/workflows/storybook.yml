@@ -28,6 +28,6 @@ jobs:
       - name: Run Chromatic
         uses: chromaui/action@latest
         with:
-          # ⚠️ Make sure to configure a `CHROMATIC_PROJECT_TOKEN` repository secret
+          # ⚠️ `CHROMATIC_PROJECT_TOKEN` is an environment secret in `storybook` environment
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           exitZeroOnChanges: true # 👈 Option to prevent the workflow from failing if there are visual changes

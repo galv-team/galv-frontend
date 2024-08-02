@@ -7,7 +7,7 @@ import { ResourceChip } from '../ResourceChip'
 import Typography from '@mui/material/Typography'
 import { GalvResource } from '../../constants'
 
-export default function UnitSummary({ resource }: { resource: GalvResource }) {
+export default function ColumnSummary({ resource }: { resource: GalvResource }) {
     const { classes } = useStyles()
     const r = resource as unknown as DataColumnType
 
