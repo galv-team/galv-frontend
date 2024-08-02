@@ -610,6 +610,39 @@ export const column_types: DataColumnType[] = [
 
 export const files: ObservedFile[] = [
     {
+        url: 'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/',
+        id: '34854b61-7126-446e-97f8-6fbe92e692ea',
+        name: 'Jie_OCV1_C02_C01',
+        path: 'f:/oxrse/galv-harvester/.test-data/biologic\\Jie_OCV1_C02_C01.mpr',
+        harvester:
+            'http://localhost:8001/harvesters/95e3596b-042c-4545-9bff-689101cd7fcb/',
+        state: 'IMPORTED',
+        parser: 'BiologicMprInputFile',
+        upload_errors: [],
+        num_rows: 5802,
+        first_sample_no: 0,
+        last_sample_no: 5801,
+        last_observed_time: '2024-06-04T12:22:38.864405Z',
+        last_observed_size_bytes: 370550,
+        mapping:
+            'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
+        has_required_columns: true,
+        parquet_partitions: [
+            'http://localhost:8001/parquet_partitions/705b801c-d969-4ea6-b750-5bc5b41eb079/',
+        ],
+        extra_metadata:
+            'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/extra_metadata/',
+        summary:
+            'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/summary/',
+        png: 'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/png/',
+        applicable_mappings:
+            'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/applicable_mappings/',
+        permissions: {
+            write: true,
+            read: true,
+        },
+    },
+    {
         url: 'http://localhost:8001/files/3c9f5a99-f633-4094-b838-358cc68da056/',
         id: '3c9f5a99-f633-4094-b838-358cc68da056',
         name: null,
@@ -677,39 +710,6 @@ export const files: ObservedFile[] = [
         png: 'http://localhost:8001/files/1143cd53-11e2-4171-868e-41646209e8fd/png/',
         applicable_mappings:
             'http://localhost:8001/files/1143cd53-11e2-4171-868e-41646209e8fd/applicable_mappings/',
-        permissions: {
-            write: true,
-            read: true,
-        },
-    },
-    {
-        url: 'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/',
-        id: '34854b61-7126-446e-97f8-6fbe92e692ea',
-        name: 'Jie_OCV1_C02_C01',
-        path: 'f:/oxrse/galv-harvester/.test-data/biologic\\Jie_OCV1_C02_C01.mpr',
-        harvester:
-            'http://localhost:8001/harvesters/95e3596b-042c-4545-9bff-689101cd7fcb/',
-        state: 'IMPORTED',
-        parser: 'BiologicMprInputFile',
-        upload_errors: [],
-        num_rows: 5802,
-        first_sample_no: 0,
-        last_sample_no: 5801,
-        last_observed_time: '2024-06-04T12:22:38.864405Z',
-        last_observed_size_bytes: 370550,
-        mapping:
-            'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
-        has_required_columns: true,
-        parquet_partitions: [
-            'http://localhost:8001/parquet_partitions/705b801c-d969-4ea6-b750-5bc5b41eb079/',
-        ],
-        extra_metadata:
-            'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/extra_metadata/',
-        summary:
-            'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/summary/',
-        png: 'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/png/',
-        applicable_mappings:
-            'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/applicable_mappings/',
         permissions: {
             write: true,
             read: true,
