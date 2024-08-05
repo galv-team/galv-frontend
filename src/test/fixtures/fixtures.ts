@@ -755,64 +755,45 @@ export const file_applicable_mappings: {
 }[] = [
     {
         mapping: {
-            url: 'http://localhost:8001/column_mappings/589b482b-a1ba-478f-aa04-d6958caa252d/',
-            id: '589b482b-a1ba-478f-aa04-d6958caa252d',
-            name: 'Maccor .txt',
+            url: 'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
+            id: '5e55cc2a-c088-4c09-b95b-8dc128549271',
+            name: 'Biologic .mpr',
             map: {
-                Amps: { multiplier: 0.001, column_type: 5 },
-                'Rec#': { column_type: 2 },
-                Step: { column_type: 13 },
-                State: { new_name: 'State', column_type: 14 },
-                Volts: { column_type: 4 },
-                'Temp 1': { addition: 273.15, column_type: 8 },
-                'DPt Time': { column_type: 15 },
-                StepTime: { column_type: 9 },
-                TestTime: { column_type: 3 },
+                'I/mA': {
+                    multiplier: 0.001,
+                    column_type: 5,
+                },
+                'Ewe/V': {
+                    column_type: 4,
+                },
+                'time/s': {
+                    column_type: 3,
+                },
+                '|Energy|/W.h': {
+                    column_type: 6,
+                },
             },
             rendered_map: {
-                Amps: {
+                'I/mA': {
                     new_name: 'Current_A',
                     data_type: 'float',
                     multiplier: 0.001,
                     addition: 0,
                 },
-                'Rec#': {
-                    new_name: 'SampleNumber',
-                    data_type: 'int',
-                    multiplier: 1,
-                    addition: 0,
-                },
-                Step: {
-                    new_name: 'StepNumber',
-                    data_type: 'int',
-                    multiplier: 1,
-                    addition: 0,
-                },
-                State: { new_name: 'State', data_type: 'str' },
-                Volts: {
+                'Ewe/V': {
                     new_name: 'Voltage_V',
                     data_type: 'float',
                     multiplier: 1,
                     addition: 0,
                 },
-                'Temp 1': {
-                    new_name: 'Temperature_K',
-                    data_type: 'float',
-                    multiplier: 1,
-                    addition: 273.15,
-                },
-                'DPt Time': {
-                    new_name: 'DateTime',
-                    data_type: 'datetime64[ns]',
-                },
-                StepTime: {
-                    new_name: 'StepTime_s',
+                'time/s': {
+                    new_name: 'ElapsedTime_s',
                     data_type: 'float',
                     multiplier: 1,
                     addition: 0,
                 },
-                TestTime: {
-                    new_name: 'ElapsedTime_s',
+                '|Energy|/W.h': {
+                    new_name: 'EnergyCapacity_W.h',
                     data_type: 'float',
                     multiplier: 1,
                     addition: 0,
@@ -832,97 +813,7 @@ export const file_applicable_mappings: {
             edit_access_level: 4,
             delete_access_level: 3,
         },
-        missing: 5,
-    },
-    {
-        mapping: {
-            url: 'http://localhost:8001/column_mappings/bc15cf45-9609-42a7-8b63-30404cf6d9ae/',
-            id: 'bc15cf45-9609-42a7-8b63-30404cf6d9ae',
-            name: 'X',
-            map: {
-                Amps: { addition: 0, multiplier: 1, column_type: 5 },
-                'Rec#': { addition: 0, multiplier: 1, column_type: 2 },
-                State: { addition: 0, multiplier: 1, column_type: 1 },
-                Volts: { addition: 0, multiplier: 1, column_type: 4 },
-                TestTime: { addition: 0, multiplier: 1, column_type: 3 },
-            },
-            rendered_map: {
-                Amps: {
-                    new_name: 'Current_A',
-                    data_type: 'float',
-                    multiplier: 1,
-                    addition: 0,
-                },
-                'Rec#': {
-                    new_name: 'SampleNumber',
-                    data_type: 'int',
-                    multiplier: 1,
-                    addition: 0,
-                },
-                State: {
-                    new_name: 'Unknown',
-                    data_type: 'float',
-                    multiplier: 1,
-                    addition: 0,
-                },
-                Volts: {
-                    new_name: 'Voltage_V',
-                    data_type: 'float',
-                    multiplier: 1,
-                    addition: 0,
-                },
-                TestTime: {
-                    new_name: 'ElapsedTime_s',
-                    data_type: 'float',
-                    multiplier: 1,
-                    addition: 0,
-                },
-            },
-            is_valid: true,
-            missing_required_columns: [],
-            in_use: false,
-            team: 'http://localhost:8001/teams/1/',
-            permissions: {
-                create: true,
-                destroy: true,
-                write: true,
-                read: true,
-            },
-            read_access_level: 2,
-            edit_access_level: 3,
-            delete_access_level: 3,
-        },
-        missing: 9,
-    },
-    {
-        mapping: {
-            url: 'http://localhost:8001/column_mappings/18c84b27-6be7-4af1-8fd6-8cce3d68bf24/',
-            id: '18c84b27-6be7-4af1-8fd6-8cce3d68bf24',
-            name: 'sss',
-            map: { Amps: { addition: 0, multiplier: 1, column_type: 5 } },
-            rendered_map: {
-                Amps: {
-                    new_name: 'Current_A',
-                    data_type: 'float',
-                    multiplier: 1,
-                    addition: 0,
-                },
-            },
-            is_valid: false,
-            missing_required_columns: ['ElapsedTime_s', 'Voltage_V'],
-            in_use: false,
-            team: 'http://localhost:8001/teams/1/',
-            permissions: {
-                create: true,
-                destroy: true,
-                write: true,
-                read: true,
-            },
-            read_access_level: 2,
-            edit_access_level: 3,
-            delete_access_level: 3,
-        },
-        missing: 13,
+        missing: 8,
     },
     {
         mapping: {
@@ -933,9 +824,9 @@ export const file_applicable_mappings: {
             rendered_map: {},
             is_valid: false,
             missing_required_columns: [
-                'Current_A',
                 'ElapsedTime_s',
                 'Voltage_V',
+                'Current_A',
             ],
             in_use: true,
             team: null,
@@ -949,7 +840,7 @@ export const file_applicable_mappings: {
             edit_access_level: 4,
             delete_access_level: 3,
         },
-        missing: 14,
+        missing: 12,
     },
 ]
 
