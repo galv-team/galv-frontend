@@ -24,6 +24,7 @@ import {
     files,
     harvesters,
     labs,
+    monitored_paths,
     schedule_families,
     schedule_identifiers,
     schedules,
@@ -59,6 +60,7 @@ const resources = {
     labs,
     users,
     harvesters,
+    monitored_paths,
 } as const
 
 const DEBUG_TESTS = false
