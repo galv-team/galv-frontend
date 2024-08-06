@@ -747,104 +747,423 @@ export const files: ObservedFile[] = [
             read: true,
         },
     },
+    {
+        url: 'http://localhost:8001/files/a62a0588-6ef9-4b75-85a8-38ef5433b7db/',
+        id: 'a62a0588-6ef9-4b75-85a8-38ef5433b7db',
+        name: 'adam_3_C05',
+        path: 'f:/oxrse/galv-harvester/.test-data/biologic\\adam_3_C05.mpr',
+        harvester:
+            'http://localhost:8001/harvesters/95e3596b-042c-4545-9bff-689101cd7fcb/',
+        state: 'AWAITING MAP ASSIGNMENT',
+        parser: 'BiologicMprInputFile',
+        upload_errors: [],
+        num_rows: 55809,
+        first_sample_no: 0,
+        last_sample_no: 55808,
+        last_observed_time: '2024-06-04T12:17:44.503509Z',
+        last_observed_size_bytes: 3420493,
+        mapping:
+            'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
+        has_required_columns: true,
+        parquet_partitions: [
+            'http://localhost:8001/parquet_partitions/43456b89-fc32-4cdd-b85b-12676137e829/',
+        ],
+        extra_metadata:
+            'http://localhost:8001/files/a62a0588-6ef9-4b75-85a8-38ef5433b7db/extra_metadata/',
+        summary:
+            'http://localhost:8001/files/a62a0588-6ef9-4b75-85a8-38ef5433b7db/summary/',
+        png: 'http://localhost:8001/files/a62a0588-6ef9-4b75-85a8-38ef5433b7db/png/',
+        applicable_mappings:
+            'http://localhost:8001/files/a62a0588-6ef9-4b75-85a8-38ef5433b7db/applicable_mappings/',
+        permissions: {
+            write: true,
+            read: true,
+        },
+    },
 ] as const
 
-export const file_applicable_mappings: {
-    mapping: ColumnMapping
-    missing: number
-}[] = [
+export const file_applicable_mappings: Record<
+    string,
     {
-        mapping: {
-            url: 'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
-            id: '5e55cc2a-c088-4c09-b95b-8dc128549271',
-            name: 'Biologic .mpr',
-            map: {
-                'I/mA': {
-                    multiplier: 0.001,
-                    column_type: 5,
+        mapping: ColumnMapping
+        missing: number
+    }[]
+> = {
+    '34854b61-7126-446e-97f8-6fbe92e692ea': [
+        {
+            mapping: {
+                url: 'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
+                id: '5e55cc2a-c088-4c09-b95b-8dc128549271',
+                name: 'Biologic .mpr',
+                map: {
+                    'I/mA': {
+                        multiplier: 0.001,
+                        column_type: 5,
+                    },
+                    'Ewe/V': {
+                        column_type: 4,
+                    },
+                    'time/s': {
+                        column_type: 3,
+                    },
+                    '|Energy|/W.h': {
+                        column_type: 6,
+                    },
                 },
-                'Ewe/V': {
-                    column_type: 4,
+                rendered_map: {
+                    'I/mA': {
+                        new_name: 'Current_A',
+                        data_type: 'float',
+                        multiplier: 0.001,
+                        addition: 0,
+                    },
+                    'Ewe/V': {
+                        new_name: 'Voltage_V',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                    'time/s': {
+                        new_name: 'ElapsedTime_s',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                    '|Energy|/W.h': {
+                        new_name: 'EnergyCapacity_W.h',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
                 },
-                'time/s': {
-                    column_type: 3,
+                is_valid: true,
+                missing_required_columns: [],
+                in_use: true,
+                team: null,
+                permissions: {
+                    create: true,
+                    destroy: false,
+                    write: false,
+                    read: true,
                 },
-                '|Energy|/W.h': {
-                    column_type: 6,
-                },
+                read_access_level: 0,
+                edit_access_level: 4,
+                delete_access_level: 3,
             },
-            rendered_map: {
-                'I/mA': {
-                    new_name: 'Current_A',
-                    data_type: 'float',
-                    multiplier: 0.001,
-                    addition: 0,
-                },
-                'Ewe/V': {
-                    new_name: 'Voltage_V',
-                    data_type: 'float',
-                    multiplier: 1,
-                    addition: 0,
-                },
-                'time/s': {
-                    new_name: 'ElapsedTime_s',
-                    data_type: 'float',
-                    multiplier: 1,
-                    addition: 0,
-                },
-                '|Energy|/W.h': {
-                    new_name: 'EnergyCapacity_W.h',
-                    data_type: 'float',
-                    multiplier: 1,
-                    addition: 0,
-                },
-            },
-            is_valid: true,
-            missing_required_columns: [],
-            in_use: true,
-            team: null,
-            permissions: {
-                create: true,
-                destroy: false,
-                write: false,
-                read: true,
-            },
-            read_access_level: 0,
-            edit_access_level: 4,
-            delete_access_level: 3,
+            missing: 8,
         },
-        missing: 8,
-    },
-    {
-        mapping: {
-            url: 'http://localhost:8001/column_mappings/8ba73561-bf79-46f6-951a-ccb752acb7cc/',
-            id: '8ba73561-bf79-46f6-951a-ccb752acb7cc',
-            name: 'import as float',
-            map: {},
-            rendered_map: {},
-            is_valid: false,
-            missing_required_columns: [
-                'ElapsedTime_s',
-                'Voltage_V',
-                'Current_A',
-            ],
-            in_use: true,
-            team: null,
-            permissions: {
-                create: true,
-                destroy: false,
-                write: false,
-                read: true,
+        {
+            mapping: {
+                url: 'http://localhost:8001/column_mappings/8ba73561-bf79-46f6-951a-ccb752acb7cc/',
+                id: '8ba73561-bf79-46f6-951a-ccb752acb7cc',
+                name: 'import as float',
+                map: {},
+                rendered_map: {},
+                is_valid: false,
+                missing_required_columns: [
+                    'ElapsedTime_s',
+                    'Voltage_V',
+                    'Current_A',
+                ],
+                in_use: true,
+                team: null,
+                permissions: {
+                    create: true,
+                    destroy: false,
+                    write: false,
+                    read: true,
+                },
+                read_access_level: 0,
+                edit_access_level: 4,
+                delete_access_level: 3,
             },
-            read_access_level: 0,
-            edit_access_level: 4,
-            delete_access_level: 3,
+            missing: 12,
         },
-        missing: 12,
-    },
-]
+    ],
+    '3c9f5a99-f633-4094-b838-358cc68da056': [
+        {
+            mapping: {
+                url: 'http://localhost:8001/column_mappings/fd64f179-ca0a-4549-80e3-8b07af10a6d2/',
+                id: 'fd64f179-ca0a-4549-80e3-8b07af10a6d2',
+                name: 'Ivium .idf',
+                map: {
+                    amps: {
+                        column_type: 5,
+                    },
+                    volts: {
+                        column_type: 4,
+                    },
+                    test_time: {
+                        column_type: 3,
+                    },
+                },
+                rendered_map: {
+                    amps: {
+                        new_name: 'Current_A',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                    volts: {
+                        new_name: 'Voltage_V',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                    test_time: {
+                        new_name: 'ElapsedTime_s',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                },
+                is_valid: true,
+                missing_required_columns: [],
+                in_use: true,
+                team: null,
+                permissions: {
+                    create: true,
+                    destroy: false,
+                    write: false,
+                    read: true,
+                },
+                read_access_level: 0,
+                edit_access_level: 4,
+                delete_access_level: 3,
+            },
+            missing: 0,
+        },
+        {
+            mapping: {
+                url: 'http://localhost:8001/column_mappings/8ba73561-bf79-46f6-951a-ccb752acb7cc/',
+                id: '8ba73561-bf79-46f6-951a-ccb752acb7cc',
+                name: 'import as float',
+                map: {},
+                rendered_map: {},
+                is_valid: false,
+                missing_required_columns: [
+                    'ElapsedTime_s',
+                    'Voltage_V',
+                    'Current_A',
+                ],
+                in_use: true,
+                team: null,
+                permissions: {
+                    create: true,
+                    destroy: false,
+                    write: false,
+                    read: true,
+                },
+                read_access_level: 0,
+                edit_access_level: 4,
+                delete_access_level: 3,
+            },
+            missing: 3,
+        },
+    ],
+    '1143cd53-11e2-4171-868e-41646209e8fd': [
+        {
+            mapping: {
+                url: 'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
+                id: '5e55cc2a-c088-4c09-b95b-8dc128549271',
+                name: 'Biologic .mpr',
+                map: {
+                    'I/mA': {
+                        multiplier: 0.001,
+                        column_type: 5,
+                    },
+                    'Ewe/V': {
+                        column_type: 4,
+                    },
+                    'time/s': {
+                        column_type: 3,
+                    },
+                    '|Energy|/W.h': {
+                        column_type: 6,
+                    },
+                },
+                rendered_map: {
+                    'I/mA': {
+                        new_name: 'Current_A',
+                        data_type: 'float',
+                        multiplier: 0.001,
+                        addition: 0,
+                    },
+                    'Ewe/V': {
+                        new_name: 'Voltage_V',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                    'time/s': {
+                        new_name: 'ElapsedTime_s',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                    '|Energy|/W.h': {
+                        new_name: 'EnergyCapacity_W.h',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                },
+                is_valid: true,
+                missing_required_columns: [],
+                in_use: true,
+                team: null,
+                permissions: {
+                    create: true,
+                    destroy: false,
+                    write: false,
+                    read: true,
+                },
+                read_access_level: 0,
+                edit_access_level: 4,
+                delete_access_level: 3,
+            },
+            missing: 16,
+        },
+        {
+            mapping: {
+                url: 'http://localhost:8001/column_mappings/8ba73561-bf79-46f6-951a-ccb752acb7cc/',
+                id: '8ba73561-bf79-46f6-951a-ccb752acb7cc',
+                name: 'import as float',
+                map: {},
+                rendered_map: {},
+                is_valid: false,
+                missing_required_columns: [
+                    'ElapsedTime_s',
+                    'Voltage_V',
+                    'Current_A',
+                ],
+                in_use: true,
+                team: null,
+                permissions: {
+                    create: true,
+                    destroy: false,
+                    write: false,
+                    read: true,
+                },
+                read_access_level: 0,
+                edit_access_level: 4,
+                delete_access_level: 3,
+            },
+            missing: 20,
+        },
+    ],
+    'fc9c92f7-dc9d-438f-8c4e-59593bcb8582': [],
+    'a62a0588-6ef9-4b75-85a8-38ef5433b7db': [
+        {
+            mapping: {
+                url: 'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
+                id: '5e55cc2a-c088-4c09-b95b-8dc128549271',
+                name: 'Biologic .mpr',
+                map: {
+                    'I/mA': {
+                        multiplier: 0.001,
+                        column_type: 5,
+                    },
+                    'Ewe/V': {
+                        column_type: 4,
+                    },
+                    'time/s': {
+                        column_type: 3,
+                    },
+                    '|Energy|/W.h': {
+                        column_type: 6,
+                    },
+                },
+                rendered_map: {
+                    'I/mA': {
+                        new_name: 'Current_A',
+                        data_type: 'float',
+                        multiplier: 0.001,
+                        addition: 0,
+                    },
+                    'Ewe/V': {
+                        new_name: 'Voltage_V',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                    'time/s': {
+                        new_name: 'ElapsedTime_s',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                    '|Energy|/W.h': {
+                        new_name: 'EnergyCapacity_W.h',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                },
+                is_valid: true,
+                missing_required_columns: [],
+                in_use: true,
+                team: null,
+                permissions: {
+                    create: true,
+                    destroy: false,
+                    write: false,
+                    read: true,
+                },
+                read_access_level: 0,
+                edit_access_level: 4,
+                delete_access_level: 3,
+            },
+            missing: 8,
+        },
+        {
+            mapping: {
+                url: 'http://localhost:8001/column_mappings/8ba73561-bf79-46f6-951a-ccb752acb7cc/',
+                id: '8ba73561-bf79-46f6-951a-ccb752acb7cc',
+                name: 'import as float',
+                map: {},
+                rendered_map: {},
+                is_valid: false,
+                missing_required_columns: [
+                    'ElapsedTime_s',
+                    'Voltage_V',
+                    'Current_A',
+                ],
+                in_use: true,
+                team: null,
+                permissions: {
+                    create: true,
+                    destroy: false,
+                    write: false,
+                    read: true,
+                },
+                read_access_level: 0,
+                edit_access_level: 4,
+                delete_access_level: 3,
+            },
+            missing: 12,
+        },
+    ],
+}
 
-export const column_mappings = file_applicable_mappings.map((x) => x.mapping)
+// Filter ColumnMappings to remove duplicates
+export const column_mappings = Object.values(
+    Object.fromEntries(
+        Object.values(file_applicable_mappings).reduce(
+            (previousValue, currentValue) => [
+                ...previousValue,
+                ...currentValue.map(
+                    (value) =>
+                        [value.mapping.id, value.mapping] as [
+                            string,
+                            ColumnMapping,
+                        ],
+                ),
+            ],
+            [] as [string, ColumnMapping][],
+        ),
+    ),
+)
 
 export const file_summary = {
     ES: {

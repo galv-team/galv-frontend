@@ -178,7 +178,7 @@ const build_get_endpoints =
                         request.url.toString(),
                         '-> applicable_mappings',
                     )
-                    return HttpResponse.json(file_applicable_mappings)
+                    return HttpResponse.json(file_applicable_mappings[id])
                 }
                 if (parts[1] === 'png') {
                     // Return a PNG image
