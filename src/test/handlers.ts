@@ -22,10 +22,13 @@ import {
     file_applicable_mappings,
     file_summary,
     files,
+    harvesters,
+    labs,
     schedule_families,
     schedule_identifiers,
     schedules,
     teams,
+    users,
 } from './fixtures/fixtures'
 import { SerializerDescriptionSerializer } from '../Components/FetchResourceContext'
 
@@ -53,6 +56,9 @@ const resources = {
     schedules,
     schedule_families,
     experiments,
+    labs,
+    users,
+    harvesters,
 } as const
 
 const DEBUG_TESTS = false

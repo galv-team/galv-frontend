@@ -11,11 +11,13 @@ import {
     EquipmentFamily,
     Experiment,
     Harvester,
+    Lab,
     ObservedFile,
     PermittedAccessLevels,
     Schedule,
     ScheduleFamily,
     Team,
+    User,
 } from '@galv/galv'
 
 export const cells: Cell[] = [
@@ -141,31 +143,6 @@ export const cell_families: CellFamily[] = [
             create: false,
         },
         nominal_voltage_v: 3.1,
-    },
-]
-
-export const teams: Team[] = [
-    {
-        url: 'http://example.com/teams/1',
-        id: 1,
-        name: 'Test Team 1',
-        lab: 'http://example.com/labs/1',
-        monitored_paths: [],
-        cellfamily_resources: [
-            'http://example.com/cell_families/1000-1000-1000-1000',
-        ],
-        cell_resources: ['http://example.com/cells/0001-0001-0001-0001'],
-        equipmentfamily_resources: [],
-        equipment_resources: [],
-        cyclertest_resources: [],
-        permissions: {
-            read: true,
-            write: true,
-            create: false,
-        },
-        schedule_resources: [],
-        schedulefamily_resources: [],
-        experiment_resources: [],
     },
 ]
 
@@ -2088,5 +2065,179 @@ export const harvesters: Harvester[] = [
         sleep_time: 10,
         environment_variables: {},
         active: true,
+    },
+] as const
+
+export const labs: Lab[] = [
+    {
+        url: 'http://localhost:8001/labs/2/',
+        id: 2,
+        name: 'Cool Lab',
+        description: 'Cool labs CO_LAB_orate.',
+        admin_group: ['http://localhost:8001/users/1/'],
+        harvesters: [
+            'http://localhost:8001/harvesters/d688d632-6fe1-4805-87ce-223bdc6eca2a/',
+            'http://localhost:8001/harvesters/95e3596b-042c-4545-9bff-689101cd7fcb/',
+        ],
+        teams: ['http://localhost:8001/teams/2/'],
+        storages: [
+            'http://localhost:8001/additional_storage/6619d6e9-5364-49ca-9ea6-ee9eaf88b2e6/',
+            'http://localhost:8001/additional_storage/ac3a8608-6543-4d51-b8e7-e796a78cb71d/',
+            'http://localhost:8001/galv_storage/d1049000-3cf5-4346-84b8-641858d38791/',
+        ],
+        permissions: {
+            create: true,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/labs/1/',
+        id: 1,
+        name: 'Example Lab',
+        description: 'This Lab exists to demonstrate the system.',
+        admin_group: ['http://localhost:8001/users/1/'],
+        harvesters: [
+            'http://localhost:8001/harvesters/de149eba-3aed-406a-9508-bc33013e554e/',
+        ],
+        teams: ['http://localhost:8001/teams/1/'],
+        storages: [
+            'http://localhost:8001/additional_storage/331442dc-57db-460a-8403-34ef936d4584/',
+            'http://localhost:8001/additional_storage/f4d7764e-04d5-4a8d-b1b7-cfa3ec17b0a2/',
+            'http://localhost:8001/galv_storage/2f7b9a2d-c41d-4a44-9a44-7f72ab69b91e/',
+        ],
+        permissions: {
+            create: true,
+            write: true,
+            read: true,
+        },
+    },
+] as const
+
+export const teams: Team[] = [
+    {
+        url: 'http://localhost:8001/teams/2/',
+        id: 2,
+        monitored_paths: [],
+        cellfamily_resources: [],
+        cell_resources: [],
+        equipmentfamily_resources: [],
+        equipment_resources: [],
+        schedulefamily_resources: [],
+        schedule_resources: [],
+        cyclertest_resources: [],
+        experiment_resources: [],
+        permissions: { create: true, write: true, read: true },
+        name: 'team a',
+        description: null,
+        lab: 'http://localhost:8001/labs/2/',
+        member_group: ['http://localhost:8001/users/1/'],
+        admin_group: [],
+    },
+    {
+        url: 'http://localhost:8001/teams/1/',
+        id: 1,
+        monitored_paths: [
+            'http://localhost:8001/monitored_paths/fe4b94dc-46ec-4b68-8213-818056e700fa/',
+            'http://localhost:8001/monitored_paths/56947d1f-4f00-4fd0-a684-6decd840c18b/',
+            'http://localhost:8001/monitored_paths/143e9f7c-9adf-4550-b28b-b0656c212189/',
+            'http://localhost:8001/monitored_paths/43867a1d-081c-40e8-8154-fd5e04dd8119/',
+            'http://localhost:8001/monitored_paths/4d035892-7567-44ff-bf3f-6bdf677b396f/',
+        ],
+        cellfamily_resources: [
+            'http://localhost:8001/cell_families/e6cc0c74-feb3-4e5a-8c71-12f5d2ccdf05/',
+            'http://localhost:8001/cell_families/5d19c8d6-a976-423d-ab5d-a624a0606d30/',
+            'http://localhost:8001/cell_families/f9d83bc9-1520-43b1-b9a0-947e08500a88/',
+            'http://localhost:8001/cell_families/42fc4c44-efbb-4457-a734-f68ee28de617/',
+        ],
+        cell_resources: [
+            'http://localhost:8001/cells/93be8020-017d-4217-961d-112a77b52ae9/',
+            'http://localhost:8001/cells/964dcc4f-4146-4ae9-9dc9-6ebdcd45546b/',
+            'http://localhost:8001/cells/6a3a910b-d42e-46f6-9604-6fb3c2f3d059/',
+            'http://localhost:8001/cells/4281a89b-48ff-4f4a-bcd8-5fe427f87a81/',
+        ],
+        equipmentfamily_resources: [
+            'http://localhost:8001/equipment_families/947e1f7c-c5b9-47b8-a121-d1e519a7154c/',
+            'http://localhost:8001/equipment_families/6ef7c3b4-cb3b-421f-b6bf-de1e1acfaae8/',
+        ],
+        equipment_resources: [
+            'http://localhost:8001/equipment/a7bd4c43-29c7-40f1-bcf7-a2924ed474c2/',
+            'http://localhost:8001/equipment/31fd16ef-0667-4a31-9232-b5a649913227/',
+            'http://localhost:8001/equipment/12039516-72bf-42b7-a687-cb210ca4a087/',
+        ],
+        schedulefamily_resources: [
+            'http://localhost:8001/schedule_families/e25f7c94-ca32-4f47-b95a-3b0e7ae4a47f/',
+        ],
+        schedule_resources: [
+            'http://localhost:8001/schedules/5a2d7da9-393c-44ee-827a-5d15133c48d6/',
+            'http://localhost:8001/schedules/7771fc54-7209-4564-9ec7-e87855f7ee67/',
+        ],
+        cyclertest_resources: [
+            'http://localhost:8001/cycler_tests/2b7313c9-94c2-4276-a4ee-e9d58d8a641b/',
+            'http://localhost:8001/cycler_tests/e5a1a806-ef9e-4da8-9dd4-caa6cb491af9/',
+        ],
+        experiment_resources: [
+            'http://localhost:8001/experiments/ff7de7a5-ae98-4135-898e-71b4cc3170ae/',
+        ],
+        permissions: { create: true, write: true, read: true },
+        name: 'Example Team',
+        description: 'This Team exists to demonstrate the system.',
+        lab: 'http://localhost:8001/labs/1/',
+        member_group: [],
+        admin_group: ['http://localhost:8001/users/1/'],
+    },
+] as const
+
+export const users: User[] = [
+    {
+        username: 'admin',
+        email: '',
+        first_name: '',
+        last_name: '',
+        url: 'http://localhost:8001/users/1/',
+        id: 1,
+        is_staff: true,
+        is_superuser: true,
+        is_lab_admin: true,
+        permissions: {
+            create: true,
+            destroy: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        username: 'galv-user',
+        email: 'gu@ob.net',
+        first_name: 'Galv',
+        last_name: 'User',
+        url: 'http://localhost:8001/users/2/',
+        id: 2,
+        is_staff: false,
+        is_superuser: false,
+        is_lab_admin: true,
+        permissions: {
+            create: true,
+            destroy: false,
+            write: false,
+            read: true,
+        },
+    },
+    {
+        username: 'tst',
+        email: 'matt@xyz.com',
+        first_name: "Don't Be A",
+        last_name: 'Stranger',
+        url: 'http://localhost:8001/users/3/',
+        id: 3,
+        is_staff: false,
+        is_superuser: false,
+        is_lab_admin: false,
+        permissions: {
+            create: true,
+            destroy: false,
+            write: false,
+            read: true,
+        },
     },
 ] as const

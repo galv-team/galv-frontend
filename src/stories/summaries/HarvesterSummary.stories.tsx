@@ -29,7 +29,7 @@ const harvester_mapping = Object.fromEntries([
             ).toISOString(),
         },
     ],
-    ['NotYetCheckedIn', { ...harvesters[0], last_check_in: undefined }],
+    ['NotYetCheckedIn', { ...harvesters[0], last_check_in: null }],
     [
         'LastCheckInVeryOld',
         {
