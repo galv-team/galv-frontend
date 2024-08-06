@@ -1,13 +1,13 @@
-import {Fragment} from 'react'
-import {Category, Component, Variant, Palette} from '@react-buddy/ide-toolbox'
-import MUIPalette from "@react-buddy/palette-mui";
+import { Fragment } from 'react'
+import { Category, Component, Variant, Palette } from '@react-buddy/ide-toolbox'
+import MUIPalette from '@react-buddy/palette-mui'
 
 export const PaletteTree = () => (
     <Palette>
         <Category name="App">
             <Component name="Loader">
                 <Variant>
-                    <ExampleLoaderComponent/>
+                    <ExampleLoaderComponent />
                 </Variant>
             </Component>
         </Category>

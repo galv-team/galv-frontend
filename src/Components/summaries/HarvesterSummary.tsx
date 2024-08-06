@@ -31,8 +31,7 @@ export default function HarvesterSummary({
         </Typography>
     )
 
-    const checked_in =
-        r.last_check_in_job !== null && r.last_check_in !== null
+    const checked_in = r.last_check_in_job !== null && r.last_check_in !== null
 
     if (r.last_check_in_job === null || r.last_check_in === null) {
         return
