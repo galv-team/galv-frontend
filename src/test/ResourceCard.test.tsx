@@ -178,7 +178,7 @@ describe('ResourceCard', () => {
     describe('ResourceCard interactivity', () => {
         it('allows editing editable properties', async () => {
             const user = userEvent.setup()
-            const new_value = 'New Value'
+            const new_value = 'Nv'
 
             // Change the identifier
             await user.click(

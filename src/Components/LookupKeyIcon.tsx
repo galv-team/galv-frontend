@@ -25,7 +25,7 @@ export default function LookupKeyIcon({
     const title = plural
         ? DISPLAY_NAMES_PLURAL[lookupKey]
         : DISPLAY_NAMES[lookupKey]
-    return tooltip !== false ? (
+    return tooltip ? (
         <Tooltip title={title} describeChild={true} {...tooltipProps}>
             <ICON {...iconProps} />
         </Tooltip>

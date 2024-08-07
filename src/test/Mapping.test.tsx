@@ -14,11 +14,11 @@ import FetchResourceContextProvider from '../Components/FetchResourceContext'
 import { MemoryRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import { Mapping } from '../Components/Mapping'
-import { vi, it, expect } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import {
-    file_applicable_mappings,
-    files,
+    column_mappings,
     file_summary,
+    files,
     teams,
 } from './fixtures/fixtures'
 
@@ -48,9 +48,7 @@ const getByDisplayValue = (role: string, value: string | RegExp) => {
 
 const file = files[0]
 // In the fixtures, all the column mappings are applicable to the file
-const default_mapping = file_applicable_mappings.find(
-    (m) => m.mapping.url === file.mapping,
-)
+const default_mapping = column_mappings.find((m) => m.url === file.mapping)
 
 /**
  * Wait for a certain amount of time
@@ -121,9 +119,7 @@ it('renders', async () => {
     // Check we can load a mapping
     const load_mapping = screen.getByTestId('load-mapping-select')
     expect(load_mapping).toBeInTheDocument()
-    const other_map = file_applicable_mappings.find(
-        (m) => m.mapping.url !== file.mapping,
-    )!.mapping
+    const other_map = column_mappings.find((m) => m.url !== file.mapping)
     await muiSelect(load_mapping, () => screen.findByText(other_map!.name))
     expect(button).toBeEnabled()
 

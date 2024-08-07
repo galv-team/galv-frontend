@@ -38,9 +38,18 @@
     "web-vitals": "^4.2.2"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "1.6.1",
     "@eslint/compat": "^1.1.1",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.7.0",
+    "@storybook/addon-essentials": "^8.2.6",
+    "@storybook/addon-interactions": "^8.2.6",
+    "@storybook/addon-links": "^8.2.6",
+    "@storybook/blocks": "^8.2.6",
+    "@storybook/builder-vite": "^8.2.6",
+    "@storybook/react": "^8.2.6",
+    "@storybook/react-vite": "^8.2.6",
+    "@storybook/test": "^8.2.6",
     "@swc/core": "^1.7.0",
     "@swc/jest": "^0.2.36",
     "@tanstack/eslint-plugin-query": "^5",
@@ -55,19 +64,23 @@
     "@typescript-eslint/eslint-plugin": "^7.17.0",
     "@typescript-eslint/parser": "^7.17.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "chromatic": "^11.5.6",
     "cypress": "^13.13.1",
     "cypress-vite": "^1.5.0",
     "diskusage": "^1.2.0",
     "eslint": "^9",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.9",
+    "eslint-plugin-storybook": "^0.8.0",
     "globals": "^15.8.0",
     "jsdom": "^24.1.1",
     "msw": "^2.3.2",
+    "msw-storybook-addon": "2.0.3",
     "start-server-and-test": "^2.0.4",
+    "storybook": "^8.2.6",
+    "storybook-addon-remix-react-router": "3.0.0",
     "typescript": "^5.5.4",
     "vite": "^5.2.6",
-    "vite-plugin-top-level-await": "^1.4.2",
     "vite-plugin-wasm": "^3.3.0",
     "vitest": "^2.0.4"
   },
@@ -83,6 +96,18 @@
     "styleguide:build": "styleguidist build",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "cypress:e2e": "start-server-and-test 'pnpm start --port 80' http://localhost 'pnpm cypress:run'"
+    "cypress:e2e": "start-server-and-test 'pnpm start --port 80' http://localhost 'pnpm cypress:run'",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:storybook/recommended"
+    ]
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

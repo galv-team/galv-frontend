@@ -4,7 +4,10 @@
 
 ![GitHub package.json dynamic](https://img.shields.io/github/package-json/version/galv-team/galv-frontend)
 
-[![Jest CI](https://github.com/galv-team/galv-frontend/actions/workflows/test_unit.yml/badge.svg)](https://github.com/galv-team/galv-frontend/actions/workflows/test_unit.yml)
+[![Storybook](https://img.shields.io/badge/Storybook-white?logo=storybook&logoColor=%23FF4785)](https://main--66a8c74027ced8fef31d653c.chromatic.com/)
+[![Chromatic Storybook deployment](https://img.shields.io/badge/View%20on%20Chromatic-white?logo=chromatic&logoColor=%23FC521F)](https://www.chromatic.com/library?appId=66a8c74027ced8fef31d653c&branch=main)
+
+[![Jest CI](https://github.com/galv-team/galv-frontend/actions/workflows/test_integration.yml/badge.svg)](https://github.com/galv-team/galv-frontend/actions/workflows/test_integration.yml)
 [![Build docs](https://github.com/galv-team/galv-frontend/actions/workflows/docs.yml/badge.svg)](https://github.com/galv-team/galv-frontend/actions/workflows/docs.yml)
 
 The Galv frontend is a user-friendly web interface for interacting with the [Galv REST API](https://github.com/galv-team/galv-backend).
