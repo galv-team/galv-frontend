@@ -17,7 +17,7 @@ import { ReactElement } from 'react'
 import { CardActionBarProps } from '../Components/CardActionBar'
 import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
 import ApiResourceContextProvider from '../Components/ApiResourceContext'
-import { http } from 'msw'
+import { http, HttpResponse } from 'msw'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -172,9 +172,8 @@ export const DeleteError: Story = {
         msw: {
             handlers: [
                 ...restHandlers,
-                http.delete(
-                    new RegExp(`cells/${cells[0].id}/`),
-                    (req, res, ctx) => res(ctx.status(500)),
+                http.delete(new RegExp(`cells/${cells[0].id}/`), () =>
+                    HttpResponse.error(),
                 ),
             ],
         },
