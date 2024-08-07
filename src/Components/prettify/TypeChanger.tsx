@@ -280,9 +280,9 @@ export type TypeChangerPopoverProps = {
 } & PopoverProps
 
 function TypeChangeResourcePopover({
-                                       onTypeChange,
-                                       ...props
-                                   }: TypeChangerPopoverProps) {
+    onTypeChange,
+    ...props
+}: TypeChangerPopoverProps) {
     const { classes } = useStyles()
     const value = to_type(props.value)
     return (
@@ -337,10 +337,10 @@ function TypeChangeResourcePopover({
     )
 }
 function TypeChangePopover({
-                               value,
-                               onTypeChange,
-                               ...props
-                           }: TypeChangerPopoverProps) {
+    value,
+    onTypeChange,
+    ...props
+}: TypeChangerPopoverProps) {
     const { classes } = useStyles()
     const [resourcePopoverOpen, setResourcePopoverOpen] = useState(false)
     // useState + useCallback to avoid child popover rendering with a null anchorEl
@@ -424,11 +424,11 @@ function TypeChangePopover({
 }
 
 export default function TypeChanger({
-                                        target,
-                                        onTypeChange,
-                                        lock_type,
-                                        ...props
-                                    }: TypeChangerProps & Partial<Omit<TypeChangerPopoverProps, 'onTypeChange'>>) {
+    target,
+    onTypeChange,
+    lock_type,
+    ...props
+}: TypeChangerProps & Partial<Omit<TypeChangerPopoverProps, 'onTypeChange'>>) {
     const { classes } = useStyles()
 
     const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null)
@@ -476,8 +476,8 @@ export default function TypeChanger({
                     {is_lookup_key(value)
                         ? React.createElement(ICONS[value])
                         : is_autocomplete_key(value)
-                            ? React.createElement(type_map.string.icon)
-                            : React.createElement(
+                          ? React.createElement(type_map.string.icon)
+                          : React.createElement(
                                 type_map[value as keyof typeof type_map].icon,
                             )}
                     {!lock_type && <MdArrowDropDown />}

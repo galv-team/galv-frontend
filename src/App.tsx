@@ -59,7 +59,7 @@ import FetchResourceContextProvider from './Components/FetchResourceContext'
 import AttachmentUploadContextProvider from './Components/AttachmentUploadContext'
 import Mapping from './Components/Mapping'
 import Paper from '@mui/material/Paper'
-import SafeTooltip from "./Components/SafeTooltip";
+import SafeTooltip from './Components/SafeTooltip'
 
 export const pathMatches = (path: string, pathname: string) =>
     matchPath({ path: path, end: true }, pathname) !== null

@@ -623,7 +623,7 @@ function MappingTable({
                                                 type="number"
                                                 inputProps={{
                                                     pattern: pattern,
-                                                    title: "multiplier"
+                                                    title: 'multiplier',
                                                 }}
                                                 onChange={(e) => {
                                                     const v = float

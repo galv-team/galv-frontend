@@ -36,7 +36,7 @@ import LookupKeyIcon from '../LookupKeyIcon'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
-import SafeTooltip from "../SafeTooltip";
+import SafeTooltip from '../SafeTooltip'
 
 type FilterChipProps = {
     filter: Filter<unknown>

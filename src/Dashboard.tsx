@@ -66,10 +66,10 @@ const get_color = (status: SchemaValidation['status'] | 'INPUT_REQUIRED') => {
 }
 
 function MdStatus({
-                      status,
-                      count,
-                      ...props
-                  }: { status: SchemaValidation['status']; count?: number } & SvgIconProps) {
+    status,
+    count,
+    ...props
+}: { status: SchemaValidation['status']; count?: number } & SvgIconProps) {
     const ICON = ICONS[`validation_status_${status}` as keyof typeof ICONS]
     const color = get_color(status)
     return count ? (
@@ -80,9 +80,9 @@ function MdStatus({
 }
 
 function KeySummary({
-                        lookupKey,
-                        data,
-                    }: {
+    lookupKey,
+    data,
+}: {
     lookupKey: LookupKey
     data: SchemaValidationSummary[]
 }) {
@@ -151,11 +151,11 @@ function KeySummary({
                                     count={
                                         status_counts[
                                             status as keyof typeof status_counts
-                                            ] &&
+                                        ] &&
                                         Object.entries(
                                             status_counts[
                                                 status as keyof typeof status_counts
-                                                ]!,
+                                            ]!,
                                         ).reduce((a, c) => a + c[1], 0)
                                     }
                                 />
@@ -221,7 +221,7 @@ function KeySummary({
                                                         />
                                                         <Typography>
                                                             {d.detail.detail
-                                                                    ?.message ??
+                                                                ?.message ??
                                                                 'No further information'}
                                                         </Typography>
                                                     </ListItem>
@@ -358,8 +358,8 @@ export function DatasetStatus() {
     )
 
     const SafeTooltipContent = ({
-                                    status,
-                                }: {
+        status,
+    }: {
         status: ReturnType<typeof state_to_status>
     }) => {
         return (
