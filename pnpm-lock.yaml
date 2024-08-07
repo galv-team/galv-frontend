@@ -112,6 +112,9 @@ devDependencies:
   '@eslint/js':
     specifier: ^9.7.0
     version: 9.7.0
+  '@storybook/addon-a11y':
+    specifier: ^8.2.7
+    version: 8.2.7(storybook@8.2.6)
   '@storybook/addon-essentials':
     specifier: ^8.2.6
     version: 8.2.6(storybook@8.2.6)
@@ -2352,6 +2355,23 @@ packages:
     resolution: {integrity: sha512-rNdHXhclwjEZnK+//3SR43YRx0VtjdHnUFhMSGYmAMJve+KiwEja/41EYh8V3pZKqF2geKyfcFUenTfDTYUR4w==}
     dev: false
 
+  /@mui/icons-material@5.16.6(@mui/material@5.16.4)(@types/react@18.3.3)(react@18.3.1):
+    resolution: {integrity: sha512-ceNGjoXheH9wbIFa1JHmSc9QVjJUvh18KvHrR4/FkJCSi9HXJ+9ee1kUhCOEFfuxNF8UB6WWVrIUOUgRd70t0A==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      '@mui/material': ^5.0.0
+      '@types/react': ^17.0.0 || ^18.0.0
+      react: ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.24.8
+      '@mui/material': 5.16.4(@emotion/react@11.13.0)(@emotion/styled@11.13.0)(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
+      '@types/react': 18.3.3
+      react: 18.3.1
+    dev: false
+
   /@mui/lab@5.0.0-alpha.172(@emotion/react@11.13.0)(@emotion/styled@11.13.0)(@mui/material@5.16.4)(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-stpa3WTsDE1HamFR4eeS6Bhxalm+u9FhzzNph/PrDMdWSRBHlJs2mqvZ6FEoO22O7MOCwNMqbXTkvEwsyEf0ew==}
     engines: {node: '>=12.0.0'}
@@ -2729,6 +2749,16 @@ packages:
     engines: {node: '>=18'}
     dev: true
 
+  /@storybook/addon-a11y@8.2.7(storybook@8.2.6):
+    resolution: {integrity: sha512-fHr8a/+srayg1S8nBt6Urdi/4tHc/fO08V+5xJNZBXqjmWCxBkxslDxg1fYPixwFctoorpX279SxeVP7p/Px4w==}
+    peerDependencies:
+      storybook: ^8.2.7
+    dependencies:
+      '@storybook/addon-highlight': 8.2.7(storybook@8.2.6)
+      axe-core: 4.10.0
+      storybook: 8.2.6
+    dev: true
+
   /@storybook/addon-actions@8.2.6(storybook@8.2.6):
     resolution: {integrity: sha512-iCsf3V28/jJ95w2zd8aSvR4denoA2UYV3fpNCTGOURqICyKOG3cyVxvqKp8Hhcwn7trNOsK+HlL6q5gpv56ViA==}
     peerDependencies:
@@ -2811,6 +2841,15 @@ packages:
     resolution: {integrity: sha512-03cV9USsfP3bS4wYV06DYcIaGPfoheQe53Q0Jr1B2yJUVyIPKvmO2nGjLBsqzeL3Wl7vSfLQn0/dUdxCcbqLsw==}
     peerDependencies:
       storybook: ^8.2.6
+    dependencies:
+      '@storybook/global': 5.0.0
+      storybook: 8.2.6
+    dev: true
+
+  /@storybook/addon-highlight@8.2.7(storybook@8.2.6):
+    resolution: {integrity: sha512-YhiLtyJ3NBNV3FQoQo8RFjj59QGSmmeSwRvCjoac6No2DY5vkMW5a8mW6ORr6QYd7ratRNtd3AsPqksZIehRwQ==}
+    peerDependencies:
+      storybook: ^8.2.7
     dependencies:
       '@storybook/global': 5.0.0
       storybook: 8.2.6
@@ -4412,6 +4451,11 @@ packages:
 
   /aws4@1.12.0:
     resolution: {integrity: sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==}
+    dev: true
+
+  /axe-core@4.10.0:
+    resolution: {integrity: sha512-Mr2ZakwQ7XUAjp7pAwQWRhhK8mQQ6JAaNWSjmjxil0R8BPioMtQsTLOolGYkji1rcL++3dCqZA3zWqpT+9Ew6g==}
+    engines: {node: '>=4'}
     dev: true
 
   /axios@0.21.4:

@@ -18,7 +18,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactElement } from 'react'
 import ApiResourceContextProvider from '../../Components/ApiResourceContext'
 import SelectionManagementContextProvider from '../../Components/SelectionManagementContext'
-import { fn } from '@storybook/test'
+import { expect, fn, userEvent, within } from '@storybook/test'
 import { useArgs } from '@storybook/preview-api'
 import CardContent from '@mui/material/CardContent'
 import { CardActions } from '@mui/material'
@@ -109,7 +109,11 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+/**
+ * The `CardActionBar` component is a utility component that provides a set of
+ * buttons for common actions on a resource. It is used in the `ResourceCard`
+ * component.
+ */
 export const BasicActions: Story = {
     args: {
         editing: false,
@@ -128,8 +132,26 @@ export const BasicActions: Story = {
         onDestroy: fn(),
         onReImport: fn(),
     },
+    play: async ({ canvasElement }) => {
+        // Check the buttons work
+        const expandButton = within(canvasElement).getByRole('button', {
+            name: /show details/i,
+        })
+        await userEvent.click(expandButton)
+        within(canvasElement).getByText('Expanded view!')
+        const collapseButton = within(canvasElement).getByRole('button', {
+            name: /hide details/i,
+        })
+        await userEvent.click(collapseButton)
+        await expect(() =>
+            within(canvasElement).getByText('Expanded view!'),
+        ).toThrow()
+    },
 }
 
+/**
+ * If the resource can't be edited by the user, there won't be an edit button.
+ */
 export const NonEditable: Story = {
     args: {
         editing: false,
@@ -139,6 +161,9 @@ export const NonEditable: Story = {
     },
 }
 
+/**
+ * If the resource can't be selected by the user, there won't be a select button.
+ */
 export const NonSelectable: Story = {
     args: {
         editing: false,
@@ -148,6 +173,9 @@ export const NonSelectable: Story = {
     },
 }
 
+/**
+ * The resource doesn't have to be in a context to be displayed.
+ */
 export const NoContext: Story = {
     args: {
         editing: false,
@@ -156,3 +184,44 @@ export const NoContext: Story = {
         excludeContext: true,
     },
 }
+
+/**
+ * The card will expand when the user clicks the expand button
+ */
+export const Expands: Story = {
+    args: {
+        editable: false,
+        expanded: false,
+    },
+    play: async ({ canvasElement }) => {
+        // Check the buttons work
+        const expandButton = within(canvasElement).getByRole('button', {
+            name: /show details/i,
+        })
+        await userEvent.click(expandButton)
+        within(canvasElement).getByText('Expanded view!')
+    },
+}
+
+/**
+ * The card will collapse when the user clicks the collapse button
+ */
+export const Collapses: Story = {
+    args: {
+        editable: false,
+        expanded: true,
+    },
+    play: async ({ canvasElement }) => {
+        within(canvasElement).getByText('Expanded view!')
+        const collapseButton = within(canvasElement).getByRole('button', {
+            name: /hide details/i,
+        })
+        await userEvent.click(collapseButton)
+        const text = await within(canvasElement).queryByText('Expanded view!')
+        await expect(text).toBeNull()
+    },
+}
+
+/**
+ * The
+ */

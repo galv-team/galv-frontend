@@ -26,7 +26,6 @@ import { useFetchResource } from './FetchResourceContext'
 import ListItemText from '@mui/material/ListItemText'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
-import Tooltip from '@mui/material/Tooltip'
 import { ResourceCreator } from './ResourceCreator'
 import UndoRedoProvider from './UndoRedoContext'
 import Modal from '@mui/material/Modal'
@@ -44,21 +43,21 @@ import {
 import PrettyObject from './prettify/PrettyObject'
 import { Theme } from '@mui/material/styles'
 import IconButton from '@mui/material/IconButton'
-import { MdArrowLeft } from 'react-icons/md'
-import { MdArrowRight } from 'react-icons/md'
+import { MdArrowLeft, MdArrowRight } from 'react-icons/md'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-    FilesApi,
-    DataColumnType,
     ColumnMapping,
-    ObservedFile,
     ColumnMappingDeleteAccessLevelEnum,
-    ColumnMappingReadAccessLevelEnum,
     ColumnMappingEditAccessLevelEnum,
+    ColumnMappingReadAccessLevelEnum,
+    DataColumnType,
+    FilesApi,
+    ObservedFile,
 } from '@galv/galv'
 import { useCurrentUser } from './CurrentUserContext'
 import { AxiosError, AxiosResponse } from 'axios'
 import { deep_copy } from './misc'
+import SafeTooltip from './SafeTooltip'
 
 type MapEntry = {
     name?: string
@@ -215,7 +214,7 @@ function SelectColumnType({
                 }}
             />
             <Select
-                aria-label="Select column type"
+                title="Select column type"
                 data-testid="column-type-select"
                 value={selected_id ?? ''}
                 onChange={(event) => {
@@ -246,14 +245,14 @@ function SelectColumnType({
                                 [classes.mappingDefaultColumn]: item.is_default,
                             })}
                         >
-                            <Tooltip
+                            <SafeTooltip
                                 title={`
                     ${item.is_required ? '[Required]' : ''} ${item.is_default ? '[Default]' : ''}
                     ${item.description}
                     `}
                             >
                                 <ListItemText primary={item.name} />
-                            </Tooltip>
+                            </SafeTooltip>
                         </MenuItem>
                     ))}
                 <MenuItem
@@ -452,14 +451,14 @@ function MappingTable({
                             if (!mappingResource.permissions?.write)
                                 return (
                                     <TableCell key={i}>
-                                        <Tooltip
+                                        <SafeTooltip
                                             title={`You do not have permission to edit '${mappingResource.name}'`}
                                         >
                                             <Typography>
                                                 {map[key]?.column_type.name ??
                                                     '-'}
                                             </Typography>
-                                        </Tooltip>
+                                        </SafeTooltip>
                                     </TableCell>
                                 )
                             return (
@@ -516,7 +515,7 @@ function MappingTable({
                                 if (!mappingResource.permissions?.write)
                                     return (
                                         <TableCell key={i}>
-                                            <Tooltip
+                                            <SafeTooltip
                                                 title={`You do not have permission to edit '${mappingResource.name}'`}
                                             >
                                                 {['int', 'float'].includes(
@@ -538,7 +537,7 @@ function MappingTable({
                                                 ) : (
                                                     <Typography>-</Typography>
                                                 )}
-                                            </Tooltip>
+                                            </SafeTooltip>
                                         </TableCell>
                                     )
                                 const float =
@@ -582,8 +581,8 @@ function MappingTable({
                                                 type="number"
                                                 inputProps={{
                                                     pattern: pattern,
+                                                    title: 'addition',
                                                 }}
-                                                aria-label="addition"
                                                 onChange={(e) => {
                                                     const v = float
                                                         ? parseFloat(
@@ -624,8 +623,8 @@ function MappingTable({
                                                 type="number"
                                                 inputProps={{
                                                     pattern: pattern,
+                                                    title: "multiplier"
                                                 }}
-                                                aria-label="multiplier"
                                                 onChange={(e) => {
                                                     const v = float
                                                         ? parseFloat(
@@ -684,33 +683,33 @@ function MappingTable({
                                 if (!mappingResource.permissions?.write)
                                     return (
                                         <TableCell key={i}>
-                                            <Tooltip
+                                            <SafeTooltip
                                                 title={`You do not have permission to edit '${mappingResource.name}'`}
                                             >
                                                 <Typography>{key}</Typography>
-                                            </Tooltip>
+                                            </SafeTooltip>
                                         </TableCell>
                                     )
                                 if (!map[key])
                                     return (
                                         <TableCell key={i}>
-                                            <Tooltip
+                                            <SafeTooltip
                                                 title={`Only recognised columns can be renamed`}
                                             >
                                                 <Typography>{key}</Typography>
-                                            </Tooltip>
+                                            </SafeTooltip>
                                         </TableCell>
                                     )
                                 if (map[key]?.column_type.is_required)
                                     return (
                                         <TableCell key={i}>
-                                            <Tooltip
+                                            <SafeTooltip
                                                 title={`Required columns cannot be renamed`}
                                             >
                                                 <Typography>
                                                     {getName(map[key])}
                                                 </Typography>
-                                            </Tooltip>
+                                            </SafeTooltip>
                                         </TableCell>
                                     )
                                 return (
@@ -1015,11 +1014,11 @@ function MappingManager({
                 ) : (
                     <>
                         <Stack direction="row" alignItems="center" spacing={1}>
-                            <Tooltip title="Only mappings that are applicable to this file will be available.">
+                            <SafeTooltip title="Only mappings that are applicable to this file will be available.">
                                 <Typography>Mapping:</Typography>
-                            </Tooltip>
+                            </SafeTooltip>
                             <Select
-                                aria-label="Load mapping"
+                                title="Load mapping"
                                 data-testid="load-mapping-select"
                                 value={mapping?.mapping.id || 'new'}
                                 onChange={(event) =>

@@ -325,7 +325,7 @@ export function RegistrationForm() {
                 <Tabs
                     value={tab}
                     onChange={(_e, v) => setTab(v)}
-                    aria-label="Registration steps"
+                    title="Registration steps"
                 >
                     <Tab label="Register" {...a11yProps(0)} />
                     <Tab label="Activate" {...a11yProps(1)} />
@@ -438,7 +438,7 @@ export function LoginForm() {
                 <Tabs
                     value={tab}
                     onChange={(_e, v) => setTab(v)}
-                    aria-label="Login steps"
+                    title="Login steps"
                 >
                     <Tab label="Login" {...a11yProps(0)} />
                     <Tab label="Reset password" {...a11yProps(1)} />
@@ -591,7 +591,7 @@ export default function UserLogin() {
         <ButtonGroup
             disableElevation
             variant="contained"
-            aria-label="Disabled elevation buttons"
+            title="Disabled elevation buttons"
         >
             <Button
                 onClick={() => {

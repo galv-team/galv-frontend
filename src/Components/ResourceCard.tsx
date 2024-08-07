@@ -378,7 +378,6 @@ function ResourceCard<T extends GalvResource>({
     const action = (
         <CardActionBar
             lookup_key={lookup_key}
-            resource_id={resource_id}
             editable={!!apiResource?.permissions?.write}
             editing={isEditMode}
             setEditing={setEditing}

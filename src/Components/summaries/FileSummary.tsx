@@ -37,7 +37,7 @@ function StatusAlert({
                     {children && (
                         <IconButton
                             onClick={() => setOpen(!open)}
-                            aria-label="expand"
+                            title="expand"
                         >
                             <EXPAND_ICON />
                         </IconButton>

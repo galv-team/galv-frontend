@@ -36,6 +36,7 @@ import LookupKeyIcon from '../LookupKeyIcon'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
+import SafeTooltip from "../SafeTooltip";
 
 type FilterChipProps = {
     filter: Filter<unknown>
@@ -43,7 +44,7 @@ type FilterChipProps = {
 
 function FilterChip({ filter, ...chipProps }: FilterChipProps & ChipProps) {
     return (
-        <Tooltip
+        <SafeTooltip
             title={filter.family.get_description(
                 filter.key,
                 filter.test_versus,
@@ -58,7 +59,7 @@ function FilterChip({ filter, ...chipProps }: FilterChipProps & ChipProps) {
                 )}
                 {...chipProps}
             />
-        </Tooltip>
+        </SafeTooltip>
     )
 }
 
@@ -348,7 +349,7 @@ export default function FilterBar() {
                                                     },
                                                 })
                                             }
-                                            aria-label="Filter mode"
+                                            title="Filter mode"
                                             size="small"
                                         >
                                             <ToggleButton

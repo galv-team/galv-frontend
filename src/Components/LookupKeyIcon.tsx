@@ -1,4 +1,3 @@
-import Tooltip, { TooltipProps } from '@mui/material/Tooltip'
 import {
     DISPLAY_NAMES,
     DISPLAY_NAMES_PLURAL,
@@ -6,11 +5,12 @@ import {
     LookupKey,
 } from '../constants'
 import { SvgIconProps } from '@mui/material/SvgIcon'
+import SafeTooltip, { SafeTooltipProps } from './SafeTooltip'
 
 export type LookupKeyIconProps = {
     lookupKey: LookupKey
     tooltip?: boolean
-    tooltipProps?: Partial<TooltipProps>
+    tooltipProps?: Partial<SafeTooltipProps>
     plural?: boolean
 } & Partial<SvgIconProps>
 
@@ -26,9 +26,9 @@ export default function LookupKeyIcon({
         ? DISPLAY_NAMES_PLURAL[lookupKey]
         : DISPLAY_NAMES[lookupKey]
     return tooltip ? (
-        <Tooltip title={title} describeChild={true} {...tooltipProps}>
+        <SafeTooltip title={title} describeChild={true} {...tooltipProps}>
             <ICON {...iconProps} />
-        </Tooltip>
+        </SafeTooltip>
     ) : (
         <ICON {...iconProps} />
     )

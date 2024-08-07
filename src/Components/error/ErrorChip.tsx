@@ -3,9 +3,9 @@ import clsx from 'clsx'
 import React, { ReactNode } from 'react'
 import useStyles from '../../styles/UseStyles'
 import { ErrorProps } from './ErrorPage'
-import Tooltip from '@mui/material/Tooltip'
 import { useCurrentUser } from '../CurrentUserContext'
 import Button from '@mui/material/Button'
+import SafeTooltip from '../SafeTooltip'
 
 export default function ErrorChip(props: ErrorProps & ChipProps) {
     const { classes } = useStyles()
@@ -24,7 +24,7 @@ export default function ErrorChip(props: ErrorProps & ChipProps) {
         else content = `Unknown error.`
     }
     return (
-        <Tooltip
+        <SafeTooltip
             title={
                 <>
                     {props.status} Error:{' '}
@@ -39,6 +39,6 @@ export default function ErrorChip(props: ErrorProps & ChipProps) {
                 label={content as ReactNode}
                 {...(props as ChipProps)}
             />
-        </Tooltip>
+        </SafeTooltip>
     )
 }
