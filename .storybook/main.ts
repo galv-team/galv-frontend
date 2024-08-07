@@ -4,6 +4,7 @@ const config: StorybookConfig = {
     stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
     addons: [
         '@storybook/addon-links',
+        '@storybook/addon-a11y',
         '@storybook/addon-essentials',
         '@chromatic-com/storybook',
         '@storybook/addon-interactions',
@@ -38,7 +39,7 @@ const config: StorybookConfig = {
     },
     env: (config) => ({
         ...config,
-        EXAMPLE_VAR: 'An environment variable configured in Storybook',
+        VITE_GALV_API_BASE_URL: 'http://localhost:8001',
     }),
     async viteFinal(config) {
         // Merge custom configuration into the default config
