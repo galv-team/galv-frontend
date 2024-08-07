@@ -17,6 +17,7 @@ import { ReactElement } from 'react'
 import { CardActionBarProps } from '../Components/CardActionBar'
 import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
 import ApiResourceContextProvider from '../Components/ApiResourceContext'
+import { http } from 'msw'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -132,5 +133,50 @@ export const Editing: Story = {
 export const ApiError: Story = {
     args: {
         resource_id: Object.keys(error_responses)[0],
+    },
+}
+
+/**
+ * When you save the edits to a `ResourceCard`, you should see a success message.
+ */
+export const SaveSuccess: Story = {
+    args: {
+        editing: true,
+        expanded: true,
+    },
+}
+
+/**
+ * When you fail to update a resource, you should see an error message and any relevant fields should be
+ * given error feedback.
+ */
+export const SaveError: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                ...restHandlers.filter((h) => h.resolver),
+                http.post(
+                    new RegExp(`cells/${cells[0].id}/`),
+                    (req, res, ctx) => res(ctx.status(500)),
+                ),
+            ],
+        },
+    },
+}
+
+/**
+ * When you fail to delete a resource, you should see an error message.
+ */
+export const DeleteError: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                ...restHandlers,
+                http.delete(
+                    new RegExp(`cells/${cells[0].id}/`),
+                    (req, res, ctx) => res(ctx.status(500)),
+                ),
+            ],
+        },
     },
 }
