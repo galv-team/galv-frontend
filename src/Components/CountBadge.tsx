@@ -3,8 +3,8 @@ import Badge, { BadgeProps } from '@mui/material/Badge'
 import IconButton from '@mui/material/IconButton'
 import clsx from 'clsx'
 import UseStyles from '../styles/UseStyles'
-import Tooltip from '@mui/material/Tooltip'
 import { ReactNode } from 'react'
+import SafeTooltip from './SafeTooltip'
 
 export type CountBadgeProps = {
     icon: ReactNode
@@ -32,9 +32,9 @@ export default function CountBadge({
     )
     if (tooltip) {
         content = (
-            <Tooltip title={tooltip} describeChild={true}>
+            <SafeTooltip title={tooltip} describeChild={true}>
                 {content}
-            </Tooltip>
+            </SafeTooltip>
         )
     }
     return url && props.badgeContent !== 0 ? (

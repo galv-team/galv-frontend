@@ -42,6 +42,7 @@
     "@eslint/compat": "^1.1.1",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.7.0",
+    "@storybook/addon-a11y": "^8.2.7",
     "@storybook/addon-essentials": "^8.2.6",
     "@storybook/addon-interactions": "^8.2.6",
     "@storybook/addon-links": "^8.2.6",
@@ -97,7 +98,7 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "cypress:e2e": "start-server-and-test 'pnpm start --port 80' http://localhost 'pnpm cypress:run'",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build"
   },
   "eslintConfig": {

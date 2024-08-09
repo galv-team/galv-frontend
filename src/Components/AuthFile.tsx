@@ -6,8 +6,8 @@ import axios from 'axios'
 import { Link } from 'react-router-dom'
 import CircularProgress from '@mui/material/CircularProgress'
 import Button from '@mui/material/Button'
-import Tooltip from '@mui/material/Tooltip'
 import { ICONS } from '../constants'
+import SafeTooltip from './SafeTooltip'
 
 export default function AuthFile({ url }: { url: string }) {
     const [dataUrl, setDataUrl] = useState('')
@@ -73,11 +73,11 @@ export default function AuthFile({ url }: { url: string }) {
 
     if (query.isError) {
         return (
-            <Tooltip title={`Click to visit ${url} directly.`}>
+            <SafeTooltip title={`Click to visit ${url} directly.`}>
                 <Button component={Link} to={url}>
                     Failed to download
                 </Button>
-            </Tooltip>
+            </SafeTooltip>
         )
     }
 

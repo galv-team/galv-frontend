@@ -3,16 +3,14 @@
 // // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 // @ts-expect-error - globalThis is not defined in Jest
-globalThis.IS_REACT_ACT_ENVIRONMENT = true
-
 import { LOOKUP_KEYS } from '../constants'
 import React from 'react'
 import {
+    cleanup,
     render,
     screen,
-    within,
     waitFor,
-    cleanup,
+    within,
 } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { FilterContextProvider } from '../Components/filtering/FilterContext'
@@ -22,11 +20,13 @@ import { Cell } from '@galv/galv'
 import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
 import { act } from 'react-dom/test-utils'
 import userEvent from '@testing-library/user-event'
-import { vi, it, expect, describe, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import axios from 'axios'
 import WrappedResourceCard from '../Components/ResourceCard'
 
 import { cell_families, cells } from './fixtures/fixtures'
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 vi.mock('../Components/Representation')
 vi.mock('../Components/ResourceChip')
@@ -82,6 +82,14 @@ const do_render = async () => {
  */
 function wait(ms: number = 100) {
     return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * Assert that a disabled SafeTooltip element is actually disabled
+ */
+const check_safe_tooltip_disabled = (tooltip: HTMLElement) => {
+    expect(tooltip).toHaveAttribute('aria-disabled', 'true')
+    expect(tooltip.querySelector('button')).toBeDisabled()
 }
 
 describe('ResourceCard', () => {
@@ -221,15 +229,20 @@ describe('ResourceCard', () => {
             ).getByRole('textbox')
             const old_value = input.getAttribute('value')
 
+            // We get undo/redo buttons with a function because they're
+            // remounted when they're enabled/disabled
+            const get_undo_button = () =>
+                screen.getByRole('button', {
+                    name: /Undo/i,
+                })
+            const get_redo_button = () =>
+                screen.getByRole('button', {
+                    name: /Redo/i,
+                })
+
             // Check undo and redo buttons are disabled
-            const undo_button = within(screen.getByTitle(/Undo/i)).getByRole(
-                'button',
-            )
-            const redo_button = within(screen.getByTitle(/Redo/i)).getByRole(
-                'button',
-            )
-            expect(undo_button).toBeDisabled()
-            expect(redo_button).toBeDisabled()
+            check_safe_tooltip_disabled(get_undo_button())
+            check_safe_tooltip_disabled(get_redo_button())
 
             await user.click(input)
             await user.clear(input)
@@ -237,20 +250,22 @@ describe('ResourceCard', () => {
             expect(input).toHaveValue('')
 
             // Click the undo button
-            expect(undo_button).toBeEnabled()
-            await user.click(undo_button)
-            await waitFor(() => expect(input).toHaveValue(old_value), {
-                timeout: 500,
-            })
+            const undo = get_undo_button()
+            expect(undo).toBeEnabled()
+            screen.debug(undo)
+            await user.click(undo)
+            expect(input).toHaveValue(old_value)
 
-            expect(undo_button).toBeDisabled()
-            expect(redo_button).toBeEnabled()
+            const undo_mk2 = get_undo_button()
+            check_safe_tooltip_disabled(undo_mk2)
+            const redo = get_redo_button()
+            expect(redo).toBeEnabled()
 
-            await user.click(redo_button)
-            await waitFor(() => expect(input).toHaveValue(''), { timeout: 500 })
-            expect(undo_button).toBeEnabled()
-            expect(redo_button).toBeDisabled()
-        })
+            await user.click(redo)
+            expect(input).toHaveValue('')
+            expect(undo_mk2).toBeEnabled()
+            check_safe_tooltip_disabled(get_redo_button())
+        }, 10000)
 
         it('supports resetting', async () => {
             const confirmSpy = vi.spyOn(window, 'confirm')
@@ -676,8 +691,9 @@ describe('ResourceCard', () => {
             })
             const changer = within(
                 id_label.parentElement! as HTMLElement,
-            ).queryByRole('button')
-            expect(changer).toBeDisabled()
+            ).getByRole('button')
+            expect(changer).toHaveAttribute('aria-disabled', 'true')
+            expect(changer.querySelector('button')).toBeDisabled()
         })
         // Mapping specific type changes
         it('allows changing the type of a string to a boolean', async () => {

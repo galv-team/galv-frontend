@@ -115,7 +115,7 @@ export default function PrettyArray({
                                             classes.deleteIcon,
                                             classes.dangerIcon,
                                         )}
-                                        aria-label="Remove item"
+                                        title="Remove item"
                                         onClick={() => {
                                             const newItems = [...items]
                                             newItems.splice(i, 1)

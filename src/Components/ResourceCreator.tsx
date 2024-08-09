@@ -124,7 +124,7 @@ export function TokenCreator({
             />
             <Stack direction="row" spacing={1}>
                 <NumberInput
-                    aria-label="Time-to-live"
+                    title="Time-to-live"
                     placeholder="Token time-to-live"
                     id="token-ttl"
                     step={1}

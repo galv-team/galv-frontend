@@ -35,8 +35,8 @@ import {
     TypeValueNotation,
     TypeValueNotationWrapper,
 } from '../TypeValueNotation'
-import Tooltip from '@mui/material/Tooltip'
 import { FieldDescription, useFetchResource } from '../FetchResourceContext'
+import SafeTooltip from '../SafeTooltip'
 
 export type AccessLevels = Partial<{
     [key in keyof PermittedAccessLevels]: { _type: 'number'; _value: number }
@@ -233,13 +233,13 @@ export function AnnotatedKey({
         </>
     )
     return (
-        <Tooltip title={help_text} placement="top-start">
+        <SafeTooltip title={help_text} placement="top-start">
             <Typography variant="subtitle2" component="span" textAlign="right">
                 {(metadata.required || (metadata.create_only && create_mode)) &&
                     '*'}
                 {key_name}
             </Typography>
-        </Tooltip>
+        </SafeTooltip>
     )
 }
 

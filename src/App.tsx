@@ -49,7 +49,6 @@ import {
     SnackbarMessenger,
     SnackbarMessengerContextProvider,
 } from './Components/SnackbarMessengerContext'
-import Tooltip from '@mui/material/Tooltip'
 import LookupKeyIcon from './Components/LookupKeyIcon'
 import Dashboard from './Dashboard'
 import SelectionManagementContextProvider from './Components/SelectionManagementContext'
@@ -60,6 +59,7 @@ import FetchResourceContextProvider from './Components/FetchResourceContext'
 import AttachmentUploadContextProvider from './Components/AttachmentUploadContext'
 import Mapping from './Components/Mapping'
 import Paper from '@mui/material/Paper'
+import SafeTooltip from './Components/SafeTooltip'
 
 export const pathMatches = (path: string, pathname: string) =>
     matchPath({ path: path, end: true }, pathname) !== null
@@ -169,27 +169,25 @@ export function Core() {
                     <IconButton
                         edge="start"
                         color="inherit"
-                        aria-label="open drawer"
+                        title="open drawer"
                         onClick={toggleDrawerOpen}
                         className={clsx(classes.menuButton)}
                     >
                         <MdMenu />
                     </IconButton>
-                    <Link to={PATHS.DASHBOARD} className={classes.title}>
-                        <Tooltip
-                            title="Galv"
-                            describeChild={true}
-                            placement="bottom-start"
-                            arrow
-                        >
-                            <div>
-                                <ReactSVG
-                                    className={classes.galvLogo}
-                                    src="/Galv-logo.svg"
-                                />
-                            </div>
-                        </Tooltip>
-                    </Link>
+                    <SafeTooltip
+                        title="Galv"
+                        describeChild={true}
+                        placement="bottom-start"
+                        arrow
+                    >
+                        <Link to={PATHS.DASHBOARD} className={classes.title}>
+                            <ReactSVG
+                                className={classes.galvLogo}
+                                src="/Galv-logo.svg"
+                            />
+                        </Link>
+                    </SafeTooltip>
                     <Typography
                         component="h1"
                         variant="h6"
@@ -200,7 +198,7 @@ export function Core() {
                         The Battery Development Metadata Secretary
                     </Typography>
                     <UserLogin />
-                    <Tooltip title={'Open help in new tab'} arrow>
+                    <SafeTooltip title={'Open help in new tab'} arrow>
                         <IconButton
                             edge="end"
                             color="inherit"
@@ -210,7 +208,7 @@ export function Core() {
                         >
                             <MdHelp />
                         </IconButton>
-                    </Tooltip>
+                    </SafeTooltip>
                 </Toolbar>
             </AppBar>
             <Drawer

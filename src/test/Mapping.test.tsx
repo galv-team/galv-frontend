@@ -146,19 +146,23 @@ it('renders', async () => {
             .nextElementSibling!.nextElementSibling!,
         'td',
     )
-    const rebase_inputs = screen.getAllByLabelText(/Addition$/i)
-    const rescale_inputs = screen.getAllByLabelText(/Multiplier$/i)
+    const rebase_inputs = screen.getAllByRole('spinbutton', {
+        name: /Addition$/i,
+    })
+    const rescale_inputs = screen.getAllByRole('spinbutton', {
+        name: /Multiplier$/i,
+    })
     expect(rebase_inputs).toHaveLength(2)
     expect(rescale_inputs).toHaveLength(2)
 
-    await user.clear(rebase_inputs[0]!.querySelector('input')!)
-    await user.type(rebase_inputs[0]!.querySelector('input')!, '10')
+    await user.clear(rebase_inputs[0])
+    await user.type(rebase_inputs[0], '10')
     expect(first_value_row[1]).toHaveTextContent(
         String(10 + parseFloat(initial_values[1].textContent!)),
     )
 
-    await user.clear(rescale_inputs[0]!.querySelector('input')!)
-    await user.type(rescale_inputs[0]!.querySelector('input')!, '2')
+    await user.clear(rescale_inputs[0])
+    await user.type(rescale_inputs[0], '2')
     expect(first_value_row[1]).toHaveTextContent(
         String((10 + parseFloat(initial_values[1].textContent!)) * 2),
     )

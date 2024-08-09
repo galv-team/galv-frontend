@@ -1,13 +1,17 @@
-import Tooltip from '@mui/material/Tooltip'
 import React, { useEffect, useState } from 'react'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
-import { MdAbc } from 'react-icons/md'
-import { MdNumbers } from 'react-icons/md'
-import { MdDataObject } from 'react-icons/md'
-import { MdDataArray } from 'react-icons/md'
-import { MdPowerSettingsNew } from 'react-icons/md'
-import { MdCalendarMonth } from 'react-icons/md'
+import {
+    MdAbc,
+    MdArrowDropDown,
+    MdAttachFile,
+    MdCalendarMonth,
+    MdDataArray,
+    MdDataObject,
+    MdMoreVert,
+    MdNumbers,
+    MdPowerSettingsNew,
+} from 'react-icons/md'
 import IconButton from '@mui/material/IconButton'
 import Popover, { PopoverProps } from '@mui/material/Popover'
 import clsx from 'clsx'
@@ -26,8 +30,6 @@ import {
     PATHS,
     type_to_key,
 } from '../../constants'
-import { MdMoreVert } from 'react-icons/md'
-import { MdArrowDropDown } from 'react-icons/md'
 import {
     from_type_value_notation,
     is_tvn,
@@ -37,8 +39,8 @@ import {
     TypeValueNotation,
     TypeValueNotationWrapper,
 } from '../TypeValueNotation'
-import { MdAttachFile } from 'react-icons/md'
 import { IconType } from 'react-icons'
+import SafeTooltip from '../SafeTooltip'
 
 export const is_type_changer_supported_tv_notation = (
     v: TypeValueNotation,
@@ -319,14 +321,14 @@ function TypeChangeResourcePopover({
                             selected={value === lookup_key_value}
                             disabled={value === lookup_key_value}
                         >
-                            <Tooltip
+                            <SafeTooltip
                                 title={display}
                                 arrow
                                 placement="bottom"
                                 describeChild={true}
                             >
                                 <ICON />
-                            </Tooltip>
+                            </SafeTooltip>
                         </ToggleButton>
                     )
                 })}
@@ -385,14 +387,14 @@ function TypeChangePopover({
                             selected={value === type}
                             disabled={value === type}
                         >
-                            <Tooltip
+                            <SafeTooltip
                                 title={ICON.tooltip}
                                 arrow
                                 placement="bottom"
                                 describeChild={true}
                             >
                                 {get_icon(ICON)}
-                            </Tooltip>
+                            </SafeTooltip>
                         </ToggleButton>
                     ))}
                 </ToggleButtonGroup>
@@ -407,14 +409,14 @@ function TypeChangePopover({
                 <IconButton
                     onClick={() => setResourcePopoverOpen(!resourcePopoverOpen)}
                 >
-                    <Tooltip
+                    <SafeTooltip
                         title="Resource types"
                         arrow
                         placement="bottom"
                         describeChild={true}
                     >
                         <MdMoreVert />
-                    </Tooltip>
+                    </SafeTooltip>
                 </IconButton>
             </Stack>
         </Popover>
@@ -433,38 +435,38 @@ export default function TypeChanger({
     const value = type_to_key(target._type) || target._type
 
     return (
-        <Tooltip
-            key="string"
-            title={
-                lock_type ? (
-                    value
-                ) : (
-                    <Stack justifyItems="center" alignContent="center">
-                        <Typography textAlign="center" variant="caption">
-                            {value}
-                        </Typography>
-                        <Typography textAlign="center" variant="caption">
-                            click to change type
-                        </Typography>
-                    </Stack>
-                )
-            }
-            arrow
-            describeChild
-            placement="top"
-        >
-            <span>
-                <TypeChangePopover
-                    {...props}
-                    onTypeChange={(t) => {
-                        setPopoverAnchor(null)
-                        return onTypeChange(convert(target, t))
-                    }}
-                    value={value as TypeChangerSupportedTypeName}
-                    open={!!popoverAnchor}
-                    anchorEl={popoverAnchor}
-                    onClose={() => setPopoverAnchor(null)}
-                />
+        <>
+            <TypeChangePopover
+                {...props}
+                onTypeChange={(t) => {
+                    setPopoverAnchor(null)
+                    return onTypeChange(convert(target, t))
+                }}
+                value={value as TypeChangerSupportedTypeName}
+                open={!!popoverAnchor}
+                anchorEl={popoverAnchor}
+                onClose={() => setPopoverAnchor(null)}
+            />
+            <SafeTooltip
+                key="string"
+                title={
+                    lock_type ? (
+                        value
+                    ) : (
+                        <Stack justifyItems="center" alignContent="center">
+                            <Typography textAlign="center" variant="caption">
+                                {value}
+                            </Typography>
+                            <Typography textAlign="center" variant="caption">
+                                click to change type
+                            </Typography>
+                        </Stack>
+                    )
+                }
+                arrow
+                describeChild
+                placement="top"
+            >
                 <IconButton
                     onClick={(e) => setPopoverAnchor(e.currentTarget || null)}
                     disabled={lock_type}
@@ -480,7 +482,7 @@ export default function TypeChanger({
                             )}
                     {!lock_type && <MdArrowDropDown />}
                 </IconButton>
-            </span>
-        </Tooltip>
+            </SafeTooltip>
+        </>
     )
 }

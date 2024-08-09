@@ -1,16 +1,19 @@
 import React, { ReactNode } from 'react'
-import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
-import { MdEdit } from 'react-icons/md'
-import { MdUndo } from 'react-icons/md'
-import { MdRedo } from 'react-icons/md'
-import { MdClose } from 'react-icons/md'
+import {
+    MdAdd,
+    MdCheckBox,
+    MdCheckBoxOutlineBlank,
+    MdClose,
+    MdEdit,
+    MdRedo,
+    MdRemove,
+    MdRepartition,
+    MdUndo,
+} from 'react-icons/md'
 import Stack from '@mui/material/Stack'
 import CountBadge from './CountBadge'
 import { Link } from 'react-router-dom'
-import { MdRemove } from 'react-icons/md'
-import { MdAdd } from 'react-icons/md'
-import { MdRepartition } from 'react-icons/md'
 import {
     DISPLAY_NAMES,
     DISPLAY_NAMES_PLURAL,
@@ -29,8 +32,8 @@ import { id_from_ref_props } from './misc'
 import clsx from 'clsx'
 import UseStyles from '../styles/UseStyles'
 import { useSelectionManagement } from './SelectionManagementContext'
-import Checkbox from '@mui/material/Checkbox'
 import { representation } from './Representation'
+import SafeTooltip from './SafeTooltip'
 
 export type CardActionBarProps = {
     lookup_key: LookupKey
@@ -118,14 +121,14 @@ export default function CardActionBar(props: CardActionBarProps) {
                         )
                     }
                     return (
-                        <Tooltip
+                        <SafeTooltip
                             title={`View ${(v.many ? DISPLAY_NAMES_PLURAL : DISPLAY_NAMES)[relative_lookup_key]}`}
                             arrow
                             describeChild
                             key={k}
                         >
-                            <div>{content}</div>
-                        </Tooltip>
+                            {content}
+                        </SafeTooltip>
                     )
                 })}
         </>
@@ -141,7 +144,7 @@ export default function CardActionBar(props: CardActionBarProps) {
             throw new Error(`onEditDiscard must be a function if editable=true`)
         if (!props.editing) {
             edit_section = (
-                <Tooltip
+                <SafeTooltip
                     title={`Edit this ${DISPLAY_NAMES[props.lookup_key]}`}
                     arrow
                     describeChild
@@ -150,7 +153,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                     <IconButton onClick={() => props.setEditing!(true)}>
                         <MdEdit {...iconProps} />
                     </IconButton>
-                </Tooltip>
+                </SafeTooltip>
             )
         } else {
             if (props.undoable && typeof props.onUndo !== 'function')
@@ -160,7 +163,7 @@ export default function CardActionBar(props: CardActionBarProps) {
 
             edit_section = (
                 <>
-                    <Tooltip
+                    <SafeTooltip
                         title={`Save changes`}
                         arrow
                         describeChild
@@ -174,32 +177,28 @@ export default function CardActionBar(props: CardActionBarProps) {
                         >
                             <ICONS.SAVE {...iconProps} color="success" />
                         </IconButton>
-                    </Tooltip>
+                    </SafeTooltip>
                     {props.onUndo && (
-                        <Tooltip title={`Undo`} arrow describeChild key="undo">
-                            <span>
-                                <IconButton
-                                    onClick={props.onUndo!}
-                                    disabled={!props.undoable}
-                                >
-                                    <MdUndo {...iconProps} />
-                                </IconButton>
-                            </span>
-                        </Tooltip>
+                        <SafeTooltip title={`Undo`} arrow key="undo">
+                            <IconButton
+                                onClick={props.onUndo!}
+                                disabled={!props.undoable}
+                            >
+                                <MdUndo {...iconProps} />
+                            </IconButton>
+                        </SafeTooltip>
                     )}
                     {props.onRedo && (
-                        <Tooltip title={`Redo`} arrow describeChild key="redo">
-                            <span>
-                                <IconButton
-                                    onClick={props.onRedo!}
-                                    disabled={!props.redoable}
-                                >
-                                    <MdRedo {...iconProps} />
-                                </IconButton>
-                            </span>
-                        </Tooltip>
+                        <SafeTooltip title={`Redo`} arrow key="redo">
+                            <IconButton
+                                onClick={props.onRedo!}
+                                disabled={!props.redoable}
+                            >
+                                <MdRedo {...iconProps} />
+                            </IconButton>
+                        </SafeTooltip>
                     )}
-                    <Tooltip
+                    <SafeTooltip
                         title={`Discard changes`}
                         arrow
                         describeChild
@@ -213,7 +212,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                         >
                             <MdClose {...iconProps} color="error" />
                         </IconButton>
-                    </Tooltip>
+                    </SafeTooltip>
                 </>
             )
         }
@@ -222,29 +221,25 @@ export default function CardActionBar(props: CardActionBarProps) {
     const destroy_section = (
         <Stack direction="row" spacing={1} alignItems="center">
             {props.lookup_key === LOOKUP_KEYS.FILE && props.reimportable && (
-                <Tooltip
+                <SafeTooltip
                     title="Force the harvester to re-import this file"
                     arrow
                     describeChild
                     key="reimport"
                 >
-                    <span>
-                        <IconButton
-                            onClick={() =>
-                                props.onReImport && props.onReImport()
-                            }
-                            disabled={!props.reimportable}
-                        >
-                            <MdRepartition
-                                {...iconProps}
-                                className={clsx(classes.deleteIcon)}
-                                {...iconProps}
-                            />
-                        </IconButton>
-                    </span>
-                </Tooltip>
+                    <IconButton
+                        onClick={() => props.onReImport && props.onReImport()}
+                        disabled={!props.reimportable}
+                    >
+                        <MdRepartition
+                            {...iconProps}
+                            className={clsx(classes.deleteIcon)}
+                            {...iconProps}
+                        />
+                    </IconButton>
+                </SafeTooltip>
             )}
-            <Tooltip
+            <SafeTooltip
                 title={
                     props.destroyable
                         ? `Delete this ${DISPLAY_NAMES[props.lookup_key]}`
@@ -254,33 +249,34 @@ export default function CardActionBar(props: CardActionBarProps) {
                 describeChild
                 key="delete"
             >
-                <span>
-                    <IconButton
-                        onClick={() => props.onDestroy && props.onDestroy()}
-                        disabled={!props.destroyable}
-                    >
-                        <ICONS.DELETE
-                            className={clsx(classes.deleteIcon)}
-                            {...iconProps}
-                        />
-                    </IconButton>
-                </span>
-            </Tooltip>
+                <IconButton
+                    onClick={() => props.onDestroy && props.onDestroy()}
+                    disabled={!props.destroyable}
+                >
+                    <ICONS.DELETE
+                        className={clsx(classes.deleteIcon)}
+                        {...iconProps}
+                    />
+                </IconButton>
+            </SafeTooltip>
         </Stack>
     )
 
     const select_section = selectable && apiResource && apiResource?.url && (
-        <Tooltip
+        <SafeTooltip
             title={`${isSelected(apiResource) ? 'Deselect' : 'Select'} this ${DISPLAY_NAMES[props.lookup_key]}`}
             arrow
             describeChild
             key="select"
         >
-            <Checkbox
-                checked={isSelected(apiResource)}
-                onChange={() => toggleSelected(apiResource!)}
-            />
-        </Tooltip>
+            <IconButton onClick={() => toggleSelected(apiResource!)}>
+                {isSelected(apiResource) ? (
+                    <MdCheckBox />
+                ) : (
+                    <MdCheckBoxOutlineBlank />
+                )}
+            </IconButton>
+        </SafeTooltip>
     )
 
     return (
@@ -288,7 +284,7 @@ export default function CardActionBar(props: CardActionBarProps) {
             {!props.excludeContext && context_section}
             {props.editable && edit_section}
             {props.onFork && apiResource && (
-                <Tooltip
+                <SafeTooltip
                     title={`
             Create your own copy of ${representation({ data: apiResource, lookup_key: props.lookup_key })}
             `}
@@ -298,13 +294,13 @@ export default function CardActionBar(props: CardActionBarProps) {
                     <IconButton onClick={props.onFork}>
                         <ICONS.FORK {...iconProps} />
                     </IconButton>
-                </Tooltip>
+                </SafeTooltip>
             )}
             {props.onDestroy && destroy_section}
             {select_section}
             {props.expanded !== undefined &&
                 props.setExpanded !== undefined && (
-                    <Tooltip
+                    <SafeTooltip
                         title={props.expanded ? 'Hide Details' : 'Show Details'}
                         arrow
                         describeChild
@@ -319,7 +315,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                                 <MdAdd {...iconProps} />
                             )}
                         </IconButton>
-                    </Tooltip>
+                    </SafeTooltip>
                 )}
         </Stack>
     )

@@ -73,3 +73,8 @@ export const ApiError: Story = {
         lookup_key: Object.keys(error_responses)[0],
     },
 }
+
+/**
+ * When you delete a resource, you should see a success message.
+ */
+export const DeleteSuccess: Story = {}

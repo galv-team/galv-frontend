@@ -17,7 +17,6 @@ import LookupKeyIcon from './Components/LookupKeyIcon'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import ListItem from '@mui/material/ListItem'
-import Tooltip from '@mui/material/Tooltip'
 import { ResourceChip } from './Components/ResourceChip'
 import Stack from '@mui/material/Stack'
 import React, { ReactNode, useState } from 'react'
@@ -37,13 +36,14 @@ import IntroText from './Components/IntroText'
 import Box from '@mui/material/Box'
 import clsx from 'clsx'
 import UseStyles from './styles/UseStyles'
+import useStyles from './styles/UseStyles'
 import {
     ListQueryResult,
     useFetchResource,
 } from './Components/FetchResourceContext'
 import CircularProgress from '@mui/material/CircularProgress'
-import useStyles from './styles/UseStyles'
 import Skeleton from '@mui/material/Skeleton'
+import SafeTooltip from './Components/SafeTooltip'
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -136,7 +136,7 @@ function KeySummary({
                 action={
                     <Stack direction="row" spacing={1} alignItems="center">
                         {Object.keys(status_counts).map((status) => (
-                            <Tooltip
+                            <SafeTooltip
                                 key={status}
                                 title={tooltip(
                                     status as SchemaValidation['status'],
@@ -144,24 +144,22 @@ function KeySummary({
                                 placement="left"
                                 arrow
                             >
-                                <div>
-                                    <MdStatus
-                                        status={
-                                            status as SchemaValidation['status']
-                                        }
-                                        count={
+                                <MdStatus
+                                    status={
+                                        status as SchemaValidation['status']
+                                    }
+                                    count={
+                                        status_counts[
+                                            status as keyof typeof status_counts
+                                        ] &&
+                                        Object.entries(
                                             status_counts[
                                                 status as keyof typeof status_counts
-                                            ] &&
-                                            Object.entries(
-                                                status_counts[
-                                                    status as keyof typeof status_counts
-                                                ]!,
-                                            ).reduce((a, c) => a + c[1], 0)
-                                        }
-                                    />
-                                </div>
-                            </Tooltip>
+                                            ]!,
+                                        ).reduce((a, c) => a + c[1], 0)
+                                    }
+                                />
+                            </SafeTooltip>
                         ))}
                     </Stack>
                 }
@@ -359,7 +357,7 @@ export function DatasetStatus() {
         >,
     )
 
-    const TooltipContent = ({
+    const SafeTooltipContent = ({
         status,
     }: {
         status: ReturnType<typeof state_to_status>
@@ -408,9 +406,9 @@ export function DatasetStatus() {
                                 {statusCounts &&
                                     Object.entries(statusCounts).map(
                                         ([status, counts]) => (
-                                            <Tooltip
+                                            <SafeTooltip
                                                 title={
-                                                    <TooltipContent
+                                                    <SafeTooltipContent
                                                         status={
                                                             status as ReturnType<
                                                                 typeof state_to_status
@@ -422,21 +420,19 @@ export function DatasetStatus() {
                                                 placement="left"
                                                 arrow
                                             >
-                                                <div>
-                                                    <MdStatus
-                                                        key={status}
-                                                        status={
-                                                            status as SchemaValidation['status']
-                                                        }
-                                                        count={Object.entries(
-                                                            counts,
-                                                        ).reduce(
-                                                            (a, c) => a + c[1],
-                                                            0,
-                                                        )}
-                                                    />
-                                                </div>
-                                            </Tooltip>
+                                                <MdStatus
+                                                    key={status}
+                                                    status={
+                                                        status as SchemaValidation['status']
+                                                    }
+                                                    count={Object.entries(
+                                                        counts,
+                                                    ).reduce(
+                                                        (a, c) => a + c[1],
+                                                        0,
+                                                    )}
+                                                />
+                                            </SafeTooltip>
                                         ),
                                     )}
                             </Stack>
@@ -459,9 +455,9 @@ export function DatasetStatus() {
                                 <List>
                                     {files_needing_input.map((f) => (
                                         <ListItem key={f.id}>
-                                            <Tooltip title={f.state}>
+                                            <SafeTooltip title={f.state}>
                                                 <ICONS.validation_status_INPUT_REQUIRED color="warning" />
-                                            </Tooltip>
+                                            </SafeTooltip>
                                             <ResourceChip
                                                 resource_id={f.id}
                                                 lookup_key={LOOKUP_KEYS.FILE}

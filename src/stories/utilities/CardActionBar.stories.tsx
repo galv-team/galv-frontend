@@ -4,21 +4,14 @@ import CardActionBar, {
     CardActionBarProps,
 } from '../../Components/CardActionBar'
 import { LOOKUP_KEYS } from '../../constants'
-import {
-    cell_families,
-    cells,
-    column_mappings,
-    column_types,
-    files,
-    teams,
-} from '../../test/fixtures/fixtures'
+import { cells } from '../../test/fixtures/fixtures'
 import { restHandlers } from '../../test/handlers'
 import FetchResourceContextProvider from '../../Components/FetchResourceContext'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactElement } from 'react'
 import ApiResourceContextProvider from '../../Components/ApiResourceContext'
 import SelectionManagementContextProvider from '../../Components/SelectionManagementContext'
-import { fn } from '@storybook/test'
+import { expect, fn, userEvent, within } from '@storybook/test'
 import { useArgs } from '@storybook/preview-api'
 import CardContent from '@mui/material/CardContent'
 import { CardActions } from '@mui/material'
@@ -66,20 +59,9 @@ const meta = {
         lookup_key: {
             options: Object.values(LOOKUP_KEYS),
         },
-        resource_id: {
-            options: [
-                ...cells,
-                ...cell_families,
-                ...teams,
-                ...column_types,
-                ...files,
-                ...column_mappings,
-            ].map((r) => r.id),
-        },
     },
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
     args: {
-        resource_id: cells[0].id,
         lookup_key: LOOKUP_KEYS.CELL,
     },
     render: function Render(args) {
@@ -109,7 +91,11 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+/**
+ * The `CardActionBar` component is a utility component that provides a set of
+ * buttons for common actions on a resource. It is used in the `ResourceCard`
+ * component.
+ */
 export const BasicActions: Story = {
     args: {
         editing: false,
@@ -130,6 +116,9 @@ export const BasicActions: Story = {
     },
 }
 
+/**
+ * If the resource can't be edited by the user, there won't be an edit button.
+ */
 export const NonEditable: Story = {
     args: {
         editing: false,
@@ -139,6 +128,9 @@ export const NonEditable: Story = {
     },
 }
 
+/**
+ * If the resource can't be selected by the user, there won't be a select button.
+ */
 export const NonSelectable: Story = {
     args: {
         editing: false,
@@ -148,11 +140,51 @@ export const NonSelectable: Story = {
     },
 }
 
+/**
+ * The resource doesn't have to be in a context to be displayed.
+ */
 export const NoContext: Story = {
     args: {
         editing: false,
         expanded: false,
         selectable: true,
         excludeContext: true,
+    },
+}
+
+/**
+ * The card will expand when the user clicks the expand button
+ */
+export const Expands: Story = {
+    args: {
+        editable: false,
+        expanded: false,
+    },
+    play: async ({ canvasElement }) => {
+        // Check the buttons work
+        const expandButton = within(canvasElement).getByRole('button', {
+            name: /show details/i,
+        })
+        await userEvent.click(expandButton)
+        within(canvasElement).getByText('Expanded view!')
+    },
+}
+
+/**
+ * The card will collapse when the user clicks the collapse button
+ */
+export const Collapses: Story = {
+    args: {
+        editable: false,
+        expanded: true,
+    },
+    play: async ({ canvasElement }) => {
+        within(canvasElement).getByText('Expanded view!')
+        const collapseButton = within(canvasElement).getByRole('button', {
+            name: /hide details/i,
+        })
+        await userEvent.click(collapseButton)
+        const text = await within(canvasElement).queryByText('Expanded view!')
+        await expect(text).toBeNull()
     },
 }
