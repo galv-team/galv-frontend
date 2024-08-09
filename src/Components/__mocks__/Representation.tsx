@@ -8,9 +8,9 @@ import { GalvResource, LookupKey } from '../../constants'
 
 export function representation(params: {
     data: GalvResource
-    lookup_key: LookupKey
+    lookupKey: LookupKey
 }): string {
-    return `representation: ${params.lookup_key} [${params.data.id}]`
+    return `representation: ${params.lookupKey} [${params.data.id}]`
 }
 
 export default function Representation(params: RepresentationProps) {

@@ -1,12 +1,12 @@
 import { AdditionalS3StorageType } from '@galv/galv'
-import useStyles from '../../styles/UseStyles'
+import useStyles from '../../../styles/UseStyles'
 import clsx from 'clsx'
 import Stack from '@mui/material/Stack'
 import Alert from '@mui/material/Alert'
-import { humanize_bytes } from '../misc'
+import { humanize_bytes } from '../../misc'
 import { ReactNode } from 'react'
 import Typography from '@mui/material/Typography'
-import { GalvResource } from '../../constants'
+import { GalvResource } from '../../../constants'
 
 export default function AdditionalStorageSummary({
     resource,

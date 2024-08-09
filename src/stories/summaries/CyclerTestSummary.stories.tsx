@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import CyclerTestSummary from '../../Components/summaries/CyclerTestSummary'
+import CyclerTestSummary from '../../Components/card/summaries/CyclerTestSummary'
 import { cycler_tests } from '../../test/fixtures/fixtures'
 import { withRouter } from 'storybook-addon-remix-react-router'
 import SummaryDecorator from './SummaryDecorator'

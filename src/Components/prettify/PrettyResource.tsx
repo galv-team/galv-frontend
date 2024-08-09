@@ -27,8 +27,8 @@ import Modal from '@mui/material/Modal'
 import UndoRedoProvider from '../UndoRedoContext'
 
 export type PrettyResourceSelectProps = {
-    lookup_key: LookupKey
-    allow_new?: boolean // defaults to true if the lookup_key has a 'team' field
+    lookupKey: LookupKey
+    allow_new?: boolean // defaults to true if the lookupKey has a 'team' field
 } & PrettyComponentProps<string | null> &
     Partial<Omit<ChipProps, 'onChange'>>
 
@@ -36,7 +36,7 @@ export const PrettyResourceSelect = <T extends GalvResource>({
     target,
     onChange,
     allow_new,
-    lookup_key,
+    lookupKey,
     edit_mode,
     ...autocompleteProps
 }: PrettyResourceSelectProps &
@@ -47,18 +47,16 @@ export const PrettyResourceSelect = <T extends GalvResource>({
     const [modalOpen, setModalOpen] = useState(false)
 
     if (allow_new === undefined)
-        allow_new = Object.keys(FIELDS[lookup_key]).includes('team')
+        allow_new = Object.keys(FIELDS[lookupKey]).includes('team')
 
-    const query = useListQuery<T>(lookup_key)
+    const query = useListQuery<T>(lookupKey)
 
     if (query?.hasNextPage && !query.isFetchingNextPage) query.fetchNextPage()
 
-    const family_lookup_key = Object.keys(FAMILY_LOOKUP_KEYS).includes(
-        lookup_key,
-    )
-        ? FAMILY_LOOKUP_KEYS[lookup_key as keyof typeof FAMILY_LOOKUP_KEYS]
+    const family_lookupKey = Object.keys(FAMILY_LOOKUP_KEYS).includes(lookupKey)
+        ? FAMILY_LOOKUP_KEYS[lookupKey as keyof typeof FAMILY_LOOKUP_KEYS]
         : undefined
-    const family_query = useListQuery<GalvResource>(family_lookup_key)
+    const family_query = useListQuery<GalvResource>(family_lookupKey)
 
     if (family_query?.hasNextPage && !family_query.isFetchingNextPage)
         family_query.fetchNextPage()
@@ -74,7 +72,7 @@ export const PrettyResourceSelect = <T extends GalvResource>({
     const represent = (url: string) => {
         const object = url_to_query_result(url)
         if (!object) return url
-        return representation({ data: object, lookup_key })
+        return representation({ data: object, lookupKey })
     }
     const url_to_value = (url: string) => represent(url)
     const value_to_url = (value: string) => {
@@ -85,7 +83,7 @@ export const PrettyResourceSelect = <T extends GalvResource>({
 
     const { classes } = useStyles()
 
-    const new_item = `Create a new ${DISPLAY_NAMES[lookup_key]}`
+    const new_item = `Create a new ${DISPLAY_NAMES[lookupKey]}`
 
     const options = [
         ...(allow_new ? [new_item] : []),
@@ -98,7 +96,7 @@ export const PrettyResourceSelect = <T extends GalvResource>({
                 <Modal
                     open={modalOpen}
                     onClose={() => setModalOpen(false)}
-                    aria-labelledby={get_modal_title(lookup_key, 'title')}
+                    aria-labelledby={get_modal_title(lookupKey, 'title')}
                     sx={{ padding: (t) => t.spacing(4) }}
                 >
                     <>
@@ -112,7 +110,7 @@ export const PrettyResourceSelect = <T extends GalvResource>({
                                     })
                                 }}
                                 onDiscard={() => setModalOpen(false)}
-                                lookup_key={lookup_key}
+                                lookupKey={lookupKey}
                             />
                         </UndoRedoProvider>
                     </>
@@ -142,7 +140,7 @@ export const PrettyResourceSelect = <T extends GalvResource>({
                 loading={query.isInitialLoading}
                 getOptionLabel={(option: string) => option}
                 groupBy={
-                    family_lookup_key
+                    family_lookupKey
                         ? (option) => {
                               if (option === new_item) return ''
                               const o = url_to_query_result(
@@ -155,7 +153,7 @@ export const PrettyResourceSelect = <T extends GalvResource>({
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        label={`Select ${DISPLAY_NAMES[lookup_key]}`}
+                        label={`Select ${DISPLAY_NAMES[lookupKey]}`}
                         InputProps={{
                             ...params.InputProps,
                             endAdornment: (
@@ -181,12 +179,12 @@ export const PrettyResourceSelect = <T extends GalvResource>({
                             <div>
                                 {family ? (
                                     <ResourceChip
-                                        resource_id={id_from_ref_props<string>(
+                                        resourceId={id_from_ref_props<string>(
                                             family,
                                         )}
-                                        lookup_key={
+                                        lookupKey={
                                             FAMILY_LOOKUP_KEYS[
-                                                lookup_key as keyof typeof FAMILY_LOOKUP_KEYS
+                                                lookupKey as keyof typeof FAMILY_LOOKUP_KEYS
                                             ]
                                         }
                                         component={ButtonBase}
@@ -208,9 +206,9 @@ export const PrettyResourceSelect = <T extends GalvResource>({
 }
 
 export type PrettyResourceProps = {
-    lookup_key?: LookupKey
-    resource_id?: string | number
-    allow_new?: boolean // defaults to true if the lookup_key has a 'team' field
+    lookupKey?: LookupKey
+    resourceId?: string | number
+    allow_new?: boolean // defaults to true if the lookupKey has a 'team' field
 } & PrettyComponentProps<string | null> &
     Partial<Omit<ChipProps, 'onChange'>>
 
@@ -218,20 +216,20 @@ export default function PrettyResource({
     target,
     onChange,
     edit_mode,
-    lookup_key,
-    resource_id,
+    lookupKey,
+    resourceId,
     allow_new,
     ...childProps
 }: PrettyResourceProps) {
     const url_components = get_url_components(target._value ?? '')
-    if (lookup_key !== url_components?.lookup_key) {
+    if (lookupKey !== url_components?.lookupKey) {
         // Labs' Galv Storage is exposed under the Additional Storage lookup key because currently we
         // don't support multiple resource types in a single array.
-        if (lookup_key === LOOKUP_KEYS.ADDITIONAL_STORAGE)
-            lookup_key = url_components?.lookup_key ?? lookup_key
-        else lookup_key = lookup_key ?? url_components?.lookup_key
+        if (lookupKey === LOOKUP_KEYS.ADDITIONAL_STORAGE)
+            lookupKey = url_components?.lookupKey ?? lookupKey
+        else lookupKey = lookupKey ?? url_components?.lookupKey
     }
-    resource_id = resource_id ?? url_components?.resource_id
+    resourceId = resourceId ?? url_components?.resourceId
 
     const str_representation = (
         <PrettyString
@@ -243,13 +241,13 @@ export default function PrettyResource({
     )
 
     if (edit_mode) {
-        if (!lookup_key)
+        if (!lookupKey)
             throw new Error(
-                `PrettyResource: lookup_key is undefined and unobtainable from value ${target._value}`,
+                `PrettyResource: lookupKey is undefined and unobtainable from value ${target._value}`,
             )
         return (
             <PrettyResourceSelect
-                lookup_key={lookup_key}
+                lookupKey={lookupKey}
                 onChange={onChange}
                 target={target}
                 edit_mode={edit_mode}
@@ -257,12 +255,12 @@ export default function PrettyResource({
             />
         )
     }
-    if (lookup_key && resource_id)
+    if (lookupKey && resourceId)
         return (
             <ResourceChip
                 {...(childProps as ChipProps)}
-                lookup_key={lookup_key}
-                resource_id={resource_id}
+                lookupKey={lookupKey}
+                resourceId={resourceId}
                 error={str_representation}
             />
         )

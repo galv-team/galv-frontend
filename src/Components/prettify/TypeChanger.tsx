@@ -23,7 +23,7 @@ import {
     DISPLAY_NAMES,
     ICONS,
     is_autocomplete_key,
-    is_lookup_key,
+    is_lookupKey,
     key_to_type,
     LOOKUP_KEYS,
     LookupKey,
@@ -309,17 +309,17 @@ function TypeChangeResourcePopover({
                     onTypeChange(v)
                 }
             >
-                {Object.keys(LOOKUP_KEYS).map((lookup_key) => {
-                    const ICON = ICONS[lookup_key as keyof typeof ICONS]
+                {Object.keys(LOOKUP_KEYS).map((lookupKey) => {
+                    const ICON = ICONS[lookupKey as keyof typeof ICONS]
                     const display =
-                        DISPLAY_NAMES[lookup_key as keyof typeof DISPLAY_NAMES]
-                    const lookup_key_value = to_type(lookup_key)
+                        DISPLAY_NAMES[lookupKey as keyof typeof DISPLAY_NAMES]
+                    const lookupKey_value = to_type(lookupKey)
                     return (
                         <ToggleButton
-                            value={lookup_key_value}
-                            key={lookup_key_value}
-                            selected={value === lookup_key_value}
-                            disabled={value === lookup_key_value}
+                            value={lookupKey_value}
+                            key={lookupKey_value}
+                            selected={value === lookupKey_value}
+                            disabled={value === lookupKey_value}
                         >
                             <SafeTooltip
                                 title={display}
@@ -473,7 +473,7 @@ export default function TypeChanger({
                     className={clsx(classes.typeChangerButton)}
                     sx={{ borderRadius: '0.25em' }}
                 >
-                    {is_lookup_key(value)
+                    {is_lookupKey(value)
                         ? React.createElement(ICONS[value])
                         : is_autocomplete_key(value)
                           ? React.createElement(type_map.string.icon)

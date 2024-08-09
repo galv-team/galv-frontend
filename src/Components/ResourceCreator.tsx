@@ -9,7 +9,7 @@ import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import NumberInput from './NumberInput'
-import { CopyBlock, a11yDark } from 'react-code-blocks'
+import { a11yDark, CopyBlock } from 'react-code-blocks'
 import Avatar from '@mui/material/Avatar'
 import React, { useEffect, useRef, useState } from 'react'
 import ErrorCard from './error/ErrorCard'
@@ -30,10 +30,10 @@ import Modal from '@mui/material/Modal'
 import Stack from '@mui/material/Stack'
 import { useSnackbarMessenger } from './SnackbarMessengerContext'
 import {
-    CreateTokenApi,
-    type CreateKnoxTokenRequest,
-    type KnoxTokenFull,
     ArbitraryFilesApiArbitraryFilesCreateRequest,
+    type CreateKnoxTokenRequest,
+    CreateTokenApi,
+    type KnoxTokenFull,
 } from '@galv/galv'
 import { useCurrentUser } from './CurrentUserContext'
 import Select from '@mui/material/Select'
@@ -77,7 +77,7 @@ export function TokenCreator({
             setErr('')
             setResponseData(data.data)
             queryClient.invalidateQueries({
-                queryKey: [lookup_key, 'list'],
+                queryKey: [lookupKey, 'list'],
                 exact: true,
             })
         },
@@ -99,19 +99,19 @@ export function TokenCreator({
         weeks: 60 * 60 * 24 * 7,
     }
 
-    const lookup_key = LOOKUP_KEYS.TOKEN
+    const lookupKey = LOOKUP_KEYS.TOKEN
 
-    const ICON = ICONS[lookup_key]
+    const ICON = ICONS[lookupKey]
 
     const cardHeader = (
         <CardHeader
-            id={get_modal_title(lookup_key, 'title')}
+            id={get_modal_title(lookupKey, 'title')}
             avatar={
                 <Avatar variant="square">
                     <ICON />
                 </Avatar>
             }
-            title={`Create a new ${DISPLAY_NAMES[lookup_key]}`}
+            title={`Create a new ${DISPLAY_NAMES[lookupKey]}`}
         />
     )
     const cardBody = (
@@ -224,14 +224,14 @@ export function TokenCreator({
 }
 
 export type ResourceCreatorProps = {
-    lookup_key: LookupKey
+    lookupKey: LookupKey
     initial_data?: object
     onCreate: (new_resource_url?: string, error?: unknown) => void
     onDiscard: () => void
 } & CardProps
 
 export function ResourceCreator<T extends GalvResource>({
-    lookup_key,
+    lookupKey,
     initial_data,
     onCreate,
     onDiscard,
@@ -252,7 +252,7 @@ export function ResourceCreator<T extends GalvResource>({
         if (Object.keys(UndoRedoRef.current).includes('set')) {
             // Set up the initial data for the UndoRedo
             const template_object: typeof UndoRedo.current = {}
-            Object.entries(FIELDS[lookup_key])
+            Object.entries(FIELDS[lookupKey])
                 .filter((v) => v[1].priority !== PRIORITY_LEVELS.HIDDEN)
                 .forEach(([k, v]) => {
                     if (!v.read_only || v.create_only) {
@@ -273,13 +273,13 @@ export function ResourceCreator<T extends GalvResource>({
                 })
             if (initial_data !== undefined) {
                 Object.entries(initial_data).forEach(([k, v]) => {
-                    if (!(k in FIELDS[lookup_key]))
+                    if (!(k in FIELDS[lookupKey]))
                         template_object[k] = v as TypeValueNotation
                 })
             }
             UndoRedoRef.current.set(template_object)
         }
-    }, [initial_data, lookup_key, UndoRedoRef.current])
+    }, [initial_data, lookupKey, UndoRedoRef.current])
 
     const { useCreateQuery } = useFetchResource()
 
@@ -300,7 +300,7 @@ export function ResourceCreator<T extends GalvResource>({
         return cleaned
     }
 
-    const create_mutation = useCreateQuery<T>(lookup_key, {
+    const create_mutation = useCreateQuery<T>(lookupKey, {
         after_cache: (data, variables) => {
             if (data === undefined) {
                 console.warn('No data in mutation response', {
@@ -317,10 +317,7 @@ export function ResourceCreator<T extends GalvResource>({
                 const components = get_url_components(url)
                 if (components)
                     queryClient.invalidateQueries({
-                        queryKey: [
-                            components.lookup_key,
-                            components.resource_id,
-                        ],
+                        queryKey: [components.lookupKey, components.resourceId],
                         exact: true,
                     })
             }
@@ -352,7 +349,7 @@ export function ResourceCreator<T extends GalvResource>({
     // The card action bar controls the expanded state and editing state
     const action = (
         <CardActionBar
-            lookup_key={lookup_key}
+            lookupKey={lookupKey}
             excludeContext={true}
             selectable={false}
             editable={true}
@@ -364,7 +361,7 @@ export function ResourceCreator<T extends GalvResource>({
             redoable={UndoRedo.can_redo}
             onEditSave={() => {
                 let close = false
-                if (lookup_key === LOOKUP_KEYS.ARBITRARY_FILE) {
+                if (lookupKey === LOOKUP_KEYS.ARBITRARY_FILE) {
                     let okay = true
                     ;['name', 'team'].forEach((k: string) => {
                         if (
@@ -422,17 +419,17 @@ export function ResourceCreator<T extends GalvResource>({
         />
     )
 
-    const ICON = ICONS[lookup_key]
+    const ICON = ICONS[lookupKey]
 
     const cardHeader = (
         <CardHeader
-            id={get_modal_title(lookup_key, 'title')}
+            id={get_modal_title(lookupKey, 'title')}
             avatar={
                 <Avatar variant="square">
                     <ICON />
                 </Avatar>
             }
-            title={`Create a new ${DISPLAY_NAMES[lookup_key]}`}
+            title={`Create a new ${DISPLAY_NAMES[lookupKey]}`}
             action={action}
         />
     )
@@ -453,9 +450,9 @@ export function ResourceCreator<T extends GalvResource>({
                 <PrettyObject<TypeValueNotationWrapper>
                     target={to_type_value_notation_wrapper(
                         UndoRedo.current,
-                        lookup_key,
+                        lookupKey,
                     )}
-                    lookup_key={lookup_key}
+                    lookupKey={lookupKey}
                     edit_mode={true}
                     creating={true}
                     onEdit={(v) => {
@@ -488,45 +485,45 @@ export function ResourceCreator<T extends GalvResource>({
     )
 }
 
-export const get_modal_title = (lookup_key: LookupKey, suffix: string) =>
-    `create-${lookup_key}-modal-${suffix}`
+export const get_modal_title = (lookupKey: LookupKey, suffix: string) =>
+    `create-${lookupKey}-modal-${suffix}`
 
 export default function WrappedResourceCreator<T extends GalvResource>(
-    props: { lookup_key: LookupKey } & CardProps,
+    props: { lookupKey: LookupKey } & CardProps,
 ) {
     const [modalOpen, setModalOpen] = useState(false)
     const { user, refresh_user } = useCurrentUser()
 
-    const get_can_create = (lookup_key: LookupKey) => {
+    const get_can_create = (lookupKey: LookupKey) => {
         // We can always create tokens because they represent us, and labs because someone has to.
-        if (lookup_key === LOOKUP_KEYS.TOKEN) return !!user
-        if (lookup_key === LOOKUP_KEYS.LAB) return !!user
+        if (lookupKey === LOOKUP_KEYS.TOKEN) return !!user
+        if (lookupKey === LOOKUP_KEYS.LAB) return !!user
 
         const lab_admin_resources = [
             LOOKUP_KEYS.TEAM,
             LOOKUP_KEYS.ADDITIONAL_STORAGE,
         ] as LookupKey[]
-        if (lab_admin_resources.includes(lookup_key)) return user?.is_lab_admin
+        if (lab_admin_resources.includes(lookupKey)) return user?.is_lab_admin
 
-        const fields = FIELDS[lookup_key]
+        const fields = FIELDS[lookupKey]
         return Object.keys(fields).includes('team')
     }
 
     const ADD_ICON = ICONS.CREATE
 
-    return get_can_create(props.lookup_key) ? (
+    return get_can_create(props.lookupKey) ? (
         <UndoRedoProvider>
             <Button
                 onClick={() => setModalOpen(true)}
                 sx={{ placeSelf: 'center' }}
                 startIcon={<ADD_ICON fontSize="large" />}
             >
-                Create a new {DISPLAY_NAMES[props.lookup_key]}
+                Create a new {DISPLAY_NAMES[props.lookupKey]}
             </Button>
             <Modal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
-                aria-labelledby={get_modal_title(props.lookup_key, 'title')}
+                aria-labelledby={get_modal_title(props.lookupKey, 'title')}
                 sx={{ padding: (t) => t.spacing(4) }}
             >
                 <div>
@@ -540,13 +537,13 @@ export default function WrappedResourceCreator<T extends GalvResource>(
                                             <Avatar variant="square">E</Avatar>
                                         }
                                         title="Error"
-                                        subheader={`Error with ResourceCard for creating new ${props.lookup_key}`}
+                                        subheader={`Error with ResourceCard for creating new ${props.lookupKey}`}
                                     />
                                 }
                             />
                         )}
                     >
-                        {props.lookup_key === LOOKUP_KEYS.TOKEN ? (
+                        {props.lookupKey === LOOKUP_KEYS.TOKEN ? (
                             <TokenCreator
                                 setModalOpen={setModalOpen}
                                 {...props}
@@ -555,7 +552,7 @@ export default function WrappedResourceCreator<T extends GalvResource>(
                             <ResourceCreator<T>
                                 onCreate={(_, err) => {
                                     if (
-                                        props.lookup_key === LOOKUP_KEYS.LAB &&
+                                        props.lookupKey === LOOKUP_KEYS.LAB &&
                                         !user?.is_lab_admin
                                     )
                                         refresh_user()

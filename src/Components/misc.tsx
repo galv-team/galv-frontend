@@ -1,4 +1,4 @@
-import { is_lookup_key, LookupKey, PATHS, Serializable } from '../constants'
+import { is_lookupKey, LookupKey, PATHS, Serializable } from '../constants'
 import { AxiosError } from 'axios'
 
 export type ObjectReferenceProps =
@@ -35,25 +35,25 @@ export function id_from_ref_props<T extends number | string>(
  */
 export function get_url_components(
     url: string,
-): { lookup_key: LookupKey; resource_id: string } | undefined {
+): { lookupKey: LookupKey; resourceId: string } | undefined {
     url = url.toLowerCase()
     const parts = url.split(/[/|?]/).filter((x) => x)
     if (parts.length === 4) {
-        const lookup_key = Object.keys(PATHS).find(
+        const lookupKey = Object.keys(PATHS).find(
             (k) => PATHS[k as keyof typeof PATHS] === `/${parts[2]}`,
         )
-        if (lookup_key === undefined) return undefined
+        if (lookupKey === undefined) return undefined
 
-        if (!is_lookup_key(lookup_key)) {
+        if (!is_lookupKey(lookupKey)) {
             console.warn(
-                `${lookup_key} is a PATHS key but not an LOOKUP_KEY`,
+                `${lookupKey} is a PATHS key but not an LOOKUP_KEY`,
                 url,
             )
             return undefined
         }
 
-        const resource_id = parts[3]
-        return { lookup_key: lookup_key as LookupKey, resource_id: resource_id }
+        const resourceId = parts[3]
+        return { lookupKey: lookupKey as LookupKey, resourceId: resourceId }
     }
     return undefined
 }

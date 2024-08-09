@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import AdditionalStorageSummary from '../../Components/summaries/AdditionalStorageSummary'
+import AdditionalStorageSummary from '../../Components/card/summaries/AdditionalStorageSummary'
 import { additional_storages } from '../../test/fixtures/fixtures'
 import { withRouter } from 'storybook-addon-remix-react-router'
 import SummaryDecorator from './SummaryDecorator'

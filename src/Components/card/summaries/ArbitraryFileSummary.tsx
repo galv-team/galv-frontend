@@ -1,11 +1,11 @@
 import { ArbitraryFile } from '@galv/galv'
-import useStyles from '../../styles/UseStyles'
+import useStyles from '../../../styles/UseStyles'
 import clsx from 'clsx'
 import Stack from '@mui/material/Stack'
-import Prettify from '../prettify/Prettify'
+import Prettify from '../../prettify/Prettify'
 import Typography from '@mui/material/Typography'
 
-import { GalvResource } from '../../constants'
+import { GalvResource } from '../../../constants'
 
 export default function ArbitraryFileSummary({
     resource,

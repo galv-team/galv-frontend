@@ -55,7 +55,7 @@ export type PrettyObjectProps<
     T extends TypeValueNotation | TypeValueNotationWrapper = TypeValueNotation,
 > = {
     target?: T
-    lookup_key?: LookupKey
+    lookupKey?: LookupKey
     nest_level?: number
     edit_mode?: boolean
     creating?: boolean
@@ -169,43 +169,40 @@ function rename_key_in_place(
 }
 
 export type PrettyObjectFromQueryProps = {
-    resource_id: string | number
-    lookup_key: LookupKey
-    filter?: (
-        d: SerializableObject,
-        lookup_key: LookupKey,
-    ) => SerializableObject
+    resourceId: string | number
+    lookupKey: LookupKey
+    filter?: (d: SerializableObject, lookupKey: LookupKey) => SerializableObject
 } & Omit<PrettyObjectProps<TypeValueNotationWrapper>, 'target'>
 
 export function PrettyObjectFromQuery<T extends GalvResource>({
-    resource_id,
-    lookup_key,
+    resourceId,
+    lookupKey,
     filter,
     ...prettyObjectProps
 }: PrettyObjectFromQueryProps) {
     const { api_config } = useCurrentUser()
-    const target_api_handler = new API_HANDLERS[lookup_key](api_config)
+    const target_api_handler = new API_HANDLERS[lookupKey](api_config)
     const target_get = target_api_handler[
-        `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
+        `${API_SLUGS[lookupKey]}Retrieve` as keyof typeof target_api_handler
     ] as (id: { id: string }) => Promise<AxiosResponse<T>>
 
     const target_query = useQuery<AxiosResponse<T>, AxiosError>({
-        queryKey: [lookup_key, resource_id],
+        queryKey: [lookupKey, resourceId],
         queryFn: () =>
-            target_get.bind(target_api_handler)({ id: String(resource_id) }),
+            target_get.bind(target_api_handler)({ id: String(resourceId) }),
     })
 
     const target_after_filter = filter
-        ? filter(target_query.data?.data ?? {}, lookup_key)
+        ? filter(target_query.data?.data ?? {}, lookupKey)
         : target_query.data?.data
 
     return (
         <PrettyObject<TypeValueNotationWrapper>
             {...prettyObjectProps}
-            lookup_key={lookup_key}
+            lookupKey={lookupKey}
             target={to_type_value_notation_wrapper(
                 target_after_filter ?? {},
-                lookup_key,
+                lookupKey,
             )}
         />
     )
@@ -293,7 +290,7 @@ export default function PrettyObject<
     },
 >({
     target,
-    lookup_key,
+    lookupKey,
     nest_level,
     edit_mode,
     creating,
@@ -315,7 +312,7 @@ export default function PrettyObject<
         queryKey: ['access_levels'],
         queryFn: () => new AccessLevelsApi(api_config).accessLevelsRetrieve(),
     })
-    const description_query = useDescribeQuery(lookup_key)
+    const description_query = useDescribeQuery(lookupKey)
 
     if (typeof target === 'undefined') {
         return (
@@ -323,7 +320,7 @@ export default function PrettyObject<
                 error={new Error('PrettyObject: target is undefined')}
                 details={{
                     target,
-                    lookup_key,
+                    lookupKey,
                     nest_level,
                     edit_mode,
                     creating,
@@ -358,15 +355,13 @@ export default function PrettyObject<
     ) => {
         let obj = {} as FieldDescription &
             Field & { api_type: FieldDescription['type']; lock_type?: boolean }
-        if (lookup_key !== undefined && _nest_level === 0 && !_canEditKeys) {
-            const fields = FIELDS[lookup_key]
+        if (lookupKey !== undefined && _nest_level === 0 && !_canEditKeys) {
+            const fields = FIELDS[lookupKey]
             if (Object.keys(fields).includes(key))
                 // ...obj just suppresses type errors
                 obj = {
                     ...obj,
-                    ...(FIELDS[lookup_key][
-                        key as keyof typeof fields
-                    ] as Field),
+                    ...(FIELDS[lookupKey][key as keyof typeof fields] as Field),
                     lock_type: true,
                 }
         }
@@ -459,7 +454,7 @@ export default function PrettyObject<
                 permissions={permissions}
                 query={permissions_query}
                 edit_fun_factory={_edit_mode ? edit_fun_factory : undefined}
-                is_path={lookup_key === LOOKUP_KEYS.PATH}
+                is_path={lookupKey === LOOKUP_KEYS.PATH}
             />
             <TableContainer
                 className={clsx(classes.prettyTable, {

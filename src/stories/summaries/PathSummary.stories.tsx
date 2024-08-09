@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import PathSummary from '../../Components/summaries/PathSummary'
+import PathSummary from '../../Components/card/summaries/PathSummary'
 import { monitored_paths as paths } from '../../test/fixtures/fixtures'
 import { withRouter } from 'storybook-addon-remix-react-router'
 import SummaryDecorator from './SummaryDecorator'

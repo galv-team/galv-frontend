@@ -1,10 +1,10 @@
 import { Experiment } from '@galv/galv'
-import useStyles from '../../styles/UseStyles'
+import useStyles from '../../../styles/UseStyles'
 import clsx from 'clsx'
 import Stack from '@mui/material/Stack'
 import ChipList from './ChipList'
 
-import { GalvResource } from '../../constants'
+import { GalvResource } from '../../../constants'
 
 export default function CyclerTestSummary({
     resource,

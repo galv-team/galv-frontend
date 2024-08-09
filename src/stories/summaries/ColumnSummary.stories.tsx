@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import ColumnSummary from '../../Components/summaries/ColumnSummary'
+import ColumnSummary from '../../Components/card/summaries/ColumnSummary'
 import { column_types } from '../../test/fixtures/fixtures'
 import { withRouter } from 'storybook-addon-remix-react-router'
 import SummaryDecorator from './SummaryDecorator'

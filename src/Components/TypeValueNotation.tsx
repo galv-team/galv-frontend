@@ -2,7 +2,7 @@ import {
     Field,
     FIELDS,
     is_autocomplete_key,
-    is_lookup_key,
+    is_lookupKey,
     LookupKey,
     Serializable,
     SerializableObject,
@@ -59,7 +59,7 @@ export function is_resource_type(
     if (typeof v === 'string') {
         if (v.startsWith('galv_')) {
             const k = v.replace('galv_', '')
-            return is_lookup_key(k) || is_autocomplete_key(k)
+            return is_lookupKey(k) || is_autocomplete_key(k)
         }
     }
     return false
@@ -274,11 +274,11 @@ export const to_type_value_notation = (
 }
 export const to_type_value_notation_wrapper = (
     v: SerializableObject,
-    lookup_key?: LookupKey,
+    lookupKey?: LookupKey,
 ): TypeValueNotationWrapper => {
     if (is_tvn_wrapper(v)) return v
-    if (lookup_key) {
-        const fields = FIELDS[lookup_key]
+    if (lookupKey) {
+        const fields = FIELDS[lookupKey]
         return Object.fromEntries(
             Object.entries(v).map(([k, v]) => [
                 k,

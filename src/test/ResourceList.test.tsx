@@ -9,7 +9,7 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
-import { vi, it, expect } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { cells } from './fixtures/fixtures'
 import WrappedResourceList from '../Components/ResourceList'
 
@@ -23,7 +23,7 @@ it('renders', async () => {
     render(
         <QueryClientProvider client={queryClient}>
             <FetchResourceContextProvider>
-                <WrappedResourceList lookup_key={LOOKUP_KEYS.CELL} />
+                <WrappedResourceList lookupKey={LOOKUP_KEYS.CELL} />
             </FetchResourceContextProvider>
         </QueryClientProvider>,
     )
@@ -33,8 +33,7 @@ it('renders', async () => {
     expect(screen.getAllByText(/ResourceCard/)).toHaveLength(cells.length)
     expect(
         screen.getAllByText(
-            (c, e) =>
-                e instanceof HTMLElement && e.dataset.key === 'lookup_key',
+            (c, e) => e instanceof HTMLElement && e.dataset.key === 'lookupKey',
         ),
     ).toHaveLength(cells.length)
 })

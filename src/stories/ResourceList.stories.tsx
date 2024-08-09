@@ -35,7 +35,7 @@ const meta = {
     tags: ['autodocs'],
     // More on argTypes: https://storybook.js.org/docs/api/argtypes
     argTypes: {
-        lookup_key: {
+        lookupKey: {
             control: 'select',
             options: [
                 ...Object.values(LOOKUP_KEYS),
@@ -45,7 +45,7 @@ const meta = {
     },
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
     args: {
-        lookup_key: LOOKUP_KEYS.CELL,
+        lookupKey: LOOKUP_KEYS.CELL,
     },
 } satisfies Meta<typeof ResourceList>
 
@@ -70,7 +70,7 @@ export const Basic: Story = {
 export const ApiError: Story = {
     args: {
         // @ts-expect-error deliberately setting a value that will cause an API error
-        lookup_key: Object.keys(error_responses)[0],
+        lookupKey: Object.keys(error_responses)[0],
     },
 }
 

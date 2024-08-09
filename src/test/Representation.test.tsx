@@ -9,7 +9,7 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
-import { it, expect } from 'vitest'
+import { expect, it } from 'vitest'
 import Representation from '../Components/Representation'
 import { teams } from './fixtures/fixtures'
 
@@ -21,8 +21,8 @@ it('renders', async () => {
         <QueryClientProvider client={queryClient}>
             <FetchResourceContextProvider>
                 <Representation
-                    lookup_key={LOOKUP_KEYS.TEAM}
-                    resource_id={team.id}
+                    lookupKey={LOOKUP_KEYS.TEAM}
+                    resourceId={team.id}
                     prefix="T"
                     suffix="!"
                 />

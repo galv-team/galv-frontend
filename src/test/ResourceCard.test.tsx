@@ -22,7 +22,7 @@ import { act } from 'react-dom/test-utils'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import axios from 'axios'
-import WrappedResourceCard from '../Components/ResourceCard'
+import ResourceCardFromQuery from '../Components/card/ResourceCard'
 
 import { cell_families, cells } from './fixtures/fixtures'
 
@@ -63,9 +63,9 @@ const do_render = async () => {
 
     render(
         <ContextStack>
-            <WrappedResourceCard<Cell>
-                lookup_key={LOOKUP_KEYS.CELL}
-                resource_id={cells[0].id}
+            <ResourceCardFromQuery<Cell>
+                lookupKey={LOOKUP_KEYS.CELL}
+                resourceId={cells[0].id}
                 expanded
             />
         </ContextStack>,

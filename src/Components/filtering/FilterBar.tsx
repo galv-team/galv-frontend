@@ -1,7 +1,6 @@
 import React, { Fragment, useContext, useState } from 'react'
 import Stack from '@mui/material/Stack'
 import Chip, { ChipProps } from '@mui/material/Chip'
-import Tooltip from '@mui/material/Tooltip'
 import {
     FF_VS,
     Filter,
@@ -17,7 +16,7 @@ import {
     FIELDS,
     ICONS,
     is_autocomplete_key,
-    is_lookup_key,
+    is_lookupKey,
     LOOKUP_KEYS,
     LookupKey,
 } from '../../constants'
@@ -64,7 +63,7 @@ function FilterChip({ filter, ...chipProps }: FilterChipProps & ChipProps) {
 }
 
 type FilterCreateFormProps = {
-    onCreate: (lookup_key: LookupKey, filter: Filter<unknown>) => void
+    onCreate: (lookupKey: LookupKey, filter: Filter<unknown>) => void
     onCancel?: () => void
 }
 
@@ -112,7 +111,7 @@ function FilterCreateForm({ onCreate, onCancel }: FilterCreateFormProps) {
                 <Select
                     value={lookupKey}
                     onChange={(e) =>
-                        is_lookup_key(e.target.value) &&
+                        is_lookupKey(e.target.value) &&
                         setLookupKey(e.target.value)
                     }
                     autoWidth
@@ -120,8 +119,8 @@ function FilterCreateForm({ onCreate, onCancel }: FilterCreateFormProps) {
                     size="small"
                 >
                     <MenuItem key="none" value="" disabled />
-                    {Object.keys(LOOKUP_KEYS).map((lookup_key) => {
-                        const _key = lookup_key as LookupKey
+                    {Object.keys(LOOKUP_KEYS).map((lookupKey) => {
+                        const _key = lookupKey as LookupKey
                         return (
                             <MenuItem value={_key} key={_key}>
                                 <LookupKeyIcon
@@ -254,16 +253,16 @@ export default function FilterBar() {
             {creating ? (
                 <FilterCreateForm
                     key="create_form"
-                    onCreate={(lookup_key, filter) => {
-                        console.log(`creating filter`, { lookup_key, filter })
+                    onCreate={(lookupKey, filter) => {
+                        console.log(`creating filter`, { lookupKey, filter })
                         setActiveFilters({
                             ...activeFilters,
-                            [lookup_key]: {
+                            [lookupKey]: {
                                 mode:
-                                    activeFilters[lookup_key].mode ??
+                                    activeFilters[lookupKey].mode ??
                                     FILTER_MODES.ALL,
                                 filters: [
-                                    ...activeFilters[lookup_key].filters,
+                                    ...activeFilters[lookupKey].filters,
                                     filter,
                                 ],
                             },
@@ -320,8 +319,8 @@ export default function FilterBar() {
                         className={clsx('existing_filters')}
                     >
                         {Object.entries(activeFilters).map(
-                            ([lookup_key, content]) => {
-                                const _key = lookup_key as LookupKey
+                            ([lookupKey, content]) => {
+                                const _key = lookupKey as LookupKey
                                 if (content.filters.length === 0)
                                     return <Fragment key={_key}></Fragment>
                                 return (

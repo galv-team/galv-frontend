@@ -8,12 +8,11 @@ import {
     DEFAULT_FETCH_LIMIT,
     DISPLAY_NAMES,
     GalvResource,
-    is_lookup_key,
+    is_lookupKey, LOOKUP_KEYS,
     LookupKey,
 } from '../constants'
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import {
-    UseQueryResult,
     MutationFunction,
     QueryFunction,
     useInfiniteQuery,
@@ -24,6 +23,7 @@ import {
     useQuery,
     useQueryClient,
     UseQueryOptions,
+    UseQueryResult,
 } from '@tanstack/react-query'
 import { get_select_function } from './ApiResourceContext'
 import { useSnackbarMessenger } from './SnackbarMessengerContext'
@@ -74,9 +74,8 @@ type RetrieveOptions<T extends GalvResource> = {
     with_result?: (result: AxiosResponse<T>) => AxiosResponse<T>
     on_error?: (error: AxiosError) => AxiosResponse<T> | undefined
 }
-type UpdateTVariables<T extends GalvResource> = Partial<T> & {
-    id: string | number
-}
+type UpdateTVariables<T extends GalvResource> = Partial<T>
+
 type UpdateOptions<T extends GalvResource> = {
     extra_query_options?: UseMutationOptions<AxiosResponse<T>, AxiosError>
     before_cache?: (result: AxiosResponse<T>) => AxiosResponse<T>
@@ -105,32 +104,32 @@ type DeleteOptions<T extends GalvResource> = {
 }
 
 export interface IFetchResourceContext {
-    // Returns null when lookup_key is undefined. Otherwise, returns undefined until data are fetched, then T[]
+    // Returns null when lookupKey is undefined. Otherwise, returns undefined until data are fetched, then T[]
     useListQuery: <T extends GalvResource>(
-        lookup_key: LookupKey | AutocompleteKey | undefined,
+        lookupKey: LookupKey | AutocompleteKey | undefined,
         requestParams?: { limit?: number },
     ) => ListQueryResult<T>
     useRetrieveQuery: <T extends GalvResource>(
-        lookup_key: LookupKey,
-        resource_id: string | number,
+        lookupKey: LookupKey,
+        resourceId: string | number,
         options?: RetrieveOptions<T>,
     ) => UseQueryResult<AxiosResponse<T>, AxiosError>
     useDescribeQuery: (
-        lookup_key?: LookupKey,
+        lookupKey?: LookupKey,
     ) => UseQueryResult<
         AxiosResponse<SerializerDescriptionSerializer>,
         AxiosError
     >
     useUpdateQuery: <T extends GalvResource>(
-        lookup_key: LookupKey,
+        lookupKey: LookupKey,
         options?: UpdateOptions<T>,
     ) => UseMutationResult<AxiosResponse<T>, AxiosError, UpdateTVariables<T>>
     useCreateQuery: <T extends GalvResource>(
-        lookup_key: LookupKey,
+        lookupKey: LookupKey,
         options?: CreateOptions<T>,
     ) => UseMutationResult<AxiosResponse<T>, AxiosError, Partial<T>>
     useDeleteQuery: <T extends GalvResource>(
-        lookup_key: LookupKey,
+        lookupKey: LookupKey,
         options?: DeleteOptions<T>,
     ) => UseMutationResult<AxiosResponse<null>, AxiosError, T>
 }
@@ -153,7 +152,7 @@ export default function FetchResourceContextProvider({
     const useListQuery: IFetchResourceContext['useListQuery'] = <
         T extends GalvResource,
     >(
-        lookup_key: LookupKey | AutocompleteKey | undefined,
+        lookupKey: LookupKey | AutocompleteKey | undefined,
         requestParams?: { limit?: number },
     ) => {
         const limit = requestParams?.limit ?? DEFAULT_FETCH_LIMIT
@@ -170,10 +169,10 @@ export default function FetchResourceContextProvider({
             AxiosResponse<PaginatedAPIResponse<T>> | null
         > = () => Promise.resolve(null)
 
-        if (lookup_key !== undefined) {
-            const api_handler = new API_HANDLERS[lookup_key](api_config)
+        if (lookupKey !== undefined) {
+            const api_handler = new API_HANDLERS[lookupKey](api_config)
             const get = api_handler[
-                `${API_SLUGS[lookup_key]}List` as keyof typeof api_handler
+                `${API_SLUGS[lookupKey]}List` as keyof typeof api_handler
             ] as (requestParams: {
                 limit?: number
                 offset?: number
@@ -190,15 +189,15 @@ export default function FetchResourceContextProvider({
                             // Update the cache for each resource
                             r.data.results.forEach((resource) => {
                                 let data
-                                if (is_lookup_key(lookup_key))
-                                    data = get_select_function(lookup_key)({
+                                if (is_lookupKey(lookupKey))
+                                    data = get_select_function(lookupKey)({
                                         ...r,
                                         data: resource,
                                     })
                                 else data = resource
                                 queryClient.setQueryData(
                                     [
-                                        lookup_key,
+                                        lookupKey,
                                         resource.id ?? 'no id in List response',
                                     ],
                                     data,
@@ -216,7 +215,7 @@ export default function FetchResourceContextProvider({
 
         // @ts-expect-error - TS isn't recognising the types of the *PageParam entries correctly
         const query = useInfiniteQuery({
-            queryKey: [lookup_key, 'list'],
+            queryKey: [lookupKey, 'list'],
             queryFn,
             getNextPageParam: (lastPage, allPages, lastPageParam) =>
                 lastPage?.data?.next ? lastPageParam + 1 : null,
@@ -240,15 +239,15 @@ export default function FetchResourceContextProvider({
     const useRetrieveQuery: IFetchResourceContext['useRetrieveQuery'] = <
         T extends GalvResource,
     >(
-        lookup_key: LookupKey,
-        resource_id: string | number,
+        lookupKey: LookupKey,
+        resourceId: string | number,
         options?: RetrieveOptions<T>,
     ) => {
         const { postSnackbarMessage } = useSnackbarMessenger()
         const { api_config } = useCurrentUser()
-        const api_handler = new API_HANDLERS[lookup_key](api_config)
+        const api_handler = new API_HANDLERS[lookupKey](api_config)
         const get = api_handler[
-            `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof api_handler
+            `${API_SLUGS[lookupKey]}Retrieve` as keyof typeof api_handler
         ] as (requestParams: { id: string }) => Promise<AxiosResponse<T>>
 
         const after = options?.with_result
@@ -259,7 +258,7 @@ export default function FetchResourceContextProvider({
             : (e: AxiosError) => {
                   if (e.response?.status === 401) return // handled in UserLogin interceptor
                   postSnackbarMessage({
-                      message: `Error retrieving ${DISPLAY_NAMES[lookup_key]}/${resource_id}  
+                      message: `Error retrieving ${DISPLAY_NAMES[lookupKey]}/${resourceId}  
                 (HTTP ${e.response?.status} - ${e.response?.statusText}): ${get_error_detail(e)}`,
                       severity: 'error',
                   })
@@ -267,7 +266,7 @@ export default function FetchResourceContextProvider({
 
         const queryFn: QueryFunction<AxiosResponse<T>> = () => {
             return get
-                .bind(api_handler)({ id: String(resource_id) })
+                .bind(api_handler)({ id: String(resourceId) })
                 .then(after)
                 .catch((e) => {
                     const result = on_error_fn(e as AxiosError)
@@ -277,7 +276,7 @@ export default function FetchResourceContextProvider({
         }
 
         const query_options: UseQueryOptions<AxiosResponse<T>, AxiosError> = {
-            queryKey: [lookup_key, resource_id],
+            queryKey: [lookupKey, resourceId],
             queryFn,
             enabled: useCurrentUser().user !== null,
             ...options?.extra_query_options,
@@ -286,17 +285,17 @@ export default function FetchResourceContextProvider({
     }
 
     const useDescribeQuery: IFetchResourceContext['useDescribeQuery'] = (
-        lookup_key?: LookupKey,
+        lookupKey?: LookupKey,
     ) => {
         let queryFn = (() => Promise.resolve(null)) as unknown as QueryFunction<
             AxiosResponse<SerializerDescriptionSerializer>
         >
-        if (lookup_key) {
-            const api_handler = new API_HANDLERS[lookup_key]({
+        if (lookupKey) {
+            const api_handler = new API_HANDLERS[lookupKey]({
                 basePath: import.meta.env.VITE_GALV_API_BASE_URL,
             } as Configuration)
             const describe = api_handler[
-                `${API_SLUGS[lookup_key]}DescribeRetrieve` as keyof typeof api_handler
+                `${API_SLUGS[lookupKey]}DescribeRetrieve` as keyof typeof api_handler
             ] as () => Promise<AxiosResponse<SerializerDescriptionSerializer>>
 
             queryFn = (() => describe.bind(api_handler)()) as QueryFunction<
@@ -307,28 +306,28 @@ export default function FetchResourceContextProvider({
             AxiosResponse<SerializerDescriptionSerializer>,
             AxiosError
         >({
-            queryKey: [lookup_key, 'describe'],
+            queryKey: [lookupKey, 'describe'],
             queryFn,
-            enabled: !!lookup_key,
+            enabled: !!lookupKey,
         })
     }
 
     const useUpdateQuery: IFetchResourceContext['useUpdateQuery'] = <
         T extends GalvResource,
     >(
-        lookup_key: LookupKey,
+        lookupKey: LookupKey,
         options?: UpdateOptions<T>,
     ) => {
         const queryClient = useQueryClient()
         const { postSnackbarMessage } = useSnackbarMessenger()
         const { api_config } = useCurrentUser()
         // used to get config in axios call
-        const api_skeleton = new API_HANDLERS[lookup_key](
+        const api_skeleton = new API_HANDLERS[lookupKey](
             api_config,
         ) as unknown as { axios: Axios; basePath: string }
-        const api_handler = API_HANDLERS_FP[lookup_key](api_config)
+        const api_handler = API_HANDLERS_FP[lookupKey](api_config)
         const partialUpdate = api_handler[
-            `${API_SLUGS[lookup_key]}PartialUpdate` as keyof typeof api_handler
+            `${API_SLUGS[lookupKey]}PartialUpdate` as keyof typeof api_handler
         ] as (
             id: string,
             data: Partial<T>,
@@ -349,7 +348,7 @@ export default function FetchResourceContextProvider({
             ? options.on_error
             : (e: AxiosError, v: UpdateTVariables<T>) => {
                   postSnackbarMessage({
-                      message: `Error updating ${DISPLAY_NAMES[lookup_key]}/${v.id ?? v.id}  
+                      message: `Error updating ${DISPLAY_NAMES[lookupKey]}/${v.id ?? v.id}  
                 (HTTP ${e.response?.status} - ${e.response?.statusText}): ${get_error_detail(e)}`,
                       severity: 'error',
                   })
@@ -369,7 +368,7 @@ export default function FetchResourceContextProvider({
             AxiosError,
             Partial<T>
         > = {
-            mutationKey: [lookup_key, 'update'],
+            mutationKey: [lookupKey, 'update'],
             // @ts-expect-error - TS incorrectly infers that TVariables can be of type void
             mutationFn: mutationFn,
             // @ts-expect-error - TS incorrectly infers that TVariables can be of type void
@@ -378,11 +377,11 @@ export default function FetchResourceContextProvider({
                 variables: UpdateTVariables<T>,
             ) => {
                 // Update cache
-                const queryKey = [lookup_key, variables.id]
+                const queryKey = [lookupKey, variables.id]
                 queryClient.setQueryData(queryKey, data)
                 // Invalidate list cache
                 queryClient.invalidateQueries({
-                    queryKey: [lookup_key, 'list'],
+                    queryKey: [lookupKey, 'list'],
                 })
                 // Invalidate autocomplete cache
                 queryClient.invalidateQueries({ queryKey: ['autocomplete'] })
@@ -409,19 +408,19 @@ export default function FetchResourceContextProvider({
     const useCreateQuery: IFetchResourceContext['useCreateQuery'] = <
         T extends GalvResource,
     >(
-        lookup_key: LookupKey,
+        lookupKey: LookupKey,
         options?: CreateOptions<T>,
     ) => {
         const queryClient = useQueryClient()
         const { postSnackbarMessage } = useSnackbarMessenger()
         const { api_config } = useCurrentUser()
         // used to get config in axios call
-        const api_skeleton = new API_HANDLERS[lookup_key](
+        const api_skeleton = new API_HANDLERS[lookupKey](
             api_config,
         ) as unknown as { axios: Axios; basePath: string }
-        const api_handler = API_HANDLERS_FP[lookup_key](api_config)
+        const api_handler = API_HANDLERS_FP[lookupKey](api_config)
         const create = api_handler[
-            `${API_SLUGS[lookup_key]}Create` as keyof typeof api_handler
+            `${API_SLUGS[lookupKey]}Create` as keyof typeof api_handler
         ] as (
             data: Partial<T>,
         ) => Promise<
@@ -439,7 +438,7 @@ export default function FetchResourceContextProvider({
             ? options.on_error
             : (e: AxiosError, v: Partial<T>) => {
                   postSnackbarMessage({
-                      message: `Error creating ${DISPLAY_NAMES[lookup_key]} 
+                      message: `Error creating ${DISPLAY_NAMES[lookupKey]} 
                 ${get_display_name(v)}  
                 (HTTP ${e.response?.status} - ${e.response?.statusText}): ${get_error_detail(e)}`,
                       severity: 'error',
@@ -460,20 +459,20 @@ export default function FetchResourceContextProvider({
             AxiosError,
             Partial<T>
         > = {
-            mutationKey: [lookup_key, 'create'],
+            mutationKey: [lookupKey, 'create'],
             // @ts-expect-error - TS incorrectly infers that TVariables can be of type void
             mutationFn: mutationFn,
             // @ts-expect-error - TS incorrectly infers that TVariables can be of type void
             onSuccess: (data: AxiosResponse<T>, variables: Partial<T>) => {
                 // Update cache
                 const queryKey = [
-                    lookup_key,
+                    lookupKey,
                     data.data.id ?? 'no id in Create response',
                 ]
                 queryClient.setQueryData(queryKey, data)
                 // Invalidate list cache
                 queryClient.invalidateQueries({
-                    queryKey: [lookup_key, 'list'],
+                    queryKey: [lookupKey, 'list'],
                 })
                 // Invalidate autocomplete cache
                 queryClient.invalidateQueries({ queryKey: ['autocomplete'] })
@@ -491,22 +490,22 @@ export default function FetchResourceContextProvider({
     const useDeleteQuery: IFetchResourceContext['useDeleteQuery'] = <
         T extends GalvResource,
     >(
-        lookup_key: LookupKey,
+        lookupKey: LookupKey,
         options?: DeleteOptions<T>,
     ) => {
         const queryClient = useQueryClient()
         const { postSnackbarMessage } = useSnackbarMessenger()
-        const { api_config } = useCurrentUser()
-        const api_handler = new API_HANDLERS[lookup_key](api_config)
+        const { api_config, refresh_user } = useCurrentUser()
+        const api_handler = new API_HANDLERS[lookupKey](api_config)
         const destroy = api_handler[
-            `${API_SLUGS[lookup_key]}Destroy` as keyof typeof api_handler
+            `${API_SLUGS[lookupKey]}Destroy` as keyof typeof api_handler
         ] as (requestParameters: { id: string }) => Promise<AxiosResponse<null>>
 
         const on_error_fn = options?.on_error
             ? options.on_error
             : (e: AxiosError, v: T) => {
                   postSnackbarMessage({
-                      message: `Error deleting ${DISPLAY_NAMES[lookup_key]}/${v.id ?? v.id}  
+                      message: `Error deleting ${DISPLAY_NAMES[lookupKey]}/${v.id ?? v.id}  
                 (HTTP ${e.response?.status} - ${e.response?.statusText}): ${get_error_detail(e)}`,
                       severity: 'error',
                   })
@@ -521,19 +520,22 @@ export default function FetchResourceContextProvider({
             AxiosError,
             T
         > = {
-            mutationKey: [lookup_key, 'delete'],
+            mutationKey: [lookupKey, 'delete'],
             // @ts-expect-error - TS incorrectly infers that TVariables can be of type void
             mutationFn: mutationFn,
             // @ts-expect-error - TS incorrectly infers that TVariables can be of type void
             onSuccess: (data: AxiosResponse<null>, variables: T) => {
                 // Invalidate cache
                 queryClient.removeQueries({
-                    queryKey: [lookup_key, variables.id],
+                    queryKey: [lookupKey, variables.id],
                 })
                 // Invalidate list cache
                 queryClient.invalidateQueries({
-                    queryKey: [lookup_key, 'list'],
+                    queryKey: [lookupKey, 'list'],
                 })
+                if (lookupKey === LOOKUP_KEYS.LAB) {
+                    refresh_user()
+                }
                 // Invalidate autocomplete cache
                 queryClient.invalidateQueries({ queryKey: ['autocomplete'] })
                 if (options?.after) options.after()

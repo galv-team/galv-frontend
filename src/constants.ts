@@ -171,7 +171,7 @@ export const type_to_key = (
 ): AutocompleteKey | LookupKey | undefined => {
     if (t.startsWith('galv_')) {
         const k = t.replace('galv_', '')
-        if (is_autocomplete_key(k) || is_lookup_key(k)) return k
+        if (is_autocomplete_key(k) || is_lookupKey(k)) return k
         console.error(
             `Type ${t} starts with galv_ but is not a LookupKey or AutocompleteKey`,
         )
@@ -188,7 +188,7 @@ export const type_to_key = (
 export const key_to_type = (
     k: unknown,
 ): TypeChangerAutocompleteKey | TypeChangerLookupKey => {
-    if (is_autocomplete_key(k) || is_lookup_key(k)) return `galv_${k}`
+    if (is_autocomplete_key(k) || is_lookupKey(k)) return `galv_${k}`
     throw new Error(`key_to_type: ${k} is not a valid key`)
 }
 
@@ -241,7 +241,7 @@ export const AUTOCOMPLETE_KEYS = {
 } as const
 
 export type LookupKey = keyof typeof LOOKUP_KEYS
-export const is_lookup_key = (key: unknown): key is LookupKey =>
+export const is_lookupKey = (key: unknown): key is LookupKey =>
     typeof key === 'string' && Object.keys(LOOKUP_KEYS).includes(key)
 
 export type AutocompleteKey = keyof typeof AUTOCOMPLETE_KEYS
@@ -413,7 +413,7 @@ export const DISPLAY_NAMES_PLURAL = {
  * Casting is likely to be necessary when using this, e.g.:
  * ```
  * const target_get = target_api_handler[
- *         `${API_SLUGS[lookup_key]}Retrieve` as keyof typeof target_api_handler
+ *         `${API_SLUGS[lookupKey]}Retrieve` as keyof typeof target_api_handler
  *         ] as (requestParams: {id: string}) => Promise<AxiosResponse<T>>
  * ```
  */
@@ -453,7 +453,7 @@ export const API_SLUGS = {
 
 /**
  * API handlers for each resource type.
- * Instantiated with new API_HANDLERS[lookup_key]().
+ * Instantiated with new API_HANDLERS[lookupKey]().
  *
  * Used when we don't know the order of the arguments to the API function.
  */
@@ -493,7 +493,7 @@ export const API_HANDLERS = {
 
 /**
  * API Functional Interface for each resource type.
- * Instantiated with new API_HANDLERS[lookup_key]().
+ * Instantiated with new API_HANDLERS[lookupKey]().
  *
  * This is used when we don't know the name of the parameters we want to set.
  */

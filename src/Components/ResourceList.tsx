@@ -11,7 +11,7 @@ import clsx from 'clsx'
 import Grid from '@mui/material/Unstable_Grid2'
 import CircularProgress from '@mui/material/CircularProgress'
 import Skeleton from '@mui/material/Skeleton'
-import ResourceCard from './ResourceCard'
+import ResourceCard from './card/ResourceCard'
 import ResourceCreator from './ResourceCreator'
 import {
     DEFAULT_FETCH_LIMIT,
@@ -32,11 +32,11 @@ import TablePagination from '@mui/material/TablePagination'
 import { FilterContext } from './filtering/FilterContext'
 
 export type ResourceListProps = {
-    lookup_key: LookupKey
+    lookupKey: LookupKey
 }
 
 export function ResourceList<T extends GalvResource>({
-    lookup_key,
+    lookupKey,
 }: ResourceListProps) {
     const { classes } = useStyles()
     const { useListQuery } = useFetchResource()
@@ -48,7 +48,7 @@ export function ResourceList<T extends GalvResource>({
     const [page, setPage] = React.useState(0)
     const [itemsPerPage, setItemsPerPage] = React.useState(DEFAULT_FETCH_LIMIT)
 
-    const query = useListQuery<T>(lookup_key, { limit: itemsPerPage })
+    const query = useListQuery<T>(lookupKey, { limit: itemsPerPage })
 
     if (query?.hasNextPage && !query.isFetchingNextPage) query.fetchNextPage()
 
@@ -67,20 +67,20 @@ export function ResourceList<T extends GalvResource>({
                     <Button onClick={() => setLoginFormOpen(true)}>
                         Log in
                     </Button>{' '}
-                    to see {DISPLAY_NAMES_PLURAL[lookup_key]}
+                    to see {DISPLAY_NAMES_PLURAL[lookupKey]}
                 </p>
             )
         else
             content = (
                 <p>
-                    No {DISPLAY_NAMES_PLURAL[lookup_key].toLowerCase()} on the
+                    No {DISPLAY_NAMES_PLURAL[lookupKey].toLowerCase()} on the
                     server are visible for this account.
                 </p>
             )
     } else if (query.results) {
         // Reduce the result count for pagination to only those that pass filters
         results = query.results.filter((r) =>
-            passesFilters({ apiResource: r }, lookup_key),
+            passesFilters({ apiResource: r }, lookupKey),
         ) // todo: family filters
         content = results
             .filter(
@@ -90,10 +90,10 @@ export function ResourceList<T extends GalvResource>({
             .map((resource: T, i) => (
                 <ResourceCard
                     key={`resource_${i}`}
-                    resource_id={
+                    resourceId={
                         (resource.id as string) ?? (resource.id as number)
                     }
-                    lookup_key={lookup_key}
+                    lookupKey={lookupKey}
                 />
             ))
     } else {
@@ -108,7 +108,7 @@ export function ResourceList<T extends GalvResource>({
                     variant="h3"
                     className={clsx(classes.pageTitle, classes.text)}
                 >
-                    {DISPLAY_NAMES_PLURAL[lookup_key]}
+                    {DISPLAY_NAMES_PLURAL[lookupKey]}
                     {query.isLoading && query.isFetching && (
                         <CircularProgress
                             className={clsx(classes.inlineProgress)}
@@ -117,17 +117,17 @@ export function ResourceList<T extends GalvResource>({
                     )}
                 </Typography>
             </Grid>
-            <IntroText k={lookup_key} />
+            <IntroText k={lookupKey} />
             <Stack spacing={2} key="body">
-                {lookup_key === LOOKUP_KEYS.FILE && (
+                {lookupKey === LOOKUP_KEYS.FILE && (
                     <ClientCodeDemo fileQueryLimit={itemsPerPage} />
                 )}
                 {content}
-                <ResourceCreator key={'creator'} lookup_key={lookup_key} />
-                {get_has_family(lookup_key) && (
+                <ResourceCreator key={'creator'} lookupKey={lookupKey} />
+                {get_has_family(lookupKey) && (
                     <ResourceCreator
                         key={'family_creator'}
-                        lookup_key={FAMILY_LOOKUP_KEYS[lookup_key]}
+                        lookupKey={FAMILY_LOOKUP_KEYS[lookupKey]}
                     />
                 )}
             </Stack>
@@ -168,16 +168,16 @@ export function ResourceList<T extends GalvResource>({
     )
 }
 
-export default function WrappedResourceList(props: { lookup_key: LookupKey }) {
+export default function WrappedResourceList(props: { lookupKey: LookupKey }) {
     return (
         <ErrorBoundary
             fallback={
                 <p>
-                    {props.lookup_key}: Could not load{' '}
-                    {DISPLAY_NAMES_PLURAL[props.lookup_key]}
+                    {props.lookupKey}: Could not load{' '}
+                    {DISPLAY_NAMES_PLURAL[props.lookupKey]}
                 </p>
             }
-            key={props.lookup_key}
+            key={props.lookupKey}
         >
             <ResourceList {...props} />
         </ErrorBoundary>
