@@ -37,6 +37,7 @@ import {
 } from '../TypeValueNotation'
 import { FieldDescription, useFetchResource } from '../FetchResourceContext'
 import SafeTooltip from '../SafeTooltip'
+import Alert from "@mui/material/Alert";
 
 export type AccessLevels = Partial<{
     [key in keyof PermittedAccessLevels]: { _type: 'number'; _value: number }
@@ -55,6 +56,7 @@ export type PrettyObjectProps<
     T extends TypeValueNotation | TypeValueNotationWrapper = TypeValueNotation,
 > = {
     target?: T
+    fieldErrors?: Record<string, string>
     lookupKey?: LookupKey
     nest_level?: number
     edit_mode?: boolean
@@ -290,6 +292,7 @@ export default function PrettyObject<
     },
 >({
     target,
+    fieldErrors,
     lookupKey,
     nest_level,
     edit_mode,
@@ -333,6 +336,7 @@ export default function PrettyObject<
 
     // Type coercion for optional props
     const _target = target || {} // for tsLint
+    const _fieldErrors = fieldErrors || {}
     const is_wrapper = is_tvn_wrapper(_target)
     const _value = (is_wrapper ? _target : _target._value) ?? {}
     const _edit_mode = edit_mode || false
@@ -466,119 +470,150 @@ export default function PrettyObject<
                 <Table size="small">
                     <TableBody>
                         {keys.map((key, i) => {
+                            const invalid = Object.keys(_fieldErrors).includes(key)
                             return (
-                                <TableRow key={i}>
-                                    <TableCell
-                                        component="th"
-                                        scope="row"
-                                        key={`key_${i}`}
-                                        align="right"
+                                <>
+                                    <TableRow
+                                        key={i}
+                                        className={clsx({
+                                            [classes.fieldError]: invalid,
+                                        })}
                                     >
-                                        <Stack
-                                            alignItems="stretch"
-                                            justifyContent="flex-end"
+                                        <TableCell
+                                            component="th"
+                                            scope="row"
+                                            key={`key_${i}`}
+                                            align="right"
                                         >
-                                            {_canEditKeys &&
-                                            _edit_mode &&
-                                            onEdit &&
-                                            !is_read_only(key) ? (
-                                                <Prettify
-                                                    nest_level={_nest_level}
-                                                    edit_mode={true}
-                                                    create_mode={!!creating}
-                                                    hide_type_changer={true}
-                                                    onEdit={(new_key) => {
-                                                        // Rename key (or delete if new_key is empty)
-                                                        let new_key_str: string
-                                                        try {
-                                                            new_key_str =
-                                                                String(
-                                                                    new_key._value,
-                                                                )
-                                                        } catch (e) {
-                                                            new_key_str = ''
+                                            <Stack
+                                                alignItems="stretch"
+                                                justifyContent="flex-end"
+                                            >
+                                                {_canEditKeys &&
+                                                _edit_mode &&
+                                                onEdit &&
+                                                !is_read_only(key) ? (
+                                                    <Prettify
+                                                        nest_level={_nest_level}
+                                                        edit_mode={true}
+                                                        create_mode={!!creating}
+                                                        hide_type_changer={true}
+                                                        onEdit={(new_key) => {
+                                                            // Rename key (or delete if new_key is empty)
+                                                            let new_key_str: string
+                                                            try {
+                                                                new_key_str =
+                                                                    String(
+                                                                        new_key._value,
+                                                                    )
+                                                            } catch (e) {
+                                                                new_key_str = ''
+                                                            }
+                                                            _onEdit(
+                                                                rename_key_in_place(
+                                                                    _value,
+                                                                    key,
+                                                                    new_key_str,
+                                                                ),
+                                                            )
+                                                        }}
+                                                        target={{
+                                                            _type: 'string',
+                                                            _value: key,
+                                                        }}
+                                                        type="string"
+                                                        label="key"
+                                                        fullWidth={true}
+                                                    />
+                                                ) : // If this is a key we recognise from the API, show any help text we may have
+                                                get_metadata(key) ? (
+                                                    <AnnotatedKey
+                                                        metadata={get_metadata(
+                                                            key,
+                                                        )}
+                                                        key_name={key}
+                                                        create_mode={!!creating}
+                                                    />
+                                                ) : (
+                                                    // Otherwise, just show the key
+                                                    <Typography
+                                                        variant="subtitle2"
+                                                        component="span"
+                                                        textAlign="right"
+                                                    >
+                                                        {key}
+                                                    </Typography>
+                                                )}
+                                            </Stack>
+                                        </TableCell>
+                                        <TableCell
+                                            key={`value_${i}`}
+                                            align="left"
+                                        >
+                                            <Stack
+                                                alignItems="stretch"
+                                                justifyContent="flex-start"
+                                            >
+                                                {get_metadata(key).api_type ===
+                                                'choice' ? (
+                                                    <ChoiceSelect
+                                                        choices={
+                                                            get_metadata(key)
+                                                                .choices
                                                         }
-                                                        _onEdit(
-                                                            rename_key_in_place(
-                                                                _value,
-                                                                key,
-                                                                new_key_str,
-                                                            ),
-                                                        )
-                                                    }}
-                                                    target={{
-                                                        _type: 'string',
-                                                        _value: key,
-                                                    }}
-                                                    type="string"
-                                                    label="key"
-                                                    fullWidth={true}
-                                                />
-                                            ) : // If this is a key we recognise from the API, show any help text we may have
-                                            get_metadata(key) ? (
-                                                <AnnotatedKey
-                                                    metadata={get_metadata(key)}
-                                                    key_name={key}
-                                                    create_mode={!!creating}
-                                                />
-                                            ) : (
-                                                // Otherwise, just show the key
-                                                <Typography
-                                                    variant="subtitle2"
-                                                    component="span"
-                                                    textAlign="right"
-                                                >
-                                                    {key}
-                                                </Typography>
+                                                        edit_fun_factory={edit_fun_factory(
+                                                            key,
+                                                        )}
+                                                        value={
+                                                            _value[key] ??
+                                                            get_metadata(key)
+                                                                .default
+                                                        }
+                                                        disabled={
+                                                            is_read_only(key) ||
+                                                            !_edit_mode
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <Prettify
+                                                        nest_level={_nest_level}
+                                                        edit_mode={_edit_mode}
+                                                        create_mode={!!creating}
+                                                        onEdit={edit_fun_factory(
+                                                            key,
+                                                        )}
+                                                        target={_value[key]}
+                                                        lock_type={
+                                                            get_metadata(key)
+                                                                ?.lock_type
+                                                        }
+                                                        lock_child_type_to={get_child_type(
+                                                            key,
+                                                        )}
+                                                        inputProps={{
+                                                            'aria-invalid':
+                                                                invalid,
+                                                        }}
+                                                    />
+                                                )}
+                                            </Stack>
+                                        </TableCell>
+                                    </TableRow>
+                                    {invalid && (
+                                        <TableRow
+                                            key={`${i}_error`}
+                                            className={clsx(
+                                                classes.fieldErrorDetail,
                                             )}
-                                        </Stack>
-                                    </TableCell>
-                                    <TableCell key={`value_${i}`} align="left">
-                                        <Stack
-                                            alignItems="stretch"
-                                            justifyContent="flex-start"
                                         >
-                                            {get_metadata(key).api_type ===
-                                            'choice' ? (
-                                                <ChoiceSelect
-                                                    choices={
-                                                        get_metadata(key)
-                                                            .choices
-                                                    }
-                                                    edit_fun_factory={edit_fun_factory(
-                                                        key,
-                                                    )}
-                                                    value={
-                                                        _value[key] ??
-                                                        get_metadata(key)
-                                                            .default
-                                                    }
-                                                    disabled={
-                                                        is_read_only(key) ||
-                                                        !_edit_mode
-                                                    }
-                                                />
-                                            ) : (
-                                                <Prettify
-                                                    nest_level={_nest_level}
-                                                    edit_mode={_edit_mode}
-                                                    create_mode={!!creating}
-                                                    onEdit={edit_fun_factory(
-                                                        key,
-                                                    )}
-                                                    target={_value[key]}
-                                                    lock_type={
-                                                        get_metadata(key)
-                                                            ?.lock_type
-                                                    }
-                                                    lock_child_type_to={get_child_type(
-                                                        key,
-                                                    )}
-                                                />
-                                            )}
-                                        </Stack>
-                                    </TableCell>
-                                </TableRow>
+                                            <TableCell colSpan={2}>
+                                                <Alert severity="error">
+                                                    {_fieldErrors[key]}
+                                                </Alert>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </>
                             )
                         })}
                         {_canEditKeys && _edit_mode && (

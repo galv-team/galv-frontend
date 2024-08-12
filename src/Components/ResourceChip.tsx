@@ -9,7 +9,6 @@ import ErrorChip from './error/ErrorChip'
 import {
     FAMILY_LOOKUP_KEYS,
     GalvResource,
-    LookupKey,
     PATHS,
 } from '../constants'
 import ErrorBoundary from './ErrorBoundary'
@@ -27,12 +26,12 @@ export type ResourceChipProps = {
     ChipProps & { component?: React.ElementType }
 
 export function ResourceChip<T extends GalvResource>({
-    loading,
-    error,
-    success,
-    short_name,
-    ...chipProps
-}: ResourceChipProps) {
+                                                         loading,
+                                                         error,
+                                                         success,
+                                                         short_name,
+                                                         ...chipProps
+                                                     }: ResourceChipProps) {
     // console.log(`ResourceChip`, {id, lookupKey, loading, error, success, chipProps})
     const { classes } = useStyles()
 
@@ -62,7 +61,7 @@ export function ResourceChip<T extends GalvResource>({
                                     lookupKey={
                                         FAMILY_LOOKUP_KEYS[
                                             lookupKey as keyof typeof FAMILY_LOOKUP_KEYS
-                                        ]
+                                            ]
                                     }
                                     suffix=" "
                                 />
@@ -92,7 +91,7 @@ export function ResourceChip<T extends GalvResource>({
                                     lookupKey={
                                         FAMILY_LOOKUP_KEYS[
                                             lookupKey as keyof typeof FAMILY_LOOKUP_KEYS
-                                        ]
+                                            ]
                                     }
                                     suffix=" "
                                 />
@@ -121,16 +120,16 @@ export function ResourceChip<T extends GalvResource>({
                 error
                     ? error
                     : (queries) => (
-                          <ErrorChip
-                              status={queries[0].error?.response?.status}
-                              target={`${PATHS[lookupKey]}/${resourceId}`}
-                              detail={queries[0].error?.response?.data?.toString()}
-                              key={resourceId}
-                              icon={icon}
-                              variant="outlined"
-                              {...(chipProps as ChipProps)}
-                          />
-                      )
+                        <ErrorChip
+                            status={queries[0].error?.response?.status}
+                            target={`${PATHS[lookupKey]}/${resourceId}`}
+                            detail={queries[0].error?.response?.data?.toString()}
+                            key={resourceId}
+                            icon={icon}
+                            variant="outlined"
+                            {...(chipProps as ChipProps)}
+                        />
+                    )
             }
             success={content}
         />
@@ -138,23 +137,27 @@ export function ResourceChip<T extends GalvResource>({
 }
 
 export default function ResourceChipFromQuery<T extends GalvResource>(
-    props: ResourceChipProps & ApiResourceContextProviderProps,
+    {
+        lookupKey,
+        resourceId,
+        ...props
+    }: ResourceChipProps & ApiResourceContextProviderProps
 ) {
     return (
         <ErrorBoundary
             fallback={(error: Error) => (
                 <ErrorChip
-                    target={`${props.lookupKey} ${props.resourceId}`}
+                    target={`${lookupKey} ${resourceId}`}
                     detail={error.message}
-                    key={props.resourceId}
-                    icon={<LookupKeyIcon lookupKey={props.lookupKey} />}
+                    key={resourceId}
+                    icon={<LookupKeyIcon lookupKey={lookupKey} />}
                     variant="outlined"
                 />
             )}
         >
             <ApiResourceContextProvider
-                lookupKey={props.lookupKey}
-                resourceId={props.resourceId}
+                lookupKey={lookupKey}
+                resourceId={resourceId}
             >
                 <ResourceChip<T> {...props} />
             </ApiResourceContextProvider>

@@ -34,10 +34,12 @@ const CUSTOM_BODIES: Partial<Record<LookupKey, typeof CardBody>> = {} as const
 
 export type CardBodyProps = {
     isEditMode?: boolean
+    fieldErrors: Record<string, string>
 } & Omit<CardContentProps, 'children'>
 
 export default function CardBody<T extends GalvResource>({
     isEditMode,
+    fieldErrors,
     ...props
 }: CardBodyProps) {
     const {
@@ -83,7 +85,7 @@ export default function CardBody<T extends GalvResource>({
     if (has(CUSTOM_BODIES, lookupKey)) {
         // This must exist because of has() check
         const CustomBody = CUSTOM_BODIES[lookupKey]!
-        return <CustomBody {...props} />
+        return <CustomBody fieldErrors={fieldErrors} {...props} />
     }
 
     return (
@@ -164,6 +166,7 @@ export default function CardBody<T extends GalvResource>({
                                 lookupKey,
                             )
                         }
+                        fieldErrors={fieldErrors}
                         edit_mode={isEditMode}
                         lookupKey={lookupKey}
                         onEdit={(

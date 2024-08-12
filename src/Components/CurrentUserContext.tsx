@@ -24,6 +24,32 @@ export interface ICurrentUserContext {
     refresh_user: () => void
     loginFormOpen: boolean
     setLoginFormOpen: (open: boolean) => void
+    settings: UserSettings
+}
+
+export type UserSettings = {
+    api_request_alert_timeout: number
+}
+
+function get_user_settings(settings: Partial<UserSettings>): UserSettings {
+    return {
+        api_request_alert_timeout: 5000,
+        ...settings
+    }
+}
+
+class MockableLocalStorage {
+    private _storage: Record<string, string> = {}
+    private _mocked_keys: string[] = []
+
+    constructor(initial_state: Record<string, string> = {}, extra_keys: string[] = []) {
+        this._storage = initial_state
+        this._mocked_keys = Object.keys(initial_state).concat(extra_keys)
+    }
+
+    getItem = (key: string) => this._mocked_keys.includes(key)? this._storage[key] : window.localStorage.getItem(key)
+    setItem = (key: string, value: string) => this._mocked_keys.includes(key)? (this._storage[key] = value) : window.localStorage.setItem(key, value)
+    removeItem = (key: string) => this._mocked_keys.includes(key)? delete this._storage[key] : window.localStorage.removeItem(key)
 }
 
 export const CurrentUserContext = createContext({} as ICurrentUserContext)
@@ -31,11 +57,18 @@ export const CurrentUserContext = createContext({} as ICurrentUserContext)
 export const useCurrentUser = () => useContext(CurrentUserContext)
 
 export default function CurrentUserContextProvider({
-    children,
-}: {
-    children: ReactNode
+                                                       children,
+                                                       user_override,
+                                                   }: {
+    children: ReactNode,
+    // If set, this will overwrite localStorage methods
+    user_override?: string|null
 }) {
-    const local_user_string = window.localStorage.getItem('user')
+    const localStorage = user_override !== undefined
+        ? new MockableLocalStorage(user_override ? { user: user_override } : {}, ['user'])
+        : window.localStorage
+
+    const local_user_string = localStorage.getItem('user')
     const local_user: LoginUser | null = JSON.parse(local_user_string || 'null')
 
     const [user, setUser] = useState<LoginUser | null>(local_user ?? null)
@@ -65,7 +98,7 @@ export default function CurrentUserContextProvider({
             return api_handler.loginCreate.bind(new LoginApi(get_config()))()
         },
         onSuccess: (data) => {
-            window.localStorage.setItem('user', JSON.stringify(data.data))
+            localStorage.setItem('user', JSON.stringify(data.data))
             setUser(data.data as unknown as LoginUser)
             queryClient.removeQueries({ predicate: () => true })
             onSuccess && onSuccess(data)
@@ -75,7 +108,7 @@ export default function CurrentUserContextProvider({
 
     const Logout = () => {
         if (user) {
-            window.localStorage.removeItem('user')
+            localStorage.removeItem('user')
             setUser(null)
             queryClient.removeQueries({ predicate: () => true })
         }
@@ -158,6 +191,7 @@ export default function CurrentUserContextProvider({
                 loginFormOpen,
                 setLoginFormOpen,
                 api_config,
+                settings: get_user_settings({}),
             }}
         >
             {children}
