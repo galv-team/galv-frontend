@@ -11,33 +11,39 @@ export type AxiosErrorAlertProps = {
     alertTitle?: ReturnType<typeof AlertTitle> | boolean
 } & Omit<AlertProps, 'children'>
 
-export default function AxiosErrorAlert(
-    {
-        error,
-        maxListLength,
-        alertTitle,
-        ...alertProps
-    }: AxiosErrorAlertProps
-) {
+export default function AxiosErrorAlert({
+    error,
+    maxListLength,
+    alertTitle,
+    ...alertProps
+}: AxiosErrorAlertProps) {
     const max_list_length = maxListLength ?? 3
 
     // Coerce undefined to a known AxiosError shape
     if (error === undefined) {
-        return <Alert severity="error" {...alertProps}>An unknown error occurred.</Alert>
+        return (
+            <Alert severity="error" {...alertProps}>
+                An unknown error occurred.
+            </Alert>
+        )
     }
 
     if (!error.response?.data) {
-        return <Alert severity="error" {...alertProps}>{error.message}</Alert>
+        return (
+            <Alert severity="error" {...alertProps}>
+                {error.message}
+            </Alert>
+        )
     }
 
     const error_object =
         error.response?.data instanceof Array
             ? Object.fromEntries(
-                error.response?.data.map((e: string, i: number) => [
-                    `_${i}`,
-                    e,
-                ]),
-            )
+                  error.response?.data.map((e: string, i: number) => [
+                      `_${i}`,
+                      e,
+                  ]),
+              )
             : error.response?.data
 
     const non_field_errors = error_object.non_field_errors ?? []
@@ -79,8 +85,8 @@ export default function AxiosErrorAlert(
         alertTitle === false
             ? null
             : (alertTitle ?? (
-                <AlertTitle>{total_error_count} errors</AlertTitle>
-            ))
+                  <AlertTitle>{total_error_count} errors</AlertTitle>
+              ))
 
     return (
         <Alert severity="error" {...alertProps}>

@@ -8,7 +8,8 @@ import {
     DEFAULT_FETCH_LIMIT,
     DISPLAY_NAMES,
     GalvResource,
-    is_lookupKey, LOOKUP_KEYS,
+    is_lookupKey,
+    LOOKUP_KEYS,
     LookupKey,
 } from '../constants'
 import axios, { AxiosError, AxiosResponse } from 'axios'

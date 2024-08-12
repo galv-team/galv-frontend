@@ -34,7 +34,7 @@ export type UserSettings = {
 function get_user_settings(settings: Partial<UserSettings>): UserSettings {
     return {
         api_request_alert_timeout: 5000,
-        ...settings
+        ...settings,
     }
 }
 
@@ -42,14 +42,26 @@ class MockableLocalStorage {
     private _storage: Record<string, string> = {}
     private _mocked_keys: string[] = []
 
-    constructor(initial_state: Record<string, string> = {}, extra_keys: string[] = []) {
+    constructor(
+        initial_state: Record<string, string> = {},
+        extra_keys: string[] = [],
+    ) {
         this._storage = initial_state
         this._mocked_keys = Object.keys(initial_state).concat(extra_keys)
     }
 
-    getItem = (key: string) => this._mocked_keys.includes(key)? this._storage[key] : window.localStorage.getItem(key)
-    setItem = (key: string, value: string) => this._mocked_keys.includes(key)? (this._storage[key] = value) : window.localStorage.setItem(key, value)
-    removeItem = (key: string) => this._mocked_keys.includes(key)? delete this._storage[key] : window.localStorage.removeItem(key)
+    getItem = (key: string) =>
+        this._mocked_keys.includes(key)
+            ? this._storage[key]
+            : window.localStorage.getItem(key)
+    setItem = (key: string, value: string) =>
+        this._mocked_keys.includes(key)
+            ? (this._storage[key] = value)
+            : window.localStorage.setItem(key, value)
+    removeItem = (key: string) =>
+        this._mocked_keys.includes(key)
+            ? delete this._storage[key]
+            : window.localStorage.removeItem(key)
 }
 
 export const CurrentUserContext = createContext({} as ICurrentUserContext)
@@ -57,16 +69,20 @@ export const CurrentUserContext = createContext({} as ICurrentUserContext)
 export const useCurrentUser = () => useContext(CurrentUserContext)
 
 export default function CurrentUserContextProvider({
-                                                       children,
-                                                       user_override,
-                                                   }: {
-    children: ReactNode,
+    children,
+    user_override,
+}: {
+    children: ReactNode
     // If set, this will overwrite localStorage methods
-    user_override?: string|null
+    user_override?: string | null
 }) {
-    const localStorage = user_override !== undefined
-        ? new MockableLocalStorage(user_override ? { user: user_override } : {}, ['user'])
-        : window.localStorage
+    const localStorage =
+        user_override !== undefined
+            ? new MockableLocalStorage(
+                  user_override ? { user: user_override } : {},
+                  ['user'],
+              )
+            : window.localStorage
 
     const local_user_string = localStorage.getItem('user')
     const local_user: LoginUser | null = JSON.parse(local_user_string || 'null')

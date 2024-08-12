@@ -37,7 +37,7 @@ import {
 } from '../TypeValueNotation'
 import { FieldDescription, useFetchResource } from '../FetchResourceContext'
 import SafeTooltip from '../SafeTooltip'
-import Alert from "@mui/material/Alert";
+import Alert from '@mui/material/Alert'
 
 export type AccessLevels = Partial<{
     [key in keyof PermittedAccessLevels]: { _type: 'number'; _value: number }
@@ -470,7 +470,8 @@ export default function PrettyObject<
                 <Table size="small">
                     <TableBody>
                         {keys.map((key, i) => {
-                            const invalid = Object.keys(_fieldErrors).includes(key)
+                            const invalid =
+                                Object.keys(_fieldErrors).includes(key)
                             return (
                                 <>
                                     <TableRow

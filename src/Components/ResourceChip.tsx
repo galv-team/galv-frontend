@@ -6,11 +6,7 @@ import React, { useContext } from 'react'
 import LoadingChip from './LoadingChip'
 import QueryWrapper, { QueryWrapperProps } from './QueryWrapper'
 import ErrorChip from './error/ErrorChip'
-import {
-    FAMILY_LOOKUP_KEYS,
-    GalvResource,
-    PATHS,
-} from '../constants'
+import { FAMILY_LOOKUP_KEYS, GalvResource, PATHS } from '../constants'
 import ErrorBoundary from './ErrorBoundary'
 import Representation from './Representation'
 import { FilterContext } from './filtering/FilterContext'
@@ -26,12 +22,12 @@ export type ResourceChipProps = {
     ChipProps & { component?: React.ElementType }
 
 export function ResourceChip<T extends GalvResource>({
-                                                         loading,
-                                                         error,
-                                                         success,
-                                                         short_name,
-                                                         ...chipProps
-                                                     }: ResourceChipProps) {
+    loading,
+    error,
+    success,
+    short_name,
+    ...chipProps
+}: ResourceChipProps) {
     // console.log(`ResourceChip`, {id, lookupKey, loading, error, success, chipProps})
     const { classes } = useStyles()
 
@@ -61,7 +57,7 @@ export function ResourceChip<T extends GalvResource>({
                                     lookupKey={
                                         FAMILY_LOOKUP_KEYS[
                                             lookupKey as keyof typeof FAMILY_LOOKUP_KEYS
-                                            ]
+                                        ]
                                     }
                                     suffix=" "
                                 />
@@ -91,7 +87,7 @@ export function ResourceChip<T extends GalvResource>({
                                     lookupKey={
                                         FAMILY_LOOKUP_KEYS[
                                             lookupKey as keyof typeof FAMILY_LOOKUP_KEYS
-                                            ]
+                                        ]
                                     }
                                     suffix=" "
                                 />
@@ -120,29 +116,27 @@ export function ResourceChip<T extends GalvResource>({
                 error
                     ? error
                     : (queries) => (
-                        <ErrorChip
-                            status={queries[0].error?.response?.status}
-                            target={`${PATHS[lookupKey]}/${resourceId}`}
-                            detail={queries[0].error?.response?.data?.toString()}
-                            key={resourceId}
-                            icon={icon}
-                            variant="outlined"
-                            {...(chipProps as ChipProps)}
-                        />
-                    )
+                          <ErrorChip
+                              status={queries[0].error?.response?.status}
+                              target={`${PATHS[lookupKey]}/${resourceId}`}
+                              detail={queries[0].error?.response?.data?.toString()}
+                              key={resourceId}
+                              icon={icon}
+                              variant="outlined"
+                              {...(chipProps as ChipProps)}
+                          />
+                      )
             }
             success={content}
         />
     )
 }
 
-export default function ResourceChipFromQuery<T extends GalvResource>(
-    {
-        lookupKey,
-        resourceId,
-        ...props
-    }: ResourceChipProps & ApiResourceContextProviderProps
-) {
+export default function ResourceChipFromQuery<T extends GalvResource>({
+    lookupKey,
+    resourceId,
+    ...props
+}: ResourceChipProps & ApiResourceContextProviderProps) {
     return (
         <ErrorBoundary
             fallback={(error: Error) => (

@@ -69,7 +69,6 @@ function ResourceCard<T extends GalvResource>({
         setAlertContent(null)
         setError(null)
     }
-    
 
     const navigate = useNavigate()
 
@@ -96,12 +95,18 @@ function ResourceCard<T extends GalvResource>({
 
     // Mutations for saving edits
     const showSuccess = (message: string = 'Save successful') => {
-        setAlertContent(<Alert color="success" onClose={() => clearAlert()}>{message}</Alert>)
+        setAlertContent(
+            <Alert color="success" onClose={() => clearAlert()}>
+                {message}
+            </Alert>,
+        )
     }
 
     const showError = (e: AxiosError) => {
         setError(e)
-        setAlertContent(<AxiosErrorAlert error={e} onClose={() => clearAlert()} />)
+        setAlertContent(
+            <AxiosErrorAlert error={e} onClose={() => clearAlert()} />,
+        )
         return undefined
     }
 
@@ -145,10 +150,15 @@ function ResourceCard<T extends GalvResource>({
             redoable={UndoRedo.can_redo}
             onEditSave={() => {
                 clearAlert()
-                update_mutation.mutate({ ...UndoRedo.diff(), id: resourceId }, {
-                    onSuccess: () => {setEditing(false)},
-                    onError: () => {}
-                })
+                update_mutation.mutate(
+                    { ...UndoRedo.diff(), id: resourceId },
+                    {
+                        onSuccess: () => {
+                            setEditing(false)
+                        },
+                        onError: () => {},
+                    },
+                )
                 return false //
             }}
             onEditDiscard={() => {
@@ -325,10 +335,13 @@ The file will be added to the Harvester's usual queue for processing.
             {isExpanded ? (
                 <CardBody
                     isEditMode={isEditMode}
-                    fieldErrors={Object.fromEntries(
-                        Object.entries(error?.response?.data ?? {})
-                            .filter(([k]) => k !== 'non_field_errors')
-                    ) as Record<string, string>}
+                    fieldErrors={
+                        Object.fromEntries(
+                            Object.entries(error?.response?.data ?? {}).filter(
+                                ([k]) => k !== 'non_field_errors',
+                            ),
+                        ) as Record<string, string>
+                    }
                 />
             ) : (
                 <CardSummary apiResource={apiResource} lookupKey={lookupKey} />

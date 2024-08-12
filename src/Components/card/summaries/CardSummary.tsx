@@ -32,7 +32,7 @@ import { to_type_value_notation } from '../../TypeValueNotation'
 import { ObservedFile } from '@galv/galv'
 import AuthImage from '../../AuthImage'
 import { ResourceChip } from '../../ResourceChip'
-import CardContent from "@mui/material/CardContent";
+import CardContent from '@mui/material/CardContent'
 
 /**
  * Resources with custom summaries.
