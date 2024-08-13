@@ -110,10 +110,7 @@ function ResourceCard<T extends GalvResource>({
         return undefined
     }
 
-    const update_mutation = useUpdateQuery<T>(lookupKey, {
-        after_cache: () => showSuccess(),
-        on_error: showError,
-    })
+    const update_mutation = useUpdateQuery<T>(lookupKey)
     const delete_mutation = useDeleteQuery<T>(lookupKey, {
         after: () => navigate(PATHS[lookupKey]),
         on_error: showError,
@@ -155,8 +152,9 @@ function ResourceCard<T extends GalvResource>({
                     {
                         onSuccess: () => {
                             setEditing(false)
+                            showSuccess()
                         },
-                        onError: () => {},
+                        onError: showError,
                     },
                 )
                 return false //
