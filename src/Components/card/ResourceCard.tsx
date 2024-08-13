@@ -96,7 +96,7 @@ function ResourceCard<T extends GalvResource>({
     // Mutations for saving edits
     const showSuccess = (message: string = 'Save successful') => {
         setAlertContent(
-            <Alert color="success" onClose={() => clearAlert()}>
+            <Alert color="success" onClose={() => clearAlert()} square={true}>
                 {message}
             </Alert>,
         )
@@ -105,7 +105,7 @@ function ResourceCard<T extends GalvResource>({
     const showError = (e: AxiosError) => {
         setError(e)
         setAlertContent(
-            <AxiosErrorAlert error={e} onClose={() => clearAlert()} />,
+            <AxiosErrorAlert error={e} onClose={() => clearAlert()} square={true} />,
         )
         return undefined
     }
@@ -327,9 +327,7 @@ The file will be added to the Harvester's usual queue for processing.
                 }
                 action={action}
             />
-            <CardContent>
-                <Collapse in={alertContent !== null}>{alertContent}</Collapse>
-            </CardContent>
+            <Collapse in={alertContent !== null}>{alertContent}</Collapse>
             {isExpanded ? (
                 <CardBody
                     isEditMode={isEditMode}
