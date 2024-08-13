@@ -20,7 +20,7 @@ import SelectionManagementContextProvider from '../Components/SelectionManagemen
 import ApiResourceContextProvider from '../Components/ApiResourceContext'
 import { http, HttpResponse } from 'msw'
 import CurrentUserContextProvider from '../Components/CurrentUserContext'
-import { expect, userEvent, within } from '@storybook/test'
+import { expect, fn, userEvent, within } from '@storybook/test'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -91,6 +91,9 @@ const meta = {
     args: {
         resourceId: cells[0].id,
         lookupKey: LOOKUP_KEYS.CELL,
+    },
+    beforeEach: async () => {
+        window.confirm = fn(() => true)
     },
 } satisfies Meta<typeof ResourceCard>
 
@@ -182,7 +185,8 @@ export const SaveError: Story = {
                 }),
                 ...restHandlers.filter(
                     (h) =>
-                        h.info.method !== 'PATCH' || !/cells/.test(h.info.path),
+                        h.info.method !== 'PATCH' ||
+                        !/cells/.test(String(h.info.path)),
                 ),
             ],
         },
@@ -228,7 +232,8 @@ export const SaveErrorFromDjango: Story = {
                 }),
                 ...restHandlers.filter(
                     (h) =>
-                        h.info.method !== 'PATCH' || !/cells/.test(h.info.path),
+                        h.info.method !== 'PATCH' ||
+                        !/cells/.test(String(h.info.path)),
                 ),
             ],
         },
@@ -250,14 +255,33 @@ export const SaveErrorFromDjango: Story = {
  * When you fail to delete a resource, you should see an error message.
  */
 export const DeleteError: Story = {
+    args: {
+        resourceId: cells.find((c) => !c.in_use && c.permissions.destroy)?.id,
+    },
     parameters: {
         msw: {
             handlers: [
-                ...restHandlers,
-                http.delete(new RegExp(`cells/${cells[0].id}/`), () =>
-                    HttpResponse.error(),
+                http.delete(`*/cells/*`, (...args) => {
+                    console.log(args)
+                    return HttpResponse.error()
+                }),
+                ...restHandlers.filter(
+                    (h) =>
+                        h.info.method !== 'DELETE' ||
+                        !/cells/.test(String(h.info.path)),
                 ),
             ],
         },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement)
+        const deleteButton = await canvas.findByRole('button', {
+            name: /delete/i,
+        })
+        await expect(deleteButton).toBeInTheDocument()
+        await userEvent.click(deleteButton)
+
+        const errorMessage = await canvas.findByText(/error/i)
+        expect(errorMessage).toBeInTheDocument()
     },
 }
