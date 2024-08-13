@@ -2,25 +2,20 @@ import React, { PropsWithChildren, useEffect, useState } from 'react'
 import TextField, { TextFieldProps } from '@mui/material/TextField'
 import Typography, { TypographyProps } from '@mui/material/Typography'
 import { SvgIconProps } from '@mui/material/SvgIcon'
-import { MdCheck } from 'react-icons/md'
-import { MdClear } from 'react-icons/md'
+import { MdCheck, MdClear } from 'react-icons/md'
 import PrettyObject from './PrettyObject'
 import Checkbox, { CheckboxProps } from '@mui/material/Checkbox'
 import PrettyArray from './PrettyArray'
 import TypeChanger, {
+    is_type_changer_supported_tv_notation,
+    TypeChangerAutocompleteKey,
+    TypeChangerLookupKey,
     TypeChangerProps,
     TypeChangerSupportedTypeName,
-    TypeChangerLookupKey,
-    TypeChangerAutocompleteKey,
-    is_type_changer_supported_tv_notation,
 } from './TypeChanger'
 import Stack from '@mui/material/Stack'
 import { ChipProps } from '@mui/material/Chip'
-import {
-    is_autocomplete_key,
-    is_lookup_key,
-    type_to_key,
-} from '../../constants'
+import { is_autocomplete_key, is_lookupKey, type_to_key } from '../../constants'
 import PrettyResource from './PrettyResource'
 import PrettyAutocomplete from './PrettyAutocomplete'
 import { AutocompleteProps } from '@mui/material/Autocomplete'
@@ -29,6 +24,7 @@ import PrettyAttachment from './PrettyAttachment'
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
 import calendar from 'dayjs/plugin/calendar'
+import { has } from '../misc'
 
 dayjs.extend(calendar)
 
@@ -142,6 +138,7 @@ export const PrettyString = ({
                 {...(childProps as TextFieldProps)}
             />
         )
+
     if (!prevent_anchor_conversion && target._value?.startsWith('http'))
         return (
             <Typography component={Link} variant="overline" to={target._value}>
@@ -480,7 +477,7 @@ export function Pretty({
             />
         )
     }
-    if (is_lookup_key(key)) {
+    if (is_lookupKey(key)) {
         return (
             <PrettyResource
                 target={
@@ -488,7 +485,7 @@ export function Pretty({
                 }
                 onChange={onEdit ?? (() => {})}
                 edit_mode={edit_mode}
-                lookup_key={key}
+                lookupKey={key}
                 allow_new={create_mode ? false : undefined}
                 {...(childProps as Partial<Omit<ChipProps, 'onChange'>>)}
             />
@@ -555,6 +552,11 @@ export default function Prettify({
         | Omit<CheckboxProps, 'onChange'>
         | SvgIconProps
     >) {
+    // Non-edit mode children will not be inputs
+    if (has(props, 'inputProps') && !props.edit_mode) {
+        delete props.inputProps
+    }
+
     const pretty = (
         <Pretty
             {...props}

@@ -25,18 +25,16 @@ const meta = {
         withRouter,
         (
             Story: ReactElement,
-            context: { args: CardActionBarProps & { resource_id?: string } },
+            context: { args: CardActionBarProps & { resourceId?: string } },
         ) => (
             <QueryClientProvider client={new QueryClient()}>
                 <SelectionManagementContextProvider>
                     <FetchResourceContextProvider>
                         <ApiResourceContextProvider
-                            lookup_key={
-                                context.args.lookup_key ?? LOOKUP_KEYS.CELL
+                            lookupKey={
+                                context.args.lookupKey ?? LOOKUP_KEYS.CELL
                             }
-                            resource_id={
-                                context.args.resource_id ?? cells[0].id
-                            }
+                            resourceId={context.args.resourceId ?? cells[0].id}
                         >
                             <Story />
                         </ApiResourceContextProvider>
@@ -56,13 +54,13 @@ const meta = {
     tags: ['autodocs'],
     // More on argTypes: https://storybook.js.org/docs/api/argtypes
     argTypes: {
-        lookup_key: {
+        lookupKey: {
             options: Object.values(LOOKUP_KEYS),
         },
     },
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
     args: {
-        lookup_key: LOOKUP_KEYS.CELL,
+        lookupKey: LOOKUP_KEYS.CELL,
     },
     render: function Render(args) {
         const [{ editing, expanded }, updateArgs] = useArgs()

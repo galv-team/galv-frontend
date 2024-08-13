@@ -20,7 +20,7 @@ import {
     FIELDS,
     GalvResource,
     ICONS,
-    is_lookup_key,
+    is_lookupKey,
     LOOKUP_KEYS,
     LookupKey,
     PATHS,
@@ -36,7 +36,7 @@ import { representation } from './Representation'
 import SafeTooltip from './SafeTooltip'
 
 export type CardActionBarProps = {
-    lookup_key: LookupKey
+    lookupKey: LookupKey
     selectable?: boolean
     excludeContext?: boolean
     editable?: boolean
@@ -77,10 +77,10 @@ export default function CardActionBar(props: CardActionBarProps) {
 
     const context_section = (
         <>
-            {Object.entries(FIELDS[props.lookup_key])
-                .filter((e) => is_lookup_key(e[1].type))
+            {Object.entries(FIELDS[props.lookupKey])
+                .filter((e) => is_lookupKey(e[1].type))
                 .map(([k, v]) => {
-                    const relative_lookup_key = v.type as LookupKey
+                    const relative_lookupKey = v.type as LookupKey
                     let content: ReactNode
                     if (v.many) {
                         const relative_value = apiResource?.[
@@ -91,13 +91,13 @@ export default function CardActionBar(props: CardActionBarProps) {
                                 key={`highlight`}
                                 icon={
                                     <LookupKeyIcon
-                                        lookupKey={relative_lookup_key}
+                                        lookupKey={relative_lookupKey}
                                         tooltip={false}
                                         {...iconProps}
                                     />
                                 }
                                 badgeContent={relative_value?.length}
-                                url={PATHS[relative_lookup_key]}
+                                url={PATHS[relative_lookupKey]}
                             />
                         )
                     } else {
@@ -110,10 +110,10 @@ export default function CardActionBar(props: CardActionBarProps) {
                         content = (
                             <IconButton
                                 component={Link}
-                                to={`${PATHS[relative_lookup_key]}/${relative_id}`}
+                                to={`${PATHS[relative_lookupKey]}/${relative_id}`}
                             >
                                 <LookupKeyIcon
-                                    lookupKey={relative_lookup_key}
+                                    lookupKey={relative_lookupKey}
                                     tooltip={false}
                                     {...iconProps}
                                 />
@@ -122,7 +122,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                     }
                     return (
                         <SafeTooltip
-                            title={`View ${(v.many ? DISPLAY_NAMES_PLURAL : DISPLAY_NAMES)[relative_lookup_key]}`}
+                            title={`View ${(v.many ? DISPLAY_NAMES_PLURAL : DISPLAY_NAMES)[relative_lookupKey]}`}
                             arrow
                             describeChild
                             key={k}
@@ -145,7 +145,7 @@ export default function CardActionBar(props: CardActionBarProps) {
         if (!props.editing) {
             edit_section = (
                 <SafeTooltip
-                    title={`Edit this ${DISPLAY_NAMES[props.lookup_key]}`}
+                    title={`Edit this ${DISPLAY_NAMES[props.lookupKey]}`}
                     arrow
                     describeChild
                     key="edit"
@@ -220,7 +220,7 @@ export default function CardActionBar(props: CardActionBarProps) {
 
     const destroy_section = (
         <Stack direction="row" spacing={1} alignItems="center">
-            {props.lookup_key === LOOKUP_KEYS.FILE && props.reimportable && (
+            {props.lookupKey === LOOKUP_KEYS.FILE && props.reimportable && (
                 <SafeTooltip
                     title="Force the harvester to re-import this file"
                     arrow
@@ -242,8 +242,8 @@ export default function CardActionBar(props: CardActionBarProps) {
             <SafeTooltip
                 title={
                     props.destroyable
-                        ? `Delete this ${DISPLAY_NAMES[props.lookup_key]}`
-                        : `Cannot delete this ${DISPLAY_NAMES[props.lookup_key]}, it may be being used by other resources.`
+                        ? `Delete this ${DISPLAY_NAMES[props.lookupKey]}`
+                        : `Cannot delete this ${DISPLAY_NAMES[props.lookupKey]}, it may be being used by other resources.`
                 }
                 arrow
                 describeChild
@@ -264,7 +264,7 @@ export default function CardActionBar(props: CardActionBarProps) {
 
     const select_section = selectable && apiResource && apiResource?.url && (
         <SafeTooltip
-            title={`${isSelected(apiResource) ? 'Deselect' : 'Select'} this ${DISPLAY_NAMES[props.lookup_key]}`}
+            title={`${isSelected(apiResource) ? 'Deselect' : 'Select'} this ${DISPLAY_NAMES[props.lookupKey]}`}
             arrow
             describeChild
             key="select"
@@ -286,7 +286,7 @@ export default function CardActionBar(props: CardActionBarProps) {
             {props.onFork && apiResource && (
                 <SafeTooltip
                     title={`
-            Create your own copy of ${representation({ data: apiResource, lookup_key: props.lookup_key })}
+            Create your own copy of ${representation({ data: apiResource, lookupKey: props.lookupKey })}
             `}
                     arrow
                     describeChild

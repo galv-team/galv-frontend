@@ -209,7 +209,10 @@ export interface IFilterContext {
     activeFilters: ActiveFilters
     setActiveFilters: (filters: ActiveFilters) => void
     clearActiveFilters: () => void
-    passesFilters: (data: IApiResourceContext, lookup_key: LookupKey) => boolean
+    passesFilters: (
+        data: Pick<IApiResourceContext, 'apiResource' | 'family'>,
+        lookupKey: LookupKey,
+    ) => boolean
 }
 
 export const FilterContext = createContext<IFilterContext>({
@@ -236,47 +239,59 @@ export function FilterContextProvider(props: PropsWithChildren) {
         useImmer<ActiveFilters>(emptyFilters)
 
     const [passesFilters, setPassesFilters] = useState<
-        (data: IApiResourceContext, lookup_key: LookupKey) => boolean
+        IFilterContext['passesFilters']
     >(() => () => true)
 
     useEffect(() => {
         setPassesFilters(
-            () => (data: IApiResourceContext, lookup_key: LookupKey) => {
-                if (data.apiResource === undefined) return true
-                const family_lookup_key = get_has_family(lookup_key)
-                    ? FAMILY_LOOKUP_KEYS[lookup_key]
-                    : undefined
-                const filter_mode =
-                    activeFilters[lookup_key].mode === FILTER_MODES.ANY
-                        ? 'some'
-                        : 'every'
-                const family_filter_mode =
-                    family_lookup_key &&
-                    activeFilters[family_lookup_key].mode === FILTER_MODES.ANY
-                        ? 'some'
-                        : 'every'
-                // if there are no filters, everything passes
-                return (
-                    (activeFilters[lookup_key].filters.length === 0 &&
-                        (!family_lookup_key ||
-                            activeFilters[family_lookup_key].filters.length ===
-                                0)) ||
-                    // the resource has to pass its filters
-                    (activeFilters[lookup_key].filters[filter_mode]((f) =>
-                        f.family.fun(data.apiResource?.[f.key], f.test_versus),
-                    ) &&
-                        // if the resource has a family, that has to pass its filters, too
-                        (!family_lookup_key ||
-                            activeFilters[family_lookup_key].filters[
-                                family_filter_mode
-                            ]((f) =>
-                                f.family.fun(
-                                    data.family?.[f.key],
-                                    f.test_versus,
-                                ),
-                            )))
-                )
-            },
+            () =>
+                (
+                    data: Pick<IApiResourceContext, 'apiResource' | 'family'>,
+                    lookupKey: LookupKey,
+                ) => {
+                    if (data.apiResource === undefined) return true
+                    const family_lookupKey = get_has_family(lookupKey)
+                        ? FAMILY_LOOKUP_KEYS[lookupKey]
+                        : undefined
+                    const filter_mode =
+                        activeFilters[lookupKey].mode === FILTER_MODES.ANY
+                            ? 'some'
+                            : 'every'
+                    const family_filter_mode =
+                        family_lookupKey &&
+                        activeFilters[family_lookupKey].mode ===
+                            FILTER_MODES.ANY
+                            ? 'some'
+                            : 'every'
+                    // if there are no filters, everything passes
+                    return (
+                        (activeFilters[lookupKey].filters.length === 0 &&
+                            (!family_lookupKey ||
+                                activeFilters[family_lookupKey].filters
+                                    .length === 0)) ||
+                        // the resource has to pass its filters
+                        (activeFilters[lookupKey].filters[filter_mode]((f) =>
+                            f.family.fun(
+                                data.apiResource?.[
+                                    f.key as keyof (typeof data)['apiResource']
+                                ],
+                                f.test_versus,
+                            ),
+                        ) &&
+                            // if the resource has a family, that has to pass its filters, too
+                            (!family_lookupKey ||
+                                activeFilters[family_lookupKey].filters[
+                                    family_filter_mode
+                                ]((f) =>
+                                    f.family.fun(
+                                        data.family?.[
+                                            f.key as keyof (typeof data)['family']
+                                        ],
+                                        f.test_versus,
+                                    ),
+                                )))
+                    )
+                },
         )
     }, [activeFilters])
 

@@ -21,7 +21,7 @@ import Table from '@mui/material/Table'
 import QueryWrapper from './QueryWrapper'
 import Skeleton from '@mui/material/Skeleton'
 import TableBody from '@mui/material/TableBody'
-import { ResourceChip } from './ResourceChip'
+import ResourceChip from './ResourceChip'
 import { useFetchResource } from './FetchResourceContext'
 import ListItemText from '@mui/material/ListItemText'
 import Select from '@mui/material/Select'
@@ -163,7 +163,7 @@ function CreateColumnType({
                             onCreate(new_resource_url)
                         }}
                         onDiscard={() => setOpen(false)}
-                        lookup_key={LOOKUP_KEYS.COLUMN_FAMILY}
+                        lookupKey={LOOKUP_KEYS.COLUMN_FAMILY}
                     />
                 </UndoRedoProvider>
             </>
@@ -953,8 +953,8 @@ function MappingManager({
                     Column Mapping for{' '}
                     {file?.id && (
                         <ResourceChip
-                            resource_id={file.id as string}
-                            lookup_key={LOOKUP_KEYS.FILE}
+                            resourceId={file.id as string}
+                            lookupKey={LOOKUP_KEYS.FILE}
                         />
                     )}
                 </Typography>
@@ -1224,7 +1224,7 @@ Do you wish to continue?`)
                                                     _value: mapping.mapping
                                                         .team,
                                                 }}
-                                                lookup_key={LOOKUP_KEYS.TEAM}
+                                                lookupKey={LOOKUP_KEYS.TEAM}
                                                 edit_mode={true}
                                                 allow_new={false}
                                                 onChange={(
@@ -1485,8 +1485,8 @@ export default function WrappedMapping() {
             )}
         >
             <ApiResourceContextProvider
-                resource_id={id}
-                lookup_key={LOOKUP_KEYS.FILE}
+                resourceId={id}
+                lookupKey={LOOKUP_KEYS.FILE}
             >
                 <Mapping />
             </ApiResourceContextProvider>

@@ -10,13 +10,13 @@ import { useFetchResource } from './FetchResourceContext'
 
 export function representation({
     data,
-    lookup_key,
+    lookupKey,
 }: {
     data: GalvResource
-    lookup_key: LookupKey
+    lookupKey: LookupKey
 }): string {
     try {
-        const id_fields = Object.entries(FIELDS[lookup_key])
+        const id_fields = Object.entries(FIELDS[lookupKey])
             .filter((e) => e[1].priority >= PRIORITY_LEVELS.IDENTITY)
             .map((e) => e[0])
 
@@ -27,38 +27,38 @@ export function representation({
 
         return s.length
             ? s
-            : `${DISPLAY_NAMES[lookup_key]} ${data.id ?? data.id}`
+            : `${DISPLAY_NAMES[lookupKey]} ${data.id ?? data.id}`
     } catch (error) {
         console.error(
-            `Could not represent ${lookup_key} ${data?.id ?? data?.id}`,
-            { args: { data, lookup_key }, error },
+            `Could not represent ${lookupKey} ${data?.id ?? data?.id}`,
+            { args: { data, lookupKey }, error },
         )
     }
     return String(data.id ?? data.id ?? 'unknown')
 }
 
 export type RepresentationProps = {
-    resource_id: string | number
-    lookup_key: LookupKey
+    resourceId: string | number
+    lookupKey: LookupKey
     prefix?: ReactNode
     suffix?: ReactNode
 }
 
 export default function Representation<T extends GalvResource>({
-    resource_id,
-    lookup_key,
+    resourceId,
+    lookupKey,
     prefix,
     suffix,
 }: RepresentationProps) {
     const { useRetrieveQuery } = useFetchResource()
-    const query = useRetrieveQuery<T>(lookup_key, resource_id)
+    const query = useRetrieveQuery<T>(lookupKey, resourceId)
 
     return (
         <>
             {prefix ?? ''}
             {query.data
-                ? representation({ data: query.data.data, lookup_key })
-                : resource_id}
+                ? representation({ data: query.data.data, lookupKey })
+                : resourceId}
             {suffix ?? ''}
         </>
     )

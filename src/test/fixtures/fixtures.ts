@@ -96,7 +96,7 @@ export const cells: Cell[] = [
         in_use: false,
         cycler_tests: [],
         team: null,
-        permissions: { read: true, write: true, create: false },
+        permissions: { read: true, write: true, create: false, destroy: true },
     },
     {
         url: 'http://example.com/cells/0003-0003-0003-0003',

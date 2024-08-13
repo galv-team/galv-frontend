@@ -395,5 +395,9 @@ export default makeStyles()((theme) => {
                 minWidth: '10em',
             },
         },
+        fieldError: {
+            outline: `1px solid ${theme.palette.error.main}`,
+        },
+        fieldErrorDetail: {},
     }
 })

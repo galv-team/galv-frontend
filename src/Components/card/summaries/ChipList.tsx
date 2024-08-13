@@ -1,8 +1,8 @@
-import useStyles from '../../styles/UseStyles'
-import { get_url_components } from '../misc'
+import useStyles from '../../../styles/UseStyles'
+import { get_url_components } from '../../misc'
 import Stack from '@mui/material/Stack'
 import clsx from 'clsx'
-import { ResourceChip } from '../ResourceChip'
+import ResourceChip from '../../ResourceChip'
 import Typography from '@mui/material/Typography'
 
 export default function ChipList({
@@ -22,12 +22,12 @@ export default function ChipList({
         .filter((c, i) => i < max_items)
         .map(
             (c) =>
-                c?.resource_id &&
-                c?.lookup_key && (
+                c?.resourceId &&
+                c?.lookupKey && (
                     <ResourceChip
-                        key={c.resource_id}
-                        resource_id={c.resource_id}
-                        lookup_key={c.lookup_key}
+                        key={c.resourceId}
+                        resourceId={c.resourceId}
+                        lookupKey={c.lookupKey}
                     />
                 ),
         )

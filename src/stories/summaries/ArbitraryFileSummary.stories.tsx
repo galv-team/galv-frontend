@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import ArbitraryFileSummary from '../../Components/summaries/ArbitraryFileSummary'
+import ArbitraryFileSummary from '../../Components/card/summaries/ArbitraryFileSummary'
 import { arbitrary_files } from '../../test/fixtures/fixtures'
 import { withRouter } from 'storybook-addon-remix-react-router'
 import SummaryDecorator from './SummaryDecorator'

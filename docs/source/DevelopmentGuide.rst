@@ -259,9 +259,9 @@ The frontend has several custom components.
 The behaviour of these components is manipulated by values in ``constants.ts``,
 allowing for a reduction in repetition of code across many otherwise similar components.
 
-Many of these components will take a ``lookup_key`` property to determine which kind
+Many of these components will take a ``lookupKey`` property to determine which kind
 of resource they are displaying.
-They may also have a ``resource_id`` property to determine which resource they are displaying.
+They may also have a ``resourceId`` property to determine which resource they are displaying.
 
 * Resource display
 	* ``QueryWrapper``

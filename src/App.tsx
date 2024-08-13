@@ -3,13 +3,13 @@
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import {
-    Routes,
-    Route,
-    Outlet,
     Link,
-    useNavigate,
-    useLocation,
     matchPath,
+    Outlet,
+    Route,
+    Routes,
+    useLocation,
+    useNavigate,
     useParams,
     useSearchParams,
 } from 'react-router-dom'
@@ -24,7 +24,7 @@ import List from '@mui/material/List'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
-import { MdMenu, MdChevronLeft, MdHelp } from 'react-icons/md'
+import { MdChevronLeft, MdHelp, MdMenu } from 'react-icons/md'
 
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
@@ -32,14 +32,14 @@ import ListItemText from '@mui/material/ListItemText'
 import { ReactSVG } from 'react-svg'
 import Stack from '@mui/material/Stack'
 import {
-    PATHS,
-    ICONS,
-    LookupKey,
-    LOOKUP_KEYS,
     DISPLAY_NAMES_PLURAL,
+    ICONS,
+    LOOKUP_KEYS,
+    LookupKey,
+    PATHS,
 } from './constants'
 import ErrorBoundary from './Components/ErrorBoundary'
-import ResourceCard from './Components/ResourceCard'
+import ResourceCard from './Components/card/ResourceCard'
 import FilterBar from './Components/filtering/FilterBar'
 import { FilterContextProvider } from './Components/filtering/FilterContext'
 import { ResourceList } from './Components/ResourceList'
@@ -251,7 +251,7 @@ export function Core() {
         )
     }
 
-    function get_lookup_key_from_pathname(
+    function get_lookupKey_from_pathname(
         pathname: string | undefined,
     ): LookupKey | undefined {
         return Object.entries(PATHS).find(
@@ -263,17 +263,17 @@ export function Core() {
         const navigate = useNavigate()
         const { type, id } = useParams()
         const [searchParams] = useSearchParams()
-        const lookup_key = get_lookup_key_from_pathname(type)
+        const lookupKey = get_lookupKey_from_pathname(type)
 
-        if (!lookup_key || !id) {
+        if (!lookupKey || !id) {
             navigate(PATHS.DASHBOARD)
             return <></>
         }
 
         return (
             <ResourceCard
-                resource_id={id ?? -1}
-                lookup_key={lookup_key ?? 'CYCLER_TEST'}
+                resourceId={id ?? -1}
+                lookupKey={lookupKey ?? 'CYCLER_TEST'}
                 expanded={true}
                 editing={searchParams.get('editing') === 'true'}
             />
@@ -283,14 +283,14 @@ export function Core() {
     function ResourceListWrapper() {
         const navigate = useNavigate()
         const { type } = useParams()
-        const lookup_key = get_lookup_key_from_pathname(type)
+        const lookupKey = get_lookupKey_from_pathname(type)
 
-        if (!lookup_key) {
+        if (!lookupKey) {
             navigate(PATHS.DASHBOARD)
             return <></>
         }
 
-        return <ResourceList lookup_key={lookup_key ?? 'CYCLER_TEST'} />
+        return <ResourceList lookupKey={lookupKey ?? 'CYCLER_TEST'} />
     }
 
     /* A <Routes> looks through its children <Route>s and renders the first one that matches the current URL. */

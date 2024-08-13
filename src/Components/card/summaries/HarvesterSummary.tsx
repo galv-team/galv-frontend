@@ -1,5 +1,5 @@
 import { Harvester } from '@galv/galv'
-import useStyles from '../../styles/UseStyles'
+import useStyles from '../../../styles/UseStyles'
 import clsx from 'clsx'
 import Stack from '@mui/material/Stack'
 import Alert from '@mui/material/Alert'
@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-import { GalvResource } from '../../constants'
+import { GalvResource } from '../../../constants'
 
 dayjs.extend(relativeTime)
 

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { withRouter } from 'storybook-addon-remix-react-router'
-import ResourceCard from '../Components/ResourceCard'
+import ResourceCard from '../Components/card/ResourceCard'
 import { LOOKUP_KEYS } from '../constants'
 import {
     cell_families,
@@ -9,6 +9,7 @@ import {
     column_types,
     files,
     teams,
+    users,
 } from '../test/fixtures/fixtures'
 import { error_responses, restHandlers } from '../test/handlers'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
@@ -18,6 +19,8 @@ import { CardActionBarProps } from '../Components/CardActionBar'
 import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
 import ApiResourceContextProvider from '../Components/ApiResourceContext'
 import { http, HttpResponse } from 'msw'
+import CurrentUserContextProvider from '../Components/CurrentUserContext'
+import { expect, fn, userEvent, within } from '@storybook/test'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -27,23 +30,27 @@ const meta = {
         withRouter,
         (
             Story: ReactElement,
-            context: { args: CardActionBarProps & { resource_id?: string } },
+            context: { args: CardActionBarProps & { resourceId?: string } },
         ) => (
             <QueryClientProvider client={new QueryClient()}>
-                <SelectionManagementContextProvider>
-                    <FetchResourceContextProvider>
-                        <ApiResourceContextProvider
-                            lookup_key={
-                                context.args.lookup_key ?? LOOKUP_KEYS.CELL
-                            }
-                            resource_id={
-                                context.args.resource_id ?? cells[0].id
-                            }
-                        >
-                            <Story />
-                        </ApiResourceContextProvider>
-                    </FetchResourceContextProvider>
-                </SelectionManagementContextProvider>
+                <CurrentUserContextProvider
+                    user_override={JSON.stringify(users[0])}
+                >
+                    <SelectionManagementContextProvider>
+                        <FetchResourceContextProvider>
+                            <ApiResourceContextProvider
+                                lookupKey={
+                                    context.args.lookupKey ?? LOOKUP_KEYS.CELL
+                                }
+                                resourceId={
+                                    context.args.resourceId ?? cells[0].id
+                                }
+                            >
+                                <Story />
+                            </ApiResourceContextProvider>
+                        </FetchResourceContextProvider>
+                    </SelectionManagementContextProvider>
+                </CurrentUserContextProvider>
             </QueryClientProvider>
         ),
     ],
@@ -58,14 +65,14 @@ const meta = {
     tags: ['autodocs'],
     // More on argTypes: https://storybook.js.org/docs/api/argtypes
     argTypes: {
-        lookup_key: {
+        lookupKey: {
             control: 'select',
             options: [
                 ...Object.values(LOOKUP_KEYS),
                 ...Object.keys(error_responses),
             ],
         },
-        resource_id: {
+        resourceId: {
             control: 'select',
             options: [
                 ...[
@@ -82,8 +89,11 @@ const meta = {
     },
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
     args: {
-        resource_id: cells[0].id,
-        lookup_key: LOOKUP_KEYS.CELL,
+        resourceId: cells[0].id,
+        lookupKey: LOOKUP_KEYS.CELL,
+    },
+    beforeEach: async () => {
+        window.confirm = fn(() => true)
     },
 } satisfies Meta<typeof ResourceCard>
 
@@ -99,7 +109,7 @@ type Story = StoryObj<typeof meta>
  * Summaries for many of the different resources are defined in custom components,
  * while the exhaustive list of fields is obtained by crawling the object itself.
  * The metadata for the exhaustive field list is extracted from a combination of
- * data from the relevant `/lookup_key/describe/` endpoint and the `FIELDS` object in `constants.ts`.
+ * data from the relevant `/lookupKey/describe/` endpoint and the `FIELDS` object in `constants.ts`.
  */
 export const Basic: Story = {
     args: {},
@@ -132,7 +142,7 @@ export const Editing: Story = {
  */
 export const ApiError: Story = {
     args: {
-        resource_id: Object.keys(error_responses)[0],
+        resourceId: Object.keys(error_responses)[0],
     },
 }
 
@@ -144,6 +154,17 @@ export const SaveSuccess: Story = {
         editing: true,
         expanded: true,
     },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement)
+        const saveButton = await canvas.findByRole('button', {
+            name: /save/i,
+        })
+        await expect(saveButton).toBeInTheDocument()
+        await userEvent.click(saveButton)
+
+        const successMessage = await canvas.findByText(/success/i)
+        expect(successMessage).toBeInTheDocument()
+    },
 }
 
 /**
@@ -151,16 +172,82 @@ export const SaveSuccess: Story = {
  * given error feedback.
  */
 export const SaveError: Story = {
+    args: {
+        editing: true,
+        expanded: true,
+    },
     parameters: {
         msw: {
             handlers: [
-                ...restHandlers.filter((h) => h.resolver),
-                http.post(
-                    new RegExp(`cells/${cells[0].id}/`),
-                    (req, res, ctx) => res(ctx.status(500)),
+                http.patch(`*/cells/*`, (...args) => {
+                    console.log(args)
+                    return HttpResponse.error()
+                }),
+                ...restHandlers.filter(
+                    (h) =>
+                        h.info.method !== 'PATCH' ||
+                        !/cells/.test(String(h.info.path)),
                 ),
             ],
         },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement)
+        const saveButton = await canvas.findByRole('button', {
+            name: /save/i,
+        })
+        await expect(saveButton).toBeInTheDocument()
+        await userEvent.click(saveButton)
+
+        const errorMessage = await canvas.findByText(/error/i)
+        expect(errorMessage).toBeInTheDocument()
+    },
+}
+
+/**
+ * If a resource update fails with an error from the Django server,
+ * the non_field_errors and any field errors will be unwrapped and applied
+ * as a header banner and inline error feedback on the affected fields.
+ */
+export const SaveErrorFromDjango: Story = {
+    args: {
+        editing: true,
+        expanded: true,
+    },
+    parameters: {
+        msw: {
+            handlers: [
+                http.patch(`*/cells/*`, (...args) => {
+                    console.log(args)
+                    return HttpResponse.json(
+                        {
+                            non_field_errors: [
+                                "You can't do that.",
+                                "And you probably shouldn't even be trying to do that.",
+                            ],
+                            identifier: 'You should fix this',
+                        },
+                        { status: 400 },
+                    )
+                }),
+                ...restHandlers.filter(
+                    (h) =>
+                        h.info.method !== 'PATCH' ||
+                        !/cells/.test(String(h.info.path)),
+                ),
+            ],
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement)
+        const saveButton = await canvas.findByRole('button', {
+            name: /save/i,
+        })
+        await expect(saveButton).toBeInTheDocument()
+        await userEvent.click(saveButton)
+
+        const errorMessage = await canvas.findByText(/3 errors/i)
+        expect(errorMessage).toBeInTheDocument()
     },
 }
 
@@ -168,14 +255,33 @@ export const SaveError: Story = {
  * When you fail to delete a resource, you should see an error message.
  */
 export const DeleteError: Story = {
+    args: {
+        resourceId: cells.find((c) => !c.in_use && c.permissions.destroy)?.id,
+    },
     parameters: {
         msw: {
             handlers: [
-                ...restHandlers,
-                http.delete(new RegExp(`cells/${cells[0].id}/`), () =>
-                    HttpResponse.error(),
+                http.delete(`*/cells/*`, (...args) => {
+                    console.log(args)
+                    return HttpResponse.error()
+                }),
+                ...restHandlers.filter(
+                    (h) =>
+                        h.info.method !== 'DELETE' ||
+                        !/cells/.test(String(h.info.path)),
                 ),
             ],
         },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement)
+        const deleteButton = await canvas.findByRole('button', {
+            name: /delete/i,
+        })
+        await expect(deleteButton).toBeInTheDocument()
+        await userEvent.click(deleteButton)
+
+        const errorMessage = await canvas.findByText(/error/i)
+        expect(errorMessage).toBeInTheDocument()
     },
 }

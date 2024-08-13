@@ -11,9 +11,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { FilterContextProvider } from '../Components/filtering/FilterContext'
 import { MemoryRouter } from 'react-router-dom'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
-import { vi, it, expect } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { cells } from './fixtures/fixtures'
-import { ResourceChip } from '../Components/ResourceChip'
+import ResourceChip from '../Components/ResourceChip'
 
 vi.mock('../Components/Representation')
 
@@ -28,8 +28,8 @@ it('renders', async () => {
                 <FetchResourceContextProvider>
                     <FilterContextProvider>
                         <ResourceChip
-                            lookup_key={LOOKUP_KEYS.CELL}
-                            resource_id={cell.id}
+                            lookupKey={LOOKUP_KEYS.CELL}
+                            resourceId={cell.id}
                         />
                     </FilterContextProvider>
                 </FetchResourceContextProvider>

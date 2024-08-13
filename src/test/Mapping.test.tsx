@@ -75,8 +75,8 @@ it('renders', async () => {
             <QueryClientProvider client={queryClient}>
                 <FetchResourceContextProvider>
                     <ApiResourceContextProvider
-                        resource_id={file.id}
-                        lookup_key={LOOKUP_KEYS.FILE}
+                        resourceId={file.id}
+                        lookupKey={LOOKUP_KEYS.FILE}
                     >
                         <Mapping />
                     </ApiResourceContextProvider>

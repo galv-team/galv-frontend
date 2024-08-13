@@ -4,7 +4,7 @@
 
 import useStyles from '../styles/UseStyles'
 import { useSelectionManagement } from './SelectionManagementContext'
-import { ResourceChip } from './ResourceChip'
+import ResourceChip from './ResourceChip'
 import { get_url_components } from './misc'
 import clsx from 'clsx'
 import Grid from '@mui/material/Unstable_Grid2'
@@ -137,19 +137,19 @@ export function SelectedResourcesPane() {
                                 const components = get_url_components(s)
                                 if (
                                     !components ||
-                                    !components.resource_id ||
-                                    !components.lookup_key
+                                    !components.resourceId ||
+                                    !components.lookupKey
                                 ) {
                                     console.error(
-                                        `Could not parse resource_id or lookup_key from ${s}`,
+                                        `Could not parse resourceId or lookupKey from ${s}`,
                                         { components, s, resource_urls },
                                     )
                                     throw new Error(`Error loading ${s}`)
                                 }
                                 return (
                                     <ResourceChip
-                                        resource_id={components.resource_id}
-                                        lookup_key={components.lookup_key}
+                                        resourceId={components.resourceId}
+                                        lookupKey={components.lookupKey}
                                         key={s}
                                         onDelete={(e) => {
                                             e.preventDefault()

@@ -2,38 +2,42 @@ import { AxiosError } from 'axios'
 import Alert, { AlertProps } from '@mui/material/Alert'
 import ListItem from '@mui/material/ListItem'
 import List from '@mui/material/List'
-import Button from '@mui/material/Button'
-import { ReactNode, useState } from 'react'
-import AlertTitle from '@mui/material/AlertTitle'
+import { AlertTitle } from '@mui/material'
+import ListItemText from '@mui/material/ListItemText'
 
 export type AxiosErrorAlertProps = {
-    error: AxiosError
-    maxErrors: number
-}
-
-export function AxiosErrorAlertBox({
-    title,
-    error,
-    action,
-    ...props
-}: { title: string; error: string; action?: ReactNode } & AlertProps) {
-    return (
-        <Alert severity="error" {...props} action={action}>
-            {!/^_/.test(title) && <AlertTitle>{title}</AlertTitle>}
-            {error}
-        </Alert>
-    )
-}
+    error?: AxiosError
+    maxListLength?: number
+    alertTitle?: ReturnType<typeof AlertTitle> | boolean
+} & Omit<AlertProps, 'children'>
 
 export default function AxiosErrorAlert({
     error,
-    maxErrors,
+    maxListLength,
+    alertTitle,
+    ...alertProps
 }: AxiosErrorAlertProps) {
-    const [expanded, setExpanded] = useState(false)
+    const max_list_length = maxListLength ?? 3
+
+    // Coerce undefined to a known AxiosError shape
+    if (error === undefined) {
+        return (
+            <Alert severity="error" {...alertProps}>
+                An unknown error occurred.
+            </Alert>
+        )
+    }
+
+    if (!error.response?.data) {
+        return (
+            <Alert severity="error" {...alertProps}>
+                {error.message}
+            </Alert>
+        )
+    }
+
     const error_object =
-        (error.response?.data || {
-            non_field_errors: 'An unknown error occurred.',
-        }) instanceof Array
+        error.response?.data instanceof Array
             ? Object.fromEntries(
                   error.response?.data.map((e: string, i: number) => [
                       `_${i}`,
@@ -42,61 +46,69 @@ export default function AxiosErrorAlert({
               )
             : error.response?.data
 
-    if ('non_field_errors' in error_object) {
-        error_object._ = error_object.non_field_errors
-        delete error_object.non_field_errors
-    }
-    const errors = Object.entries(error_object).sort(([key1], [key2]) =>
-        key2.localeCompare(key1),
-    )
-    // We now have an array of [key, value] pairs sorted by key (in reverse order so field errors come first)
+    const non_field_errors = error_object.non_field_errors ?? []
 
-    const display_errors = errors.slice(0, maxErrors)
-    const hidden_errors = errors.slice(maxErrors)
+    const field_errors = Object.entries(error_object).filter(
+        ([key]) => key !== 'non_field_errors',
+    ) as [string, string][]
+
+    const error_field_names = field_errors
+        .slice(0, max_list_length)
+        .map(([key]) => key)
+    const hidden_error_count = field_errors.slice(max_list_length).length
+
+    const total_error_count = non_field_errors.length + field_errors.length
+
+    if (total_error_count === 1) {
+        if (non_field_errors.length > 0)
+            return (
+                <Alert severity="error" {...alertProps}>
+                    {alertTitle !== false &&
+                        alertTitle !== undefined &&
+                        alertTitle}
+                    {non_field_errors[0]}
+                </Alert>
+            )
+        const title =
+            alertTitle === false
+                ? null
+                : (alertTitle ?? <AlertTitle>{field_errors[0][0]}</AlertTitle>)
+        return (
+            <Alert severity="error" {...alertProps}>
+                {title}
+                {field_errors[0][1]}
+            </Alert>
+        )
+    }
+
+    const title =
+        alertTitle === false
+            ? null
+            : (alertTitle ?? (
+                  <AlertTitle>{total_error_count} errors</AlertTitle>
+              ))
 
     return (
-        <List>
-            {display_errors.map(([title, error], index) => {
-                if (index === maxErrors - 1 && hidden_errors.length > 0) {
-                    return (
-                        <ListItem key={index}>
-                            <AxiosErrorAlertBox
-                                title={title}
-                                error={String(error)}
-                                action={
-                                    <Button
-                                        color="inherit"
-                                        size="small"
-                                        onClick={() => {
-                                            setExpanded(!expanded)
-                                        }}
-                                    >
-                                        {expanded ? 'Hide' : 'Show'}{' '}
-                                        {hidden_errors.length} more
-                                    </Button>
-                                }
-                            />
-                        </ListItem>
-                    )
-                }
-                return (
-                    <ListItem key={index}>
-                        <AxiosErrorAlertBox
-                            title={title}
-                            error={String(error)}
-                        />
-                    </ListItem>
-                )
-            })}
-            {expanded &&
-                hidden_errors.map(([title, error], index) => (
-                    <ListItem key={index}>
-                        <AxiosErrorAlertBox
-                            title={title}
-                            error={String(error)}
-                        />
+        <Alert severity="error" {...alertProps}>
+            {title}
+            <List>
+                {non_field_errors.map((error: string, i: number) => (
+                    <ListItem disableGutters key={i}>
+                        <ListItemText>{error}</ListItemText>
                     </ListItem>
                 ))}
-        </List>
+                {field_errors.length > 0 && (
+                    <ListItem disableGutters>
+                        <ListItemText>
+                            There are errors with the values for{' '}
+                            <em>{error_field_names.join(', ')}</em>
+                            {hidden_error_count > 0 &&
+                                `, and ${hidden_error_count} more`}
+                            .
+                        </ListItemText>
+                    </ListItem>
+                )}
+            </List>
+        </Alert>
     )
 }

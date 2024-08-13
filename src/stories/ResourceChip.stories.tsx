@@ -40,14 +40,14 @@ const meta = {
     tags: ['autodocs'],
     // More on argTypes: https://storybook.js.org/docs/api/argtypes
     argTypes: {
-        lookup_key: {
+        lookupKey: {
             control: 'select',
             options: [
                 ...Object.values(LOOKUP_KEYS),
                 ...Object.keys(error_responses),
             ],
         },
-        resource_id: {
+        resourceId: {
             control: 'select',
             options: [
                 ...[
@@ -70,8 +70,8 @@ const meta = {
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
     args: {
         short_name: false,
-        resource_id: cells[0].id,
-        lookup_key: LOOKUP_KEYS.CELL,
+        resourceId: cells[0].id,
+        lookupKey: LOOKUP_KEYS.CELL,
     },
 } satisfies Meta<typeof ResourceChip>
 
@@ -102,7 +102,7 @@ export const ShortName: Story = {
  */
 export const UnknownResource: Story = {
     args: {
-        resource_id: 'unknown-resource-id',
+        resourceId: 'unknown-resource-id',
     },
 }
 
@@ -111,6 +111,6 @@ export const UnknownResource: Story = {
  */
 export const ApiError: Story = {
     args: {
-        resource_id: Object.keys(error_responses)[0],
+        resourceId: Object.keys(error_responses)[0],
     },
 }

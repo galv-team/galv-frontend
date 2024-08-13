@@ -18,6 +18,8 @@ export interface IApiResourceContext<T extends GalvResource = GalvResource> {
     apiResource?: T
     apiResourceDescription?: SerializerDescriptionSerializer
     apiQuery?: UseQueryResult<AxiosResponse<T>, AxiosError>
+    lookupKey: LookupKey
+    resourceId: T['id']
     family?: GalvResource
     familyDescription?: SerializerDescriptionSerializer
     familyQuery?: UseQueryResult<AxiosResponse<GalvResource>, AxiosError>
@@ -35,15 +37,15 @@ export const useApiResource = <T extends GalvResource = GalvResource>() => {
     return context
 }
 
-type ApiResourceContextProviderProps = {
-    lookup_key: LookupKey
-    resource_id: string | number
+export type ApiResourceContextProviderProps = {
+    lookupKey: LookupKey
+    resourceId: GalvResource['id']
 }
 
 export const get_select_function =
-    <T,>(lookup_key: LookupKey) =>
+    <T,>(lookupKey: LookupKey) =>
     (data: AxiosResponse<GalvResource>) => {
-        Object.entries(FIELDS[lookup_key]).forEach(([k, v]) => {
+        Object.entries(FIELDS[lookupKey]).forEach(([k, v]) => {
             if (v.transformation !== undefined)
                 data.data[k as keyof typeof data.data] = v.transformation(
                     data.data[k as keyof typeof data.data],
@@ -53,15 +55,15 @@ export const get_select_function =
     }
 
 function ApiResourceContextStandaloneProvider<T extends GalvResource>({
-    lookup_key,
-    resource_id,
+    lookupKey,
+    resourceId,
     children,
 }: PropsWithChildren<ApiResourceContextProviderProps>) {
     const { useRetrieveQuery, useDescribeQuery } = useFetchResource()
-    const query = useRetrieveQuery<T>(lookup_key, resource_id, {
-        extra_query_options: { select: get_select_function(lookup_key) },
+    const query = useRetrieveQuery<T>(lookupKey, resourceId, {
+        extra_query_options: { select: get_select_function(lookupKey) },
     })
-    const description_query = useDescribeQuery(lookup_key)
+    const description_query = useDescribeQuery(lookupKey)
 
     return (
         <ApiResourceContext.Provider
@@ -69,6 +71,8 @@ function ApiResourceContextStandaloneProvider<T extends GalvResource>({
                 apiResource: query.data?.data,
                 apiResourceDescription: description_query.data?.data,
                 apiQuery: query,
+                lookupKey: lookupKey,
+                resourceId: resourceId,
             }}
         >
             {children}
@@ -77,36 +81,36 @@ function ApiResourceContextStandaloneProvider<T extends GalvResource>({
 }
 
 function ApiResourceContextWithFamilyProvider<T extends GalvResource>({
-    lookup_key,
-    resource_id,
+    lookupKey,
+    resourceId,
     children,
 }: PropsWithChildren<ApiResourceContextProviderProps>) {
-    if (!get_has_family(lookup_key))
+    if (!get_has_family(lookupKey))
         throw new Error(
-            `Cannot use ApiResourceContextWithFamilyProvider for ${lookup_key} because it does not have a family.`,
+            `Cannot use ApiResourceContextWithFamilyProvider for ${lookupKey} because it does not have a family.`,
         )
 
     const { useRetrieveQuery, useDescribeQuery } = useFetchResource()
-    const query = useRetrieveQuery<T>(lookup_key, resource_id, {
-        extra_query_options: { select: get_select_function(lookup_key) },
+    const query = useRetrieveQuery<T>(lookupKey, resourceId, {
+        extra_query_options: { select: get_select_function(lookupKey) },
     })
 
-    const family_lookup_key = FAMILY_LOOKUP_KEYS[lookup_key]
+    const family_lookupKey = FAMILY_LOOKUP_KEYS[lookupKey]
     const family_query = useRetrieveQuery(
-        family_lookup_key,
+        family_lookupKey,
         has(query.data?.data, 'family')
             ? id_from_ref_props(query.data.data.family)
             : 'never',
         {
             extra_query_options: {
                 enabled: has(query.data?.data, 'family'),
-                select: get_select_function<T>(family_lookup_key),
+                select: get_select_function<T>(family_lookupKey),
             },
         },
     )
 
-    const description_query = useDescribeQuery(lookup_key)
-    const family_description_query = useDescribeQuery(family_lookup_key)
+    const description_query = useDescribeQuery(lookupKey)
+    const family_description_query = useDescribeQuery(family_lookupKey)
 
     return (
         <ApiResourceContext.Provider
@@ -114,6 +118,8 @@ function ApiResourceContextWithFamilyProvider<T extends GalvResource>({
                 apiResource: query.data?.data,
                 apiResourceDescription: description_query.data?.data,
                 apiQuery: query,
+                lookupKey: lookupKey,
+                resourceId: resourceId,
                 family: family_query.data?.data,
                 familyDescription: family_description_query.data?.data,
                 familyQuery: family_query,
@@ -135,7 +141,7 @@ function ApiResourceContextWithFamilyProvider<T extends GalvResource>({
 export default function ApiResourceContextProvider(
     props: PropsWithChildren<ApiResourceContextProviderProps>,
 ) {
-    return get_has_family(props.lookup_key) ? (
+    return get_has_family(props.lookupKey) ? (
         <ApiResourceContextWithFamilyProvider {...props} />
     ) : (
         <ApiResourceContextStandaloneProvider {...props} />

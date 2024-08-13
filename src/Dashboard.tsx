@@ -17,7 +17,7 @@ import LookupKeyIcon from './Components/LookupKeyIcon'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import ListItem from '@mui/material/ListItem'
-import { ResourceChip } from './Components/ResourceChip'
+import ResourceChip from './Components/ResourceChip'
 import Stack from '@mui/material/Stack'
 import React, { ReactNode, useState } from 'react'
 import Button from '@mui/material/Button'
@@ -47,8 +47,8 @@ import SafeTooltip from './Components/SafeTooltip'
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
-    lookup_key?: LookupKey
-    resource_id?: string
+    lookupKey?: LookupKey
+    resourceId?: string
 }
 
 const get_color = (status: SchemaValidation['status'] | 'INPUT_REQUIRED') => {
@@ -111,8 +111,8 @@ function KeySummary({
                         <ListItem key={schema_id}>
                             <ListItemText key="count">
                                 <Representation
-                                    resource_id={schema_id}
-                                    lookup_key={LOOKUP_KEYS.VALIDATION_SCHEMA}
+                                    resourceId={schema_id}
+                                    lookupKey={LOOKUP_KEYS.VALIDATION_SCHEMA}
                                 />
                                 : {count}
                             </ListItemText>
@@ -176,22 +176,22 @@ function KeySummary({
                             .filter((d) =>
                                 ['ERROR', 'INVALID'].includes(d.detail.status),
                             )
-                            .map((d) => d.resource_id)
+                            .map((d) => d.resourceId)
                             .filter((id, i, a) => a.indexOf(id) === i)
                             .filter((id): id is string => id !== undefined)
                             .map((id) => (
                                 <ListItem key={id}>
                                     <Stack>
                                         <ResourceChip
-                                            resource_id={id}
-                                            lookup_key={lookupKey}
+                                            resourceId={id}
+                                            lookupKey={lookupKey}
                                             short_name={false}
                                         />
                                         <List>
                                             {data
                                                 .filter(
                                                     (d) =>
-                                                        d.resource_id === id &&
+                                                        d.resourceId === id &&
                                                         [
                                                             'ERROR',
                                                             'INVALID',
@@ -212,10 +212,10 @@ function KeySummary({
                                                             />
                                                         </ListItemIcon>
                                                         <ResourceChip
-                                                            resource_id={id_from_ref_props(
+                                                            resourceId={id_from_ref_props(
                                                                 d.detail.schema,
                                                             )}
-                                                            lookup_key={
+                                                            lookupKey={
                                                                 LOOKUP_KEYS.VALIDATION_SCHEMA
                                                             }
                                                         />
@@ -300,7 +300,7 @@ export function SchemaValidationList() {
                 <Stack spacing={1}>
                     {query.data &&
                         query.data
-                            .map((d) => d.lookup_key)
+                            .map((d) => d.lookupKey)
                             .filter((k, i, a) => a.indexOf(k) === i)
                             .filter((k): k is LookupKey => k !== undefined)
                             .map((k) => (
@@ -308,7 +308,7 @@ export function SchemaValidationList() {
                                     key={k}
                                     lookupKey={k}
                                     data={query.data.filter(
-                                        (d) => d.lookup_key === k,
+                                        (d) => d.lookupKey === k,
                                     )}
                                 />
                             ))}
@@ -459,8 +459,8 @@ export function DatasetStatus() {
                                                 <ICONS.validation_status_INPUT_REQUIRED color="warning" />
                                             </SafeTooltip>
                                             <ResourceChip
-                                                resource_id={f.id}
-                                                lookup_key={LOOKUP_KEYS.FILE}
+                                                resourceId={f.id}
+                                                lookupKey={LOOKUP_KEYS.FILE}
                                                 short_name={false}
                                             />
                                         </ListItem>

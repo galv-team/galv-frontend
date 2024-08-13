@@ -9,23 +9,29 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
-import { vi, it, expect } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { cells } from './fixtures/fixtures'
 import WrappedResourceList from '../Components/ResourceList'
+import { MemoryRouter } from 'react-router-dom'
+import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
 
 vi.mock('../Components/IntroText')
-vi.mock('../Components/ResourceCard')
+vi.mock('../Components/card/ResourceCard')
 vi.mock('../ClientCodeDemo')
 
 it('renders', async () => {
     const queryClient = new QueryClient()
 
     render(
-        <QueryClientProvider client={queryClient}>
-            <FetchResourceContextProvider>
-                <WrappedResourceList lookup_key={LOOKUP_KEYS.CELL} />
-            </FetchResourceContextProvider>
-        </QueryClientProvider>,
+        <MemoryRouter initialEntries={['/']}>
+            <QueryClientProvider client={queryClient}>
+                <FetchResourceContextProvider>
+                    <SelectionManagementContextProvider>
+                        <WrappedResourceList lookupKey={LOOKUP_KEYS.CELL} />
+                    </SelectionManagementContextProvider>
+                </FetchResourceContextProvider>
+            </QueryClientProvider>
+        </MemoryRouter>,
     )
     await screen.findByText((t) => t.includes(cells[0].id))
 
@@ -33,8 +39,7 @@ it('renders', async () => {
     expect(screen.getAllByText(/ResourceCard/)).toHaveLength(cells.length)
     expect(
         screen.getAllByText(
-            (c, e) =>
-                e instanceof HTMLElement && e.dataset.key === 'lookup_key',
+            (c, e) => e instanceof HTMLElement && e.dataset.key === 'lookupKey',
         ),
     ).toHaveLength(cells.length)
 })

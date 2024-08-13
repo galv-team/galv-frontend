@@ -1,12 +1,12 @@
 import { MonitoredPath } from '@galv/galv'
-import useStyles from '../../styles/UseStyles'
+import useStyles from '../../../styles/UseStyles'
 import clsx from 'clsx'
 import Stack from '@mui/material/Stack'
 import ChipList from './ChipList'
 import Alert from '@mui/material/Alert'
-import { get_url_components } from '../misc'
-import { ResourceChip } from '../ResourceChip'
-import { GalvResource } from '../../constants'
+import { get_url_components } from '../../misc'
+import ResourceChip from '../../ResourceChip'
+import { GalvResource } from '../../../constants'
 
 export default function PathSummary({ resource }: { resource: GalvResource }) {
     const { classes } = useStyles()
@@ -19,8 +19,8 @@ export default function PathSummary({ resource }: { resource: GalvResource }) {
             {r.active ? (
                 h && (
                     <ResourceChip
-                        resource_id={h.resource_id}
-                        lookup_key={h.lookup_key}
+                        resourceId={h.resourceId}
+                        lookupKey={h.lookupKey}
                     />
                 )
             ) : (
