@@ -5,7 +5,7 @@ import Stack from '@mui/material/Stack'
 import ChipList from './ChipList'
 import Alert from '@mui/material/Alert'
 import { get_url_components } from '../../misc'
-import { ResourceChip } from '../../ResourceChip'
+import ResourceChip from '../../ResourceChip'
 import { GalvResource } from '../../../constants'
 
 export default function PathSummary({ resource }: { resource: GalvResource }) {

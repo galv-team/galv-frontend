@@ -3,7 +3,7 @@ import useStyles from '../../../styles/UseStyles'
 import clsx from 'clsx'
 import Stack from '@mui/material/Stack'
 import { get_url_components } from '../../misc'
-import { ResourceChip } from '../../ResourceChip'
+import ResourceChip from '../../ResourceChip'
 import Typography from '@mui/material/Typography'
 import { GalvResource } from '../../../constants'
 

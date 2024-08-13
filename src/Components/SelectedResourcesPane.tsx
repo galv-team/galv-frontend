@@ -4,7 +4,7 @@
 
 import useStyles from '../styles/UseStyles'
 import { useSelectionManagement } from './SelectionManagementContext'
-import { ResourceChip } from './ResourceChip'
+import ResourceChip from './ResourceChip'
 import { get_url_components } from './misc'
 import clsx from 'clsx'
 import Grid from '@mui/material/Unstable_Grid2'

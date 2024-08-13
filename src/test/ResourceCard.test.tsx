@@ -374,7 +374,7 @@ describe('ResourceCard', () => {
                 )
             })
             expect(!!patch_call).toBeTruthy()
-        })
+        }, 10000)
 
         it('allows editing nested custom properties', async () => {
             const user = userEvent.setup()

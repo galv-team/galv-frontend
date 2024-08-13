@@ -2,7 +2,7 @@ import useStyles from '../../../styles/UseStyles'
 import { get_url_components } from '../../misc'
 import Stack from '@mui/material/Stack'
 import clsx from 'clsx'
-import { ResourceChip } from '../../ResourceChip'
+import ResourceChip from '../../ResourceChip'
 import Typography from '@mui/material/Typography'
 
 export default function ChipList({
