@@ -13,7 +13,7 @@ import { MemoryRouter } from 'react-router-dom'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
 import { expect, it, vi } from 'vitest'
 import { cells } from './fixtures/fixtures'
-import { ResourceChip } from '../Components/ResourceChip'
+import ResourceChip from '../Components/ResourceChip'
 
 vi.mock('../Components/Representation')
 

@@ -28,7 +28,7 @@ import { AccessLevelsApi, PermittedAccessLevels } from '@galv/galv'
 import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectProps } from '@mui/material/Select'
 import { useCurrentUser } from '../CurrentUserContext'
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import {
     is_tvn_wrapper,
     to_type_value_notation_wrapper,
@@ -471,9 +471,10 @@ export default function PrettyObject<
                     <TableBody>
                         {keys.map((key, i) => {
                             const invalid =
+                                _edit_mode &&
                                 Object.keys(_fieldErrors).includes(key)
                             return (
-                                <>
+                                <Fragment key={i}>
                                     <TableRow
                                         key={i}
                                         className={clsx({
@@ -614,7 +615,7 @@ export default function PrettyObject<
                                             </TableCell>
                                         </TableRow>
                                     )}
-                                </>
+                                </Fragment>
                             )
                         })}
                         {_canEditKeys && _edit_mode && (

@@ -12,20 +12,26 @@ import FetchResourceContextProvider from '../Components/FetchResourceContext'
 import { expect, it, vi } from 'vitest'
 import { cells } from './fixtures/fixtures'
 import WrappedResourceList from '../Components/ResourceList'
+import { MemoryRouter } from 'react-router-dom'
+import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
 
 vi.mock('../Components/IntroText')
-vi.mock('../Components/ResourceCard')
+vi.mock('../Components/card/ResourceCard')
 vi.mock('../ClientCodeDemo')
 
 it('renders', async () => {
     const queryClient = new QueryClient()
 
     render(
-        <QueryClientProvider client={queryClient}>
-            <FetchResourceContextProvider>
-                <WrappedResourceList lookupKey={LOOKUP_KEYS.CELL} />
-            </FetchResourceContextProvider>
-        </QueryClientProvider>,
+        <MemoryRouter initialEntries={['/']}>
+            <QueryClientProvider client={queryClient}>
+                <FetchResourceContextProvider>
+                    <SelectionManagementContextProvider>
+                        <WrappedResourceList lookupKey={LOOKUP_KEYS.CELL} />
+                    </SelectionManagementContextProvider>
+                </FetchResourceContextProvider>
+            </QueryClientProvider>
+        </MemoryRouter>,
     )
     await screen.findByText((t) => t.includes(cells[0].id))
 

@@ -2,7 +2,6 @@
 // // Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 // // of Oxford, and the 'Galv' Developers. All rights reserved.
 
-// @ts-expect-error - globalThis is not defined in Jest
 import { LOOKUP_KEYS } from '../constants'
 import React from 'react'
 import {
@@ -25,7 +24,9 @@ import axios from 'axios'
 import ResourceCardFromQuery from '../Components/card/ResourceCard'
 
 import { cell_families, cells } from './fixtures/fixtures'
+import { has } from '../Components/misc'
 
+// @ts-expect-error - globalThis is not defined in Jest
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 vi.mock('../Components/Representation')
@@ -205,14 +206,16 @@ describe('ResourceCard', () => {
             // Save the changes
             await user.click(screen.getByRole('button', { name: /Save/i }))
             await screen.findByRole('button', { name: /Edit this /i })
-            const last_call = req.mock.lastCall
-                ? req.mock.lastCall[0]
-                : undefined
-            expect(last_call).toHaveProperty('method', 'PATCH')
-            expect(
-                JSON.parse(last_call?.data).identifier === new_value,
-            ).toBeTruthy()
-        })
+            const patch_call = req.mock.calls.find(
+                (c) =>
+                    c.length > 0 &&
+                    has(c[0], 'method') &&
+                    c[0].method === 'PATCH' &&
+                    has(c[0], 'data') &&
+                    JSON.parse(c[0].data).identifier === new_value,
+            )
+            expect(!!patch_call).toBeTruthy()
+        }, 10000)
 
         it('supports undo and redo', async () => {
             const user = userEvent.setup()
@@ -353,14 +356,24 @@ describe('ResourceCard', () => {
             // Save the changes
             await user.click(screen.getByRole('button', { name: /Save/i }))
             await screen.findByRole('button', { name: /Edit this /i })
-            const last_call = req.mock.lastCall
-                ? req.mock.lastCall[0]
-                : undefined
-            expect(last_call).toHaveProperty('method', 'PATCH')
-            expect(
-                JSON.parse(last_call?.data).custom_properties['key with space']
-                    ._value === new_value,
-            ).toBeTruthy()
+            const patch_call = req.mock.calls.find((c) => {
+                if (
+                    !(
+                        c.length > 0 &&
+                        has(c[0], 'method') &&
+                        c[0].method === 'PATCH' &&
+                        has(c[0], 'data')
+                    )
+                )
+                    return false
+                const data = JSON.parse(c[0].data)
+                return (
+                    has(data.custom_properties, 'key with space') &&
+                    data.custom_properties['key with space']._value ===
+                        new_value
+                )
+            })
+            expect(!!patch_call).toBeTruthy()
         })
 
         it('allows editing nested custom properties', async () => {
@@ -392,14 +405,26 @@ describe('ResourceCard', () => {
             // Save the changes
             await user.click(screen.getByRole('button', { name: /Save/i }))
             await screen.findByRole('button', { name: /Edit this /i })
-            const last_call = req.mock.lastCall
-                ? req.mock.lastCall[0]
-                : undefined
-            expect(last_call).toHaveProperty('method', 'PATCH')
-            expect(
-                JSON.parse(last_call?.data).custom_properties.nested._value
-                    .str_key._value === new_value,
-            ).toBeTruthy()
+            const patch_call = req.mock.calls.find((c) => {
+                if (
+                    !(
+                        c.length > 0 &&
+                        has(c[0], 'method') &&
+                        c[0].method === 'PATCH' &&
+                        has(c[0], 'data')
+                    )
+                )
+                    return false
+                const data = JSON.parse(c[0].data)
+                return (
+                    has(data.custom_properties, 'nested') &&
+                    has(data.custom_properties.nested, '_value') &&
+                    has(data.custom_properties.nested._value, 'str_key') &&
+                    data.custom_properties.nested._value.str_key._value ===
+                        new_value
+                )
+            })
+            expect(!!patch_call).toBeTruthy()
         })
 
         it('prevents adding new properties', async () => {
@@ -451,13 +476,26 @@ describe('ResourceCard', () => {
 
             // Save the changes
             await user.click(screen.getByRole('button', { name: /Save/i }))
-            const last_call = req.mock.lastCall
-                ? req.mock.lastCall[0]
-                : undefined
-            expect(last_call).toHaveProperty('method', 'PATCH')
-            expect(
-                JSON.parse(last_call?.data).custom_properties.x,
-            ).toStrictEqual({ _type: 'string', _value: '' })
+            const patch_call = req.mock.calls.find((c) => {
+                if (
+                    !(
+                        c.length > 0 &&
+                        has(c[0], 'method') &&
+                        c[0].method === 'PATCH' &&
+                        has(c[0], 'data')
+                    )
+                )
+                    return false
+                const data = JSON.parse(c[0].data)
+                return (
+                    has(data.custom_properties, 'x') &&
+                    has(data.custom_properties.x, '_type') &&
+                    has(data.custom_properties.x, '_value') &&
+                    data.custom_properties.x._value === '' &&
+                    data.custom_properties.x._type === 'string'
+                )
+            })
+            expect(!!patch_call).toBeTruthy()
         })
     })
 

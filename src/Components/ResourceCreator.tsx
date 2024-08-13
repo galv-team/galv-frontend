@@ -467,7 +467,7 @@ export function ResourceCreator<T extends GalvResource>({
             )}
             {error &&
                 (is_axios_error(error) ? (
-                    <AxiosErrorAlert error={error} maxErrors={1} />
+                    <AxiosErrorAlert error={error} />
                 ) : (
                     <Alert severity="error">{error}</Alert>
                 ))}

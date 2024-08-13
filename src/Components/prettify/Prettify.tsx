@@ -24,6 +24,7 @@ import PrettyAttachment from './PrettyAttachment'
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
 import calendar from 'dayjs/plugin/calendar'
+import { has } from '../misc'
 
 dayjs.extend(calendar)
 
@@ -137,6 +138,7 @@ export const PrettyString = ({
                 {...(childProps as TextFieldProps)}
             />
         )
+
     if (!prevent_anchor_conversion && target._value?.startsWith('http'))
         return (
             <Typography component={Link} variant="overline" to={target._value}>
@@ -550,6 +552,11 @@ export default function Prettify({
         | Omit<CheckboxProps, 'onChange'>
         | SvgIconProps
     >) {
+    // Non-edit mode children will not be inputs
+    if (has(props, 'inputProps') && !props.edit_mode) {
+        delete props.inputProps
+    }
+
     const pretty = (
         <Pretty
             {...props}
