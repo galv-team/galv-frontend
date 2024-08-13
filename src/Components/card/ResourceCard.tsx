@@ -327,9 +327,13 @@ The file will be added to the Harvester's usual queue for processing.
                 }
                 action={action}
             />
-            <CardContent>
-                <Collapse in={alertContent !== null}>{alertContent}</Collapse>
-            </CardContent>
+            {isExpanded && (
+                <CardContent>
+                    <Collapse in={alertContent !== null}>
+                        {alertContent}
+                    </Collapse>
+                </CardContent>
+            )}
             {isExpanded ? (
                 <CardBody
                     isEditMode={isEditMode}
