@@ -105,7 +105,11 @@ function ResourceCard<T extends GalvResource>({
     const showError = (e: AxiosError) => {
         setError(e)
         setAlertContent(
-            <AxiosErrorAlert error={e} onClose={() => clearAlert()} square={true} />,
+            <AxiosErrorAlert
+                error={e}
+                onClose={() => clearAlert()}
+                square={true}
+            />,
         )
         return undefined
     }
