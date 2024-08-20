@@ -1,5 +1,5 @@
 import CardActionBar from './CardActionBar'
-import { get_url_components, is_axios_error } from './misc'
+import { get_url_components } from './misc'
 import PrettyObject from './prettify/PrettyObject'
 import useStyles from '../styles/UseStyles'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -11,7 +11,7 @@ import Button from '@mui/material/Button'
 import NumberInput from './NumberInput'
 import { a11yDark, CopyBlock } from 'react-code-blocks'
 import Avatar from '@mui/material/Avatar'
-import React, { useEffect, useRef, useState } from 'react'
+import React, {ReactNode, useEffect, useRef, useState} from 'react'
 import ErrorCard from './error/ErrorCard'
 import { AxiosError, AxiosResponse } from 'axios'
 import {
@@ -20,7 +20,7 @@ import {
     GalvResource,
     ICONS,
     LOOKUP_KEYS,
-    LookupKey,
+    LookupKey, PATHS,
     PRIORITY_LEVELS,
     Serializable,
 } from '../constants'
@@ -28,7 +28,6 @@ import ErrorBoundary from './ErrorBoundary'
 import UndoRedoProvider, { useUndoRedoContext } from './UndoRedoContext'
 import Modal from '@mui/material/Modal'
 import Stack from '@mui/material/Stack'
-import { useSnackbarMessenger } from './SnackbarMessengerContext'
 import {
     ArbitraryFilesApiArbitraryFilesCreateRequest,
     type CreateKnoxTokenRequest,
@@ -51,11 +50,17 @@ import { useAttachmentUpload } from './AttachmentUploadContext'
 import { useFetchResource } from './FetchResourceContext'
 import Alert from '@mui/material/Alert'
 import AxiosErrorAlert from './AxiosErrorAlert'
+import Collapse from "@mui/material/Collapse";
+import {useNavigate} from "react-router-dom";
+
+type TokenCreatorProps = {
+    setModalOpen: (open: boolean) => void
+} & CardProps
 
 export function TokenCreator({
-    setModalOpen,
-    ...cardProps
-}: { setModalOpen: (open: boolean) => void } & CardProps) {
+                                 setModalOpen,
+                                 ...cardProps
+                             }: TokenCreatorProps) {
     const { classes } = useStyles()
     const [name, setName] = useState<string>('')
     const [ttl, setTTL] = useState<number | undefined>(undefined)
@@ -231,16 +236,19 @@ export type ResourceCreatorProps = {
 } & CardProps
 
 export function ResourceCreator<T extends GalvResource>({
-    lookupKey,
-    initial_data,
-    onCreate,
-    onDiscard,
-    ...cardProps
-}: ResourceCreatorProps) {
+                                                            lookupKey,
+                                                            initial_data,
+                                                            onCreate,
+                                                            onDiscard,
+                                                            ...cardProps
+                                                        }: ResourceCreatorProps) {
     const { classes } = useStyles()
-    const [error, setError] = useState<AxiosError | string | undefined>(
-        undefined,
-    )
+    const [alertContent, setAlertContent] = useState<ReactNode | null>(null)
+    const [error, setError] = useState<AxiosError | null>(null)
+    const clearAlert = () => {
+        setAlertContent(null)
+        setError(null)
+    }
 
     const { file, getUploadMutation } = useAttachmentUpload()
 
@@ -266,9 +274,9 @@ export function ResourceCreator<T extends GalvResource>({
                             template_object[k] = v.many
                                 ? { _type: 'array', _value: [] }
                                 : {
-                                      _type: v.type,
-                                      _value: v.default_value ?? null,
-                                  }
+                                    _type: v.type,
+                                    _value: v.default_value ?? null,
+                                }
                     }
                 })
             if (initial_data !== undefined) {
@@ -284,7 +292,17 @@ export function ResourceCreator<T extends GalvResource>({
     const { useCreateQuery } = useFetchResource()
 
     // Mutations for saving edits
-    const { postSnackbarMessage } = useSnackbarMessenger()
+    const showError = (e: AxiosError) => {
+        setError(e)
+        setAlertContent(
+            <AxiosErrorAlert
+                error={e}
+                onClose={() => clearAlert()}
+                square={true}
+            />,
+        )
+        return undefined
+    }
     const queryClient = useQueryClient()
 
     const clean = <T extends GalvResource>(data: Partial<T>) => {
@@ -330,16 +348,14 @@ export function ResourceCreator<T extends GalvResource>({
         },
         on_error: (error, variables) => {
             console.error(error, { variables })
-            setError(error)
-            onCreate(undefined, error)
+            showError(error)
             return undefined
         },
     })
     const create_attachment_mutation = getUploadMutation(
         (new_data_url, error) => {
             if (error) {
-                setError(is_axios_error(error) ? error : String(error))
-                onCreate(undefined, error)
+                setError(error as AxiosError)
             } else {
                 onCreate(new_data_url)
             }
@@ -360,51 +376,16 @@ export function ResourceCreator<T extends GalvResource>({
             undoable={UndoRedo.can_undo}
             redoable={UndoRedo.can_redo}
             onEditSave={() => {
-                let close = false
                 if (lookupKey === LOOKUP_KEYS.ARBITRARY_FILE) {
-                    let okay = true
-                    ;['name', 'team'].forEach((k: string) => {
-                        if (
-                            UndoRedo.current[
-                                k as keyof (typeof UndoRedo)['current']
-                            ] === null
-                        ) {
-                            postSnackbarMessage({
-                                message: `Cannot create a new file without a value for ${k}.`,
-                                severity: 'error',
-                            })
-                            okay = false
-                        }
-                    })
-                    if (okay) {
-                        const d = UndoRedo.current as unknown as Omit<
-                            ArbitraryFilesApiArbitraryFilesCreateRequest,
-                            'file'
-                        >
-
-                        if (!file) {
-                            setError('No file to upload')
-                        } else if (!d) {
-                            setError('No data to upload')
-                        } else if (!d.name) {
-                            setError('No name for the file')
-                        } else if (!d.team) {
-                            setError('Files must belong to a Team')
-                        } else {
-                            create_attachment_mutation.mutate({ ...d, file })
-                        }
-                        close = false // handled by the mutation
-                    }
+                    create_attachment_mutation.mutate(
+                        {...clean(UndoRedo.current), file} as ArbitraryFilesApiArbitraryFilesCreateRequest
+                    )
                 } else {
                     create_mutation.mutate(
                         clean(UndoRedo.current) as Partial<T>,
                     )
-                    close = false // handled by the mutation
                 }
-                if (close) {
-                    onCreate()
-                }
-                return close
+                return false  // Close action handled by mutation success callback
             }}
             onEditDiscard={() => {
                 if (
@@ -446,6 +427,7 @@ export function ResourceCreator<T extends GalvResource>({
                 },
             }}
         >
+            <Collapse in={alertContent !== null}>{alertContent}</Collapse>
             {UndoRedo.current && (
                 <PrettyObject<TypeValueNotationWrapper>
                     target={to_type_value_notation_wrapper(
@@ -461,16 +443,17 @@ export function ResourceCreator<T extends GalvResource>({
                                 v,
                             ) as TypeValueNotationWrapper,
                         )
-                        setError(undefined)
+                        clearAlert()
                     }}
+                    fieldErrors={
+                        Object.fromEntries(
+                            Object.entries(error?.response?.data ?? {}).filter(
+                                ([k]) => k !== 'non_field_errors',
+                            ),
+                        ) as Record<string, string>
+                    }
                 />
             )}
-            {error &&
-                (is_axios_error(error) ? (
-                    <AxiosErrorAlert error={error} />
-                ) : (
-                    <Alert severity="error">{error}</Alert>
-                ))}
         </CardContent>
     )
 
@@ -489,10 +472,11 @@ export const get_modal_title = (lookupKey: LookupKey, suffix: string) =>
     `create-${lookupKey}-modal-${suffix}`
 
 export default function WrappedResourceCreator<T extends GalvResource>(
-    props: { lookupKey: LookupKey } & CardProps,
+    props: { lookupKey: LookupKey } & (TokenCreatorProps|ResourceCreatorProps),
 ) {
     const [modalOpen, setModalOpen] = useState(false)
     const { user, refresh_user } = useCurrentUser()
+    const navigate = useNavigate()
 
     const get_can_create = (lookupKey: LookupKey) => {
         // We can always create tokens because they represent us, and labs because someone has to.
@@ -550,13 +534,20 @@ export default function WrappedResourceCreator<T extends GalvResource>(
                             />
                         ) : (
                             <ResourceCreator<T>
-                                onCreate={(_, err) => {
+                                onCreate={(url, err) => {
                                     if (
                                         props.lookupKey === LOOKUP_KEYS.LAB &&
                                         !user?.is_lab_admin
                                     )
                                         refresh_user()
                                     setModalOpen(!!err)
+                                    if (url) {
+                                        const components = get_url_components(url)
+                                        if (components)
+                                            navigate(
+                                                `${PATHS[components.lookupKey]}${components.resourceId}/`,
+                                            )
+                                    }
                                 }}
                                 onDiscard={() => setModalOpen(false)}
                                 {...props}
