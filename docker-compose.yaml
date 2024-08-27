@@ -29,7 +29,7 @@ services:
     restart: unless-stopped
     environment:
       VIRTUAL_HOST: "localhost"
-      FRONTEND_VIRTUAL_HOST: "http://localhost:8002,https://localhost:8002"
+      FRONTEND_VIRTUAL_HOST: "http://localhost:8002,https://localhost:8002,http://127.0.0.1:8002,https://127.0.0.1:8002"
       DJANGO_SETTINGS: "dev"
       DJANGO_SUPERUSER_PASSWORD: "admin"
       DJANGO_LOCAL_DATA_STORAGE: "True"
@@ -56,7 +56,7 @@ services:
       VITE_GALV_API_BASE_URL: "http://localhost:8080"
     restart: unless-stopped
     ports:
-      - "8002:80"
+      - "8002:8002"
     volumes:
       - ./src:/app/src
     command: bash -c "(node _resource-check.js &) && pnpm start --host --port 80"
