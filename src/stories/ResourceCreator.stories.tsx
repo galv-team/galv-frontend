@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { withRouter } from 'storybook-addon-remix-react-router'
-import ResourceCard from '../Components/card/ResourceCard'
+import {
+    ResourceCreator,
+    ResourceCreatorProps,
+} from '../Components/ResourceCreator'
 import { LOOKUP_KEYS } from '../constants'
 import {
     cell_families,
@@ -11,43 +14,35 @@ import {
     teams,
     users,
 } from '../test/fixtures/fixtures'
-import { error_responses, restHandlers } from '../test/handlers'
+import { restHandlers } from '../test/handlers'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactElement } from 'react'
-import { CardActionBarProps } from '../Components/CardActionBar'
 import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
-import ApiResourceContextProvider from '../Components/ApiResourceContext'
 import { http, HttpResponse } from 'msw'
 import CurrentUserContextProvider from '../Components/CurrentUserContext'
 import { expect, fn, userEvent, within } from '@storybook/test'
+import AttachmentUploadContextProvider from '../Components/AttachmentUploadContext'
+import UndoRedoProvider from '../Components/UndoRedoContext'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-    title: 'ResourceCard',
-    component: ResourceCard,
+    title: 'ResourceCreator',
+    component: ResourceCreator,
     decorators: [
         withRouter,
-        (
-            Story: ReactElement,
-            context: { args: CardActionBarProps & { resourceId?: string } },
-        ) => (
+        (Story: ReactElement, context: { args: ResourceCreatorProps }) => (
             <QueryClientProvider client={new QueryClient()}>
                 <CurrentUserContextProvider
                     user_override={JSON.stringify(users[0])}
                 >
                     <SelectionManagementContextProvider>
                         <FetchResourceContextProvider>
-                            <ApiResourceContextProvider
-                                lookupKey={
-                                    context.args.lookupKey ?? LOOKUP_KEYS.CELL
-                                }
-                                resourceId={
-                                    context.args.resourceId ?? cells[0].id
-                                }
-                            >
-                                <Story />
-                            </ApiResourceContextProvider>
+                            <AttachmentUploadContextProvider>
+                                <UndoRedoProvider>
+                                    <Story />
+                                </UndoRedoProvider>
+                            </AttachmentUploadContextProvider>
                         </FetchResourceContextProvider>
                     </SelectionManagementContextProvider>
                 </CurrentUserContextProvider>
@@ -67,103 +62,51 @@ const meta = {
     argTypes: {
         lookupKey: {
             control: 'select',
-            options: [
-                ...Object.values(LOOKUP_KEYS),
-                ...Object.keys(error_responses),
-            ],
+            // token creation is handled separately
+            options: { ...LOOKUP_KEYS, TOKEN: undefined },
         },
-        resourceId: {
+        initial_data: {
             control: 'select',
-            options: [
-                ...[
+            options: Object.fromEntries(
+                [
                     ...cells,
                     ...cell_families,
                     ...teams,
                     ...column_types,
                     ...files,
                     ...column_mappings,
-                ].map((r) => r.id),
-                ...Object.keys(error_responses),
-            ],
+                ].map((r) => [r.id, r]),
+            ),
         },
     },
-    // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
     args: {
-        resourceId: cells[0].id,
         lookupKey: LOOKUP_KEYS.CELL,
     },
     beforeEach: async () => {
         window.confirm = fn(() => true)
     },
-} satisfies Meta<typeof ResourceCard>
+} satisfies Meta<typeof ResourceCreator>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * The `ResourceCard` is the main component of the application.
+ * The `ResourceCreator` is used as a `Modal` that allows creation of resources.
  *
- * It displays a card with the resource's name and a summary, and has buttons to edit, delete, and view the resource.
- * If `expanded`, it will display an exhaustive list of the resource's fields.
+ * The `lookupKey` determines the type of resource that will be created, and hence the fields that will be displayed.
  *
- * Summaries for many of the different resources are defined in custom components,
- * while the exhaustive list of fields is obtained by crawling the object itself.
- * The metadata for the exhaustive field list is extracted from a combination of
- * data from the relevant `/lookupKey/describe/` endpoint and the `FIELDS` object in `constants.ts`.
+ * Tokens are created separately using the `TokenCreator` component.
  */
 export const Basic: Story = {
     args: {},
 }
 
 /**
- * When expanded, the `ResourceCard` will display all the fields of the resource.
- *
- * These are separated into Read-only, Editable, and Custom fields.
- * Resources that inherit from other resources will display the inherited fields in a separate section.
+ * Providing `initial_data` will pre-populate the fields, which is used when forking resources.
  */
-export const Expanded: Story = {
+export const InitialData: Story = {
     args: {
-        expanded: true,
-    },
-}
-
-/**
- * When `editing` is true, the `ResourceCard` will display the fields in edit mode.
- * This only applies to fields in the Editable and Custom sections.
- */
-export const Editing: Story = {
-    args: {
-        editing: true,
-    },
-}
-
-/**
- * If the API returns an error, it will be caught by the `ResourceCard`'s error boundary.
- */
-export const ApiError: Story = {
-    args: {
-        resourceId: Object.keys(error_responses)[0],
-    },
-}
-
-/**
- * When you save the edits to a `ResourceCard`, you should see a success message.
- */
-export const SaveSuccess: Story = {
-    args: {
-        editing: true,
-        expanded: true,
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement)
-        const saveButton = await canvas.findByRole('button', {
-            name: /save/i,
-        })
-        await expect(saveButton).toBeInTheDocument()
-        await userEvent.click(saveButton)
-
-        const successMessage = await canvas.findByText(/success/i)
-        expect(successMessage).toBeInTheDocument()
+        initial_data: cells[1],
     },
 }
 
@@ -173,13 +116,12 @@ export const SaveSuccess: Story = {
  */
 export const SaveError: Story = {
     args: {
-        editing: true,
-        expanded: true,
+        initial_data: cells[1],
     },
     parameters: {
         msw: {
             handlers: [
-                http.patch(`*/cells/*`, (...args) => {
+                http.post(`*/cells/*`, (...args) => {
                     console.log(args)
                     return HttpResponse.error()
                 }),
@@ -210,14 +152,11 @@ export const SaveError: Story = {
  * as a header banner and inline error feedback on the affected fields.
  */
 export const SaveErrorFromDjango: Story = {
-    args: {
-        editing: true,
-        expanded: true,
-    },
+    args: {},
     parameters: {
         msw: {
             handlers: [
-                http.patch(`*/cells/*`, (...args) => {
+                http.post(`*/cells/*`, (...args) => {
                     console.log(args)
                     return HttpResponse.json(
                         {
@@ -247,42 +186,6 @@ export const SaveErrorFromDjango: Story = {
         await userEvent.click(saveButton)
 
         const errorMessage = await canvas.findByText(/3 errors/i)
-        expect(errorMessage).toBeInTheDocument()
-    },
-}
-
-/**
- * When you fail to delete a resource, you should see an error message.
- */
-export const DeleteError: Story = {
-    args: {
-        // @ts-expect-error permissions does actually have destroy in it, or might
-        resourceId: cells.find((c) => !c.in_use && c.permissions.destroy)?.id,
-    },
-    parameters: {
-        msw: {
-            handlers: [
-                http.delete(`*/cells/*`, (...args) => {
-                    console.log(args)
-                    return HttpResponse.error()
-                }),
-                ...restHandlers.filter(
-                    (h) =>
-                        h.info.method !== 'DELETE' ||
-                        !/cells/.test(String(h.info.path)),
-                ),
-            ],
-        },
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement)
-        const deleteButton = await canvas.findByRole('button', {
-            name: /delete/i,
-        })
-        await expect(deleteButton).toBeInTheDocument()
-        await userEvent.click(deleteButton)
-
-        const errorMessage = await canvas.findByText(/error/i)
         expect(errorMessage).toBeInTheDocument()
     },
 }
