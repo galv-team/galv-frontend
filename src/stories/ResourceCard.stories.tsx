@@ -256,6 +256,7 @@ export const SaveErrorFromDjango: Story = {
  */
 export const DeleteError: Story = {
     args: {
+        // @ts-expect-error permissions does actually have destroy in it, or might
         resourceId: cells.find((c) => !c.in_use && c.permissions.destroy)?.id,
     },
     parameters: {
