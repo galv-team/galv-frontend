@@ -11,7 +11,7 @@ import Button from '@mui/material/Button'
 import NumberInput from './NumberInput'
 import { a11yDark, CopyBlock } from 'react-code-blocks'
 import Avatar from '@mui/material/Avatar'
-import React, {ReactNode, useEffect, useRef, useState} from 'react'
+import React, { ReactNode, useEffect, useRef, useState } from 'react'
 import ErrorCard from './error/ErrorCard'
 import { AxiosError, AxiosResponse } from 'axios'
 import {
@@ -20,7 +20,8 @@ import {
     GalvResource,
     ICONS,
     LOOKUP_KEYS,
-    LookupKey, PATHS,
+    LookupKey,
+    PATHS,
     PRIORITY_LEVELS,
     Serializable,
 } from '../constants'
@@ -50,17 +51,17 @@ import { useAttachmentUpload } from './AttachmentUploadContext'
 import { useFetchResource } from './FetchResourceContext'
 import Alert from '@mui/material/Alert'
 import AxiosErrorAlert from './AxiosErrorAlert'
-import Collapse from "@mui/material/Collapse";
-import {useNavigate} from "react-router-dom";
+import Collapse from '@mui/material/Collapse'
+import { useNavigate } from 'react-router-dom'
 
 type TokenCreatorProps = {
     setModalOpen: (open: boolean) => void
 } & CardProps
 
 export function TokenCreator({
-                                 setModalOpen,
-                                 ...cardProps
-                             }: TokenCreatorProps) {
+    setModalOpen,
+    ...cardProps
+}: TokenCreatorProps) {
     const { classes } = useStyles()
     const [name, setName] = useState<string>('')
     const [ttl, setTTL] = useState<number | undefined>(undefined)
@@ -236,12 +237,12 @@ export type ResourceCreatorProps = {
 } & CardProps
 
 export function ResourceCreator<T extends GalvResource>({
-                                                            lookupKey,
-                                                            initial_data,
-                                                            onCreate,
-                                                            onDiscard,
-                                                            ...cardProps
-                                                        }: ResourceCreatorProps) {
+    lookupKey,
+    initial_data,
+    onCreate,
+    onDiscard,
+    ...cardProps
+}: ResourceCreatorProps) {
     const { classes } = useStyles()
     const [alertContent, setAlertContent] = useState<ReactNode | null>(null)
     const [error, setError] = useState<AxiosError | null>(null)
@@ -274,9 +275,9 @@ export function ResourceCreator<T extends GalvResource>({
                             template_object[k] = v.many
                                 ? { _type: 'array', _value: [] }
                                 : {
-                                    _type: v.type,
-                                    _value: v.default_value ?? null,
-                                }
+                                      _type: v.type,
+                                      _value: v.default_value ?? null,
+                                  }
                     }
                 })
             if (initial_data !== undefined) {
@@ -377,15 +378,16 @@ export function ResourceCreator<T extends GalvResource>({
             redoable={UndoRedo.can_redo}
             onEditSave={() => {
                 if (lookupKey === LOOKUP_KEYS.ARBITRARY_FILE) {
-                    create_attachment_mutation.mutate(
-                        {...clean(UndoRedo.current), file} as ArbitraryFilesApiArbitraryFilesCreateRequest
-                    )
+                    create_attachment_mutation.mutate({
+                        ...clean(UndoRedo.current),
+                        file,
+                    } as ArbitraryFilesApiArbitraryFilesCreateRequest)
                 } else {
                     create_mutation.mutate(
                         clean(UndoRedo.current) as Partial<T>,
                     )
                 }
-                return false  // Close action handled by mutation success callback
+                return false // Close action handled by mutation success callback
             }}
             onEditDiscard={() => {
                 if (
@@ -472,7 +474,10 @@ export const get_modal_title = (lookupKey: LookupKey, suffix: string) =>
     `create-${lookupKey}-modal-${suffix}`
 
 export default function WrappedResourceCreator<T extends GalvResource>(
-    props: { lookupKey: LookupKey } & (TokenCreatorProps|ResourceCreatorProps),
+    props: { lookupKey: LookupKey } & (
+        | TokenCreatorProps
+        | ResourceCreatorProps
+    ),
 ) {
     const [modalOpen, setModalOpen] = useState(false)
     const { user, refresh_user } = useCurrentUser()
@@ -542,7 +547,8 @@ export default function WrappedResourceCreator<T extends GalvResource>(
                                         refresh_user()
                                     setModalOpen(!!err)
                                     if (url) {
-                                        const components = get_url_components(url)
+                                        const components =
+                                            get_url_components(url)
                                         if (components)
                                             navigate(
                                                 `${PATHS[components.lookupKey]}${components.resourceId}/`,
