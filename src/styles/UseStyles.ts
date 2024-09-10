@@ -399,5 +399,29 @@ export default makeStyles()((theme) => {
             outline: `1px solid ${theme.palette.error.main}`,
         },
         fieldErrorDetail: {},
+        fileUpload: {
+            display: 'flex',
+            justifyContent: 'stretch',
+            alignItems: 'center',
+            '& section': {
+                margin: '1em',
+                border: '2px dashed',
+                borderRadius: '1em',
+                width: '100%',
+                padding: '1em',
+                textAlign: 'center',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'stretch',
+                alignItems: 'stretch',
+                '&:hover': {
+                    backgroundColor: theme.palette.grey[100],
+                },
+                '& div': {
+                    width: '100%',
+                    height: '100%',
+                },
+            },
+        },
     }
 })

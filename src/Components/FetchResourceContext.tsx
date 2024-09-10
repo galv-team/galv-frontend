@@ -28,7 +28,11 @@ import {
 } from '@tanstack/react-query'
 import { get_select_function } from './ApiResourceContext'
 import { useSnackbarMessenger } from './SnackbarMessengerContext'
-import { Configuration } from '@galv/galv'
+import {
+    Configuration,
+    ObservedFileCreate,
+    ObservedFile,
+} from '@galv/galv'
 import { has } from './misc'
 
 export type Axios = typeof axios
@@ -92,10 +96,10 @@ type UpdateOptions<T extends GalvResource> = {
 type CreateOptions<T extends GalvResource> = {
     extra_query_options?: UseMutationOptions<AxiosResponse<T>, AxiosError>
     before_cache?: (result: AxiosResponse<T>) => AxiosResponse<T>
-    after_cache?: (result: AxiosResponse<T>, variables: Partial<T>) => void
+    after_cache?: (result: AxiosResponse<T>, variables: CreateMutationVariablesType<T>) => void
     on_error?: (
         error: AxiosError,
-        variables: Partial<T>,
+        variables: CreateMutationVariablesType<T>,
     ) => AxiosResponse<T> | undefined
 }
 type DeleteOptions<T extends GalvResource> = {
@@ -103,6 +107,10 @@ type DeleteOptions<T extends GalvResource> = {
     after?: () => void
     on_error?: (error: AxiosError, variables: T) => void
 }
+
+export type CreateMutationVariablesType<T> = T extends ObservedFile
+    ? ObservedFileCreate
+    : Partial<T>
 
 export interface IFetchResourceContext {
     // Returns null when lookupKey is undefined. Otherwise, returns undefined until data are fetched, then T[]
@@ -128,7 +136,7 @@ export interface IFetchResourceContext {
     useCreateQuery: <T extends GalvResource>(
         lookupKey: LookupKey,
         options?: CreateOptions<T>,
-    ) => UseMutationResult<AxiosResponse<T>, AxiosError, Partial<T>>
+    ) => UseMutationResult<AxiosResponse<T>, AxiosError, CreateMutationVariablesType<T>>
     useDeleteQuery: <T extends GalvResource>(
         lookupKey: LookupKey,
         options?: DeleteOptions<T>,
@@ -279,7 +287,7 @@ export default function FetchResourceContextProvider({
         const query_options: UseQueryOptions<AxiosResponse<T>, AxiosError> = {
             queryKey: [lookupKey, resourceId],
             queryFn,
-            enabled: useCurrentUser().user !== null,
+            enabled: useCurrentUser().user !== null && resourceId !== '',
             ...options?.extra_query_options,
         }
         return useQuery<AxiosResponse<T>, AxiosError>(query_options)
@@ -423,7 +431,7 @@ export default function FetchResourceContextProvider({
         const create = api_handler[
             `${API_SLUGS[lookupKey]}Create` as keyof typeof api_handler
         ] as (
-            data: Partial<T>,
+            data: CreateMutationVariablesType<T>,
         ) => Promise<
             (axios: Axios, basePath: string) => Promise<AxiosResponse<T>>
         >
@@ -434,10 +442,10 @@ export default function FetchResourceContextProvider({
         // (r, v) => ({r, v}) does nothing except stop TS from complaining about unused variables
         const post_cache = options?.after_cache
             ? options.after_cache
-            : (r: AxiosResponse<T>, v: Partial<T>) => ({ r, v })
+            : (r: AxiosResponse<T>, v: CreateMutationVariablesType<T>) => ({ r, v })
         const on_error_fn = options?.on_error
             ? options.on_error
-            : (e: AxiosError, v: Partial<T>) => {
+            : (e: AxiosError, v: CreateMutationVariablesType<T>) => {
                   postSnackbarMessage({
                       message: `Error creating ${DISPLAY_NAMES[lookupKey]} 
                 ${get_display_name(v)}  
@@ -446,9 +454,10 @@ export default function FetchResourceContextProvider({
                   })
               }
 
-        const mutationFn: MutationFunction<AxiosResponse<T>, Partial<T>> = (
-            data: Partial<T>,
-        ) =>
+        const mutationFn: MutationFunction<
+            AxiosResponse<T>,
+            CreateMutationVariablesType<T>
+        > = (data: CreateMutationVariablesType<T>) =>
             create(data)
                 .then((request) =>
                     request(api_skeleton.axios, api_skeleton.basePath),
@@ -458,13 +467,13 @@ export default function FetchResourceContextProvider({
         const mutation_options: UseMutationOptions<
             AxiosResponse<T>,
             AxiosError,
-            Partial<T>
+            CreateMutationVariablesType<T>
         > = {
             mutationKey: [lookupKey, 'create'],
             // @ts-expect-error - TS incorrectly infers that TVariables can be of type void
             mutationFn: mutationFn,
             // @ts-expect-error - TS incorrectly infers that TVariables can be of type void
-            onSuccess: (data: AxiosResponse<T>, variables: Partial<T>) => {
+            onSuccess: (data: AxiosResponse<T>, variables: CreateMutationVariablesType<T>) => {
                 // Update cache
                 const queryKey = [
                     lookupKey,
@@ -483,7 +492,7 @@ export default function FetchResourceContextProvider({
             onError: on_error_fn,
             ...options?.extra_query_options,
         }
-        return useMutation<AxiosResponse<T>, AxiosError, Partial<T>>(
+        return useMutation<AxiosResponse<T>, AxiosError, CreateMutationVariablesType<T>>(
             mutation_options,
         )
     }

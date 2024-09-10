@@ -759,6 +759,39 @@ export const files: ObservedFile[] = [
             read: true,
         },
     },
+    {
+        url: 'http://localhost:8001/files/da3a278f-e524-4d4e-9f47-794519d6c3f9/',
+        id: 'da3a278f-e524-4d4e-9f47-794519d6c3f9',
+        name: 'partial.csv',
+        path: '/test/upload/partial.csv',
+        uploader: 'http://localhost:8001/users/1/',
+        harvester: null,
+        state: 'AWAITING MAP ASSIGNMENT',
+        parser: 'DelimitedInputFile',
+        upload_errors: [],
+        num_rows: 10,
+        first_sample_no: 0,
+        last_sample_no: 55808,
+        last_observed_time: '2024-06-04T12:17:44.503509Z',
+        last_observed_size_bytes: 3420493,
+        mapping:
+            'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
+        has_required_columns: true,
+        parquet_partitions: [
+            'http://localhost:8001/parquet_partitions/43456b89-fc32-4cdd-b85b-12676137e829/',
+        ],
+        extra_metadata:
+            'http://localhost:8001/files/da3a278f-e524-4d4e-9f47-794519d6c3f9/extra_metadata/',
+        summary:
+            'http://localhost:8001/files/da3a278f-e524-4d4e-9f47-794519d6c3f9/summary/',
+        png: 'http://localhost:8001/files/da3a278f-e524-4d4e-9f47-794519d6c3f9/png/',
+        applicable_mappings:
+            'http://localhost:8001/files/da3a278f-e524-4d4e-9f47-794519d6c3f9/applicable_mappings/',
+        permissions: {
+            write: true,
+            read: true,
+        },
+    },
 ] as const
 
 export const file_applicable_mappings: Record<

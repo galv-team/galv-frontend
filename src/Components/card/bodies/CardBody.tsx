@@ -12,6 +12,7 @@ import {
     GalvResource,
     get_is_family,
     ICONS,
+    LOOKUP_KEYS,
     LookupKey,
     Serializable,
     SerializableObject,
@@ -29,6 +30,7 @@ import PropertiesDivider from '../utils/PropertiesDivider'
 import { useUndoRedoContext } from '../../UndoRedoContext'
 import ResourceChip from '../../ResourceChip'
 import { IconType } from 'react-icons'
+import FileSummary from '../summaries/FileSummary'
 
 const CUSTOM_BODIES: Partial<Record<LookupKey, typeof CardBody>> = {} as const
 
@@ -246,6 +248,9 @@ export default function CardBody<T extends GalvResource>({
                             return data
                         }}
                     />
+                )}
+                {lookupKey === LOOKUP_KEYS.FILE && apiResource && (
+                    <FileSummary resource={apiResource} hidePath={true} />
                 )}
             </Stack>
         </CardContent>

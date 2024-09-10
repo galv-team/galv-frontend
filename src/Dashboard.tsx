@@ -1,29 +1,19 @@
-import {
-    DISPLAY_NAMES_PLURAL,
-    ICONS,
-    LOOKUP_KEYS,
-    LookupKey,
-} from './constants'
-import { AxiosError, AxiosResponse } from 'axios'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-    ObservedFile,
-    PaginatedSchemaValidationList,
-    SchemaValidation,
-    SchemaValidationsApi,
-} from '@galv/galv'
-import { get_url_components, id_from_ref_props } from './Components/misc'
+import {DISPLAY_NAMES_PLURAL, ICONS, LOOKUP_KEYS, LookupKey, PATHS,} from './constants'
+import {AxiosError, AxiosResponse} from 'axios'
+import {useQuery, useQueryClient} from '@tanstack/react-query'
+import {ObservedFile, PaginatedSchemaValidationList, SchemaValidation, SchemaValidationsApi,} from '@galv/galv'
+import {get_url_components, id_from_ref_props} from './Components/misc'
 import LookupKeyIcon from './Components/LookupKeyIcon'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import ListItem from '@mui/material/ListItem'
 import ResourceChip from './Components/ResourceChip'
 import Stack from '@mui/material/Stack'
-import React, { ReactNode, useState } from 'react'
+import React, {ReactNode, useState} from 'react'
 import Button from '@mui/material/Button'
-import { useCurrentUser } from './Components/CurrentUserContext'
+import {useCurrentUser} from './Components/CurrentUserContext'
 import List from '@mui/material/List'
-import { SvgIconProps } from '@mui/material/SvgIcon'
+import {SvgIconProps} from '@mui/material/SvgIcon'
 import CardHeader from '@mui/material/CardHeader'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -37,13 +27,11 @@ import Box from '@mui/material/Box'
 import clsx from 'clsx'
 import UseStyles from './styles/UseStyles'
 import useStyles from './styles/UseStyles'
-import {
-    ListQueryResult,
-    useFetchResource,
-} from './Components/FetchResourceContext'
+import {ListQueryResult, useFetchResource,} from './Components/FetchResourceContext'
 import CircularProgress from '@mui/material/CircularProgress'
 import Skeleton from '@mui/material/Skeleton'
 import SafeTooltip from './Components/SafeTooltip'
+import {Link} from "react-router-dom";
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -505,6 +493,9 @@ export default function Dashboard() {
                 Harvested Files
             </Typography>
             <DatasetStatus />
+            <Button component={Link} to={PATHS.UPLOAD} variant="contained">
+                Upload a new File
+            </Button>
             <Typography variant={'h6'} sx={{ paddingLeft: '1em' }}>
                 Metadata Validations
             </Typography>

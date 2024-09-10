@@ -60,6 +60,7 @@ import AttachmentUploadContextProvider from './Components/AttachmentUploadContex
 import Mapping from './Components/Mapping'
 import Paper from '@mui/material/Paper'
 import SafeTooltip from './Components/SafeTooltip'
+import UploadFilePage from "./Components/upload/UploadFilePage";
 
 export const pathMatches = (path: string, pathname: string) =>
     matchPath({ path: path, end: true }, pathname) !== null
@@ -303,16 +304,21 @@ export function Core() {
                         path={`${PATHS.MAPPING}/:id`}
                         element={<Mapping />}
                     />
+                    {/* Handle direct resource lookups */}
                     <Route
                         path="/:type/:id"
                         element={<ResourceCardWrapper />}
                     />{' '}
-                    {/* Handles direct resource lookups */}
+                    {/* Handle resource lists */}
                     <Route
                         path={'/:type'}
                         element={<ResourceListWrapper />}
                     />{' '}
-                    {/* Handles resource lists */}
+                    {/* Handle file uploads */}
+                    <Route
+                        path={PATHS.UPLOAD}
+                        element={<UploadFilePage />}
+                    />
                     <Route index element={<Dashboard key="dashboard" />} />
                 </Route>
             </Routes>

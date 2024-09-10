@@ -342,6 +342,7 @@ export const PATHS = {
     [AUTOCOMPLETE_KEYS.EQUIPMENT_MANUFACTURER]: '/equipment_manufacturers',
     [AUTOCOMPLETE_KEYS.EQUIPMENT_MODEL]: '/equipment_models',
     [AUTOCOMPLETE_KEYS.SCHEDULE_IDENTIFIER]: '/schedule_identifiers',
+    UPLOAD: '/upload',
 } as const
 
 /**
@@ -584,6 +585,57 @@ const autocomplete_fields: { [key: string]: Field } = {
     value: { read_only: true, type: 'string' },
     ld_value: { read_only: true, type: 'string' },
 }
+
+const file_fields = {
+    ...generic_fields,
+    name: {
+        read_only: false,
+        type: 'string',
+        priority: PRIORITY_LEVELS.IDENTITY,
+    },
+    team: { read_only: true, type: 'galv_TEAM', create_only: true },
+    uploader: { create_only: true, type: key_to_type(LOOKUP_KEYS.USER) },
+    state: { read_only: true, type: 'string' },
+    path: { read_only: true, type: 'string' },
+    parser: { read_only: true, type: 'string' },
+    harvester: {
+        read_only: true,
+        type: key_to_type(LOOKUP_KEYS.HARVESTER),
+    },
+    last_observed_size: { read_only: true, type: 'number' },
+    last_observed_time: { read_only: true, type: 'datetime' },
+    data_generation_date: { read_only: true, type: 'datetime' },
+    inferred_format: { read_only: true, type: 'string' },
+    num_rows: { read_only: true, type: 'number' },
+    first_sample_no: { read_only: true, type: 'number' },
+    last_sample_no: { read_only: true, type: 'number' },
+    extra_metadata: {
+        read_only: true,
+        type: 'string',
+        priority: PRIORITY_LEVELS.HIDDEN,
+    },
+    has_required_columns: { read_only: true, type: 'boolean' },
+    upload_errors: { read_only: true, type: 'string', many: true },
+    column_errors: { read_only: true, type: 'string', many: true },
+    upload_info: { read_only: true, type: 'string' },
+    parquet_partitions: {
+        read_only: true,
+        type: key_to_type(LOOKUP_KEYS.PARQUET_PARTITION),
+        many: true,
+    },
+    applicable_mappings: {
+        read_only: true,
+        type: 'string',
+        priority: PRIORITY_LEVELS.HIDDEN,
+    },
+    mapping: { read_only: true, type: key_to_type(LOOKUP_KEYS.MAPPING) },
+    summary: {
+        read_only: true,
+        type: 'string',
+        priority: PRIORITY_LEVELS.HIDDEN,
+    },
+}
+
 /**
  * Lookup map to get the properties of the fields in each resource type.
  */
@@ -651,52 +703,14 @@ export const FIELDS = {
         upload_errors: { read_only: true, type: 'string', many: true },
         parquet_file: { read_only: true, type: 'attachment' },
     },
-    [LOOKUP_KEYS.FILE]: {
-        ...generic_fields,
-        name: {
-            read_only: false,
-            type: 'string',
-            priority: PRIORITY_LEVELS.IDENTITY,
-        },
-        state: { read_only: true, type: 'string' },
-        path: { read_only: true, type: 'string' },
-        parser: { read_only: true, type: 'string' },
-        harvester: {
-            read_only: true,
-            type: key_to_type(LOOKUP_KEYS.HARVESTER),
-        },
-        last_observed_size: { read_only: true, type: 'number' },
-        last_observed_time: { read_only: true, type: 'datetime' },
-        data_generation_date: { read_only: true, type: 'datetime' },
-        inferred_format: { read_only: true, type: 'string' },
-        num_rows: { read_only: true, type: 'number' },
-        first_sample_no: { read_only: true, type: 'number' },
-        last_sample_no: { read_only: true, type: 'number' },
-        extra_metadata: {
-            read_only: true,
-            type: 'string',
-            priority: PRIORITY_LEVELS.HIDDEN,
-        },
-        has_required_columns: { read_only: true, type: 'boolean' },
-        upload_errors: { read_only: true, type: 'string', many: true },
-        column_errors: { read_only: true, type: 'string', many: true },
-        upload_info: { read_only: true, type: 'string' },
-        parquet_partitions: {
-            read_only: true,
-            type: key_to_type(LOOKUP_KEYS.PARQUET_PARTITION),
-            many: true,
-        },
-        applicable_mappings: {
-            read_only: true,
-            type: 'string',
-            priority: PRIORITY_LEVELS.HIDDEN,
-        },
-        mapping: { read_only: true, type: key_to_type(LOOKUP_KEYS.MAPPING) },
-        summary: {
-            read_only: true,
-            type: 'string',
-            priority: PRIORITY_LEVELS.HIDDEN,
-        },
+    [LOOKUP_KEYS.FILE]: { ...file_fields },
+    FILE_CREATE: {
+        ...file_fields,
+        target_file_id: { read_only: true, type: 'string' },
+        team: { read_only: false, type: 'galv_TEAM' },
+        uploader: { create_only: true, type: key_to_type(LOOKUP_KEYS.USER) },
+        path: { read_only: false, type: 'string' },
+        mapping: { read_only: false, type: key_to_type(LOOKUP_KEYS.MAPPING) },
     },
     [LOOKUP_KEYS.MAPPING]: {
         ...generic_fields,

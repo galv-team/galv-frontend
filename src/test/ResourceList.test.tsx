@@ -4,13 +4,13 @@
 
 // globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-import { LOOKUP_KEYS } from '../constants'
+import { LOOKUP_KEYS, LookupKey } from '../constants'
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
-import { expect, it, vi } from 'vitest'
-import { cells } from './fixtures/fixtures'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { cells, experiments, files } from './fixtures/fixtures'
 import WrappedResourceList from '../Components/ResourceList'
 import { MemoryRouter } from 'react-router-dom'
 import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
@@ -19,7 +19,7 @@ vi.mock('../Components/IntroText')
 vi.mock('../Components/card/ResourceCard')
 vi.mock('../ClientCodeDemo')
 
-it('renders', async () => {
+const doRender = async (key: LookupKey = LOOKUP_KEYS.CELL) => {
     const queryClient = new QueryClient()
 
     render(
@@ -27,19 +27,63 @@ it('renders', async () => {
             <QueryClientProvider client={queryClient}>
                 <FetchResourceContextProvider>
                     <SelectionManagementContextProvider>
-                        <WrappedResourceList lookupKey={LOOKUP_KEYS.CELL} />
+                        <WrappedResourceList lookupKey={key} />
                     </SelectionManagementContextProvider>
                 </FetchResourceContextProvider>
             </QueryClientProvider>
         </MemoryRouter>,
     )
-    await screen.findByText((t) => t.includes(cells[0].id))
+}
 
-    expect(screen.getByRole('heading', { name: 'Cells' })).toBeInTheDocument()
-    expect(screen.getAllByText(/ResourceCard/)).toHaveLength(cells.length)
-    expect(
-        screen.getAllByText(
-            (c, e) => e instanceof HTMLElement && e.dataset.key === 'lookupKey',
-        ),
-    ).toHaveLength(cells.length)
+describe('ResourceList', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    it('renders', async () => {
+        await doRender()
+
+        await screen.findByText((t) => t.includes(cells[0].id))
+
+        expect(
+            screen.getByRole('heading', { name: 'Cells' }),
+        ).toBeInTheDocument()
+        expect(screen.getAllByText(/ResourceCard/)).toHaveLength(cells.length)
+        expect(
+            screen.getAllByText(
+                (c, e) =>
+                    e instanceof HTMLElement && e.dataset.key === 'lookupKey',
+            ),
+        ).toHaveLength(cells.length)
+    })
+
+    it('shows a create button', async () => {
+        await doRender(LOOKUP_KEYS.EXPERIMENT)
+        await screen.findByText((t) => t.includes(experiments[0].id))
+
+        expect(
+            screen.getByRole('button', { name: /Create/i }),
+        ).toBeInTheDocument()
+    })
+
+    it('shows create and create family buttons', async () => {
+        await doRender()
+
+        expect(screen.getAllByRole('button', { name: /Create/i })).toHaveLength(
+            2,
+        )
+
+        expect(
+            screen.getByRole('button', { name: /Family/i }),
+        ).toBeInTheDocument()
+    })
+
+    it('shows an upload button for files', async () => {
+        await doRender(LOOKUP_KEYS.FILE)
+        await screen.findByText((t) => t.includes(files[0].id))
+
+        expect(
+            screen.getByRole('link', { name: /Upload/i }),
+        ).toBeInTheDocument()
+    })
 })
