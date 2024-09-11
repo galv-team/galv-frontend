@@ -171,9 +171,12 @@ const build_get_endpoints =
 
             // Files are a special case because they have sub-pages mapped with /files/:id/:subpage
             if (resource_name === 'files' && parts.length > 1) {
-                if (id !== files[0].id) {
+                const partial_file = files.find(
+                    (x) => x.name === 'partial.csv',
+                )!
+                if (id !== files[0].id && id !== partial_file.id) {
                     throw new Error(
-                        `Sub-pages are only implemented for file ${files[0].id}`,
+                        `Sub-pages are only implemented for files ${files[0].id}, ${partial_file.id}`,
                     )
                 }
                 if (parts[1] === 'summary') {

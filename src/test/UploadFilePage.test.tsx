@@ -3,7 +3,13 @@
 // // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import React, { act } from 'react'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import {
+    cleanup,
+    fireEvent,
+    render,
+    screen,
+    within,
+} from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { FilterContextProvider } from '../Components/filtering/FilterContext'
 import { MemoryRouter } from 'react-router-dom'
@@ -15,6 +21,9 @@ import UploadFilePage from '../Components/upload/UploadFilePage'
 
 import { column_mappings, files, teams } from './fixtures/fixtures'
 import userEvent from '@testing-library/user-event'
+import FileSummary from '../Components/card/summaries/FileSummary'
+import ApiResourceContextProvider from '../Components/ApiResourceContext'
+import { LOOKUP_KEYS } from '../constants'
 
 // @ts-expect-error - globalThis is not defined in Jest
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -22,6 +31,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true
 vi.mock('../Components/Representation')
 vi.mock('../Components/ResourceChip')
 vi.mock('../DatasetChart')
+vi.mock('../Components/AuthImage')
 
 const req = vi.spyOn(axios, 'request')
 
@@ -63,20 +73,19 @@ const ContextStack = ({ children }: { children: React.ReactNode }) => {
     )
 }
 
-const do_render = async (file_id?: string) => {
-    vi.clearAllMocks()
-    cleanup()
-
-    render(
-        <ContextStack>
-            <UploadFilePage />
-        </ContextStack>,
-    )
-}
-
 describe('UploadFilePage', () => {
     describe('UploadFilePage one-step', () => {
-        beforeEach(async () => await do_render())
+        beforeEach(async () => {
+            vi.clearAllMocks()
+            cleanup()
+
+            render(
+                <ContextStack>
+                    <UploadFilePage />
+                </ContextStack>,
+            )
+        })
+
         it('renders', async () => {})
 
         it('happy path', async () => {
@@ -112,90 +121,119 @@ describe('UploadFilePage', () => {
             expect(screen.queryAllByText(/error/i).length).toBeGreaterThan(0)
 
             // Allows metadata entry
-            screen.debug(undefined, 1000000)
             for (const key of ['name', 'path']) {
-                const input = screen.getByLabelText(key)
+                const input = within(
+                    screen.getByRole('rowheader', { name: key }).parentElement!,
+                ).getByRole('textbox')
                 await user.type(input, key)
                 expect(input).toHaveValue(key)
             }
             // Error cleared when metadata is entered
             expect(screen.queryAllByText(/error/i)).toHaveLength(0)
-            const mapping_input = screen.getByLabelText('mapping')
+            const mapping_input = within(
+                screen.getByRole('rowheader', { name: 'mapping' })
+                    .parentElement!,
+            ).getByRole('combobox')
             await user.click(mapping_input)
-            const mapping = screen.getByText(column_mappings[0].id)
+            const mapping = screen.getByRole('option', {
+                name: (n) => n.endsWith(column_mappings[0].id + ']'), // match mocked representation
+            })
             await user.click(mapping)
-            const team_input = screen.getByLabelText('team')
+            const team_input = within(
+                screen.getByRole('rowheader', {
+                    name: (n) => n.endsWith('team'), // marked as *team because it's mandatory
+                }).parentElement!,
+            ).getByRole('combobox')
             await user.click(team_input)
-            const team = screen.getByText(teams[0].id)
+            const team = screen.getByRole('option', {
+                name: (n) => n.endsWith(teams[0].id + ']'), // match mocked representation
+            })
             await user.click(team)
             // Allows upload to the server
             await user.click(upload_button)
-            // Should send a POST request
-            expect(req).toHaveBeenLastCalledWith({
-                data: {
-                    file: expect.any(File),
-                    metadata: {
-                        name: 'name',
-                        path: 'path',
-                        mapping: column_mappings[0].id,
-                    },
-                },
-            })
-        })
-
-        it('gracefully handles upload errors', async () => {
-            // Shows error
-            // Allows retry
-        })
-
-        it('allows cancelling an upload', async () => {
-            // Shows cancel button while uploading
-            // Cancels upload
-            // Allows retry
-        })
-
-        it('allows uploading to server', async () => {
-            // Shows upload button
-            // Shows success
-        })
-
-        it('handles server upload errors from bad data', async () => {
-            // Shows errored fields
-            // Allows retry
-        })
-
-        it('handles server upload errors from server problems', async () => {
-            // Shows error
-            // Allows retry
+            // Should send a POST request with specific content
+            expect(req.mock.lastCall).not.toBeUndefined()
+            const last_call = req.mock.lastCall![0]
+            expect(last_call).toHaveProperty('method', 'POST')
+            expect(last_call).toHaveProperty('headers')
+            expect(last_call.headers).toHaveProperty(
+                'Content-Type',
+                'multipart/form-data',
+            )
+            expect(last_call).toHaveProperty('data')
+            const data = last_call.data as FormData
+            expect(data.get('path')).toBe('path')
+            expect(data.get('name')).toBe('name')
+            expect(data.has('uploader')).toBe(true) // uploader will be undefined in tests but must be there
+            expect(data.get('mapping')).toBe(column_mappings[0].url)
+            expect(data.get('team')).toBe(teams[0].url)
+            expect(data.get('file')).toBeInstanceOf(File)
         })
     })
 
     describe('UploadFilePage two-step', () => {
-        beforeEach(async () => await do_render(partial_file.id))
+        beforeEach(async () => {
+            vi.clearAllMocks()
+            cleanup()
 
-        it('prepopulates metadata', async () => {
-            // Shows metadata
-            // Allows editing
-        })
+            const f = files.find((f) => f.name === 'partial.csv')
+            expect(f).not.toBeUndefined()
 
-        it('allows upload without mapping', async () => {
-            // Shows upload button
-            // Shows success
-        })
+            render(
+                <ContextStack>
+                    <ApiResourceContextProvider
+                        lookupKey={LOOKUP_KEYS.FILE}
+                        resourceId={f!.id}
+                    >
+                        <FileSummary resource={f!} />
+                    </ApiResourceContextProvider>
+                </ContextStack>,
+            )
 
-        it('shows mapping options for a partial file', async () => {
-            // Does not show file upload dialogue
-            // Shows mapping options
-            // Shows link to create new mapping
-            // Allows selection
-            // Allows upload
-            // Shows success
+            await screen.findByText(/partial\.csv/)
         })
 
         it('shows file upload dialogue for resume', async () => {
-            // Shows file upload dialogue
-            // Shows warning if mapping not selected
-            // Warns if path doesn't match metadata
+            const user = userEvent.setup()
+
+            // Has upload button
+            const upload_button = await screen.findByRole('button', {
+                name: /Upload/i,
+            })
+            // Upload button disabled until a file is selected
+            expect(upload_button).toBeDisabled()
+
+            // Allows file upload
+            const file_select = screen.getByRole('button', {
+                name: /Select file/i,
+            })
+            const input = file_select.querySelector('input')
+            if (!input) throw new Error('No input found')
+            const file = new File([''], 'partial.csv', { type: 'text/csv' })
+            const file_data = mockData([file])
+            await act(() => fireEvent.drop(file_select, file_data))
+            // Shows success
+            expect(
+                await within(file_select).findByText(/partial\.csv/),
+            ).toBeInTheDocument()
+            // Allows upload to the server
+            expect(upload_button).not.toBeDisabled()
+            await user.click(upload_button)
+            // Should send a POST request with specific content
+            expect(req.mock.lastCall).not.toBeUndefined()
+            const last_call = req.mock.lastCall![0]
+            expect(last_call).toHaveProperty('method', 'POST')
+            expect(last_call).toHaveProperty('headers')
+            expect(last_call.headers).toHaveProperty(
+                'Content-Type',
+                'multipart/form-data',
+            )
+            expect(last_call).toHaveProperty('data')
+            const data = last_call.data as FormData
+            expect(data.get('path')).toBe(partial_file.path)
+            expect(data.has('uploader')).toBe(true) // uploader will be undefined in tests but must be there
+            expect(data.get('team')).toBe(partial_file.team)
+            expect(data.get('file')).toBeInstanceOf(File)
         })
     })
 })

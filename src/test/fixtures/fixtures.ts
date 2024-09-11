@@ -765,8 +765,9 @@ export const files: ObservedFile[] = [
         name: 'partial.csv',
         path: '/test/upload/partial.csv',
         uploader: 'http://localhost:8001/users/1/',
+        team: 'http://localhost:8001/teams/1/',
         harvester: null,
-        state: 'AWAITING MAP ASSIGNMENT',
+        state: 'MAP ASSIGNED',
         parser: 'DelimitedInputFile',
         upload_errors: [],
         num_rows: 10,
@@ -1066,6 +1067,97 @@ export const file_applicable_mappings: Record<
     ],
     'fc9c92f7-dc9d-438f-8c4e-59593bcb8582': [],
     'a62a0588-6ef9-4b75-85a8-38ef5433b7db': [
+        {
+            mapping: {
+                url: 'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
+                id: '5e55cc2a-c088-4c09-b95b-8dc128549271',
+                name: 'Biologic .mpr',
+                map: {
+                    'I/mA': {
+                        multiplier: 0.001,
+                        column_type: 5,
+                    },
+                    'Ewe/V': {
+                        column_type: 4,
+                    },
+                    'time/s': {
+                        column_type: 3,
+                    },
+                    '|Energy|/W.h': {
+                        column_type: 6,
+                    },
+                },
+                rendered_map: {
+                    'I/mA': {
+                        new_name: 'Current_A',
+                        data_type: 'float',
+                        multiplier: 0.001,
+                        addition: 0,
+                    },
+                    'Ewe/V': {
+                        new_name: 'Voltage_V',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                    'time/s': {
+                        new_name: 'ElapsedTime_s',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                    '|Energy|/W.h': {
+                        new_name: 'EnergyCapacity_W.h',
+                        data_type: 'float',
+                        multiplier: 1,
+                        addition: 0,
+                    },
+                },
+                is_valid: true,
+                missing_required_columns: [],
+                in_use: true,
+                team: null,
+                permissions: {
+                    create: true,
+                    destroy: false,
+                    write: false,
+                    read: true,
+                },
+                read_access_level: 0,
+                edit_access_level: 4,
+                delete_access_level: 3,
+            },
+            missing: 8,
+        },
+        {
+            mapping: {
+                url: 'http://localhost:8001/column_mappings/8ba73561-bf79-46f6-951a-ccb752acb7cc/',
+                id: '8ba73561-bf79-46f6-951a-ccb752acb7cc',
+                name: 'import as float',
+                map: {},
+                rendered_map: {},
+                is_valid: false,
+                missing_required_columns: [
+                    'ElapsedTime_s',
+                    'Voltage_V',
+                    'Current_A',
+                ],
+                in_use: true,
+                team: null,
+                permissions: {
+                    create: true,
+                    destroy: false,
+                    write: false,
+                    read: true,
+                },
+                read_access_level: 0,
+                edit_access_level: 4,
+                delete_access_level: 3,
+            },
+            missing: 12,
+        },
+    ],
+    'da3a278f-e524-4d4e-9f47-794519d6c3f9': [
         {
             mapping: {
                 url: 'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',

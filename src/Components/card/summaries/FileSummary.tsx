@@ -22,6 +22,7 @@ import AuthImage from '../../AuthImage'
 import { useFetchResource } from '../../FetchResourceContext'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
+import { useApiResource } from '../../ApiResourceContext'
 
 function StatusAlert({
     message,
@@ -60,13 +61,17 @@ function StatusAlert({
     )
 }
 
+export type MappingQuickSelectProps = {
+    file: ObservedFile
+    mappings: DB_MappingResource[]
+    inline?: boolean
+}
+
 function MappingQuickSelect({
     file,
     mappings,
-}: {
-    file: ObservedFile
-    mappings: DB_MappingResource[]
-}) {
+    inline,
+}: MappingQuickSelectProps) {
     const [selected, setSelected] = React.useState<string>(
         mappings.find((m) => m.url === file.mapping)?.url ?? '',
     )
@@ -89,7 +94,7 @@ function MappingQuickSelect({
     const [status, setStatus] = React.useState<ReactNode>(<></>)
 
     return (
-        <Stack>
+        <Stack direction={inline ? 'row' : 'column'} spacing={1}>
             <Select
                 value={selected}
                 onChange={(e) => {
@@ -124,6 +129,46 @@ function MappingQuickSelect({
     )
 }
 
+export function MappingQuickSelectFromContext({hideIfEmpty, ...props}: {hideIfEmpty?: boolean} & Omit<MappingQuickSelectProps, 'mappings' | 'file'>) {
+    const { apiResource } = useApiResource<ObservedFile>()
+    const fileApiHandler = new FilesApi(useCurrentUser().api_config)
+    const queryClient = useQueryClient()
+    const applicableMappingsQuery = useQuery<
+        AxiosResponse<DB_MappingResource[]>,
+        AxiosError
+    >({
+        queryKey: ['applicable_mappings', apiResource!.id],
+        queryFn: async () => {
+            const data = await fileApiHandler.filesApplicableMappingsRetrieve({
+                id: apiResource!.id,
+            })
+            queryClient.setQueryData(
+                ['applicable_mappings', apiResource!.id],
+                data,
+            )
+            const content = data.data as unknown as {
+                mapping: DB_MappingResource
+                missing: number
+            }[]
+            return {
+                ...data,
+                data: content.map((m) => {
+                    return { ...m.mapping, missing: m.missing }
+                }),
+            } as unknown as AxiosResponse<DB_MappingResource[]>
+        },
+        enabled: !!(apiResource && apiResource.id),
+    })
+    const mappings = applicableMappingsQuery.data?.data ?? []
+    return !hideIfEmpty || mappings.length > 0 ? (
+        <MappingQuickSelect
+            file={apiResource!}
+            mappings={mappings}
+            {...props}
+        />
+    ) : <></>
+}
+
 function FileStatus(file: ObservedFile, mappings: DB_MappingResource[]) {
     const map = mappings.find((m) => m.url === file.mapping)
     if (map) {
@@ -137,7 +182,7 @@ function FileStatus(file: ObservedFile, mappings: DB_MappingResource[]) {
                             is ready for re-uploading. Please drop the file into
                             the upload area to re-upload it.
                         </Typography>
-                        <ReuploadFile />
+                        {file.permissions.write && <ReuploadFile />}
                     </Alert>
                 )
             }
@@ -145,13 +190,15 @@ function FileStatus(file: ObservedFile, mappings: DB_MappingResource[]) {
                 <StatusAlert
                     message={`File mapped using valid mapping '${map.name}'`}
                     fix_button={
-                        <Button
-                            component={Link}
-                            to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
-                            size="small"
-                        >
-                            Edit mapping
-                        </Button>
+                        file.permissions.write && (
+                            <Button
+                                component={Link}
+                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                                size="small"
+                            >
+                                Edit mapping
+                            </Button>
+                        )
                     }
                     severity="success"
                 >
@@ -164,13 +211,15 @@ function FileStatus(file: ObservedFile, mappings: DB_MappingResource[]) {
                 <StatusAlert
                     message={`An invalid mapping '${map.name}' is applied to this file`}
                     fix_button={
-                        <Button
-                            component={Link}
-                            to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
-                            size="small"
-                        >
-                            Edit mapping
-                        </Button>
+                        file.permissions.write && (
+                            <Button
+                                component={Link}
+                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                                size="small"
+                            >
+                                Edit mapping
+                            </Button>
+                        )
                     }
                     severity="warning"
                 >
@@ -178,7 +227,9 @@ function FileStatus(file: ObservedFile, mappings: DB_MappingResource[]) {
                     and 'Current_A' columns to be counted as valid. Data that do
                     not have these columns cannot be previewed, and may not be
                     suitable for analysis.
-                    <MappingQuickSelect file={file} mappings={mappings} />
+                    {file.permissions.write && (
+                        <MappingQuickSelect file={file} mappings={mappings} />
+                    )}
                 </StatusAlert>
             )
         }
@@ -188,13 +239,15 @@ function FileStatus(file: ObservedFile, mappings: DB_MappingResource[]) {
                 <StatusAlert
                     message="There are mappings that can be applied to this file, but none have been selected"
                     fix_button={
-                        <Button
-                            component={Link}
-                            to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
-                            size="small"
-                        >
-                            Choose mapping
-                        </Button>
+                        file.permissions.write && (
+                            <Button
+                                component={Link}
+                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                                size="small"
+                            >
+                                Choose mapping
+                            </Button>
+                        )
                     }
                     severity="warning"
                 >
@@ -204,7 +257,9 @@ function FileStatus(file: ObservedFile, mappings: DB_MappingResource[]) {
                     can be performed across all the files. Galv requires that
                     certain key columns are present in every file:
                     'ElapsedTime_s', 'Voltage_V', and 'Current_A'.
-                    <MappingQuickSelect file={file} mappings={mappings} />
+                    {file.permissions.write && (
+                        <MappingQuickSelect file={file} mappings={mappings} />
+                    )}
                 </StatusAlert>
             )
         } else {
@@ -212,13 +267,15 @@ function FileStatus(file: ObservedFile, mappings: DB_MappingResource[]) {
                 <StatusAlert
                     message="There are no mappings that can be applied to this file"
                     fix_button={
-                        <Button
-                            component={Link}
-                            to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
-                            size="small"
-                        >
-                            Create mapping
-                        </Button>
+                        file.permissions.write && (
+                            <Button
+                                component={Link}
+                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                                size="small"
+                            >
+                                Create mapping
+                            </Button>
+                        )
                     }
                     severity="error"
                 >

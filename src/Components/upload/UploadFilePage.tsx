@@ -26,6 +26,11 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { useApiResource } from '../ApiResourceContext'
 import Typography from '@mui/material/Typography'
+import ButtonGroup from '@mui/material/ButtonGroup'
+import Tooltip from '@mui/material/Tooltip'
+import { MdCloudUpload } from 'react-icons/md'
+import { styled } from '@mui/system'
+import Alert from '@mui/material/Alert'
 
 const CustomDropzone = ({ setFile }: { setFile: (file: File) => void }) => {
     return (
@@ -79,9 +84,28 @@ const CustomDropzone = ({ setFile }: { setFile: (file: File) => void }) => {
     )
 }
 
-export function ReuploadFile() {
+//https://mui.com/material-ui/react-button/#file-upload
+const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+})
+
+export type ReuploadFileProps = {
+    // Show an inline split button for selecting a file and uploading it
+    clickOnly?: boolean
+}
+
+export function ReuploadFile({ clickOnly }: ReuploadFileProps) {
     const { apiResource } = useApiResource<ObservedFile>()
 
+    const [complete, setComplete] = useState(false)
     const [uploadedFile, setUploadedFile] = useState<File | null>(null)
     const { classes } = useStyles()
     const [alertContent, setAlertContent] = useState<ReactNode | null>(null)
@@ -105,6 +129,80 @@ export function ReuploadFile() {
             setAlertContent(<AxiosErrorAlert error={error} />)
         },
     })
+    const create_no_nav = useMutation<
+        AxiosResponse<ObservedFileCreate>,
+        AxiosError,
+        FilesApiFilesCreateRequest
+    >({
+        mutationFn: (data: FilesApiFilesCreateRequest) =>
+            api.filesCreate.bind(api)(data),
+        onSuccess: () => {
+            setComplete(true)
+        },
+        onError: (error: AxiosError) => {
+            setAlertContent(<AxiosErrorAlert error={error} />)
+        },
+    })
+
+    if (clickOnly) {
+        return complete ? (
+            <Alert severity="success">
+                <em>Uploaded</em>
+            </Alert>
+        ) : (
+            <Stack direction={'row'} spacing={1}>
+                <ButtonGroup variant="contained">
+                    <Button
+                        disabled={!create_no_nav.isIdle}
+                        component="label"
+                        variant="text"
+                        color={alertContent ? 'error' : 'primary'}
+                        role={undefined}
+                        aria-label="Select data file"
+                        tabIndex={-1}
+                    >
+                        <VisuallyHiddenInput
+                            type="file"
+                            onChange={(e) => {
+                                setAlertContent(null)
+                                console.log(e.target.files)
+                                if (!e.target.files) setUploadedFile(null)
+                                else setUploadedFile(e.target.files![0])
+                            }}
+                        />
+                        {uploadedFile ? (
+                            <Tooltip title={'click to replace'}>
+                                <kbd>{uploadedFile.name}</kbd>
+                            </Tooltip>
+                        ) : (
+                            'Select data file'
+                        )}
+                    </Button>
+                    <Button
+                        size="small"
+                        aria-label="Upload"
+                        disabled={
+                            !create_no_nav.isIdle ||
+                            !uploadedFile ||
+                            !apiResource
+                        }
+                        onClick={() => {
+                            return create_no_nav.mutate({
+                                file: uploadedFile!,
+                                targetFileId: String(apiResource!.id),
+                                uploader: String(user?.id),
+                                path: apiResource!.path,
+                                team: apiResource!.team,
+                            })
+                        }}
+                    >
+                        <MdCloudUpload />
+                    </Button>
+                </ButtonGroup>
+                <Collapse in={alertContent !== null}>{alertContent}</Collapse>
+            </Stack>
+        )
+    }
 
     return (
         <Stack>
@@ -193,7 +291,7 @@ export function UploadFilePage() {
         const name = (data.name || uploadedFile?.name) ?? ''
         return {
             name: name,
-            path: data.path? data.path : `/${name}`,
+            path: data.path ? data.path : `/${name}`,
             mapping: data.mapping ?? '',
             team: data.team ?? '',
             read_access_level: data.read_access_level,
