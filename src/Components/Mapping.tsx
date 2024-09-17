@@ -74,7 +74,7 @@ type DB_Map = Record<string, DB_MapEntry>
 export type DB_MappingResource = Omit<ColumnMapping, 'map'> & { map: DB_Map }
 
 // The server wraps mappings in an object that includes information about how many columns in the File are unmapped
-type ApplicableMappingResource = {
+export type ApplicableMappingResource = {
     mapping: DB_MappingResource
     missing: number
 }
@@ -116,6 +116,8 @@ const map_to_db_map = (mapping: MappingResource): DB_MappingResource => {
         ),
     }
 }
+export const applicable_mapping_to_db_mapping = (maps: ApplicableMappingResource[]): DB_MappingResource[] =>
+    maps.map((m) => m.mapping)
 
 const convert = (v: (string | number | boolean)[], map?: MapEntry) => {
     const data_type = map?.column_type?.data_type ?? 'float'
@@ -823,9 +825,10 @@ function MappingManager({
     const [advancedPropertiesOpen, setAdvancedPropertiesOpen] =
         React.useState(false)
     const [mapping, setMapping] = useState<ApplicableMappingResource>(() => {
-        const m = applicable_mappings?.find(
-            (m) => m.mapping.url === file.mapping,
-        )
+        const m = applicable_mappings?.find((m) => {
+            console.log('m', m)
+            return m.mapping.url === file.mapping
+        })
         return m ? { ...m } : blank_map()
     })
     const navigate = useNavigate()

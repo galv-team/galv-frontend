@@ -6,11 +6,15 @@ import Alert, { AlertColor, AlertProps } from '@mui/material/Alert'
 import React, { ReactNode } from 'react'
 import { GalvResource, ICONS, LOOKUP_KEYS, PATHS } from '../../../constants'
 import Collapse from '@mui/material/Collapse'
-import { DB_MappingResource } from '../../Mapping'
+import {
+    applicable_mapping_to_db_mapping,
+    ApplicableMappingResource,
+    DB_MappingResource,
+} from '../../Mapping'
 import Button from '@mui/material/Button'
 import { Link } from 'react-router-dom'
 import { useCurrentUser } from '../../CurrentUserContext'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { AxiosError, AxiosResponse } from 'axios'
 import IconButton from '@mui/material/IconButton'
 import QueryWrapper from '../../QueryWrapper'
@@ -129,33 +133,28 @@ function MappingQuickSelect({
     )
 }
 
-export function MappingQuickSelectFromContext({hideIfEmpty, ...props}: {hideIfEmpty?: boolean} & Omit<MappingQuickSelectProps, 'mappings' | 'file'>) {
+export function MappingQuickSelectFromContext({
+    hideIfEmpty,
+    ...props
+}: { hideIfEmpty?: boolean } & Omit<
+    MappingQuickSelectProps,
+    'mappings' | 'file'
+>) {
     const { apiResource } = useApiResource<ObservedFile>()
     const fileApiHandler = new FilesApi(useCurrentUser().api_config)
-    const queryClient = useQueryClient()
     const applicableMappingsQuery = useQuery<
-        AxiosResponse<DB_MappingResource[]>,
+        AxiosResponse<ApplicableMappingResource[]>,
         AxiosError
     >({
-        queryKey: ['applicable_mappings', apiResource!.id],
+        queryKey: ['applicable_mappings', apiResource?.id],
         queryFn: async () => {
             const data = await fileApiHandler.filesApplicableMappingsRetrieve({
                 id: apiResource!.id,
             })
-            queryClient.setQueryData(
-                ['applicable_mappings', apiResource!.id],
-                data,
-            )
-            const content = data.data as unknown as {
-                mapping: DB_MappingResource
-                missing: number
-            }[]
             return {
                 ...data,
-                data: content.map((m) => {
-                    return { ...m.mapping, missing: m.missing }
-                }),
-            } as unknown as AxiosResponse<DB_MappingResource[]>
+                data: data.data as unknown as ApplicableMappingResource[],
+            }
         },
         enabled: !!(apiResource && apiResource.id),
     })
@@ -163,10 +162,12 @@ export function MappingQuickSelectFromContext({hideIfEmpty, ...props}: {hideIfEm
     return !hideIfEmpty || mappings.length > 0 ? (
         <MappingQuickSelect
             file={apiResource!}
-            mappings={mappings}
+            mappings={applicable_mapping_to_db_mapping(mappings)}
             {...props}
         />
-    ) : <></>
+    ) : (
+        <></>
+    )
 }
 
 function FileStatus(file: ObservedFile, mappings: DB_MappingResource[]) {
@@ -302,29 +303,21 @@ export default function FileSummary({
     const r = resource as unknown as ObservedFile
     // look up mappings from file
     const fileApiHandler = new FilesApi(useCurrentUser().api_config)
-    const queryClient = useQueryClient()
     const applicableMappingsQuery = useQuery<
-        AxiosResponse<DB_MappingResource[]>,
+        AxiosResponse<ApplicableMappingResource[]>,
         AxiosError
     >({
-        queryKey: ['applicable_mappings', r.id],
+        queryKey: ['applicable_mappings', r?.id],
         queryFn: async () => {
             const data = await fileApiHandler.filesApplicableMappingsRetrieve({
-                id: r.id as string,
+                id: r!.id,
             })
-            queryClient.setQueryData(['applicable_mappings', r.id], data)
-            const content = data.data as unknown as {
-                mapping: DB_MappingResource
-                missing: number
-            }[]
             return {
                 ...data,
-                data: content.map((m) => {
-                    return { ...m.mapping, missing: m.missing }
-                }),
-            } as unknown as AxiosResponse<DB_MappingResource[]>
+                data: data.data as unknown as ApplicableMappingResource[],
+            }
         },
-        enabled: !!r.id,
+        enabled: !!(r && r.id),
     })
     const mappings = applicableMappingsQuery.data?.data ?? []
 
@@ -372,7 +365,10 @@ export default function FileSummary({
                     r.state === 'IMPORTED' ||
                     r.state === 'AWAITING MAP ASSIGNMENT' ||
                     r.state === 'MAP ASSIGNED' ? (
-                        FileStatus(r, mappings)
+                        FileStatus(
+                            r,
+                            applicable_mapping_to_db_mapping(mappings),
+                        )
                     ) : (
                         <Alert severity={state_severity}>
                             Status: {r.state}
