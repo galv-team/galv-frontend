@@ -11,6 +11,7 @@ import {
     ObservedFileCreate,
 } from '@galv/galv'
 import Button from '@mui/material/Button'
+import LoadingButton from '@mui/lab/LoadingButton'
 import { useCurrentUser } from '../CurrentUserContext'
 import UndoRedoProvider, { useUndoRedoContext } from '../UndoRedoContext'
 import {
@@ -22,7 +23,7 @@ import Collapse from '@mui/material/Collapse'
 import PrettyObject from '../prettify/PrettyObject'
 import AxiosErrorAlert from '../AxiosErrorAlert'
 import { AxiosError, AxiosResponse } from 'axios'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { useApiResource } from '../ApiResourceContext'
 import Typography from '@mui/material/Typography'
@@ -112,6 +113,7 @@ export function ReuploadFile({ clickOnly }: ReuploadFileProps) {
 
     const { user, api_config } = useCurrentUser()
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
     const api = new FilesApi(api_config)
     const create_mutation = useMutation<
         AxiosResponse<ObservedFileCreate>,
@@ -122,6 +124,11 @@ export function ReuploadFile({ clickOnly }: ReuploadFileProps) {
             api.filesCreate.bind(api)(data),
         onSuccess: (data: AxiosResponse<ObservedFileCreate>) => {
             if (data) {
+                queryClient.invalidateQueries({
+                    queryKey: [LOOKUP_KEYS.FILE, data.data.id],
+                    exact: true,
+                    refetchType: 'all',
+                })
                 navigate(`${PATHS[LOOKUP_KEYS.FILE]}/${data.data.id}`)
             }
         },
@@ -136,8 +143,14 @@ export function ReuploadFile({ clickOnly }: ReuploadFileProps) {
     >({
         mutationFn: (data: FilesApiFilesCreateRequest) =>
             api.filesCreate.bind(api)(data),
-        onSuccess: () => {
+        onSuccess: (data) => {
             setComplete(true)
+            if (data)
+                queryClient.invalidateQueries({
+                    queryKey: [LOOKUP_KEYS.FILE, data.data.id],
+                    exact: true,
+                    refetchType: 'all',
+                })
         },
         onError: (error: AxiosError) => {
             setAlertContent(<AxiosErrorAlert error={error} />)
@@ -152,8 +165,8 @@ export function ReuploadFile({ clickOnly }: ReuploadFileProps) {
         ) : (
             <Stack direction={'row'} spacing={1}>
                 <ButtonGroup variant="contained">
-                    <Button
-                        disabled={!create_no_nav.isIdle}
+                    <LoadingButton
+                        loading={create_no_nav.status === 'pending'}
                         component="label"
                         variant="text"
                         color={alertContent ? 'error' : 'primary'}
@@ -177,15 +190,12 @@ export function ReuploadFile({ clickOnly }: ReuploadFileProps) {
                         ) : (
                             'Select data file'
                         )}
-                    </Button>
-                    <Button
+                    </LoadingButton>
+                    <LoadingButton
                         size="small"
                         aria-label="Upload"
-                        disabled={
-                            !create_no_nav.isIdle ||
-                            !uploadedFile ||
-                            !apiResource
-                        }
+                        loading={create_no_nav.status === 'pending'}
+                        disabled={!uploadedFile || !apiResource}
                         onClick={() => {
                             return create_no_nav.mutate({
                                 file: uploadedFile!,
@@ -197,7 +207,7 @@ export function ReuploadFile({ clickOnly }: ReuploadFileProps) {
                         }}
                     >
                         <MdCloudUpload />
-                    </Button>
+                    </LoadingButton>
                 </ButtonGroup>
                 <Collapse in={alertContent !== null}>{alertContent}</Collapse>
             </Stack>
@@ -209,9 +219,10 @@ export function ReuploadFile({ clickOnly }: ReuploadFileProps) {
             <div className={classes.fileUpload}>
                 <CustomDropzone setFile={setUploadedFile} />
             </div>
-            <Button
+            <LoadingButton
                 variant="contained"
                 color="primary"
+                loading={create_mutation.status === 'pending'}
                 disabled={!uploadedFile || !apiResource}
                 onClick={() => {
                     return create_mutation.mutate({
@@ -224,7 +235,7 @@ export function ReuploadFile({ clickOnly }: ReuploadFileProps) {
                 }}
             >
                 Upload file
-            </Button>
+            </LoadingButton>
             <Collapse in={alertContent !== null}>{alertContent}</Collapse>
         </Stack>
     )
@@ -240,6 +251,7 @@ export function UploadFilePage() {
     const [uploadedFile, setUploadedFile] = useState<File | null>(null)
     const { user, api_config } = useCurrentUser()
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
     const api = new FilesApi(api_config)
     const create_mutation = useMutation<
         AxiosResponse<ObservedFileCreate>,
@@ -250,6 +262,11 @@ export function UploadFilePage() {
             api.filesCreate.bind(api)(data),
         onSuccess: (data: AxiosResponse<ObservedFileCreate>) => {
             if (data) {
+                queryClient.invalidateQueries({
+                    queryKey: [LOOKUP_KEYS.FILE, data.data.id],
+                    exact: true,
+                    refetchType: 'all',
+                })
                 navigate(`${PATHS[LOOKUP_KEYS.FILE]}/${data.data.id}`)
             }
         },
@@ -398,14 +415,15 @@ export function UploadFilePage() {
             <div className={classes.fileUpload}>
                 <CustomDropzone setFile={setUploadedFile} />
             </div>
-            <Button
+            <LoadingButton
                 variant="contained"
                 color="primary"
+                loading={create_mutation.status === 'pending'}
                 disabled={!uploadedFile}
                 onClick={upload}
             >
                 Upload file
-            </Button>
+            </LoadingButton>
             <Collapse in={alertContent !== null}>{alertContent}</Collapse>
         </Stack>
     )
