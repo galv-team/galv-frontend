@@ -128,28 +128,8 @@ export default function CardSummary<T extends GalvResource>({
         )
     }
 
-    const img_preview = (lookupKey: LookupKey, apiResource: GalvResource) => {
-        if (lookupKey === LOOKUP_KEYS.FILE) {
-            const r = apiResource as ObservedFile
-            if (r.has_required_columns && r.png)
-                return (
-                    <AuthImage
-                        file={
-                            apiResource as unknown as {
-                                id: string
-                                path: string
-                                png: string
-                            }
-                        }
-                    />
-                )
-        }
-        return null
-    }
-
     return (
         <CardContent>
-            {img_preview(lookupKey, apiResource)}
             {apiResource && (
                 <Grid container spacing={1}>
                     {Object.entries(FIELDS[lookupKey])

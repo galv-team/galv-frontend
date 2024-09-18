@@ -978,4 +978,11 @@ describe('ResourceCard', () => {
         //     expect(within(row).getByRole('combobox')).toHaveValue("")
         // })
     })
+
+    describe('ResourceCard shows resume for partial Files', () => {
+        it('shows complete upload button for partial files', async () => {
+            // Load a partial file into the card
+            // Look for the complete upload button
+        })
+    })
 })

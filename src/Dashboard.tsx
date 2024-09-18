@@ -3,6 +3,7 @@ import {
     ICONS,
     LOOKUP_KEYS,
     LookupKey,
+    PATHS,
 } from './constants'
 import { AxiosError, AxiosResponse } from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -17,7 +18,7 @@ import LookupKeyIcon from './Components/LookupKeyIcon'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import ListItem from '@mui/material/ListItem'
-import ResourceChip from './Components/ResourceChip'
+import ResourceChipFromQuery, { ResourceChip } from './Components/ResourceChip'
 import Stack from '@mui/material/Stack'
 import React, { ReactNode, useState } from 'react'
 import Button from '@mui/material/Button'
@@ -44,6 +45,10 @@ import {
 import CircularProgress from '@mui/material/CircularProgress'
 import Skeleton from '@mui/material/Skeleton'
 import SafeTooltip from './Components/SafeTooltip'
+import { Link } from 'react-router-dom'
+import { ReuploadFile } from './Components/upload/UploadFilePage'
+import ApiResourceContextProvider from './Components/ApiResourceContext'
+import { MappingQuickSelectFromContext } from './Components/card/summaries/FileSummary'
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -182,7 +187,7 @@ function KeySummary({
                             .map((id) => (
                                 <ListItem key={id}>
                                     <Stack>
-                                        <ResourceChip
+                                        <ResourceChipFromQuery
                                             resourceId={id}
                                             lookupKey={lookupKey}
                                             short_name={false}
@@ -211,7 +216,7 @@ function KeySummary({
                                                                 }
                                                             />
                                                         </ListItemIcon>
-                                                        <ResourceChip
+                                                        <ResourceChipFromQuery
                                                             resourceId={id_from_ref_props(
                                                                 d.detail.schema,
                                                             )}
@@ -319,7 +324,8 @@ export function SchemaValidationList() {
 }
 
 export function DatasetStatus() {
-    const [open, setOpen] = useState(false)
+    const [mappingOpen, setMappingOpen] = useState(false)
+    const [uploadOpen, setUploadOpen] = useState(false)
     const { useListQuery } = useFetchResource()
     const query = useListQuery(
         LOOKUP_KEYS.FILE,
@@ -378,8 +384,11 @@ export function DatasetStatus() {
         )
     }
 
-    const files_needing_input = query.results?.filter(
+    const files_awaiting_mapping = query.results?.filter(
         (f) => f.state === 'AWAITING MAP ASSIGNMENT',
+    )
+    const files_awaiting_reupload = query.results?.filter(
+        (f) => f.state === 'MAP ASSIGNED' && f.uploader,
     )
 
     return (
@@ -438,45 +447,113 @@ export function DatasetStatus() {
                             </Stack>
                         }
                     />
-                    {files_needing_input && files_needing_input.length > 0 && (
-                        <CardContent
-                            onClick={() => setOpen(!open)}
-                            onKeyDown={(e) => {
-                                if (
-                                    e.target === e.currentTarget &&
-                                    [' ', 'Enter'].includes(e.key)
-                                )
-                                    setOpen(!open)
-                            }}
-                            tabIndex={0}
-                            sx={{ cursor: 'pointer' }}
-                        >
-                            {open ? (
-                                <List>
-                                    {files_needing_input.map((f) => (
-                                        <ListItem key={f.id}>
-                                            <SafeTooltip title={f.state}>
-                                                <ICONS.validation_status_INPUT_REQUIRED color="warning" />
-                                            </SafeTooltip>
-                                            <ResourceChip
-                                                resourceId={f.id}
-                                                lookupKey={LOOKUP_KEYS.FILE}
-                                                short_name={false}
-                                            />
-                                        </ListItem>
-                                    ))}
-                                </List>
-                            ) : (
-                                <Typography>
-                                    <em>
-                                        Click to see all{' '}
-                                        {files_needing_input.length} files with
-                                        ambiguous mapping.
-                                    </em>
-                                </Typography>
-                            )}
-                        </CardContent>
-                    )}
+                    {files_awaiting_mapping &&
+                        files_awaiting_mapping.length > 0 && (
+                            <CardContent
+                                onClick={() => setMappingOpen(!mappingOpen)}
+                                onKeyDown={(e) => {
+                                    if (
+                                        e.target === e.currentTarget &&
+                                        [' ', 'Enter'].includes(e.key)
+                                    )
+                                        setMappingOpen(!mappingOpen)
+                                }}
+                                tabIndex={0}
+                                sx={{ cursor: 'pointer' }}
+                            >
+                                {mappingOpen ? (
+                                    <List>
+                                        {files_awaiting_mapping.map((f) => (
+                                            <ListItem
+                                                key={f.id}
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                            >
+                                                <ApiResourceContextProvider
+                                                    lookupKey={LOOKUP_KEYS.FILE}
+                                                    resourceId={f.id}
+                                                >
+                                                    <SafeTooltip
+                                                        title={f.state}
+                                                    >
+                                                        <ICONS.validation_status_INPUT_REQUIRED color="warning" />
+                                                    </SafeTooltip>
+                                                    <ResourceChip
+                                                        short_name={false}
+                                                    />
+                                                    <MappingQuickSelectFromContext
+                                                        hideIfEmpty={true}
+                                                        inline={true}
+                                                    />
+                                                </ApiResourceContextProvider>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                ) : (
+                                    <Typography>
+                                        <em>
+                                            Click to see all{' '}
+                                            {files_awaiting_mapping.length}{' '}
+                                            files with ambiguous mapping.
+                                        </em>
+                                    </Typography>
+                                )}
+                            </CardContent>
+                        )}
+                    {files_awaiting_reupload &&
+                        files_awaiting_reupload.length > 0 && (
+                            <CardContent
+                                onClick={() => setUploadOpen(!uploadOpen)}
+                                onKeyDown={(e) => {
+                                    if (
+                                        e.target === e.currentTarget &&
+                                        [' ', 'Enter'].includes(e.key)
+                                    )
+                                        setUploadOpen(!uploadOpen)
+                                }}
+                                tabIndex={0}
+                                sx={{ cursor: 'pointer' }}
+                            >
+                                {uploadOpen ? (
+                                    <List>
+                                        {files_awaiting_reupload.map((f) => (
+                                            <ListItem
+                                                key={f.id}
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                            >
+                                                <ApiResourceContextProvider
+                                                    lookupKey={LOOKUP_KEYS.FILE}
+                                                    resourceId={f.id}
+                                                >
+                                                    <SafeTooltip
+                                                        title={f.state}
+                                                    >
+                                                        <ICONS.validation_status_INPUT_REQUIRED color="warning" />
+                                                    </SafeTooltip>
+                                                    <ResourceChip
+                                                        short_name={false}
+                                                    />
+                                                    <ReuploadFile
+                                                        clickOnly={true}
+                                                    />
+                                                </ApiResourceContextProvider>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                ) : (
+                                    <Typography>
+                                        <em>
+                                            Click to see all{' '}
+                                            {files_awaiting_reupload.length}{' '}
+                                            files ready for reupload.
+                                        </em>
+                                    </Typography>
+                                )}
+                            </CardContent>
+                        )}
                 </Card>
             )}
         </Container>
@@ -505,6 +582,9 @@ export default function Dashboard() {
                 Harvested Files
             </Typography>
             <DatasetStatus />
+            <Button component={Link} to={PATHS.UPLOAD} variant="contained">
+                Upload a new File
+            </Button>
             <Typography variant={'h6'} sx={{ paddingLeft: '1em' }}>
                 Metadata Validations
             </Typography>

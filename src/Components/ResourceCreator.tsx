@@ -24,6 +24,7 @@ import {
     PATHS,
     PRIORITY_LEVELS,
     Serializable,
+    SerializableObject,
 } from '../constants'
 import ErrorBoundary from './ErrorBoundary'
 import UndoRedoProvider, { useUndoRedoContext } from './UndoRedoContext'
@@ -44,15 +45,17 @@ import Skeleton from '@mui/material/Skeleton'
 import {
     from_type_value_notation,
     to_type_value_notation_wrapper,
-    TypeValueNotation,
     TypeValueNotationWrapper,
 } from './TypeValueNotation'
 import { useAttachmentUpload } from './AttachmentUploadContext'
-import { useFetchResource } from './FetchResourceContext'
+import {
+    useFetchResource,
+    CreateMutationVariablesType,
+} from './FetchResourceContext'
 import Alert from '@mui/material/Alert'
 import AxiosErrorAlert from './AxiosErrorAlert'
 import Collapse from '@mui/material/Collapse'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 type TokenCreatorProps = {
     setModalOpen: (open: boolean) => void
@@ -254,7 +257,7 @@ export function ResourceCreator<T extends GalvResource>({
     const { file, getUploadMutation } = useAttachmentUpload()
 
     // Ref wrapper for updating UndoRedo in useEffect
-    const UndoRedo = useUndoRedoContext<TypeValueNotationWrapper>()
+    const UndoRedo = useUndoRedoContext<Partial<T>>()
     const UndoRedoRef = useRef(UndoRedo)
 
     useEffect(() => {
@@ -269,21 +272,18 @@ export function ResourceCreator<T extends GalvResource>({
                             initial_data?.[k as keyof typeof initial_data] !==
                             undefined
                         )
-                            template_object[k] =
+                            template_object[k as keyof T] =
                                 initial_data[k as keyof typeof initial_data]
                         else
-                            template_object[k] = v.many
-                                ? { _type: 'array', _value: [] }
-                                : {
-                                      _type: v.type,
-                                      _value: v.default_value ?? null,
-                                  }
+                            template_object[k as keyof T] = v.many
+                                ? []
+                                : (v.default_value ?? null)
                     }
                 })
             if (initial_data !== undefined) {
                 Object.entries(initial_data).forEach(([k, v]) => {
                     if (!(k in FIELDS[lookupKey]))
-                        template_object[k] = v as TypeValueNotation
+                        template_object[k as keyof T] = v
                 })
             }
             UndoRedoRef.current.set(template_object)
@@ -381,10 +381,12 @@ export function ResourceCreator<T extends GalvResource>({
                     create_attachment_mutation.mutate({
                         ...clean(UndoRedo.current),
                         file,
-                    } as ArbitraryFilesApiArbitraryFilesCreateRequest)
+                    } as unknown as ArbitraryFilesApiArbitraryFilesCreateRequest)
                 } else {
                     create_mutation.mutate(
-                        clean(UndoRedo.current) as Partial<T>,
+                        clean(
+                            UndoRedo.current,
+                        ) as CreateMutationVariablesType<T>,
                     )
                 }
                 return false // Close action handled by mutation success callback
@@ -433,7 +435,7 @@ export function ResourceCreator<T extends GalvResource>({
             {UndoRedo.current && (
                 <PrettyObject<TypeValueNotationWrapper>
                     target={to_type_value_notation_wrapper(
-                        UndoRedo.current,
+                        UndoRedo.current as SerializableObject,
                         lookupKey,
                     )}
                     lookupKey={lookupKey}
@@ -441,9 +443,7 @@ export function ResourceCreator<T extends GalvResource>({
                     creating={true}
                     onEdit={(v) => {
                         UndoRedo.update(
-                            from_type_value_notation(
-                                v,
-                            ) as TypeValueNotationWrapper,
+                            from_type_value_notation(v) as Partial<T>,
                         )
                         clearAlert()
                     }}
@@ -498,9 +498,19 @@ export default function WrappedResourceCreator<T extends GalvResource>(
         return Object.keys(fields).includes('team')
     }
 
+    if (!get_can_create(props.lookupKey)) return <></>
+
     const ADD_ICON = ICONS.CREATE
 
-    return get_can_create(props.lookupKey) ? (
+    // Files are a special case and there's a whole page for handling them
+    if (props.lookupKey === LOOKUP_KEYS.FILE)
+        return (
+            <Button component={Link} to={PATHS.UPLOAD} variant="contained">
+                Upload a new File
+            </Button>
+        )
+
+    return (
         <UndoRedoProvider>
             <Button
                 onClick={() => setModalOpen(true)}
@@ -551,7 +561,7 @@ export default function WrappedResourceCreator<T extends GalvResource>(
                                             get_url_components(url)
                                         if (components)
                                             navigate(
-                                                `${PATHS[components.lookupKey]}${components.resourceId}/`,
+                                                `${PATHS[components.lookupKey]}/${components.resourceId}/`,
                                             )
                                     }
                                 }}
@@ -563,7 +573,5 @@ export default function WrappedResourceCreator<T extends GalvResource>(
                 </div>
             </Modal>
         </UndoRedoProvider>
-    ) : (
-        <></>
     )
 }

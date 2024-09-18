@@ -286,3 +286,13 @@ export const DeleteError: Story = {
         expect(errorMessage).toBeInTheDocument()
     },
 }
+
+/**
+ * Files that are partially uploaded can be completed directly from the `ResourceCard`.
+ */
+export const CompleteUpload: Story = {
+    args: {
+        lookupKey: LOOKUP_KEYS.FILE,
+        resourceId: files.find((f) => f.name === 'partial.csv')?.id,
+    },
+}
