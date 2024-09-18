@@ -1152,7 +1152,7 @@ export const FIELDS = {
             type: key_to_type(LOOKUP_KEYS.LAB),
             priority: PRIORITY_LEVELS.CONTEXT,
         },
-        quota: { read_only: false, type: 'number' },
+        quota_bytes: { read_only: false, type: 'number' },
         bytes_used: { read_only: true, type: 'number' },
         priority: { read_only: false, type: 'number' },
         bucket_name: { read_only: false, type: 'string' },
