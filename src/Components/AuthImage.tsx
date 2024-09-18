@@ -6,6 +6,13 @@ import { LOOKUP_KEYS } from '../constants'
 import axios from 'axios'
 import Skeleton from '@mui/material/Skeleton'
 
+/**
+ * Display an image that requires API credentials to access it.
+ *
+ * This methods fetches a redirect URL from the API and then fetches the image.
+ * This approach is taken so that we send the Origin header to the file server.
+ * With a direct link, the Origin header is set to null, which results in CORS errors.
+ */
 export default function AuthImage({
     file,
 }: {
@@ -14,11 +21,19 @@ export default function AuthImage({
     const [imageData, setImageData] = useState('')
     const headers = {
         authorization: `Bearer ${useCurrentUser().user?.token}`,
+        'Galv-Storage-No-Redirect': true,
     }
     const query = useQuery({
         queryKey: [LOOKUP_KEYS.FILE, file.id, 'png'],
         queryFn: async () => {
-            return axios.get(file.png, { headers, responseType: 'blob' })
+            const response = await axios.get(file.png, {
+                headers,
+                responseType: 'blob',
+            })
+            const redirect_url = response.headers['galv-storage-redirect-url']
+            return redirect_url
+                ? axios.get(redirect_url, { responseType: 'blob' })
+                : response
         },
     })
 
