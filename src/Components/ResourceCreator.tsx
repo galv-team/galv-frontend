@@ -48,7 +48,10 @@ import {
     TypeValueNotationWrapper,
 } from './TypeValueNotation'
 import { useAttachmentUpload } from './AttachmentUploadContext'
-import {useFetchResource, CreateMutationVariablesType} from './FetchResourceContext'
+import {
+    useFetchResource,
+    CreateMutationVariablesType,
+} from './FetchResourceContext'
 import Alert from '@mui/material/Alert'
 import AxiosErrorAlert from './AxiosErrorAlert'
 import Collapse from '@mui/material/Collapse'
@@ -380,7 +383,11 @@ export function ResourceCreator<T extends GalvResource>({
                         file,
                     } as unknown as ArbitraryFilesApiArbitraryFilesCreateRequest)
                 } else {
-                    create_mutation.mutate(clean(UndoRedo.current) as CreateMutationVariablesType<T>)
+                    create_mutation.mutate(
+                        clean(
+                            UndoRedo.current,
+                        ) as CreateMutationVariablesType<T>,
+                    )
                 }
                 return false // Close action handled by mutation success callback
             }}

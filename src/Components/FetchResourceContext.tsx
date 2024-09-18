@@ -28,11 +28,7 @@ import {
 } from '@tanstack/react-query'
 import { get_select_function } from './ApiResourceContext'
 import { useSnackbarMessenger } from './SnackbarMessengerContext'
-import {
-    Configuration,
-    ObservedFileCreate,
-    ObservedFile,
-} from '@galv/galv'
+import { Configuration, ObservedFileCreate, ObservedFile } from '@galv/galv'
 import { has } from './misc'
 
 export type Axios = typeof axios
@@ -96,7 +92,10 @@ type UpdateOptions<T extends GalvResource> = {
 type CreateOptions<T extends GalvResource> = {
     extra_query_options?: UseMutationOptions<AxiosResponse<T>, AxiosError>
     before_cache?: (result: AxiosResponse<T>) => AxiosResponse<T>
-    after_cache?: (result: AxiosResponse<T>, variables: CreateMutationVariablesType<T>) => void
+    after_cache?: (
+        result: AxiosResponse<T>,
+        variables: CreateMutationVariablesType<T>,
+    ) => void
     on_error?: (
         error: AxiosError,
         variables: CreateMutationVariablesType<T>,
@@ -136,7 +135,11 @@ export interface IFetchResourceContext {
     useCreateQuery: <T extends GalvResource>(
         lookupKey: LookupKey,
         options?: CreateOptions<T>,
-    ) => UseMutationResult<AxiosResponse<T>, AxiosError, CreateMutationVariablesType<T>>
+    ) => UseMutationResult<
+        AxiosResponse<T>,
+        AxiosError,
+        CreateMutationVariablesType<T>
+    >
     useDeleteQuery: <T extends GalvResource>(
         lookupKey: LookupKey,
         options?: DeleteOptions<T>,
@@ -442,7 +445,10 @@ export default function FetchResourceContextProvider({
         // (r, v) => ({r, v}) does nothing except stop TS from complaining about unused variables
         const post_cache = options?.after_cache
             ? options.after_cache
-            : (r: AxiosResponse<T>, v: CreateMutationVariablesType<T>) => ({ r, v })
+            : (r: AxiosResponse<T>, v: CreateMutationVariablesType<T>) => ({
+                  r,
+                  v,
+              })
         const on_error_fn = options?.on_error
             ? options.on_error
             : (e: AxiosError, v: CreateMutationVariablesType<T>) => {
@@ -473,7 +479,10 @@ export default function FetchResourceContextProvider({
             // @ts-expect-error - TS incorrectly infers that TVariables can be of type void
             mutationFn: mutationFn,
             // @ts-expect-error - TS incorrectly infers that TVariables can be of type void
-            onSuccess: (data: AxiosResponse<T>, variables: CreateMutationVariablesType<T>) => {
+            onSuccess: (
+                data: AxiosResponse<T>,
+                variables: CreateMutationVariablesType<T>,
+            ) => {
                 // Update cache
                 const queryKey = [
                     lookupKey,
@@ -492,9 +501,11 @@ export default function FetchResourceContextProvider({
             onError: on_error_fn,
             ...options?.extra_query_options,
         }
-        return useMutation<AxiosResponse<T>, AxiosError, CreateMutationVariablesType<T>>(
-            mutation_options,
-        )
+        return useMutation<
+            AxiosResponse<T>,
+            AxiosError,
+            CreateMutationVariablesType<T>
+        >(mutation_options)
     }
 
     const useDeleteQuery: IFetchResourceContext['useDeleteQuery'] = <
