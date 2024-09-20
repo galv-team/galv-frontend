@@ -1,5 +1,5 @@
 import Tooltip, { TooltipProps } from '@mui/material/Tooltip'
-import React, { AriaRole } from 'react'
+import React, { AriaRole, forwardRef } from 'react'
 import { has } from './misc'
 
 export type SafeTooltipProps = TooltipProps & { disabledRole?: AriaRole }
@@ -14,11 +14,10 @@ export type SafeTooltipProps = TooltipProps & { disabledRole?: AriaRole }
  * Our solution in this component is to use a `SafeTooltip` component that will wrap the child in a `span`
  * if it is disabled, but will otherwise just return the child.
  */
-export default function SafeTooltip({
-    children,
-    disabledRole,
-    ...props
-}: SafeTooltipProps) {
+const SafeTooltip = forwardRef(function SafeTooltip(
+    { children, disabledRole, ...props }: SafeTooltipProps,
+    ref,
+) {
     if (
         React.isValidElement(children) &&
         has(children, 'props') &&
@@ -35,12 +34,19 @@ export default function SafeTooltip({
             'aria-hidden': children.props['aria-hidden'] ?? true,
         })
         return (
-            <Tooltip {...props}>
+            <Tooltip {...props} ref={ref}>
                 <span role={disabledRole ?? 'button'} aria-disabled={true}>
                     {child}
                 </span>
             </Tooltip>
         )
     }
-    return <Tooltip {...props}>{children}</Tooltip>
-}
+    // Wrap in a div to avoid warnings about Expected an element that can hold a ref.
+    return (
+        <Tooltip {...props} ref={ref}>
+            <div>{children}</div>
+        </Tooltip>
+    )
+})
+
+export default SafeTooltip
