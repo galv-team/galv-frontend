@@ -49,6 +49,10 @@ import { ReuploadFile } from './Components/upload/UploadFilePage'
 import ApiResourceContextProvider from './Components/ApiResourceContext'
 import { MappingQuickSelectFromContext } from './Components/card/summaries/FileSummary'
 import { Theme } from '@mui/material/styles'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import Accordion from '@mui/material/Accordion'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import {MdExpandMore} from "react-icons/md";
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -297,7 +301,7 @@ export function SchemaValidationList() {
     else if (query.data.length === 0)
         body = !user?.token ? (
             <p>
-                <Button onClick={() => setLoginFormOpen(true)}>Log in</Button>{' '}
+                <Button onClick={() => setLoginFormOpen(true)}>Log in</Button>&nbsp;
                 to see your dashboard.
             </p>
         ) : (
@@ -333,8 +337,6 @@ export function SchemaValidationList() {
 }
 
 export function DatasetStatus() {
-    const [mappingOpen, setMappingOpen] = useState(false)
-    const [uploadOpen, setUploadOpen] = useState(false)
     const { useListQuery } = useFetchResource()
     const query = useListQuery(
         LOOKUP_KEYS.FILE,
@@ -457,109 +459,141 @@ export function DatasetStatus() {
                         }
                     />
                     {files_awaiting_mapping &&
-                        files_awaiting_mapping.length > 0 && (
-                            <CardContent
-                                onClick={() => setMappingOpen(!mappingOpen)}
-                                onKeyDown={(e) => {
-                                    if (
-                                        e.target === e.currentTarget &&
-                                        [' ', 'Enter'].includes(e.key)
-                                    )
-                                        setMappingOpen(!mappingOpen)
-                                }}
-                                tabIndex={0}
-                                sx={{ cursor: 'pointer' }}
-                            >
-                                {mappingOpen ? (
-                                    <List>
-                                        {files_awaiting_mapping.map((f) => (
-                                            <ListItem
-                                                key={f.id}
-                                                onClick={(e) =>
-                                                    e.stopPropagation()
-                                                }
-                                            >
-                                                <ApiResourceContextProvider
-                                                    lookupKey={LOOKUP_KEYS.FILE}
-                                                    resourceId={f.id}
-                                                >
-                                                    <SafeTooltip
-                                                        title={f.state}
-                                                    >
-                                                        <ICONS.validation_status_INPUT_REQUIRED color="warning" />
-                                                    </SafeTooltip>
-                                                    <ResourceChip
-                                                        short_name={false}
-                                                    />
-                                                    <MappingQuickSelectFromContext
-                                                        hideIfEmpty={true}
-                                                        inline={true}
-                                                    />
-                                                </ApiResourceContextProvider>
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                ) : (
-                                    <Typography>
-                                        <em>
-                                            Click to see all{' '}
-                                            {files_awaiting_mapping.length}{' '}
-                                            files with ambiguous mapping.
-                                        </em>
-                                    </Typography>
+                        files_awaiting_reupload &&
+                        files_awaiting_mapping.length +
+                            files_awaiting_reupload.length >
+                            0 && (
+                            <CardContent>
+                                {files_awaiting_mapping.length > 0 && (
+                                    <Accordion>
+                                        <AccordionSummary
+                                            expandIcon={<MdExpandMore />}
+                                            aria-controls="ambiguous-mapping-content"
+                                            id="ambiguous-mapping-header"
+                                        >
+                                            Fix {files_awaiting_mapping.length}
+                                            &nbsp;file
+                                            {files_awaiting_mapping.length > 1
+                                                ? 's'
+                                                : ''}
+                                            &nbsp;with ambiguous mapping
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <List>
+                                                {files_awaiting_mapping.map(
+                                                    (f) => (
+                                                        <ListItem
+                                                            key={f.id}
+                                                            onClick={(e) =>
+                                                                e.stopPropagation()
+                                                            }
+                                                        >
+                                                            <ApiResourceContextProvider
+                                                                lookupKey={
+                                                                    LOOKUP_KEYS.FILE
+                                                                }
+                                                                resourceId={
+                                                                    f.id
+                                                                }
+                                                            >
+                                                                <SafeTooltip
+                                                                    title={
+                                                                        f.state
+                                                                    }
+                                                                >
+                                                                    <ICONS.validation_status_INPUT_REQUIRED
+                                                                        color={
+                                                                            theme
+                                                                                .palette
+                                                                                .warning
+                                                                                .main
+                                                                        }
+                                                                    />
+                                                                </SafeTooltip>
+                                                                <ResourceChip
+                                                                    short_name={
+                                                                        false
+                                                                    }
+                                                                />
+                                                                <MappingQuickSelectFromContext
+                                                                    hideIfEmpty={
+                                                                        true
+                                                                    }
+                                                                    inline={
+                                                                        true
+                                                                    }
+                                                                />
+                                                            </ApiResourceContextProvider>
+                                                        </ListItem>
+                                                    ),
+                                                )}
+                                            </List>
+                                        </AccordionDetails>
+                                    </Accordion>
                                 )}
-                            </CardContent>
-                        )}
-                    {files_awaiting_reupload &&
-                        files_awaiting_reupload.length > 0 && (
-                            <CardContent
-                                onClick={() => setUploadOpen(!uploadOpen)}
-                                onKeyDown={(e) => {
-                                    if (
-                                        e.target === e.currentTarget &&
-                                        [' ', 'Enter'].includes(e.key)
-                                    )
-                                        setUploadOpen(!uploadOpen)
-                                }}
-                                tabIndex={0}
-                                sx={{ cursor: 'pointer' }}
-                            >
-                                {uploadOpen ? (
-                                    <List>
-                                        {files_awaiting_reupload.map((f) => (
-                                            <ListItem
-                                                key={f.id}
-                                                onClick={(e) =>
-                                                    e.stopPropagation()
-                                                }
-                                            >
-                                                <ApiResourceContextProvider
-                                                    lookupKey={LOOKUP_KEYS.FILE}
-                                                    resourceId={f.id}
-                                                >
-                                                    <SafeTooltip
-                                                        title={f.state}
-                                                    >
-                                                        <ICONS.validation_status_INPUT_REQUIRED color="warning" />
-                                                    </SafeTooltip>
-                                                    <ResourceChip
-                                                        short_name={false}
-                                                    />
-                                                    <ReuploadFile
-                                                        clickOnly={true}
-                                                    />
-                                                </ApiResourceContextProvider>
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                ) : (
-                                    <Typography>
-                                        <em>
-                                            Click to see all{' '}
-                                            {files_awaiting_reupload.length}{' '}
-                                            files ready for reupload.
-                                        </em>
-                                    </Typography>
+                                {files_awaiting_reupload.length > 0 && (
+                                    <Accordion>
+                                        <AccordionSummary
+                                            expandIcon={<MdExpandMore />}
+                                            aria-controls="reupload-content"
+                                            id="reupload-header"
+                                        >
+                                            Fix {files_awaiting_reupload.length}
+                                            &nbsp;file
+                                            {files_awaiting_reupload.length > 1
+                                                ? 's'
+                                                : ''}
+                                            &nbsp;awaiting reupload.
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <List>
+                                                {files_awaiting_reupload.map(
+                                                    (f) => (
+                                                        <ListItem
+                                                            key={f.id}
+                                                            onClick={(e) =>
+                                                                e.stopPropagation()
+                                                            }
+                                                        >
+                                                            <ApiResourceContextProvider
+                                                                lookupKey={
+                                                                    LOOKUP_KEYS.FILE
+                                                                }
+                                                                resourceId={
+                                                                    f.id
+                                                                }
+                                                            >
+                                                                <SafeTooltip
+                                                                    title={
+                                                                        f.state
+                                                                    }
+                                                                >
+                                                                    <ICONS.validation_status_INPUT_REQUIRED
+                                                                        color={
+                                                                            theme
+                                                                                .palette
+                                                                                .warning
+                                                                                .main
+                                                                        }
+                                                                    />
+                                                                </SafeTooltip>
+                                                                <ResourceChip
+                                                                    short_name={
+                                                                        false
+                                                                    }
+                                                                />
+                                                                <ReuploadFile
+                                                                    clickOnly={
+                                                                        true
+                                                                    }
+                                                                />
+                                                            </ApiResourceContextProvider>
+                                                        </ListItem>
+                                                    ),
+                                                )}
+                                            </List>
+                                        </AccordionDetails>
+                                    </Accordion>
                                 )}
                             </CardContent>
                         )}
