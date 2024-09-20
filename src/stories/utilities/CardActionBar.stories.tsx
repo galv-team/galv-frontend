@@ -14,7 +14,7 @@ import SelectionManagementContextProvider from '../../Components/SelectionManage
 import { expect, fn, userEvent, within } from '@storybook/test'
 import { useArgs } from '@storybook/preview-api'
 import CardContent from '@mui/material/CardContent'
-import { CardActions } from '@mui/material'
+import CardActions from '@mui/material/CardActions'
 import Card from '@mui/material/Card'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export

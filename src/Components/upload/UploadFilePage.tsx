@@ -10,7 +10,6 @@ import {
     ObservedFile,
     ObservedFileCreate,
 } from '@galv/galv'
-import Button from '@mui/material/Button'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { useCurrentUser } from '../CurrentUserContext'
 import UndoRedoProvider, { useUndoRedoContext } from '../UndoRedoContext'

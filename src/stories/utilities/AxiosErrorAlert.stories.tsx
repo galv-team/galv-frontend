@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import AxiosErrorAlert from '../../Components/AxiosErrorAlert'
-import { AlertTitle } from '@mui/material'
+import AlertTitle from '@mui/material/AlertTitle'
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {

@@ -6,9 +6,9 @@ import {
     useEffect,
     useState,
 } from 'react'
-import { AlertProps, Snackbar, SnackbarProps } from '@mui/material'
+import Snackbar, { SnackbarProps } from '@mui/material/Snackbar'
 import { useImmer } from 'use-immer'
-import Alert from '@mui/material/Alert'
+import Alert, {AlertProps} from '@mui/material/Alert'
 import ListItem from '@mui/material/ListItem'
 import List from '@mui/material/List'
 

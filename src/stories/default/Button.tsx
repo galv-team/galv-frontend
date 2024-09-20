@@ -2,9 +2,9 @@
 
 import React from 'react'
 import {
-    Button as MuiButton,
     ButtonProps as MuiButtonProps,
-} from '@mui/material'
+    default as MuiButton,
+} from '@mui/material/Button'
 
 export interface ButtonProps extends MuiButtonProps {
     label?: string

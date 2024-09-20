@@ -2,7 +2,7 @@ import { AxiosError } from 'axios'
 import Alert, { AlertProps } from '@mui/material/Alert'
 import ListItem from '@mui/material/ListItem'
 import List from '@mui/material/List'
-import { AlertTitle } from '@mui/material'
+import AlertTitle from '@mui/material/AlertTitle'
 import ListItemText from '@mui/material/ListItemText'
 
 export type AxiosErrorAlertProps = {
