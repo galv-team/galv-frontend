@@ -36,7 +36,6 @@ import ListSubheader from '@mui/material/ListSubheader'
 import IntroText from './Components/IntroText'
 import Box from '@mui/material/Box'
 import clsx from 'clsx'
-import UseStyles from './styles/UseStyles'
 import useStyles from './styles/UseStyles'
 import {
     ListQueryResult,
@@ -49,6 +48,7 @@ import { Link } from 'react-router-dom'
 import { ReuploadFile } from './Components/upload/UploadFilePage'
 import ApiResourceContextProvider from './Components/ApiResourceContext'
 import { MappingQuickSelectFromContext } from './Components/card/summaries/FileSummary'
+import { Theme } from '@mui/material/styles'
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -56,15 +56,24 @@ type SchemaValidationSummary = {
     resourceId?: string
 }
 
-const get_color = (status: SchemaValidation['status'] | 'INPUT_REQUIRED') => {
+/**
+ * Get the color for a status
+ * @param status
+ * @param theme - required to map a StatusColor (success, error, warning) to a color because ReactIcons don't
+ *  integrate with the MUI theme
+ */
+const get_color = (
+    status: SchemaValidation['status'] | 'INPUT_REQUIRED',
+    theme: Theme,
+) => {
     switch (status) {
         case 'VALID':
-            return 'success'
+            return theme.palette.success.main
         case 'ERROR':
-            return 'error'
+            return theme.palette.error.main
         case 'INVALID':
         case 'INPUT_REQUIRED':
-            return 'warning'
+            return theme.palette.warning.main
         default:
             return undefined
     }
@@ -76,7 +85,7 @@ function MdStatus({
     ...props
 }: { status: SchemaValidation['status']; count?: number } & SvgIconProps) {
     const ICON = ICONS[`validation_status_${status}` as keyof typeof ICONS]
-    const color = get_color(status)
+    const color = get_color(status, useStyles().theme)
     return count ? (
         <Chip icon={<ICON color={color} {...props} />} label={count} />
     ) : (
@@ -330,7 +339,7 @@ export function DatasetStatus() {
     const query = useListQuery(
         LOOKUP_KEYS.FILE,
     ) as ListQueryResult<ObservedFile>
-    const { classes } = useStyles()
+    const { classes, theme } = useStyles()
 
     if (query?.hasNextPage && !query.isFetchingNextPage) query.fetchNextPage()
 
@@ -565,7 +574,7 @@ function Dev() {
 }
 
 export default function Dashboard() {
-    const { classes } = UseStyles()
+    const { classes } = useStyles()
     return (
         <Stack spacing={2}>
             <Box sx={{ padding: 1 }}>

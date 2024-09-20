@@ -66,7 +66,7 @@ export type CardActionBarProps = {
  * @constructor
  */
 export default function CardActionBar(props: CardActionBarProps) {
-    const { classes } = UseStyles()
+    const { classes, theme } = UseStyles()
     const { apiResource } = useApiResource()
     const iconProps: Partial<SvgIconProps> = {
         fontSize: 'large',
@@ -175,7 +175,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                                     props.setEditing!(false)
                             }}
                         >
-                            <ICONS.SAVE {...iconProps} color="success" />
+                            <ICONS.SAVE {...iconProps} color={theme.palette.success.main} />
                         </IconButton>
                     </SafeTooltip>
                     {props.onUndo && (
@@ -210,7 +210,7 @@ export default function CardActionBar(props: CardActionBarProps) {
                                     props.setEditing!(false)
                             }}
                         >
-                            <MdClose {...iconProps} color="error" />
+                            <MdClose {...iconProps} color={theme.palette.error.main} />
                         </IconButton>
                     </SafeTooltip>
                 </>
