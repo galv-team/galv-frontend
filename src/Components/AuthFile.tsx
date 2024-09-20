@@ -42,6 +42,10 @@ export default function AuthFile({ url }: { url: string }) {
         enabled: downloading,
     })
 
+    const clean_filename = (filename: string) => {
+        return filename.replace(/\.parquet.*$/, '.parquet')
+    }
+
     useEffect(() => {
         if (query.data) {
             setDataUrl(URL.createObjectURL(query.data.data))
@@ -53,7 +57,7 @@ export default function AuthFile({ url }: { url: string }) {
             <Button
                 component="a"
                 href={dataUrl}
-                download={filename ?? 'file'}
+                download={clean_filename(filename) ?? 'file.parquet'}
                 color="success"
                 startIcon={<ICONS.SAVE />}
             >
