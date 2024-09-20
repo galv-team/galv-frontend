@@ -41,10 +41,10 @@ const SafeTooltip = forwardRef(function SafeTooltip(
             </Tooltip>
         )
     }
-    // Wrap in a div to avoid warnings about Expected an element that can hold a ref.
+    // Wrap in a span to avoid warnings about Expected an element that can hold a ref.
     return (
         <Tooltip {...props} ref={ref}>
-            <div>{children}</div>
+            <span>{children}</span>
         </Tooltip>
     )
 })

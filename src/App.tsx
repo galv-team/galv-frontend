@@ -61,6 +61,7 @@ import Mapping from './Components/Mapping'
 import Paper from '@mui/material/Paper'
 import SafeTooltip from './Components/SafeTooltip'
 import UploadFilePage from './Components/upload/UploadFilePage'
+import Tooltip from "@mui/material/Tooltip";
 
 export const pathMatches = (path: string, pathname: string) =>
     matchPath({ path: path, end: true }, pathname) !== null
@@ -176,7 +177,7 @@ export function Core() {
                     >
                         <MdMenu />
                     </IconButton>
-                    <SafeTooltip
+                    <Tooltip
                         title="Galv"
                         describeChild={true}
                         placement="bottom-start"
@@ -188,7 +189,7 @@ export function Core() {
                                 src="/Galv-logo.svg"
                             />
                         </Link>
-                    </SafeTooltip>
+                    </Tooltip>
                     <Typography
                         component="h1"
                         variant="h6"
