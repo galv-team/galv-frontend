@@ -175,7 +175,10 @@ export default function CardActionBar(props: CardActionBarProps) {
                                     props.setEditing!(false)
                             }}
                         >
-                            <ICONS.SAVE {...iconProps} color={theme.palette.success.main} />
+                            <ICONS.SAVE
+                                {...iconProps}
+                                color={theme.palette.success.main}
+                            />
                         </IconButton>
                     </SafeTooltip>
                     {props.onUndo && (
@@ -210,7 +213,10 @@ export default function CardActionBar(props: CardActionBarProps) {
                                     props.setEditing!(false)
                             }}
                         >
-                            <MdClose {...iconProps} color={theme.palette.error.main} />
+                            <MdClose
+                                {...iconProps}
+                                color={theme.palette.error.main}
+                            />
                         </IconButton>
                     </SafeTooltip>
                 </>

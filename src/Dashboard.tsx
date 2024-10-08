@@ -52,7 +52,7 @@ import { Theme } from '@mui/material/styles'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
-import {MdExpandMore} from "react-icons/md";
+import { MdExpandMore } from 'react-icons/md'
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -301,8 +301,8 @@ export function SchemaValidationList() {
     else if (query.data.length === 0)
         body = !user?.token ? (
             <p>
-                <Button onClick={() => setLoginFormOpen(true)}>Log in</Button>&nbsp;
-                to see your dashboard.
+                <Button onClick={() => setLoginFormOpen(true)}>Log in</Button>
+                &nbsp; to see your dashboard.
             </p>
         ) : (
             <p>

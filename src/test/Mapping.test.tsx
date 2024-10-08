@@ -114,7 +114,7 @@ it('renders', async () => {
     expect(initial_data[1]).toBeInTheDocument()
     await user.hover(initial_data[1])
     screen.getAllByLabelText(/You do not have permission/)
-    expect(initial_data[1].firstElementChild?.nodeName).toBe('P')
+    expect(initial_data[1].firstElementChild?.nodeName).toBe('SPAN')
 
     // Check we can load a mapping
     const load_mapping = screen.getByTestId('load-mapping-select')
@@ -173,7 +173,7 @@ it('renders', async () => {
             .nextElementSibling!,
         'td',
     )
-    expect(renames[1].firstElementChild!.nodeName).toBe('P')
+    expect(renames[1].firstElementChild!.nodeName).toBe('SPAN')
 
     // Check we can rename columns
     const rename = getByDisplayValue('textbox', /SampleNumber/)!
