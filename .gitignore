@@ -38,3 +38,5 @@ src/client_templates/.generated/
 
 *storybook.log
 storybook-static/
+
+docker-compose.override.yaml
