@@ -18,6 +18,18 @@ const preview: Preview = {
             handlers: restHandlers,
         },
     },
+    decorators: [
+        (Story) => (
+            <div
+                style={{
+                    width: '600px',
+                    margin: '3em',
+                }}
+            >
+                <Story />
+            </div>
+        ),
+    ],
 }
 
 export default preview
