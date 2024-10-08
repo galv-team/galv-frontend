@@ -226,6 +226,9 @@ devDependencies:
   msw-storybook-addon:
     specifier: 2.0.3
     version: 2.0.3(msw@2.3.2)
+  prettier:
+    specifier: ^3.3.3
+    version: 3.3.3
   start-server-and-test:
     specifier: ^2.0.4
     version: 2.0.4

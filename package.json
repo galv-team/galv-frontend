@@ -14,6 +14,8 @@
     "@mui/lab": "^5.0.0-alpha.172",
     "@mui/material": "^5.16.4",
     "@mui/system": "^5.16.4",
+    "@react-buddy/ide-toolbox": "^2.4.0",
+    "@react-buddy/palette-mui": "^5.0.1",
     "@tanstack/react-query": "^5",
     "apache-arrow": "^17.0.0",
     "array-move": "^4.0.0",
@@ -36,9 +38,7 @@
     "tss-react": "^4.9.10",
     "use-immer": "^0.10.0",
     "usehooks-ts": "^3.1.0",
-    "web-vitals": "^4.2.2",
-    "@react-buddy/ide-toolbox": "^2.4.0",
-    "@react-buddy/palette-mui": "^5.0.1"
+    "web-vitals": "^4.2.2"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "1.6.1",
@@ -80,6 +80,7 @@
     "jsdom": "^24.1.1",
     "msw": "^2.3.2",
     "msw-storybook-addon": "2.0.3",
+    "prettier": "^3.3.3",
     "start-server-and-test": "^2.0.4",
     "storybook": "^8.2.6",
     "storybook-addon-remix-react-router": "3.0.0",
@@ -103,7 +104,8 @@
     "cypress:run": "cypress run",
     "cypress:e2e": "start-server-and-test 'pnpm start --port 8002' http://localhost 'pnpm cypress:run'",
     "storybook": "storybook dev -p 6006 --no-open",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prepare": "husky install"
   },
   "eslintConfig": {
     "extends": [
@@ -114,5 +116,9 @@
     "workerDirectory": [
       "public"
     ]
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "eslint --cache --fix",
+    "*.{js,css,md}": "prettier --write"
   }
 }
