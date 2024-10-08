@@ -8,7 +8,7 @@ import {
 } from 'react'
 import Snackbar, { SnackbarProps } from '@mui/material/Snackbar'
 import { useImmer } from 'use-immer'
-import Alert, {AlertProps} from '@mui/material/Alert'
+import Alert, { AlertProps } from '@mui/material/Alert'
 import ListItem from '@mui/material/ListItem'
 import List from '@mui/material/List'
 
