@@ -2,9 +2,34 @@ import Tooltip, { TooltipProps } from '@mui/material/Tooltip'
 import React, { AriaRole, forwardRef } from 'react'
 import { has } from './misc'
 
-export type SafeTooltipProps = TooltipProps & { disabledRole?: AriaRole }
+export type SafeTooltipProps = TooltipProps & {
+    disabledRole?: AriaRole
+    forceWrap?: boolean
+}
 
 /**
+ * ## Usage
+ * SafeTooltip is a wrapper around the MUI Tooltip component that ensures that the tooltip
+ * will show up even if the child is disabled.
+ * Elements that will _never_ be disabled can simply use the MUI Tooltip component.
+ *
+ * The SafeTooltip component can have difficulty with non-interactive children.
+ * In the disabled condition, this is solved by wrapping the child in a `span`.
+ * In the enabled condition, you can solve this by setting `forceWrap` to `true`.
+ *
+ * So while you might call a button like this:
+ * ```tsx
+ * <SafeTooltip title="This is a button"><Button>Click me</Button></SafeTooltip>
+ * ```
+ * You might call a non-interactive element like this:
+ * ```tsx
+ * <SafeTooltip title="This is a paragraph" forceWrap={true}><p>Some text</p></SafeTooltip>
+ * ```
+ *
+ * In the former case, the child will inherit the `aria-label` from the tooltip.
+ * In the latter case, the child will be wrapped in a `span` and the `aria-label` will be added to that `span` wrapper.
+ *
+ * ## Background
  * The `Tooltip` component from MUI has a difficult history with disabled children.
  * If you have a disabled child, the tooltip will not show up.
  * The common solution is to wrap the child in a `span`, but if you do so, the tooltip will
@@ -15,7 +40,7 @@ export type SafeTooltipProps = TooltipProps & { disabledRole?: AriaRole }
  * if it is disabled, but will otherwise just return the child.
  */
 const SafeTooltip = forwardRef(function SafeTooltip(
-    { children, disabledRole, ...props }: SafeTooltipProps,
+    { children, disabledRole, forceWrap, ...props }: SafeTooltipProps,
     ref,
 ) {
     if (
@@ -41,10 +66,17 @@ const SafeTooltip = forwardRef(function SafeTooltip(
             </Tooltip>
         )
     }
-    // Wrap in a span to avoid warnings about Expected an element that can hold a ref.
+    // Wrap in a fragment to avoid warnings about Expected an element that can hold a ref.
+    if (forceWrap)
+        return (
+            <Tooltip {...props} ref={ref}>
+                <span>{children}</span>
+            </Tooltip>
+        )
+    // Allow the child to stand on its own.
     return (
         <Tooltip {...props} ref={ref}>
-            <span>{children}</span>
+            {children}
         </Tooltip>
     )
 })

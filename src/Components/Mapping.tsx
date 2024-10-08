@@ -456,6 +456,7 @@ function MappingTable({
                                     <TableCell key={i}>
                                         <SafeTooltip
                                             title={`You do not have permission to edit '${mappingResource.name}'`}
+                                            forceWrap={true}
                                         >
                                             <Typography>
                                                 {map[key]?.column_type.name ??
@@ -520,6 +521,7 @@ function MappingTable({
                                         <TableCell key={i}>
                                             <SafeTooltip
                                                 title={`You do not have permission to edit '${mappingResource.name}'`}
+                                                forceWrap={true}
                                             >
                                                 {['int', 'float'].includes(
                                                     map[key]?.column_type
@@ -688,6 +690,7 @@ function MappingTable({
                                         <TableCell key={i}>
                                             <SafeTooltip
                                                 title={`You do not have permission to edit '${mappingResource.name}'`}
+                                                forceWrap={true}
                                             >
                                                 <Typography>{key}</Typography>
                                             </SafeTooltip>
@@ -698,6 +701,7 @@ function MappingTable({
                                         <TableCell key={i}>
                                             <SafeTooltip
                                                 title={`Only recognised columns can be renamed`}
+                                                forceWrap={true}
                                             >
                                                 <Typography>{key}</Typography>
                                             </SafeTooltip>
@@ -708,6 +712,7 @@ function MappingTable({
                                         <TableCell key={i}>
                                             <SafeTooltip
                                                 title={`Required columns cannot be renamed`}
+                                                forceWrap={true}
                                             >
                                                 <Typography>
                                                     {getName(map[key])}
@@ -1018,7 +1023,10 @@ function MappingManager({
                 ) : (
                     <>
                         <Stack direction="row" alignItems="center" spacing={1}>
-                            <SafeTooltip title="Only mappings that are applicable to this file will be available.">
+                            <SafeTooltip
+                                title="Only mappings that are applicable to this file will be available."
+                                forceWrap={true}
+                            >
                                 <Typography>Mapping:</Typography>
                             </SafeTooltip>
                             <Select

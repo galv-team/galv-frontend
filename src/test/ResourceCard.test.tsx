@@ -3,7 +3,7 @@
 // // of Oxford, and the 'Galv' Developers. All rights reserved.
 
 import { LOOKUP_KEYS } from '../constants'
-import React from 'react'
+import React, { act } from 'react'
 import {
     cleanup,
     render,
@@ -17,7 +17,6 @@ import { MemoryRouter } from 'react-router-dom'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
 import { Cell } from '@galv/galv'
 import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
-import { act } from 'react-dom/test-utils'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import axios from 'axios'
