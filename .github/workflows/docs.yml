@@ -30,7 +30,7 @@ jobs:
       - name: setup
         run: |
           # ... installation of all tools ...
-          sudo apt-get install -y python3-sphinx
+          sudo apt-get install -y python3-sphinx==7.4.7
           sudo pip3 install sphinx-rtd-theme sphinxcontrib-images
 
       - name: build
