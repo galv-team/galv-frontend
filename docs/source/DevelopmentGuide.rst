@@ -227,7 +227,7 @@ The frontend has a number of custom hooks that are used to manage state and side
 	* Provides a way to manage undo and redo edits
 
 Custom properties and Type-Value notation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Custom properties are stored with their types explicitly recorded.
 This is a verbose way to store information, but it ensures that the information can be understood.
@@ -273,9 +273,10 @@ They may also have a ``resourceId`` property to determine which resource they ar
 	* ``ResourceChip``
 		* A generic chip component that can be used to display a resource as a single line of text
 	* ``ResourceCreator``
-		* A generic creator component that can be used to create a resource
-  * ``Mapping``
-    * A mapping component that can be used to handle adjusting raw File contents to a supported format
+        * A generic creator component that can be used to create a resource
+
+    * ``Mapping``
+        * A mapping component that can be used to handle adjusting raw File contents to a supported format
 * Utilities
 	* ``LoadingChip``
 		* A generic loading chip component that can be used to display a loading state
@@ -287,9 +288,10 @@ They may also have a ``resourceId`` property to determine which resource they ar
 		* A generic action bar component that can be used to display actions for a resource
 	* ``NumberInput``
 		* A generic number input component that can be used to input a number
-  * ``ResourceStatuses``
-    * A generic status component that can be used to display a resource's status
-    * Used to allow quick access to actions that can be taken on a resource
+
+    * ``ResourceStatuses``
+        * A generic status component that can be used to display a resource's status
+        * Used to allow quick access to actions that can be taken on a resource
 * Data display
 	* The family of components in the ``src/Components/prettify`` directory
 		* These components are used to display data in a more human-readable form
