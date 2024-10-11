@@ -3,8 +3,6 @@ name: Build docs
 
 on:
   push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       deploy_docs:
@@ -45,9 +43,11 @@ jobs:
           python3 build_docs.py
 
       - name: Setup Pages
+        if: github.ref_name == 'main'
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
+        if: github.ref_name == 'main'
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
