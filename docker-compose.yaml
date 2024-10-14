@@ -99,4 +99,4 @@ services:
       - ./docs/source:/source
       - ./docs/build-dev:/build
     ports:
-      - "8003:80"
+      - "8003:8003"

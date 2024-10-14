@@ -7,4 +7,4 @@ RUN mkdir /build
 
 RUN pip install sphinx-autobuild sphinx-rtd-theme sphinxcontrib-images
 
-CMD sphinx-autobuild -b html --host 0.0.0.0 --port 80 /source /build
+CMD sphinx-autobuild -b html --host 0.0.0.0 --port 8003 /source /build
