@@ -976,7 +976,7 @@ describe('ResourceCard', () => {
         //     const row = await setup("key obj", "galv_CELL");
         //     expect(within(row).getByRole('combobox')).toHaveValue("")
         // })
-    })
+    }, 500000) // Takes forever on MacOS 13 for some reason?
 
     describe('ResourceCard shows resume for partial Files', () => {
         it('shows complete upload button for partial files', async () => {
