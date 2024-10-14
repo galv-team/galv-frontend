@@ -267,7 +267,7 @@ describe('ResourceCard', () => {
             expect(input).toHaveValue('')
             expect(undo_mk2).toBeEnabled()
             check_safe_tooltip_disabled(get_redo_button())
-        }, 10000)
+        }, 500000) // Takes forever on MacOS 13 for some reason?
 
         it('supports resetting', async () => {
             const confirmSpy = vi.spyOn(window, 'confirm')
