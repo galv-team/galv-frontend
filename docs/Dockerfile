@@ -1,6 +1,6 @@
 # Set up sphinx-autobuild for local development
 # Adapted from https://www.rizzonicola.com/posts/sphinx-docker/
-FROM sphinxdoc/sphinx
+FROM sphinxdoc/sphinx:7.4.7
 WORKDIR /etc/
 RUN mkdir /source
 RUN mkdir /build

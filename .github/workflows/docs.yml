@@ -3,8 +3,6 @@ name: Build docs
 
 on:
   push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       deploy_docs:
@@ -32,8 +30,8 @@ jobs:
       - name: setup
         run: |
           # ... installation of all tools ...
-          sudo apt-get install -y python3-sphinx
-          sudo pip3 install sphinx-rtd-theme sphinxcontrib-images
+          sudo apt-get install -y python3-pip
+          sudo pip3 install sphinx==7.4.7 sphinx-rtd-theme sphinxcontrib-images --break-system-packages
 
       - name: build
         run: |
@@ -45,9 +43,11 @@ jobs:
           python3 build_docs.py
 
       - name: Setup Pages
+        if: github.ref_name == 'main'
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
+        if: github.ref_name == 'main'
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
