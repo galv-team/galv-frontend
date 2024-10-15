@@ -21,6 +21,8 @@ to provide a modern, responsive, and intuitive user interface to the backend `RE
    :caption: Contents:
 
    GettingStarted
+   ManagingResources
+   ConfiguringHarvesters
    UserGuide
    HowToAWS
    DeploymentGuide
