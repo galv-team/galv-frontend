@@ -84,233 +84,126 @@ Click the green floppy disc 'save' icon to create the Team,
 and you'll see your Team listed on the Teams page.
 
 **************************************************************************************
-Creating a Harvester
+Uploading a dataset
 **************************************************************************************
 
-Now that we have a Lab and a Team, we can create a Harvester.
-A Harvester is a tool that collects data from a source and stores it in Galv.
-
-Click on the 'Harvesters' tab in the navigation bar on the left.
-You'll see a description of what a Harvester is.
-If you had any Harvesters, you'd see them listed here.
-
-Harvesters can only be created by a Lab Administrator.
-Any Team in the Lab can use a Harvester once it's created.
-
-There's no 'Create Harvester' button on the Harvesters page.
-This is because Harvesters are created by running a Python script on the machine where the data is stored.
-
-When we create the Harvester, we'll need to know the URL of the Galv API,
-and we'll need an API Token to authorise the creation of the Harvester.
-
-The URL of the Galv API is shown in the text at the top of the Harvesters page.
+Now that we have a Lab and a Team, we can upload some data.
 
 ======================================================================================
-Getting the API Token
+Uploading a known file type
 ======================================================================================
 
-You access your API Tokens through your user profile.
-Click on your username in the top right corner of the page to open the user menu.
-Click on 'Tokens' to see your API Tokens.
+We'll start by uploading a file that Galv knows how to handle.
+Download the BioLogic .mpr file from the link below:
+https://github.com/jepegit/cellpy/raw/refs/heads/master/testdata/data/biol.mpr
 
-Click the 'Create Token' button to create a new API Token.
+Next, go to Galv and click the 'Upload a New File' button in either the Dashboard or the Files page.
 
-  .. thumbnail:: img/create-token.gif
-    :alt: Creating an API Token
-    :align: center
-    :title: Creating an API Token
+    .. thumbnail:: img/upload-mapped.gif
+      :alt: Uploading a known file type
+      :align: center
+      :title: Uploading a known file type
 
-Give your Token a name, set its expiry for 3600s (1 hour), and click 'Create'.
-You'll get a once-only chance to copy the Token to your clipboard.
-Do that now.
+Drop the file you downloaded into the upload area, or click the 'Choose a file' button to select it from your computer.
+Make sure you select the 'BioLogic .mpr' from the 'mapping' dropdown list.
+Assign the file to your Team, and (optionally) add a custom name for the file.
+Then click 'Upload File' to start the upload process.
+
+Once the file is uploaded, you will be taken to its page.
+You can see the metadata that Galv has extracted from the file,
+and you can add any custom properties you need.
+
+At the bottom you'll see a graph of the data in the file.
 
 ======================================================================================
-Creating the Harvester
+Uploading an unknown file type
 ======================================================================================
 
-Go to the machine where the data is stored and open a terminal.
-Run `pip install galv-harvester` to install the Galv Harvester Python package.
+You may not know the file type of the data you're uploading.
+That's okay - Galv can still handle it.
 
-Installing the package gives you the `galv-harvester` command.
-Run `galv-harvester --help` to see the options.
+Let's pretend we don't know the file type of the data we're uploading.
+Go to the Files page and click the 'Upload a New File' button.
 
-We want to set up a Harvester, so run `galv-harvester setup`.
-You'll be prompted for the URL of the Galv API and your API Token.
+    .. thumbnail:: img/upload-unmapped.gif
+      :alt: Uploading an unknown file type
+      :align: center
+      :title: Uploading an unknown file type
 
-Enter the URL of the Galv API and your API Token when prompted.
-You'll be asked for the name of the Harvester.
-Enter a name for the Harvester and press Enter.
+Drop the .mpr file you downloaded in the previous step into the upload area,
+or click the 'Choose a file' button to select it from your computer.
 
-That is enough to create the Harvester.
-You'll be prompted to create a Path for the Harvester to find data,
-but we'll do that using the Frontend, so press Enter to skip that step.
+Leave the 'mapping' dropdown list blank.
+Select your team and (optionally) add a custom name for the file.
+Then click 'Upload File' to start the upload process.
 
-You can see what the setup process looks like in the image below.
+Once the file is uploaded, you will be taken to its page.
 
-  .. thumbnail:: img/harvester-setup.png
-    :alt: Creating a Harvester
-    :align: center
-    :title: Creating a Harvester
+Notice that Galv says the file is unmapped, and that you don't see any parquet partitions (data)
+or a preview image.
+At the bottom of the page, you'll see Galv is warning you that the file is unmapped.
+Use the dropdown within that warning area to select the correct mapping for the file.
 
-Once the Harvester is created, you can close the terminal and it will continue running in the background.
+Notice that whereas in the previous example you had lots of mappings to choose from,
+now you only have two.
+That's because Galv has detected that only two mappings are compatible with the data in the file.
 
-Go back to the Frontend and refresh the Harvesters page.
-You'll see your Harvester listed there.
+Select the correct mapping (Biologic .mpr) and click 'Map File'.
+
+You'll see that the mapping has now been applied, and Galv is asking you to reupload the file.
+This is because the file needs to be reprocessed with the new mapping.
+
+Drop the file into the upload area again, or click the 'Choose a file' button to select it from your computer.
+Click 'Upload File' to finish the upload process.
+
+Once the file is uploaded, you'll see the data and the preview image appear on the File's page, just like before.
+You'll also see that Galv is now telling us that the file is correctly mapped.
+
+======================================================================================
+Viewing your data
+======================================================================================
+
+When Galv imports data from a file, it applies some light processing to it so that it is compatible with other
+Galv files.
+It also saves the data in `.parquet <https://parquet.apache.org/>`_ format,
+which is a columnar storage format that is efficient for querying.
+Parquet files are broken into partitions, which each contain a subset of the data (e.g. 100,000 rows).
+
+You can see the partitions for a File by expanding its card and looking for 'parquet_partitions'.
+
+    .. thumbnail:: img/download-data.gif
+      :alt: Downloading a parquet partition
+      :align: center
+      :title: Downloading a parquet partition
+
+Clicking the partition will take you to the page for the Partition.
+This page will have a download button under 'parquet_file'.
+Clicking this button will download prepare the file for download,
+and, when it's ready, you'll be able to save it to your computer.
+
+You can view the contents of a parquet file using a tool like
+`ParquetViewer <https://github.com/mukunku/ParquetViewer>`_ on Windows,
+or by using the `parquet-tools <https://pypi.org/project/parquet-tools/>`_ Python package.
+
+    .. thumbnail:: img/view-data.gif
+      :alt: Viewing a parquet partition in a GUI
+      :align: center
+      :title: Viewing a parquet partition in a GUI
+
+Notice that the mapping has renamed three key columns in the data:
+- ElapsedTime_S
+- Voltage_V
+- Current_A
+
+    .. thumbnail:: img/view-data-cli.gif
+      :alt: Viewing a parquet partition using parquet-tools
+      :align: center
+      :title: Viewing a parquet partition using parquet-tools
 
 **************************************************************************************
-The Harvester in action
+Next steps
 **************************************************************************************
 
-The Harvester is now running and collecting data.
-For the Harvester to work, you need to create a Path for it to find data.
-
-Click on the 'Paths' tab in the navigation bar on the left.
-You'll see a description of what a Path is.
-If you had any Paths, you'd see them listed here.
-
-Click the 'Create Path' button to create a new Path.
-
-  .. thumbnail:: img/harvest.gif
-    :alt: Creating a Path
-    :align: center
-    :title: Creating a Path
-
-We'll need to enter the following information:
-
-1. The absolute path to the directory where the data is stored.
-2. A regular expression to match the files we want to collect. I used `.*` to match all files.
-3. The time a file must be unchanged before it's collected. This is useful for files that are being written to.
-4. Whether the Path is active. If it's not active, the Harvester won't collect data from it.
-5. How many lines of data should be stored in each dataset partition. This is useful for large files.
-6. The Harvester that will collect data from this Path.
-7. The Team that will own the data collected from this Path.
-
-Once you've entered the information, click the green floppy disc 'save' icon to create the Path.
-
-The Harvester will now collect data from the Path you created.
-Let's wait a few minutes for the Harvester to collect some data, then go to the Files page to see what it's collected.
-
-======================================================================================
-Viewing the collected data
-======================================================================================
-
-You'll see the data files that have been Harvested listed on the Files page.
-Initially, all the files will be marked as 'GROWING'.
-
-Once the Harvester has seen that they are stable, they will be imported.
-You can see the status of the files change from 'GROWING' to 'IMPORTING' to 'IMPORTED'.
-
-Galv renames some columns in the data files to make them easier to work with.
-This process is called 'mapping'.
-You can create your own mappings or use the default mappings provided by Galv.
-
-Where there's a mapping that works best for a particular file, Galv will automatically use it to import the data.
-Hopefully you'll see some files imported and mapped on the Files page.
-They should be accompanied by an image that shows a preview of the data.
-
-You can click on the File to see the data in more detail, and download the dataset.
-
-To download the dataset, expand the card for an IMPORTED File,
-click one of its 'Parquet partitions', and then click the 'Download' button.
-You'll see that some columns have been renamed to match Galv's naming conventions:
-`ElapsedTime_s` for the primary time column, and `Voltage_V` and `Current_A` for the primary data columns.
-
-Data are only as good as the metadata that describes them, so let's add some metadata to the dataset.
-
-**************************************************************************************
-Managing resources
-**************************************************************************************
-
-Resources in Galv are things that hold metadata about datasets.
-They refer to things in the real world that are associated with the data.
-
-Let's add some metadata to describe one of the experiments whose data we collected.
-We'll describe the Cell, the battery cycler, and the Schedule that the data came from.
-Then we'll package it into a Cycler Test to group the data and metadata together,
-and finally we'll add the Cycler Test to an Experiment to show how it fits into the bigger picture.
-
-======================================================================================
-Adding a Cell
-======================================================================================
-
-Click on the 'Cells' tab in the navigation bar on the left.
-
-Cells, like Equipment and Schedules, belong to 'families'.
-Families are a way of grouping similar resources together.
-You will have done your experiments on a particular physical cell,
-but that cell will probably have many others that are similar to it.
-
-Let's start by creating the family that our cell belongs to.
-Click the 'Create a new Cell Family' button to create a new family.
-
-You'll have several fields to fill in.
-You can hover over a field to get more information about it,
-and you can see at a glance that any field with * before it is mandatory.
-If there is information that you want to associate with the family that isn't covered by the fields,
-you'll be able to add it later as a 'custom property'.
-
-Once you've filled in the fields, click the green floppy disc 'save' icon to create the family.
-
-Now that we have a family, we can create a Cell.
-
-Click the 'Create Cell' button to create a new Cell.
-
-Because we supplied most of the information about the cell when we created the family,
-all we need to do here is select that family, put in the cell identifier (usually a serial number),
-and associate the Cell with our Team.
-
-Once you've filled in the fields, click the green floppy disc 'save' icon to create the Cell.
-
-======================================================================================
-Custom Properties
-======================================================================================
-
-Custom properties are a way of adding extra information to a resource.
-
-Click on the pencil icon to edit the Cell you just created.
-You'll see all the information you entered when you created the Cell,
-as well as all the properties that are inherited from the family.
-
-You can change the identifier or family if you need to under 'Editable properties',
-and you can add custom properties under 'Custom properties'.
-
-Enter a name for the custom property in the '+Key' field.
-You'll see a dropdown list of types you can use for the value.
-By default it's set to 'string', but you can change it to a different type if you need to.
-All the resource types are included, too, so you can have custom properties that are references to other resources.
-Once you've selected your type, enter an appropriate value in the 'value' field,
-and click the green floppy disc 'save' icon to add the custom property.
-
-======================================================================================
-Adding Equipment and Schedules
-======================================================================================
-
-You can add Equipment and Schedule resources in the same way you added the Cell.
-Click on the 'Equipment' or 'Schedules' tab in the navigation bar on the left,
-create a family, and then create the resource.
-
-======================================================================================
-Creating a Cycler Test
-======================================================================================
-
-A Cycler Test is a way of grouping data and metadata together.
-It's a way of saying 'this data came from this experiment'.
-
-Click on the 'Cycler Tests' tab in the navigation bar on the left.
-Click on 'Create Cycler Test' to create a new Cycler Test.
-
-Select your Cell, Equipment, and Schedule from the dropdown lists.
-You can also add a File that holds the data from your test if it's been harvested.
-Associate the resource with your team, and then click the green floppy disc 'save' icon to create the Cycler Test.
-
-======================================================================================
-Creating an Experiment
-======================================================================================
-
-An Experiment is a way of grouping Cycler Tests together.
-It's a way of saying 'these tests were all part of the same project'.
-
-By now the interface should be familiar to you.
-You can associate yourself and other users with the Experiment by adding them as Authors.
-You can select any number of Cycler Tests to associate with the Experiment.
-Once you've created the Experiment, you can add any custom properties you need.
+Now you've learned how to upload data, upload some data files of your own.
+Once you've done that, you can learn about how to :doc:`Manage Resources <ManageResources>`
+so that you can tie information about Cells and other resources to your data.
