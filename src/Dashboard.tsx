@@ -53,6 +53,7 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import { MdExpandMore } from 'react-icons/md'
+import { Dev } from './Components/Dev'
 
 type SchemaValidationSummary = {
     detail: SchemaValidation
@@ -162,21 +163,23 @@ function KeySummary({
                                 placement="left"
                                 arrow
                             >
-                                <MdStatus
-                                    status={
-                                        status as SchemaValidation['status']
-                                    }
-                                    count={
-                                        status_counts[
-                                            status as keyof typeof status_counts
-                                        ] &&
-                                        Object.entries(
+                                <span>
+                                    <MdStatus
+                                        status={
+                                            status as SchemaValidation['status']
+                                        }
+                                        count={
                                             status_counts[
                                                 status as keyof typeof status_counts
-                                            ]!,
-                                        ).reduce((a, c) => a + c[1], 0)
-                                    }
-                                />
+                                            ] &&
+                                            Object.entries(
+                                                status_counts[
+                                                    status as keyof typeof status_counts
+                                                ]!,
+                                            ).reduce((a, c) => a + c[1], 0)
+                                        }
+                                    />
+                                </span>
                             </SafeTooltip>
                         ))}
                     </Stack>
@@ -440,18 +443,20 @@ export function DatasetStatus() {
                                                 placement="left"
                                                 arrow
                                             >
-                                                <MdStatus
-                                                    key={status}
-                                                    status={
-                                                        status as SchemaValidation['status']
-                                                    }
-                                                    count={Object.entries(
-                                                        counts,
-                                                    ).reduce(
-                                                        (a, c) => a + c[1],
-                                                        0,
-                                                    )}
-                                                />
+                                                <span>
+                                                    <MdStatus
+                                                        key={status}
+                                                        status={
+                                                            status as SchemaValidation['status']
+                                                        }
+                                                        count={Object.entries(
+                                                            counts,
+                                                        ).reduce(
+                                                            (a, c) => a + c[1],
+                                                            0,
+                                                        )}
+                                                    />
+                                                </span>
                                             </SafeTooltip>
                                         ),
                                     )}
@@ -501,14 +506,16 @@ export function DatasetStatus() {
                                                                         f.state
                                                                     }
                                                                 >
-                                                                    <ICONS.validation_status_INPUT_REQUIRED
-                                                                        color={
-                                                                            theme
-                                                                                .palette
-                                                                                .warning
-                                                                                .main
-                                                                        }
-                                                                    />
+                                                                    <span>
+                                                                        <ICONS.validation_status_INPUT_REQUIRED
+                                                                            color={
+                                                                                theme
+                                                                                    .palette
+                                                                                    .warning
+                                                                                    .main
+                                                                            }
+                                                                        />
+                                                                    </span>
                                                                 </SafeTooltip>
                                                                 <ResourceChip
                                                                     short_name={
@@ -568,14 +575,16 @@ export function DatasetStatus() {
                                                                         f.state
                                                                     }
                                                                 >
-                                                                    <ICONS.validation_status_INPUT_REQUIRED
-                                                                        color={
-                                                                            theme
-                                                                                .palette
-                                                                                .warning
-                                                                                .main
-                                                                        }
-                                                                    />
+                                                                    <span>
+                                                                        <ICONS.validation_status_INPUT_REQUIRED
+                                                                            color={
+                                                                                theme
+                                                                                    .palette
+                                                                                    .warning
+                                                                                    .main
+                                                                            }
+                                                                        />
+                                                                    </span>
                                                                 </SafeTooltip>
                                                                 <ResourceChip
                                                                     short_name={
@@ -603,10 +612,6 @@ export function DatasetStatus() {
     )
 }
 
-function Dev() {
-    return <></>
-}
-
 export default function Dashboard() {
     const { classes } = useStyles()
     return (
@@ -632,7 +637,7 @@ export default function Dashboard() {
                 Metadata Validations
             </Typography>
             <SchemaValidationList />
-            {import.meta.env.NODE_ENV == 'development' && <Dev />}
+            <Dev />
         </Stack>
     )
 }

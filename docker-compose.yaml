@@ -54,6 +54,7 @@ services:
       - .env.vite
     environment:
       VITE_GALV_API_BASE_URL: "http://localhost:8080"
+      NODE_ENV: "development"
     restart: unless-stopped
     ports:
       - "8002:8002"

@@ -40,3 +40,5 @@ src/client_templates/.generated/
 storybook-static/
 
 docker-compose.override.yaml
+
+.eslintcache

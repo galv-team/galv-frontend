@@ -27,7 +27,9 @@ export default function LookupKeyIcon({
         : DISPLAY_NAMES[lookupKey]
     return tooltip ? (
         <SafeTooltip title={title} describeChild={true} {...tooltipProps}>
-            <ICON {...iconProps} />
+            <span>
+                <ICON {...iconProps} />
+            </span>
         </SafeTooltip>
     ) : (
         <ICON {...iconProps} />
