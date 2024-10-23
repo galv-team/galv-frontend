@@ -1,19 +1,26 @@
 import React, { useEffect, useState } from 'react'
 import {
-    Container,
-    Draggable,
-    DropResult,
-    OnDropCallback,
-} from 'react-smooth-dnd'
+    closestCenter,
+    DndContext,
+    DragEndEvent,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
 import { arrayMoveImmutable } from 'array-move'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
+import List, { ListProps } from '@mui/material/List'
+import ListItem, { ListItemProps } from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
-import { MdDragHandle } from 'react-icons/md'
-import { MdArrowRight } from 'react-icons/md'
-import { MdRemove } from 'react-icons/md'
+import { MdArrowRight, MdDragHandle, MdRemove } from 'react-icons/md'
 import { PrettyObjectProps } from './PrettyObject'
-import { ListProps } from '@mui/material/List'
 import Prettify from './Prettify'
 import useStyles from '../../styles/UseStyles'
 import clsx from 'clsx'
@@ -31,6 +38,48 @@ export type PrettyArrayProps = Pick<
     onEdit?: (v: PrettyArrayProps['target']) => void
 }
 
+// https://docs.dndkit.com/presets/sortable#overview
+function SortableItem({
+    id,
+    children,
+    ...props
+}: { id: string; children?: React.ReactNode } & ListItemProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        setActivatorNodeRef,
+        transform,
+        transition,
+    } = useSortable({ id })
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    }
+
+    return (
+        <ListItem
+            alignItems="flex-start"
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...props}
+        >
+            <ListItemIcon
+                key={`action_${id}`}
+                className="drag-handle"
+                ref={setActivatorNodeRef}
+                sx={{ cursor: 'pointer' }}
+                {...listeners}
+            >
+                <MdDragHandle aria-label="Reorder" />
+            </ListItemIcon>
+            {children}
+        </ListItem>
+    )
+}
+
 export default function PrettyArray({
     target,
     nest_level,
@@ -39,6 +88,12 @@ export default function PrettyArray({
     child_type,
     ...childProps
 }: PrettyArrayProps & ListProps) {
+    const dnd_sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        }),
+    )
     const _nest_level = nest_level || 0
     const _edit_mode = edit_mode || false
     const _onEdit = onEdit || (() => {})
@@ -49,17 +104,19 @@ export default function PrettyArray({
     const [newItemCounter, setNewItemCounter] = useState(0)
 
     useEffect(() => {
-        setItems(target._value)
+        setItems(target._value ?? [])
     }, [target._value, setItems])
 
-    const onDrop: OnDropCallback = ({
-        removedIndex,
-        addedIndex,
-    }: DropResult) => {
-        if (removedIndex === null || addedIndex === null) return
-        const newItems = arrayMoveImmutable(items, removedIndex, addedIndex)
-        setItems(newItems)
-        _onEdit({ _type: 'array', _value: newItems })
+    function dndHandleDragEnd(event: DragEndEvent) {
+        const { active, over } = event
+
+        if (over !== null && active.id !== over.id) {
+            const oldIndex = Number(active.id)
+            const newIndex = Number(over.id)
+            const newItems = arrayMoveImmutable(items, oldIndex, newIndex)
+            setItems(newItems)
+            _onEdit({ _type: 'array', _value: newItems })
+        }
     }
 
     const get_type = () => {
@@ -77,22 +134,18 @@ export default function PrettyArray({
             {...childProps}
         >
             {_edit_mode ? (
-                // @ts-expect-error // types are not correctly exported by react-smooth-dnd
-                <Container
-                    dragHandleSelector=".drag-handle"
-                    lockAxis="y"
-                    onDrop={onDrop}
+                <DndContext
+                    sensors={dnd_sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={dndHandleDragEnd}
                 >
-                    {items.map((item, i) => (
-                        // @ts-expect-error // types are not correctly exported by react-smooth-dnd
-                        <Draggable key={i}>
-                            <ListItem alignItems="flex-start">
-                                <ListItemIcon
-                                    key={`action_${i}`}
-                                    className="drag-handle"
-                                >
-                                    <MdDragHandle aria-label="Reorder" />
-                                </ListItemIcon>
+                    <SortableContext
+                        items={items.map((item, id) => ({ item, id }))}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        {items.map((item, i) => (
+                            // @ts-expect-error // types are not correctly exported by react-smooth-dnd
+                            <SortableItem key={i} id={i}>
                                 <Prettify
                                     key={`item_${i}`}
                                     target={item}
@@ -129,9 +182,9 @@ export default function PrettyArray({
                                         <MdRemove />
                                     </IconButton>
                                 </ListItemIcon>
-                            </ListItem>
-                        </Draggable>
-                    ))}
+                            </SortableItem>
+                        ))}
+                    </SortableContext>
                     <ListItem key="new_item" alignItems="flex-start">
                         <Prettify
                             key={`new_item_${newItemCounter}`}
@@ -150,7 +203,7 @@ export default function PrettyArray({
                             lock_type={!!child_type}
                         />
                     </ListItem>
-                </Container>
+                </DndContext>
             ) : (
                 items.map((item, i) => (
                     <ListItem key={i} alignItems="flex-start">
