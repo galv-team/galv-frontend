@@ -97,7 +97,31 @@ export function ResourceList<T extends GalvResource>({
                 />
             ))
     } else {
-        content = 'No resources to show.'
+        content = (
+            <Typography
+                variant={'body1'}
+                className={classes.resourceListBlankBody}
+            >
+                There is nothing to show.
+                {!user && (
+                    <>
+                        {' '}
+                        You may see more if you are signed in.
+                        <Button
+                            variant="outlined"
+                            size={'small'}
+                            onClick={() => setLoginFormOpen(true)}
+                        >
+                            Log in now
+                        </Button>
+                    </>
+                )}
+                {user && (<>
+                    {' '}
+                    Why not get started by creating something?
+                    </>)}
+            </Typography>
+        )
     }
 
     return (

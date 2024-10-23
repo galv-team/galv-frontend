@@ -375,8 +375,21 @@ export default makeStyles()((theme) => {
             marginRight: theme.spacing(1),
             color: theme.palette.text.disabled,
         },
+        resourceListBlankBody: {
+            paddingTop: theme.spacing(8),
+            paddingRight: theme.spacing(0),
+            paddingBottom: theme.spacing(8),
+            paddingLeft: theme.spacing(0),
+            '& .MuiButton-root': {
+                display: 'inline-block',
+                float: 'inline-end',
+            },
+        },
         resourceSummary: {
-            padding: [theme.spacing(0), theme.spacing(2)],
+            paddingTop: theme.spacing(0),
+            paddingRight: theme.spacing(2),
+            paddingBottom: theme.spacing(0),
+            paddingLeft: theme.spacing(2),
             '& > .MuiStack-root': {
                 display: 'flex',
                 lineHeight: '2em',
@@ -388,7 +401,12 @@ export default makeStyles()((theme) => {
         },
         resourceSummaryCard: {
             padding: 0,
-            '& kbd': { padding: [theme.spacing(0), theme.spacing(2)] },
+            '& kbd': {
+                paddingTop: theme.spacing(0),
+                paddingRight: theme.spacing(2),
+                paddingBottom: theme.spacing(0),
+                paddingLeft: theme.spacing(2),
+            },
             '& img': { maxWidth: '100%' },
             '& .MuiAlert-root': {
                 width: '100%',

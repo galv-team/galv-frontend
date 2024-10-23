@@ -591,7 +591,7 @@ export default function UserLogin() {
         <ButtonGroup
             disableElevation
             variant="contained"
-            title="Disabled elevation buttons"
+            title="Log in and registration buttons"
         >
             <Button
                 onClick={() => {
