@@ -327,7 +327,7 @@ function TypeChangeResourcePopover({
                                 placement="bottom"
                                 describeChild={true}
                             >
-                                <ICON />
+                                <span><ICON /></span>
                             </SafeTooltip>
                         </ToggleButton>
                     )
@@ -393,7 +393,7 @@ function TypeChangePopover({
                                 placement="bottom"
                                 describeChild={true}
                             >
-                                {get_icon(ICON)}
+                                <span>{get_icon(ICON)}</span>
                             </SafeTooltip>
                         </ToggleButton>
                     ))}
@@ -415,7 +415,7 @@ function TypeChangePopover({
                         placement="bottom"
                         describeChild={true}
                     >
-                        <MdMoreVert />
+                        <span><MdMoreVert /></span>
                     </SafeTooltip>
                 </IconButton>
             </Stack>
