@@ -24,7 +24,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm install
       - name: Run Chromatic
         uses: chromaui/action@latest
         with:
