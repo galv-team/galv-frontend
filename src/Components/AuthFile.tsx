@@ -2,12 +2,48 @@
 import React, { useEffect, useState } from 'react'
 import { useCurrentUser } from './CurrentUserContext'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import axios, {AxiosResponse} from 'axios'
 import { Link } from 'react-router-dom'
 import CircularProgress from '@mui/material/CircularProgress'
 import Button from '@mui/material/Button'
 import { ICONS } from '../constants'
 import SafeTooltip from './SafeTooltip'
+
+const clean_filename = (filename: string) => {
+    return filename.replace(/\.parquet.*$/, '.parquet')
+}
+
+export async function fetchAuthFile({
+    url,
+    headers,
+}: {
+    url: string
+    headers: Record<string, unknown>
+}): Promise<{filename: string, content: AxiosResponse<Blob>}> {
+    let filename: string = 'file'
+    const response = await axios.get(url, {
+        headers,
+        responseType: 'blob',
+    })
+    const redirect_url = response.headers['galv-storage-redirect-url']
+    if (redirect_url) {
+        filename = redirect_url.split('/').pop() ?? filename
+    } else {
+        const disposition = response.headers['content-disposition']
+        if (disposition) {
+            filename =
+                disposition.split('filename=')[1].split('"')[0] ?? filename
+        } else {
+            filename = url.split('/').pop() ?? filename
+        }
+    }
+    return {
+        filename: clean_filename(filename),
+        content: redirect_url
+            ? await axios.get(redirect_url, { responseType: 'blob' })
+            : response,
+    }
+}
 
 export default function AuthFile({ url }: { url: string }) {
     const [dataUrl, setDataUrl] = useState('')
@@ -20,31 +56,12 @@ export default function AuthFile({ url }: { url: string }) {
     const query = useQuery({
         queryKey: [url],
         queryFn: async () => {
-            const response = await axios.get(url, {
-                headers,
-                responseType: 'blob',
-            })
-            const redirect_url = response.headers['galv-storage-redirect-url']
-            if (redirect_url) {
-                setFilename(redirect_url.split('/').pop() ?? 'file')
-            } else {
-                const disposition = response.headers['content-disposition']
-                if (disposition) {
-                    setFilename(disposition.split('filename=')[1].split('"')[0])
-                } else {
-                    setFilename(url.split('/').pop() ?? 'file')
-                }
-            }
-            return redirect_url
-                ? axios.get(redirect_url, { responseType: 'blob' })
-                : response
+            const { filename, content } = await fetchAuthFile({ url, headers })
+            setFilename(filename)
+            return content
         },
         enabled: downloading,
     })
-
-    const clean_filename = (filename: string) => {
-        return filename.replace(/\.parquet.*$/, '.parquet')
-    }
 
     useEffect(() => {
         if (query.data) {
