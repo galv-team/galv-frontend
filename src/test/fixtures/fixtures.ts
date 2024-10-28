@@ -14,6 +14,7 @@ import {
     Lab,
     MonitoredPath,
     ObservedFile,
+    ParquetPartition,
     PermittedAccessLevels,
     Schedule,
     ScheduleFamily,
@@ -606,9 +607,7 @@ export const files: ObservedFile[] = [
         mapping:
             'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
         has_required_columns: true,
-        parquet_partitions: [
-            'http://localhost:8001/parquet_partitions/705b801c-d969-4ea6-b750-5bc5b41eb079/',
-        ],
+        parquet_partitions: ['705b801c-d969-4ea6-b750-5bc5b41eb079'],
         extra_metadata:
             'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/extra_metadata/',
         summary:
@@ -644,9 +643,7 @@ export const files: ObservedFile[] = [
         mapping:
             'http://localhost:8001/column_mappings/fd64f179-ca0a-4549-80e3-8b07af10a6d2/',
         has_required_columns: true,
-        parquet_partitions: [
-            'http://localhost:8001/parquet_partitions/b315f6f2-1955-4d51-9cc2-59f9096c705c/',
-        ],
+        parquet_partitions: ['b315f6f2-1955-4d51-9cc2-59f9096c705c'],
         extra_metadata:
             'http://localhost:8001/files/3c9f5a99-f633-4094-b838-358cc68da056/extra_metadata/',
         summary:
@@ -678,9 +675,9 @@ export const files: ObservedFile[] = [
             'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
         has_required_columns: true,
         parquet_partitions: [
-            'http://localhost:8001/parquet_partitions/58450d2f-0a70-4714-9406-0dc561ba9b6b/',
-            'http://localhost:8001/parquet_partitions/505d9bf5-0566-4adb-a2f7-465d2d6fda7c/',
-            'http://localhost:8001/parquet_partitions/26a514d9-a2c7-40ad-b212-65c0052786e9/',
+            '58450d2f-0a70-4714-9406-0dc561ba9b6b',
+            '505d9bf5-0566-4adb-a2f7-465d2d6fda7c',
+            '26a514d9-a2c7-40ad-b212-65c0052786e9',
         ],
         extra_metadata:
             'http://localhost:8001/files/1143cd53-11e2-4171-868e-41646209e8fd/extra_metadata/',
@@ -711,9 +708,7 @@ export const files: ObservedFile[] = [
         last_observed_size_bytes: 718,
         mapping: '',
         has_required_columns: false,
-        parquet_partitions: [
-            'http://localhost:8001/parquet_partitions/5461a0b0-f6e2-483a-8f84-9229d7c5bcc1/',
-        ],
+        parquet_partitions: ['5461a0b0-f6e2-483a-8f84-9229d7c5bcc1'],
         extra_metadata:
             'http://localhost:8001/files/fc9c92f7-dc9d-438f-8c4e-59593bcb8582/extra_metadata/',
         summary:
@@ -744,9 +739,7 @@ export const files: ObservedFile[] = [
         mapping:
             'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
         has_required_columns: true,
-        parquet_partitions: [
-            'http://localhost:8001/parquet_partitions/43456b89-fc32-4cdd-b85b-12676137e829/',
-        ],
+        parquet_partitions: ['43456b89-fc32-4cdd-b85b-12676137e829'],
         extra_metadata:
             'http://localhost:8001/files/a62a0588-6ef9-4b75-85a8-38ef5433b7db/extra_metadata/',
         summary:
@@ -778,9 +771,7 @@ export const files: ObservedFile[] = [
         mapping:
             'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
         has_required_columns: true,
-        parquet_partitions: [
-            'http://localhost:8001/parquet_partitions/43456b89-fc32-4cdd-b85b-12676137e829/',
-        ],
+        parquet_partitions: ['43456b89-fc32-4cdd-b85b-12676137e829'],
         extra_metadata:
             'http://localhost:8001/files/da3a278f-e524-4d4e-9f47-794519d6c3f9/extra_metadata/',
         summary:
@@ -2200,7 +2191,7 @@ export const labs: Lab[] = [
         id: 2,
         name: 'Cool Lab',
         description: 'Cool labs CO_LAB_orate.',
-        admin_group: ['http://localhost:8001/users/1/'],
+        admin_group: 'http://localhost:8001/users/1/',
         harvesters: [
             'http://localhost:8001/harvesters/d688d632-6fe1-4805-87ce-223bdc6eca2a/',
             'http://localhost:8001/harvesters/95e3596b-042c-4545-9bff-689101cd7fcb/',
@@ -2222,7 +2213,7 @@ export const labs: Lab[] = [
         id: 1,
         name: 'Example Lab',
         description: 'This Lab exists to demonstrate the system.',
-        admin_group: ['http://localhost:8001/users/1/'],
+        admin_group: 'http://localhost:8001/users/1/',
         harvesters: [
             'http://localhost:8001/harvesters/de149eba-3aed-406a-9508-bc33013e554e/',
         ],
@@ -2491,5 +2482,576 @@ export const monitored_paths: MonitoredPath[] = [
         read_access_level: 2,
         edit_access_level: 4,
         delete_access_level: 4,
+    },
+] as const
+
+export const parquet_partitions: ParquetPartition[] = [
+    {
+        url: 'http://localhost:8001/parquet_partitions/5461a0b0-f6e2-483a-8f84-9229d7c5bcc1/',
+        id: '5461a0b0-f6e2-483a-8f84-9229d7c5bcc1',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/5461a0b0-f6e2-483a-8f84-9229d7c5bcc1/file/',
+        observed_file: 'fc9c92f7-dc9d-438f-8c4e-59593bcb8582',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/c6df1c62-5768-4cfd-a226-9ca0f049c11c/',
+        id: 'c6df1c62-5768-4cfd-a226-9ca0f049c11c',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/c6df1c62-5768-4cfd-a226-9ca0f049c11c/file/',
+        observed_file: 'f4cf3c00-4b17-4fbb-bcd9-a8643e623b71',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/e526f7af-761d-465a-b26e-9987a528427c/',
+        id: 'e526f7af-761d-465a-b26e-9987a528427c',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/e526f7af-761d-465a-b26e-9987a528427c/file/',
+        observed_file: 'e3802098-7cc7-46bc-97fa-81d1f83a36a7',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/454048f1-a004-40a0-be21-f158a1c9af53/',
+        id: '454048f1-a004-40a0-be21-f158a1c9af53',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/454048f1-a004-40a0-be21-f158a1c9af53/file/',
+        observed_file: 'dbe4c868-0813-4f0d-949a-3e499368f230',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/6a80c021-db74-4227-ab2a-6aa7cacc76f5/',
+        id: '6a80c021-db74-4227-ab2a-6aa7cacc76f5',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/6a80c021-db74-4227-ab2a-6aa7cacc76f5/file/',
+        observed_file: 'da1ce666-12cf-4aec-9d14-95b66a974d33',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/5bc7a16d-ebb8-4c87-85d2-1fe17bccf118/',
+        id: '5bc7a16d-ebb8-4c87-85d2-1fe17bccf118',
+        parquet_file: null,
+        observed_file: 'c125bcf6-df69-4551-8a53-134bd5c7f455',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/8164dd17-16a1-495d-8f3a-7f5db52d6a5a/',
+        id: '8164dd17-16a1-495d-8f3a-7f5db52d6a5a',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/8164dd17-16a1-495d-8f3a-7f5db52d6a5a/file/',
+        observed_file: 'b707ed99-512f-47b7-a320-df857395126d',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/cc634056-32e7-4105-90f1-2c9feb36fe30/',
+        id: 'cc634056-32e7-4105-90f1-2c9feb36fe30',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/cc634056-32e7-4105-90f1-2c9feb36fe30/file/',
+        observed_file: 'b1f2fca0-5dc0-43fc-a542-ad4ff0e37bd4',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/fc3124f5-54db-43ee-a643-9cdac06ea86c/',
+        id: 'fc3124f5-54db-43ee-a643-9cdac06ea86c',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/fc3124f5-54db-43ee-a643-9cdac06ea86c/file/',
+        observed_file: 'b13bdbd7-ba73-4ba8-bbdc-4f168413a208',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/7a54d11c-ba56-41f9-8bd4-76d89760565c/',
+        id: '7a54d11c-ba56-41f9-8bd4-76d89760565c',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/7a54d11c-ba56-41f9-8bd4-76d89760565c/file/',
+        observed_file: 'ace2edd3-4193-45f4-9e39-f58383577d6e',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/d252858f-d466-497a-b189-c2811a6aa5d0/',
+        id: 'd252858f-d466-497a-b189-c2811a6aa5d0',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/d252858f-d466-497a-b189-c2811a6aa5d0/file/',
+        observed_file: 'a9b778f8-02c9-4e68-99d1-9abd3d2a6d1d',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/43456b89-fc32-4cdd-b85b-12676137e829/',
+        id: '43456b89-fc32-4cdd-b85b-12676137e829',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/43456b89-fc32-4cdd-b85b-12676137e829/file/',
+        observed_file: 'a62a0588-6ef9-4b75-85a8-38ef5433b7db',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/d263116f-8a44-4f15-a398-e7baea6df87e/',
+        id: 'd263116f-8a44-4f15-a398-e7baea6df87e',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/d263116f-8a44-4f15-a398-e7baea6df87e/file/',
+        observed_file: 'a28fae18-d610-4cdc-bbda-8c078c622b25',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/27d286a0-e851-4da8-b511-07f19024e47d/',
+        id: '27d286a0-e851-4da8-b511-07f19024e47d',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/27d286a0-e851-4da8-b511-07f19024e47d/file/',
+        observed_file: '90da92a2-fdd7-4298-84c5-79fe77e6ee04',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/652b7926-1892-485e-8ac3-31b17fb83ff8/',
+        id: '652b7926-1892-485e-8ac3-31b17fb83ff8',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/652b7926-1892-485e-8ac3-31b17fb83ff8/file/',
+        observed_file: '8980ae95-61f3-4f7c-a1fd-c01bdca47e67',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/ae55a69d-defc-48bd-b99d-3e8c8d11d11e/',
+        id: 'ae55a69d-defc-48bd-b99d-3e8c8d11d11e',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/ae55a69d-defc-48bd-b99d-3e8c8d11d11e/file/',
+        observed_file: '72eb4cd4-65f2-4128-b822-694207cb5454',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/56563915-80a9-49d5-9d31-110e86e9c252/',
+        id: '56563915-80a9-49d5-9d31-110e86e9c252',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/56563915-80a9-49d5-9d31-110e86e9c252/file/',
+        observed_file: '72eb4cd4-65f2-4128-b822-694207cb5454',
+        partition_number: 1,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/15218b1f-fab4-4b2b-aae6-50584d5bc7ef/',
+        id: '15218b1f-fab4-4b2b-aae6-50584d5bc7ef',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/15218b1f-fab4-4b2b-aae6-50584d5bc7ef/file/',
+        observed_file: '72eb4cd4-65f2-4128-b822-694207cb5454',
+        partition_number: 2,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/82246d8e-fe6b-49d8-b719-b3af8aa82556/',
+        id: '82246d8e-fe6b-49d8-b719-b3af8aa82556',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/82246d8e-fe6b-49d8-b719-b3af8aa82556/file/',
+        observed_file: '72eb4cd4-65f2-4128-b822-694207cb5454',
+        partition_number: 3,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/f954df4b-d556-4b2f-be9d-3551c9f38b8e/',
+        id: 'f954df4b-d556-4b2f-be9d-3551c9f38b8e',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/f954df4b-d556-4b2f-be9d-3551c9f38b8e/file/',
+        observed_file: '72eb4cd4-65f2-4128-b822-694207cb5454',
+        partition_number: 4,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/ded09055-84e9-44e7-8c70-0b87f8530898/',
+        id: 'ded09055-84e9-44e7-8c70-0b87f8530898',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/ded09055-84e9-44e7-8c70-0b87f8530898/file/',
+        observed_file: '72bdae4a-60d0-4b22-9cca-980f4601da1b',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/cd5e72e4-d3b9-42ed-9ac3-dfeacafaff8a/',
+        id: 'cd5e72e4-d3b9-42ed-9ac3-dfeacafaff8a',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/cd5e72e4-d3b9-42ed-9ac3-dfeacafaff8a/file/',
+        observed_file: '710b0a53-0e26-4ba6-ab7d-b6e8b4e7fec0',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/95c88845-640a-473c-8313-63f684664fd9/',
+        id: '95c88845-640a-473c-8313-63f684664fd9',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/95c88845-640a-473c-8313-63f684664fd9/file/',
+        observed_file: '6efdd9a8-6d5f-4db4-b775-ea0ca608fcde',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/f196a13f-d38c-467e-aeaa-dc60103735f2/',
+        id: 'f196a13f-d38c-467e-aeaa-dc60103735f2',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/f196a13f-d38c-467e-aeaa-dc60103735f2/file/',
+        observed_file: '5ec542a1-be7b-4e69-849f-ecf48fc378cb',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/b315f6f2-1955-4d51-9cc2-59f9096c705c/',
+        id: 'b315f6f2-1955-4d51-9cc2-59f9096c705c',
+        parquet_file: null,
+        observed_file: '3c9f5a99-f633-4094-b838-358cc68da056',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/20de52a1-7165-441a-be6d-722a8fa48c0a/',
+        id: '20de52a1-7165-441a-be6d-722a8fa48c0a',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/20de52a1-7165-441a-be6d-722a8fa48c0a/file/',
+        observed_file: '361ade33-d534-4be7-b5cc-8adf5b90b04d',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/705b801c-d969-4ea6-b750-5bc5b41eb079/',
+        id: '705b801c-d969-4ea6-b750-5bc5b41eb079',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/705b801c-d969-4ea6-b750-5bc5b41eb079/file/',
+        observed_file: '34854b61-7126-446e-97f8-6fbe92e692ea',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/f5b9e095-26c1-4ffe-b60e-8f843e275474/',
+        id: 'f5b9e095-26c1-4ffe-b60e-8f843e275474',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/f5b9e095-26c1-4ffe-b60e-8f843e275474/file/',
+        observed_file: '33c1667a-46f0-4495-a379-bf6add09a22e',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/a7273dce-7d53-417e-8629-b8f247541f42/',
+        id: 'a7273dce-7d53-417e-8629-b8f247541f42',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/a7273dce-7d53-417e-8629-b8f247541f42/file/',
+        observed_file: '32261639-2395-470b-b134-cce2fc1cf139',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/1351a60e-26e2-4b36-aeb8-1747a2f1e2dc/',
+        id: '1351a60e-26e2-4b36-aeb8-1747a2f1e2dc',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/1351a60e-26e2-4b36-aeb8-1747a2f1e2dc/file/',
+        observed_file: '15ccbdd3-3873-48cc-8e46-4deff8051b49',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/d82ad380-a267-4eb8-9546-f31c5913d47f/',
+        id: 'd82ad380-a267-4eb8-9546-f31c5913d47f',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/d82ad380-a267-4eb8-9546-f31c5913d47f/file/',
+        observed_file: '15c6a11d-eb2f-4c54-8007-9fa1babb57ec',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/b4ebd6ca-f865-4537-8014-dc9841902c32/',
+        id: 'b4ebd6ca-f865-4537-8014-dc9841902c32',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/b4ebd6ca-f865-4537-8014-dc9841902c32/file/',
+        observed_file: '11a71e9d-5ff2-43a6-ac9c-7ba28f07c19e',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/cbab23bf-25a3-4e81-8734-a0be53c6d100/',
+        id: 'cbab23bf-25a3-4e81-8734-a0be53c6d100',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/cbab23bf-25a3-4e81-8734-a0be53c6d100/file/',
+        observed_file: '11a71e9d-5ff2-43a6-ac9c-7ba28f07c19e',
+        partition_number: 1,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/58450d2f-0a70-4714-9406-0dc561ba9b6b/',
+        id: '58450d2f-0a70-4714-9406-0dc561ba9b6b',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/58450d2f-0a70-4714-9406-0dc561ba9b6b/file/',
+        observed_file: '1143cd53-11e2-4171-868e-41646209e8fd',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/505d9bf5-0566-4adb-a2f7-465d2d6fda7c/',
+        id: '505d9bf5-0566-4adb-a2f7-465d2d6fda7c',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/505d9bf5-0566-4adb-a2f7-465d2d6fda7c/file/',
+        observed_file: '1143cd53-11e2-4171-868e-41646209e8fd',
+        partition_number: 1,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/26a514d9-a2c7-40ad-b212-65c0052786e9/',
+        id: '26a514d9-a2c7-40ad-b212-65c0052786e9',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/26a514d9-a2c7-40ad-b212-65c0052786e9/file/',
+        observed_file: '1143cd53-11e2-4171-868e-41646209e8fd',
+        partition_number: 2,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/7df8647e-f8d4-48ce-9834-da3d7ce6fbf1/',
+        id: '7df8647e-f8d4-48ce-9834-da3d7ce6fbf1',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/7df8647e-f8d4-48ce-9834-da3d7ce6fbf1/file/',
+        observed_file: '0e708257-cc3f-4f40-9ee4-349e1011b4e7',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
+    },
+    {
+        url: 'http://localhost:8001/parquet_partitions/e2d8189f-a089-4929-9b1e-cb133c14e301/',
+        id: 'e2d8189f-a089-4929-9b1e-cb133c14e301',
+        parquet_file:
+            'http://localhost:8001/parquet_partitions/e2d8189f-a089-4929-9b1e-cb133c14e301/file/',
+        observed_file: '05c49503-a4bd-4d6a-b7dc-45752ccda46d',
+        partition_number: 0,
+        uploaded: true,
+        upload_errors: [],
+        permissions: {
+            create: false,
+            write: true,
+            read: true,
+        },
     },
 ] as const

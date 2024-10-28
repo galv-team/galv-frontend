@@ -93,3 +93,7 @@ export const has_value = <T, P extends string>(
     property: P,
     value: unknown,
 ) => has(target, property) && target[property] === value
+
+export function assertFulfilled<T>(item: PromiseSettledResult<T>): item is PromiseFulfilledResult<T> {
+   return item.status === 'fulfilled';
+}

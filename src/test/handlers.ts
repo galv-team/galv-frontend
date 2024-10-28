@@ -25,6 +25,7 @@ import {
     harvesters,
     labs,
     monitored_paths,
+    parquet_partitions,
     schedule_families,
     schedule_identifiers,
     schedules,
@@ -61,6 +62,7 @@ const resources = {
     users,
     harvesters,
     monitored_paths,
+    parquet_partitions,
 } as const
 
 const DEBUG_TESTS = false
@@ -134,6 +136,7 @@ const build_get_endpoints =
         const url_extras = request.url.split(resource_name).pop() ?? ''
 
         const data = resources[resource_name]
+
         // If there's a description request, return the description
         if (/describe\/$/.test(url_extras)) {
             const d = data[0]
@@ -270,6 +273,22 @@ export const restHandlers = [
     ),
     http.get(/access_levels/, () => {
         return HttpResponse.json(access_levels)
+    }),
+    http.get(/dump/, (args) => {
+        debug('request.url', args.request.url.toString(), '-> dump')
+        return HttpResponse.json({
+            [resources.experiments[0].id]: resources.experiments[0],
+            [resources.cycler_tests[0].id]: resources.cycler_tests[0],
+            [resources.cells[0].id]: resources.cells[0],
+            [resources.equipment[0].id]: resources.equipment[0],
+            [resources.equipment[1].id]: resources.equipment[1],
+            [resources.files[0].id]: resources.files[0],
+            [resources.files[1].id]: resources.files[1],
+            [resources.files[2].id]: resources.files[2],
+            [resources.schedules[0].id]: resources.schedules[0],
+            [resources.cycler_tests[1].id]: resources.cycler_tests[1],
+            [resources.cells[2].id]: resources.cells[2],
+        })
     }),
     // Errors
     ...Object.entries(error_responses).map(([k, v]) =>

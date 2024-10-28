@@ -10,93 +10,12 @@ import clsx from 'clsx'
 import Grid from '@mui/material/Grid2'
 import { useState } from 'react'
 import Stack from '@mui/material/Stack'
-import Button, { ButtonProps } from '@mui/material/Button'
+import Button from '@mui/material/Button'
 import { ICONS } from '../constants'
-import CircularProgress from '@mui/material/CircularProgress'
 import CardHeader from '@mui/material/CardHeader'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import { DumpApi } from '@galv/galv'
-import { useCurrentUser } from './CurrentUserContext'
-
-export function DownloadButton({
-    target_uuids,
-    ...props
-}: { target_uuids: string | string[] } & ButtonProps) {
-    const targets =
-        typeof target_uuids === 'string' ? [target_uuids] : target_uuids
-
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(false)
-    const [downloadLink, setDownloadLink] = useState<string>()
-    const { api_config } = useCurrentUser()
-
-    const downloadButton = (
-        <Button
-            component="a"
-            href={downloadLink}
-            download={`galv-export-${new Date().toISOString()}.json`}
-            startIcon={<ICONS.DOWNLOAD />}
-            endIcon={<ICONS.CHECK />}
-            color="success"
-            variant="contained"
-            {...{ props, children: undefined }}
-        >
-            Download ready
-        </Button>
-    )
-
-    const do_download = async () => {
-        try {
-            setLoading(true)
-            setDownloadLink(undefined)
-            setError(false)
-            let data: Record<string, unknown> = {}
-
-            // Where we can get a dump from the API, we use that by preference
-            const download_item = async (id: string) => {
-                if (Object.keys(data).includes(id)) return
-
-                return await new DumpApi(api_config)
-                    .dumpRetrieve({ id })
-                    .then((r) => r.data)
-                    .then(
-                        (d) =>
-                            (data = {
-                                ...data,
-                                ...(d as unknown as Record<string, unknown>),
-                            }),
-                    )
-            }
-
-            await Promise.all(targets.map((t) => download_item(t)))
-
-            // Make a blob and download it
-            const blob = new Blob([JSON.stringify(data, null, 2)], {
-                type: 'application/json',
-            })
-            setDownloadLink(URL.createObjectURL(blob))
-            setLoading(false)
-        } catch (e) {
-            console.error(`Error downloading ${target_uuids}`, e)
-            setError(true)
-            setLoading(false)
-        }
-    }
-
-    return !loading && downloadLink ? (
-        downloadButton
-    ) : (
-        <Button
-            onClick={do_download}
-            startIcon={
-                loading ? <CircularProgress size={24} /> : <ICONS.DOWNLOAD />
-            }
-            disabled={loading || error}
-            {...props}
-        />
-    )
-}
+import { DownloadButton } from './download/DownloadButton'
 
 export type SelectedResourcesPaneProps = Record<string, never>
 
@@ -111,7 +30,9 @@ export function SelectedResourcesPane() {
             <Button onClick={clearSelections} startIcon={<ICONS.CANCEL />}>
                 Clear
             </Button>
-            <DownloadButton target_uuids={resource_urls}>JSON</DownloadButton>
+            {/* Allow both JSON and ZIP downloads. JSON for just metadata */}
+            <DownloadButton targetUUIDs={resource_urls} />
+            <DownloadButton targetUUIDs={resource_urls} includeData={true} />
             {/*<Button onClick={() => {}} startIcon={<ICONS.DOWNLOAD />}>JSON-LD</Button>*/}
         </Stack>
     )

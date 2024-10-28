@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { useCurrentUser } from './CurrentUserContext'
 import { useQuery } from '@tanstack/react-query'
-import axios, {AxiosResponse} from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { Link } from 'react-router-dom'
 import CircularProgress from '@mui/material/CircularProgress'
 import Button from '@mui/material/Button'
@@ -19,7 +19,7 @@ export async function fetchAuthFile({
 }: {
     url: string
     headers: Record<string, unknown>
-}): Promise<{filename: string, content: AxiosResponse<Blob>}> {
+}): Promise<{ filename: string; content: AxiosResponse<Blob> }> {
     let filename: string = 'file'
     const response = await axios.get(url, {
         headers,
@@ -34,7 +34,12 @@ export async function fetchAuthFile({
             filename =
                 disposition.split('filename=')[1].split('"')[0] ?? filename
         } else {
-            filename = url.split('/').pop() ?? filename
+            // Extract UUID from URL and use it as filename
+            filename =
+                url
+                    .split('/')
+                    .find((x) => /\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/.test(x)) ??
+                filename
         }
     }
     return {
