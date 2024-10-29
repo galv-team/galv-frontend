@@ -87,7 +87,7 @@ export default function DownloadButton<UseIconButton>({
                     <IconButton
                         onClick={start}
                         disabled={loading}
-                        {...{ props, children: undefined }}
+                        {...props}
                     >
                         {loading ? (
                             <CircularProgress />
@@ -117,7 +117,7 @@ export default function DownloadButton<UseIconButton>({
             color={loading ? 'info' : error ? 'error' : 'primary'}
             variant="contained"
             disabled={loading}
-            {...{ props, children: undefined }}
+            {...props}
         >
             {error
                 ? 'Retry download?'

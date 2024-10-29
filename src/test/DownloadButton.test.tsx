@@ -2,7 +2,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { DownloadButton } from '../Components/download/DownloadButton'
+import DownloadButton from '../Components/download/DownloadButton'
 import { downloadResources } from '../Components/download/utils'
 import { describe, expect, it, vi } from 'vitest'
 import { files } from './fixtures/fixtures'

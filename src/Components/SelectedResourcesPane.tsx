@@ -15,7 +15,7 @@ import { ICONS } from '../constants'
 import CardHeader from '@mui/material/CardHeader'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import { DownloadButton } from './download/DownloadButton'
+import DownloadButton from './download/DownloadButton'
 
 export type SelectedResourcesPaneProps = Record<string, never>
 
