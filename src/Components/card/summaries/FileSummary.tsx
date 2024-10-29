@@ -27,6 +27,7 @@ import { useFetchResource } from '../../FetchResourceContext'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import { useApiResource } from '../../ApiResourceContext'
+import DownloadButton from '../../download/DownloadButton'
 
 function StatusAlert({
     message,
@@ -408,6 +409,14 @@ export default function FileSummary({
                         )
                     }
                 />
+                {r.state === 'IMPORTED' && (
+                    <DownloadButton
+                        targetUUIDs={[r.id]}
+                        includeData={true}
+                        fullWidth
+                        variant={'text'}
+                    />
+                )}
             </Stack>
         </Stack>
     )
