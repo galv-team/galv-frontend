@@ -2191,7 +2191,7 @@ export const labs: Lab[] = [
         id: 2,
         name: 'Cool Lab',
         description: 'Cool labs CO_LAB_orate.',
-        admin_group: 'http://localhost:8001/users/1/',
+        admin_group: ['http://localhost:8001/users/1/'],
         harvesters: [
             'http://localhost:8001/harvesters/d688d632-6fe1-4805-87ce-223bdc6eca2a/',
             'http://localhost:8001/harvesters/95e3596b-042c-4545-9bff-689101cd7fcb/',
@@ -2213,7 +2213,7 @@ export const labs: Lab[] = [
         id: 1,
         name: 'Example Lab',
         description: 'This Lab exists to demonstrate the system.',
-        admin_group: 'http://localhost:8001/users/1/',
+        admin_group: ['http://localhost:8001/users/1/'],
         harvesters: [
             'http://localhost:8001/harvesters/de149eba-3aed-406a-9508-bc33013e554e/',
         ],
