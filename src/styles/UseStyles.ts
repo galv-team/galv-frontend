@@ -120,6 +120,9 @@ export default makeStyles()((theme) => {
             marginLeft: 16,
             flexGrow: 1,
         },
+        drawerMenu: {
+            fontSize: '1.8em',
+        },
         drawerPaper: {
             position: 'relative',
             paddingTop: 20,

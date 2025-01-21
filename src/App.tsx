@@ -103,7 +103,7 @@ export function Core() {
     )
 
     const mainListItems = (
-        <Stack>
+        <Stack className={classes.drawerMenu}>
             <ListItemButton
                 key="dashboard"
                 selected={pathIs(PATHS.DASHBOARD)}
