@@ -74,7 +74,6 @@ export default makeStyles()((theme) => {
         },
         root: {
             display: 'flex',
-            '& svg': { fontSize: '1.8em' },
         },
         toolbar: {
             paddingRight: 24, // keep right padding when drawer closed
