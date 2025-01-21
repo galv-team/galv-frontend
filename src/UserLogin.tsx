@@ -28,13 +28,13 @@ import {
 } from '@tanstack/react-query'
 import Stack from '@mui/material/Stack'
 import {
+    ActivateApi,
+    Configuration,
+    ForgotPasswordApi,
+    ResetPasswordApi,
     User,
     UserRequest,
     UsersApi,
-    ActivateApi,
-    ForgotPasswordApi,
-    ResetPasswordApi,
-    Configuration,
 } from '@galv/galv'
 import { AxiosError, AxiosResponse } from 'axios'
 import Alert, { AlertColor } from '@mui/material/Alert'
@@ -203,16 +203,22 @@ function RegisterForm({
 export function ActivationForm({
     _username,
     onSuccess,
+    initialResult,
+    initialStatus,
 }: {
     _username: string
     onSuccess?: () => void
+    initialResult?: string
+    initialStatus?: AlertColor
 }) {
     const [username, setUsername] = useState<string>(_username)
     const [code, setCode] = useState<string>('')
     const [result, setResult] = useState<string>(
-        'Please check your email for an activation code from Galv.',
+        initialResult ?? 'Enter your activation code',
     )
-    const [status, setStatus] = useState<AlertColor | undefined>('success')
+    const [status, setStatus] = useState<AlertColor | undefined>(
+        initialStatus ?? 'info',
+    )
 
     const { api_config } = useCurrentUser()
 
@@ -318,6 +324,8 @@ export function RegistrationForm() {
     const [tab, setTab] = useState<number>(0)
     const [username, setUsername] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+    const [initialResult, setInitialResult] = useState<string | undefined>()
+    const [initialStatus, setInitialStatus] = useState<AlertColor | undefined>()
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -337,6 +345,10 @@ export function RegistrationForm() {
                         setUsername(data.data.username)
                         setPassword(password)
                         setTab(1)
+                        setInitialResult(
+                            'Please check your email for an activation code from Galv.',
+                        )
+                        setInitialStatus('success')
                     }}
                 />
             </CustomTabPanel>
@@ -349,6 +361,8 @@ export function RegistrationForm() {
                             setLoginFormOpen(false)
                         }, 1000)
                     }
+                    initialResult={initialResult}
+                    initialStatus={initialStatus}
                 />
             </CustomTabPanel>
         </Box>
