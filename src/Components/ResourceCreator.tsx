@@ -49,13 +49,14 @@ import {
 } from './TypeValueNotation'
 import { useAttachmentUpload } from './AttachmentUploadContext'
 import {
-    useFetchResource,
     CreateMutationVariablesType,
+    useFetchResource,
 } from './FetchResourceContext'
 import Alert from '@mui/material/Alert'
 import AxiosErrorAlert from './AxiosErrorAlert'
 import Collapse from '@mui/material/Collapse'
 import { Link, useNavigate } from 'react-router-dom'
+import CardActions from '@mui/material/CardActions'
 
 type TokenCreatorProps = {
     setModalOpen: (open: boolean) => void
@@ -158,9 +159,7 @@ export function TokenCreator({
             <Button
                 variant="contained"
                 color="success"
-                onClick={() =>
-                    create_mutation.mutate({ name, ttl: getTTL() })
-                }
+                onClick={() => create_mutation.mutate({ name, ttl: getTTL() })}
                 disabled={name === ''}
             >
                 Create
@@ -235,8 +234,8 @@ export function TokenCreator({
 export type ResourceCreatorProps = {
     lookupKey: LookupKey
     initial_data?: object
-    onCreate: (new_resource_url?: string, error?: unknown) => void
-    onDiscard: () => void
+    onCreate?: (new_resource_url?: string, error?: unknown) => void
+    onDiscard?: () => void
 } & CardProps
 
 export function ResourceCreator<T extends GalvResource>({
@@ -321,6 +320,7 @@ export function ResourceCreator<T extends GalvResource>({
 
     const create_mutation = useCreateQuery<T>(lookupKey, {
         after_cache: (data, variables) => {
+            console.log('Created', { data, variables })
             if (data === undefined) {
                 console.warn('No data in mutation response', {
                     data,
@@ -345,7 +345,7 @@ export function ResourceCreator<T extends GalvResource>({
             })
             // Also invalidate autocomplete cache because we may have updated options
             queryClient.invalidateQueries({ queryKey: ['autocomplete'] })
-            onCreate((data.data.url as string) ?? undefined)
+            onCreate && onCreate((data.data.url as string) ?? undefined)
         },
         on_error: (error, variables) => {
             console.error(error, { variables })
@@ -358,10 +358,24 @@ export function ResourceCreator<T extends GalvResource>({
             if (error) {
                 setError(error as AxiosError)
             } else {
-                onCreate(new_data_url)
+                onCreate && onCreate(new_data_url)
             }
         },
     )
+
+    const handleSave = () => {
+        if (lookupKey === LOOKUP_KEYS.ARBITRARY_FILE) {
+            create_attachment_mutation.mutate({
+                ...clean(UndoRedo.current),
+                file,
+            } as unknown as ArbitraryFilesApiArbitraryFilesCreateRequest)
+        } else {
+            create_mutation.mutate(
+                clean(UndoRedo.current) as CreateMutationVariablesType<T>,
+            )
+        }
+        return false // Close action handled by mutation success callback
+    }
 
     // The card action bar controls the expanded state and editing state
     const action = (
@@ -376,21 +390,7 @@ export function ResourceCreator<T extends GalvResource>({
             onRedo={UndoRedo.redo}
             undoable={UndoRedo.can_undo}
             redoable={UndoRedo.can_redo}
-            onEditSave={() => {
-                if (lookupKey === LOOKUP_KEYS.ARBITRARY_FILE) {
-                    create_attachment_mutation.mutate({
-                        ...clean(UndoRedo.current),
-                        file,
-                    } as unknown as ArbitraryFilesApiArbitraryFilesCreateRequest)
-                } else {
-                    create_mutation.mutate(
-                        clean(
-                            UndoRedo.current,
-                        ) as CreateMutationVariablesType<T>,
-                    )
-                }
-                return false // Close action handled by mutation success callback
-            }}
+            onEditSave={handleSave}
             onEditDiscard={() => {
                 if (
                     UndoRedo.can_undo &&
@@ -398,7 +398,7 @@ export function ResourceCreator<T extends GalvResource>({
                 )
                     return false
                 UndoRedo.reset()
-                onDiscard()
+                onDiscard && onDiscard()
                 return true
             }}
         />
@@ -456,6 +456,16 @@ export function ResourceCreator<T extends GalvResource>({
                     }
                 />
             )}
+
+            <CardActions>
+                <Button
+                    variant="contained"
+                    color="success"
+                    onClick={handleSave}
+                >
+                    Create
+                </Button>
+            </CardActions>
         </CardContent>
     )
 
@@ -549,24 +559,40 @@ export default function WrappedResourceCreator<T extends GalvResource>(
                             />
                         ) : (
                             <ResourceCreator<T>
-                                onCreate={(url, err) => {
-                                    if (
-                                        props.lookupKey === LOOKUP_KEYS.LAB &&
-                                        !user?.is_lab_admin
-                                    )
-                                        refresh_user()
-                                    setModalOpen(!!err)
-                                    if (url) {
-                                        const components =
-                                            get_url_components(url)
-                                        if (components)
-                                            navigate(
-                                                `${PATHS[components.lookupKey]}/${components.resourceId}/`,
-                                            )
-                                    }
-                                }}
-                                onDiscard={() => setModalOpen(false)}
                                 {...props}
+                                onCreate={(url, err) => {
+                                    console.log('Created', { url, err })
+                                    const p = props as {
+                                        lookupKey: LookupKey
+                                    } & ResourceCreatorProps
+                                    if (p.onCreate) {
+                                        p.onCreate(url, err)
+                                    } else {
+                                        if (
+                                            props.lookupKey ===
+                                                LOOKUP_KEYS.LAB &&
+                                            !user?.is_lab_admin
+                                        )
+                                            refresh_user()
+                                        setModalOpen(!!err)
+                                        if (url) {
+                                            const components =
+                                                get_url_components(url)
+                                            if (components)
+                                                navigate(
+                                                    `${PATHS[components.lookupKey]}/${components.resourceId}/`,
+                                                )
+                                        }
+                                    }
+                                    setModalOpen(false)
+                                }}
+                                onDiscard={() => {
+                                    const p = props as {
+                                        lookupKey: LookupKey
+                                    } & ResourceCreatorProps
+                                    if (p.onDiscard) p.onDiscard()
+                                    setModalOpen(false)
+                                }}
                             />
                         )}
                     </ErrorBoundary>

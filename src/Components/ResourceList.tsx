@@ -116,10 +116,7 @@ export function ResourceList<T extends GalvResource>({
                         </Button>
                     </>
                 )}
-                {user && (<>
-                    {' '}
-                    Why not get started by creating something?
-                    </>)}
+                {user && <> Why not get started by creating something?</>}
             </Typography>
         )
     }
@@ -147,18 +144,11 @@ export function ResourceList<T extends GalvResource>({
                     <ClientCodeDemo fileQueryLimit={itemsPerPage} />
                 )}
                 {content}
-                <ResourceCreator
-                    key={'creator'}
-                    lookupKey={lookupKey}
-                    onCreate={() => {}}
-                    onDiscard={() => {}}
-                />
+                <ResourceCreator key={'creator'} lookupKey={lookupKey} />
                 {get_has_family(lookupKey) && (
                     <ResourceCreator
                         key={'family_creator'}
                         lookupKey={FAMILY_LOOKUP_KEYS[lookupKey]}
-                        onCreate={() => {}}
-                        onDiscard={() => {}}
                     />
                 )}
             </Stack>
