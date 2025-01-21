@@ -30,7 +30,7 @@ export const useSnackbarMessenger = () => useContext(SnackbarMessengerContext)
 export const SnackbarMessengerContextProvider = ({
     children,
 }: {
-    children: ReactElement
+    children: ReactElement<unknown>
 }) => {
     const [messages, setMessages] = useImmer<
         ISnackbarMessengerContext['snackbarMessages']

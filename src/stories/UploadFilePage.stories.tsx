@@ -6,7 +6,6 @@ import { restHandlers } from '../test/handlers'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactElement } from 'react'
-import { CardActionBarProps } from '../Components/CardActionBar'
 import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
 import CurrentUserContextProvider from '../Components/CurrentUserContext'
 
@@ -17,8 +16,8 @@ const meta = {
     decorators: [
         withRouter,
         (
-            Story: ReactElement,
-            context: { args: CardActionBarProps & { resourceId?: string } },
+            Story: ReactElement<unknown>,
+            // context: { args: CardActionBarProps & { resourceId?: string } },
         ) => (
             <QueryClientProvider client={new QueryClient()}>
                 <CurrentUserContextProvider

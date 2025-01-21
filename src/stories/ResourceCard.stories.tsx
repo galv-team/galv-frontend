@@ -29,7 +29,7 @@ const meta = {
     decorators: [
         withRouter,
         (
-            Story: ReactElement,
+            Story: ReactElement<unknown>,
             context: { args: CardActionBarProps & { resourceId?: string } },
         ) => (
             <QueryClientProvider client={new QueryClient()}>

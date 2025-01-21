@@ -13,7 +13,7 @@ const meta = {
     component: DownloadButton,
     decorators: [
         withRouter,
-        (Story: ReactElement) => (
+        (Story: ReactElement<unknown>) => (
             <QueryClientProvider client={new QueryClient()}>
                 <CurrentUserContextProvider
                     user_override={JSON.stringify(users[0])}

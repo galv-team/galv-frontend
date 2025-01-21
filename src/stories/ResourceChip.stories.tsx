@@ -21,7 +21,7 @@ const meta = {
     component: ResourceChip,
     decorators: [
         withRouter,
-        (Story: ReactElement) => (
+        (Story: ReactElement<unknown>) => (
             <QueryClientProvider client={new QueryClient()}>
                 <FetchResourceContextProvider>
                     <Story />

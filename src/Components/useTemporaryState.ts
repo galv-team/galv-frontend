@@ -8,7 +8,7 @@ export const useTemporaryState = <State>(
     timeout = 2000,
 ): [State, Dispatch<SetStateAction<State>>] => {
     const [state, _setState] = useState<State>(initial)
-    const timeoutRef = useRef<ReturnType<typeof setTimeout>>()
+    const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
     const initialValueRef = useRef(initial)
 
     useEffect(() => {

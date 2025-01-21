@@ -12,7 +12,7 @@ import CardContent from '@mui/material/CardContent'
  * The QueryClientProvider and FetchResourceContextProvider are included to support subcomponents that
  * require API data (e.g. Unit ResourceChips in the ColumnSummary).
  */
-export default function SummaryDecorator(Story: ReactElement) {
+export default function SummaryDecorator(Story: ReactElement<unknown>) {
     return (
         <QueryClientProvider client={new QueryClient()}>
             <FetchResourceContextProvider>
