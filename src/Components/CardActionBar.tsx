@@ -69,7 +69,6 @@ export default function CardActionBar(props: CardActionBarProps) {
     const { classes, theme } = UseStyles()
     const { apiResource } = useApiResource()
     const iconProps: Partial<SvgIconProps> = {
-        fontSize: '1.8em',
         ...props.iconProps,
     }
     const selectable = props.selectable ?? typeof apiResource?.id === 'string'

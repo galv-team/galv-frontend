@@ -773,7 +773,7 @@ function MappingTable({
                         )
                     })}
                 </TableRow>
-                {longest_column.map((arr, i) => {
+                {longest_column.map((_arr, i) => {
                     if (i >= dataRows) return null
                     return (
                         <TableRow
