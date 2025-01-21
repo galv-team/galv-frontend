@@ -33,6 +33,24 @@ To deploy the frontend, you will need to set the following environment variables
 You can set these variables either by editing the Dockerfile, or by passing them in as arguments to `docker run` or `docker-compose up`.
 If you're using `docker-compose`, you can set them in the `environment` section of the `frontend` service in the `docker-compose.yml` file.
 
+### Demo instance
+
+A demo instance of the frontend is available at [galv-demo.fly.dev](https://galv-demo.fly.dev/).
+This can be updated by running:
+
+```bash
+fly deploy --app galv-demo --config fly.demo.toml
+```
+
+If for some reason it needs to be recreated:
+
+```bash
+fly launch --name galv-demo --org oxrse --region lhr --config fly.demo.toml
+```
+
+You can copy the config, which should not need adjustment.
+It will create you a `.github/workflows/fly.yml` file, which you should delete rather than committing because otherwise it will try to deploy using the main `fly.toml` file each time a commit is made to the primary branch; probably not what we want.
+
 ## Development
 
 Development is most easily done by using the provided Dockerfile and docker-compose.yml files. The docker-compose.yml file will start a postgres database and the Django server. The Django server will automatically reload when changes are made to the code.

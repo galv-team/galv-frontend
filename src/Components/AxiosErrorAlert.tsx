@@ -40,7 +40,7 @@ export default function AxiosErrorAlert({
         error.response?.data instanceof Array
             ? Object.fromEntries(
                   error.response?.data.map((e: string, i: number) => [
-                      `_${i}`,
+                      `Error ${i + 1}`,
                       e,
                   ]),
               )
@@ -69,6 +69,7 @@ export default function AxiosErrorAlert({
                     {non_field_errors[0]}
                 </Alert>
             )
+
         const title =
             alertTitle === false
                 ? null
