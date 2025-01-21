@@ -1,11 +1,4 @@
-import {
-    createContext,
-    ReactElement,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
-} from 'react'
+import { createContext, ReactElement, ReactNode, useContext } from 'react'
 import Snackbar, { SnackbarProps } from '@mui/material/Snackbar'
 import { useImmer } from 'use-immer'
 import Alert, { AlertProps } from '@mui/material/Alert'
@@ -15,10 +8,10 @@ import List from '@mui/material/List'
 export type SnackbarMessage = { message: ReactNode } & Pick<
     AlertProps,
     'severity'
->
+> & { unique_key?: string }
 
 export interface ISnackbarMessengerContext {
-    snackbarMessages: (SnackbarMessage & { key: number })[]
+    snackbarMessages: SnackbarMessage[]
     postSnackbarMessage: (message: SnackbarMessage) => void
     markRead: () => void
 }
@@ -35,14 +28,20 @@ export const SnackbarMessengerContextProvider = ({
     const [messages, setMessages] = useImmer<
         ISnackbarMessengerContext['snackbarMessages']
     >([])
-    const postSnackbarMessage = (message: SnackbarMessage) =>
-        setMessages((messages) => {
-            messages.push({ key: new Date().getTime(), ...message })
-        })
-    const markRead = () =>
-        setMessages((messages) => {
-            messages.shift()
-        })
+    const postSnackbarMessage = (message: SnackbarMessage) => {
+        setMessages((messages) =>
+            [...messages, message].reduce((acc, curr) => {
+                if (!acc.find((m) => m.unique_key === curr.unique_key)) {
+                    acc.push(curr)
+                }
+                return acc
+            }, [] as SnackbarMessage[]),
+        )
+    }
+    const markRead = () => {
+        console.log('markRead', { messages })
+        setMessages((messages) => messages.slice(1))
+    }
 
     return (
         <SnackbarMessengerContext.Provider
@@ -64,23 +63,23 @@ export const SnackbarMessenger = (
     >,
 ) => {
     const { snackbarMessages, markRead } = useSnackbarMessenger()
-    const [open, setOpen] = useState<boolean>(snackbarMessages.length > 0)
     const handleClose = (_: unknown, reason?: string) => {
         if (reason === 'clickaway') return
         markRead()
     }
-    useEffect(() => setOpen(snackbarMessages.length > 0), [snackbarMessages])
 
     const max_snacks = 4
+
+    console.log({ snackbarMessages })
 
     return (
         <List>
             {snackbarMessages.map(
                 (m, i) =>
                     i < max_snacks && (
-                        <ListItem key={m.key ?? `snackbar-messenger-${i}`}>
+                        <ListItem key={`snackbar-messenger-${i}`}>
                             <Snackbar
-                                open={open}
+                                open={true}
                                 onClose={handleClose}
                                 anchorOrigin={{
                                     vertical: 'bottom',

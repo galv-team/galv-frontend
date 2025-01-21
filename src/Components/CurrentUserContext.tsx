@@ -175,6 +175,7 @@ export default function CurrentUserContextProvider({
                     postSnackbarMessage({
                         message: 'Incorrect username or password',
                         severity: 'error',
+                        unique_key: 'login_failed',
                     })
                 } else if (user) {
                     Logout()
@@ -188,6 +189,7 @@ export default function CurrentUserContextProvider({
                             </Stack>
                         ),
                         severity: 'warning',
+                        unique_key: 'logged_out',
                     })
                 }
             }

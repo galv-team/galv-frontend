@@ -273,6 +273,7 @@ export default function FetchResourceContextProvider({
                       message: `Error retrieving ${DISPLAY_NAMES[lookupKey]}/${resourceId}  
                 (HTTP ${e.response?.status} - ${e.response?.statusText}): ${get_error_detail(e)}`,
                       severity: 'error',
+                      unique_key: 'error_retrieving',
                   })
               }
 
@@ -363,6 +364,7 @@ export default function FetchResourceContextProvider({
                       message: `Error updating ${DISPLAY_NAMES[lookupKey]}/${v.id ?? v.id}  
                 (HTTP ${e.response?.status} - ${e.response?.statusText}): ${get_error_detail(e)}`,
                       severity: 'error',
+                      unique_key: 'error_updating',
                   })
               }
 
@@ -457,6 +459,7 @@ export default function FetchResourceContextProvider({
                 ${get_display_name(v)}  
                 (HTTP ${e.response?.status} - ${e.response?.statusText}): ${get_error_detail(e)}`,
                       severity: 'error',
+                      unique_key: 'error_creating',
                   })
               }
 
@@ -529,6 +532,7 @@ export default function FetchResourceContextProvider({
                       message: `Error deleting ${DISPLAY_NAMES[lookupKey]}/${v.id ?? v.id}  
                 (HTTP ${e.response?.status} - ${e.response?.statusText}): ${get_error_detail(e)}`,
                       severity: 'error',
+                      unique_key: 'error_deleting',
                   })
               }
 

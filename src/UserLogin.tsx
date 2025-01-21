@@ -86,6 +86,7 @@ function RegisterForm({
             postSnackbarMessage({
                 message: `Activation code sent to ${data.data.email}`,
                 severity: 'success',
+                unique_key: 'login_code_sent',
             })
             clear_form()
             onSuccess && onSuccess(data, password)
