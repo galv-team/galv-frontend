@@ -1,9 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { withRouter } from 'storybook-addon-remix-react-router'
-import {
-    ResourceCreator,
-    ResourceCreatorProps,
-} from '../Components/ResourceCreator'
+import { ResourceCreator } from '../Components/ResourceCreator'
 import { LOOKUP_KEYS } from '../constants'
 import {
     cell_families,
@@ -31,7 +28,10 @@ const meta = {
     component: ResourceCreator,
     decorators: [
         withRouter,
-        (Story: ReactElement, context: { args: ResourceCreatorProps }) => (
+        (
+            Story: ReactElement<unknown>,
+            // context: { args: ResourceCreatorProps },
+        ) => (
             <QueryClientProvider client={new QueryClient()}>
                 <CurrentUserContextProvider
                     user_override={JSON.stringify(users[0])}

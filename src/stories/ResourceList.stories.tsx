@@ -14,7 +14,7 @@ const meta = {
     component: ResourceList,
     decorators: [
         withRouter,
-        (Story: ReactElement) => (
+        (Story: ReactElement<unknown>) => (
             <QueryClientProvider client={new QueryClient()}>
                 <SelectionManagementContextProvider>
                     <FetchResourceContextProvider>
