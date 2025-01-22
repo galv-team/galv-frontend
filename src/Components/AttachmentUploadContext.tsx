@@ -58,11 +58,11 @@ export default function AttachmentUploadContextProvider({
             },
             onSuccess: async (data: AxiosResponse<ArbitraryFile>) => {
                 queryClient.setQueryData(
-                    [LOOKUP_KEYS.ARBITRARY_FILE, data.data.id],
+                    [LOOKUP_KEYS.ArbitraryFile, data.data.id],
                     data.data,
                 )
                 await queryClient.invalidateQueries({
-                    queryKey: [LOOKUP_KEYS.ARBITRARY_FILE, 'list'],
+                    queryKey: [LOOKUP_KEYS.ArbitraryFile, 'list'],
                 })
                 callback(data.data.url)
             },

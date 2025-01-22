@@ -109,7 +109,7 @@ export function TokenCreator({
         weeks: 60 * 60 * 24 * 7,
     }
 
-    const lookupKey = LOOKUP_KEYS.TOKEN
+    const lookupKey = LOOKUP_KEYS.Token
 
     const ICON = ICONS[lookupKey]
 
@@ -364,7 +364,7 @@ export function ResourceCreator<T extends GalvResource>({
     )
 
     const handleSave = () => {
-        if (lookupKey === LOOKUP_KEYS.ARBITRARY_FILE) {
+        if (lookupKey === LOOKUP_KEYS.ArbitraryFile) {
             create_attachment_mutation.mutate({
                 ...clean(UndoRedo.current),
                 file,
@@ -492,28 +492,45 @@ export default function WrappedResourceCreator<T extends GalvResource>(
     const [modalOpen, setModalOpen] = useState(false)
     const { user, refresh_user } = useCurrentUser()
     const navigate = useNavigate()
+    const { useDescribeQuery } = useFetchResource()
+    const description_query = useDescribeQuery(props.lookupKey)
+    const [createable, setCreateable] = useState(false)
 
-    const get_can_create = (lookupKey: LookupKey) => {
+    useEffect(() => {
         // We can always create tokens because they represent us, and labs because someone has to.
-        if (lookupKey === LOOKUP_KEYS.TOKEN) return !!user
-        if (lookupKey === LOOKUP_KEYS.LAB) return !!user
+        if (
+            props.lookupKey === LOOKUP_KEYS.Token ||
+            props.lookupKey === LOOKUP_KEYS.Lab
+        ) {
+            setCreateable(!!user)
+            return
+        }
 
         const lab_admin_resources = [
-            LOOKUP_KEYS.TEAM,
-            LOOKUP_KEYS.ADDITIONAL_STORAGE,
+            LOOKUP_KEYS.Team,
+            LOOKUP_KEYS.AdditionalStorage,
         ] as LookupKey[]
-        if (lab_admin_resources.includes(lookupKey)) return user?.is_lab_admin
+        if (lab_admin_resources.includes(props.lookupKey)) {
+            setCreateable(!!user?.is_lab_admin)
+            return
+        }
 
-        const fields = FIELDS[lookupKey]
-        return Object.keys(fields).includes('team')
-    }
+        console.log(`Checking if ${props.lookupKey} can be created`, {
+            description_query_data: description_query.data,
+        })
 
-    if (!get_can_create(props.lookupKey)) return <></>
+        setCreateable(
+            !!description_query.data?.data &&
+                Object.keys(description_query.data.data).includes('team'),
+        )
+    }, [description_query.data, props.lookupKey, user])
+
+    if (!createable) return <></>
 
     const ADD_ICON = ICONS.CREATE
 
     // Files are a special case and there's a whole page for handling them
-    if (props.lookupKey === LOOKUP_KEYS.FILE)
+    if (props.lookupKey === LOOKUP_KEYS.File)
         return (
             <Button component={Link} to={PATHS.UPLOAD} variant="contained">
                 Upload a new File
@@ -552,7 +569,7 @@ export default function WrappedResourceCreator<T extends GalvResource>(
                             />
                         )}
                     >
-                        {props.lookupKey === LOOKUP_KEYS.TOKEN ? (
+                        {props.lookupKey === LOOKUP_KEYS.Token ? (
                             <TokenCreator
                                 setModalOpen={setModalOpen}
                                 {...props}
@@ -570,7 +587,7 @@ export default function WrappedResourceCreator<T extends GalvResource>(
                                     } else {
                                         if (
                                             props.lookupKey ===
-                                                LOOKUP_KEYS.LAB &&
+                                                LOOKUP_KEYS.Lab &&
                                             !user?.is_lab_admin
                                         )
                                             refresh_user()

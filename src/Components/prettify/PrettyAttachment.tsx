@@ -60,7 +60,7 @@ export default function PrettyAttachment({
     if (edit_mode)
         return (
             <PrettyResourceSelect
-                lookupKey={LOOKUP_KEYS.ARBITRARY_FILE}
+                lookupKey={LOOKUP_KEYS.ArbitraryFile}
                 target={target}
                 onChange={onChange}
                 edit_mode={edit_mode}

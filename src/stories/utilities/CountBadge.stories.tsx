@@ -47,7 +47,7 @@ type Story = StoryObj<typeof meta>
 export const WithURL: Story = {
     args: {
         url: 'http://example.com/',
-        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />,
+        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.Team} />,
         tooltip: 'Go to example.com',
         badgeContent: 10,
     },
@@ -58,7 +58,7 @@ export const WithURL: Story = {
  */
 export const NoURL: Story = {
     args: {
-        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />,
+        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.Team} />,
         badgeContent: 10,
     },
 }
@@ -68,7 +68,7 @@ export const NoURL: Story = {
  */
 export const NoCount: Story = {
     args: {
-        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />,
+        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.Team} />,
         badgeContent: 0,
     },
 }

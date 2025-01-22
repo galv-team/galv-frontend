@@ -65,21 +65,30 @@ export default function CardBody<T extends GalvResource>({
 
     useEffect(() => {
         if (apiResource) {
+            if (!apiResourceDescription) {
+                console.warn(
+                    `[FIELD deprecation] apiResourceDescription not ready for ${lookupKey}`,
+                )
+                UndoRedoRef.current.set({} as T)
+                return
+            }
             const data = deep_copy(apiResource)
-            Object.entries(FIELDS[lookupKey]).forEach(([k, v]) => {
-                if (has_value(v, 'read_only', true)) {
+            Object.entries(apiResourceDescription).forEach(([k, v]) => {
+                if (v.read_only) {
                     delete data[k as keyof typeof data]
                 }
             })
-            apiResourceDescription &&
-                Object.entries(apiResourceDescription).forEach(([k, v]) => {
-                    if (
-                        v.read_only &&
-                        data[k as keyof typeof data] !== undefined
-                    ) {
-                        delete data[k as keyof typeof data]
-                    }
-                })
+            Object.entries(FIELDS[lookupKey]).forEach(([k, v]) => {
+                if (
+                    has_value(v, 'read_only', true) &&
+                    data[k as keyof typeof data] !== undefined
+                ) {
+                    console.warn(
+                        `[FIELD deprecation] ${lookupKey}: Field ${k}'s read_only property is true, but not removed using apiResourceDescription`,
+                    )
+                    delete data[k as keyof typeof data]
+                }
+            })
             UndoRedoRef.current.set(data)
         }
     }, [apiResource, lookupKey])
@@ -115,24 +124,33 @@ export default function CardBody<T extends GalvResource>({
                         lookupKey={lookupKey}
                         key="read-props"
                         filter={(d, lookupKey) => {
+                            if (!apiResourceDescription) {
+                                console.warn(
+                                    `[FIELD deprecation] apiResourceDescription not ready for ${lookupKey}`,
+                                )
+                                return {} as T
+                            }
                             const data = deep_copy(d)
-                            Object.entries(FIELDS[lookupKey]).forEach(
+                            Object.entries(apiResourceDescription).forEach(
                                 ([k, v]) => {
-                                    if (!has_value(v, 'read_only', true))
+                                    if (!v.read_only)
                                         delete data[k as keyof typeof data]
                                 },
                             )
-                            apiResourceDescription &&
-                                Object.entries(apiResourceDescription).forEach(
-                                    ([k, v]) => {
-                                        if (
-                                            !v.read_only &&
-                                            data[k as keyof typeof data] !==
-                                                undefined
+                            Object.entries(FIELDS[lookupKey]).forEach(
+                                ([k, v]) => {
+                                    if (
+                                        !has_value(v, 'read_only', true) &&
+                                        data[k as keyof typeof data] !==
+                                            undefined
+                                    ) {
+                                        console.warn(
+                                            `[FIELD deprecation] ${lookupKey}: Field ${k}'s read_only property is false, but not removed using apiResourceDescription`,
                                         )
-                                            delete data[k as keyof typeof data]
-                                    },
-                                )
+                                        delete data[k as keyof typeof data]
+                                    }
+                                },
+                            )
                             // Unrecognised fields are always editable
                             Object.keys(data).forEach((k) => {
                                 const in_description =
@@ -140,6 +158,13 @@ export default function CardBody<T extends GalvResource>({
                                     Object.keys(
                                         apiResourceDescription,
                                     ).includes(k)
+                                if (
+                                    !in_description &&
+                                    Object.keys(FIELDS[lookupKey]).includes(k)
+                                )
+                                    console.warn(
+                                        `[FIELD deprecation] ${lookupKey}: Field ${k} in FIELDS is not present in apiResourceDescription`,
+                                    )
                                 if (
                                     !Object.keys(FIELDS[lookupKey]).includes(
                                         k,
@@ -249,7 +274,7 @@ export default function CardBody<T extends GalvResource>({
                         }}
                     />
                 )}
-                {lookupKey === LOOKUP_KEYS.FILE && apiResource && (
+                {lookupKey === LOOKUP_KEYS.File && apiResource && (
                     <FileSummary resource={apiResource} hidePath={true} />
                 )}
             </Stack>

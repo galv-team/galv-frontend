@@ -32,7 +32,7 @@ import { has_value, id_from_ref_props } from './misc'
 import clsx from 'clsx'
 import UseStyles from '../styles/UseStyles'
 import { useSelectionManagement } from './SelectionManagementContext'
-import { representation } from './Representation'
+import { genericRepresentation } from './representation/GenericRepresentation'
 import SafeTooltip from './SafeTooltip'
 
 export type CardActionBarProps = {
@@ -67,17 +67,33 @@ export type CardActionBarProps = {
  */
 export default function CardActionBar(props: CardActionBarProps) {
     const { classes, theme } = UseStyles()
-    const { apiResource } = useApiResource()
+    const { apiResource, apiResourceDescription } = useApiResource()
     const iconProps: Partial<SvgIconProps> = {
         ...props.iconProps,
     }
     const selectable = props.selectable ?? typeof apiResource?.id === 'string'
     const { toggleSelected, isSelected } = useSelectionManagement()
 
+    // Check differences between FIELDS context and apiResourceDescription context
+    const api_context = Object.values(apiResourceDescription ?? {}).filter(
+        (e) => e.galv_resource,
+    )
+    const fields_context = Object.values(FIELDS[props.lookupKey]).filter((e) =>
+        is_lookupKey(e.type),
+    )
+    // const api_only = api_context.filter((e) => !fields_context.includes(e))
+    const fields_only = fields_context.filter((e) => !api_context.includes(e))
+    if (fields_only.length > 0) {
+        console.warn(
+            `[FIELDS deprecation] FIELD[${props.lookupKey}] has fields not present in apiResourceDescription.`,
+            fields_only,
+        )
+    }
+
     const context_section = (
         <>
-            {Object.entries(FIELDS[props.lookupKey])
-                .filter((e) => is_lookupKey(e[1].type))
+            {Object.entries(apiResourceDescription ?? {})
+                .filter((e) => e[1].galv_resource)
                 .map(([k, v]) => {
                     const relative_lookupKey = v.type as LookupKey
                     let content: ReactNode
@@ -225,7 +241,7 @@ export default function CardActionBar(props: CardActionBarProps) {
 
     const destroy_section = (
         <Stack direction="row" spacing={1} alignItems="center">
-            {props.lookupKey === LOOKUP_KEYS.FILE && props.reimportable && (
+            {props.lookupKey === LOOKUP_KEYS.File && props.reimportable && (
                 <SafeTooltip
                     title="Force the harvester to re-import this file"
                     arrow
@@ -291,7 +307,7 @@ export default function CardActionBar(props: CardActionBarProps) {
             {props.onFork && apiResource && (
                 <SafeTooltip
                     title={`
-            Create your own copy of ${representation({ data: apiResource, lookupKey: props.lookupKey })}
+            Create your own copy of ${genericRepresentation({ data: apiResource, lookupKey: props.lookupKey })}
             `}
                     arrow
                     describeChild

@@ -80,7 +80,7 @@ const meta = {
         },
     },
     args: {
-        lookupKey: LOOKUP_KEYS.CELL,
+        lookupKey: LOOKUP_KEYS.Cell,
     },
     beforeEach: async () => {
         window.confirm = fn(() => true)

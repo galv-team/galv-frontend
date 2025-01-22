@@ -4,8 +4,8 @@
 
 import { convert } from '../Components/prettify/TypeChanger'
 import {
-    TypeValueNotationWrapper,
     TypeValueNotation,
+    TypeValueNotationWrapper,
 } from '../Components/TypeValueNotation'
 import { describe, expect, test } from 'vitest'
 
@@ -20,7 +20,7 @@ const makeNullCases = () => {
         'boolean',
         'array',
         'object',
-        'galv_CELL',
+        'galv_Cell',
     ]
     return types.map((type) => {
         const input = { _type: type, _value: null }
@@ -52,7 +52,7 @@ const cases = [
                 _type: 'object',
                 _value: { 0: { _type: 'string', _value: '1' } },
             },
-            galv_CELL: { _type: 'galv_CELL', _value: 'undefined/cells/1' },
+            galv_Cell: { _type: 'galv_Cell', _value: 'undefined/cells/1' },
         },
     },
     {
@@ -68,7 +68,7 @@ const cases = [
                 _type: 'object',
                 _value: { 0: { _type: 'string', _value: 'true' } },
             },
-            galv_CELL: { _type: 'galv_CELL', _value: null },
+            galv_Cell: { _type: 'galv_Cell', _value: null },
         },
     },
     {
@@ -84,7 +84,7 @@ const cases = [
                 _type: 'object',
                 _value: { 0: { _type: 'string', _value: 'false' } },
             },
-            galv_CELL: { _type: 'galv_CELL', _value: null },
+            galv_Cell: { _type: 'galv_Cell', _value: null },
         },
     },
     {
@@ -97,7 +97,7 @@ const cases = [
                 _type: 'object',
                 _value: { 0: { _type: 'number', _value: 1 } },
             },
-            galv_CELL: { _type: 'galv_CELL', _value: 'undefined/cells/1' },
+            galv_Cell: { _type: 'galv_Cell', _value: 'undefined/cells/1' },
         },
     },
     {
@@ -113,7 +113,7 @@ const cases = [
                 _type: 'object',
                 _value: { 0: { _type: 'boolean', _value: true } },
             },
-            galv_CELL: { _type: 'galv_CELL', _value: null },
+            galv_Cell: { _type: 'galv_Cell', _value: null },
         },
     },
     {
@@ -126,7 +126,7 @@ const cases = [
                 _type: 'object',
                 _value: { 0: { _type: 'string', _value: '1' } },
             },
-            galv_CELL: { _type: 'galv_CELL', _value: null },
+            galv_Cell: { _type: 'galv_Cell', _value: null },
         },
     },
     {
@@ -142,11 +142,11 @@ const cases = [
                 _type: 'array',
                 _value: [{ _type: 'string', _value: '1' }],
             },
-            galv_CELL: { _type: 'galv_CELL', _value: null },
+            galv_Cell: { _type: 'galv_Cell', _value: null },
         },
     },
     {
-        input: { _type: 'galv_CELL', _value: 'https://example.com/cells/1' },
+        input: { _type: 'galv_Cell', _value: 'https://example.com/cells/1' },
         outputs: {
             string: { _type: 'string', _value: 'https://example.com/cells/1' },
             number: { _type: 'number', _value: null },
@@ -155,7 +155,7 @@ const cases = [
                 _type: 'array',
                 _value: [
                     {
-                        _type: 'galv_CELL',
+                        _type: 'galv_Cell',
                         _value: 'https://example.com/cells/1',
                     },
                 ],

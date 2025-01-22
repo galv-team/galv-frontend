@@ -19,7 +19,7 @@ vi.mock('../Components/IntroText')
 vi.mock('../Components/card/ResourceCard')
 vi.mock('../ClientCodeDemo')
 
-const doRender = async (key: LookupKey = LOOKUP_KEYS.CELL) => {
+const doRender = async (key: LookupKey = LOOKUP_KEYS.Cell) => {
     const queryClient = new QueryClient()
 
     render(
@@ -58,7 +58,7 @@ describe('ResourceList', () => {
     })
 
     it('shows a create button', async () => {
-        await doRender(LOOKUP_KEYS.EXPERIMENT)
+        await doRender(LOOKUP_KEYS.Experiment)
         await screen.findByText((t) => t.includes(experiments[0].id))
 
         expect(
@@ -79,7 +79,7 @@ describe('ResourceList', () => {
     })
 
     it('shows an upload button for files', async () => {
-        await doRender(LOOKUP_KEYS.FILE)
+        await doRender(LOOKUP_KEYS.File)
         await screen.findByText((t) => t.includes(files[0].id))
 
         expect(

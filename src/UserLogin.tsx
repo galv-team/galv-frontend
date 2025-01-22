@@ -82,7 +82,7 @@ function RegisterForm({
                 })
                 return
             }
-            queryClient.setQueryData([LOOKUP_KEYS.USER, data.data.id], data)
+            queryClient.setQueryData([LOOKUP_KEYS.User, data.data.id], data)
             postSnackbarMessage({
                 message: `Activation code sent to ${data.data.email}`,
                 severity: 'success',
@@ -597,7 +597,7 @@ export default function UserLogin() {
         <Button
             onClick={() => setLoginFormOpen(!loginFormOpen)}
             ref={popoverAnchorRef}
-            startIcon={<ICONS.USER />}
+            startIcon={<ICONS.User />}
             variant="contained"
         >
             <Typography>{user.username}</Typography>
@@ -637,16 +637,16 @@ export default function UserLogin() {
                 </ListItemIcon>
                 <ListItemButton
                     component={Link}
-                    to={`${PATHS.USER}/${user?.id}?editing=true`}
+                    to={`${PATHS.User}/${user?.id}?editing=true`}
                 >
                     Manage Profile
                 </ListItemButton>
             </ListItem>
             <ListItem>
                 <ListItemIcon>
-                    <ICONS.TOKEN />
+                    <ICONS.Token />
                 </ListItemIcon>
-                <ListItemButton component={Link} to={`${PATHS.TOKEN}`}>
+                <ListItemButton component={Link} to={`${PATHS.Token}`}>
                     API Tokens
                 </ListItemButton>
             </ListItem>

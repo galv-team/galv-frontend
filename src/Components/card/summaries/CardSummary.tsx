@@ -38,17 +38,17 @@ import CardContent from '@mui/material/CardContent'
 const CUSTOM_SUMMARIES: Partial<
     Record<LookupKey, (resource: { resource: GalvResource }) => ReactNode>
 > = {
-    [LOOKUP_KEYS.ARBITRARY_FILE]: ArbitraryFileSummary,
-    [LOOKUP_KEYS.ADDITIONAL_STORAGE]: AdditionalStorageSummary,
-    [LOOKUP_KEYS.HARVESTER]: HarvesterSummary,
-    [LOOKUP_KEYS.TEAM]: TeamSummary,
-    [LOOKUP_KEYS.LAB]: LabSummary,
-    [LOOKUP_KEYS.UNIT]: UnitSummary,
-    [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnSummary,
-    [LOOKUP_KEYS.PATH]: PathSummary,
-    [LOOKUP_KEYS.FILE]: FileSummary,
-    [LOOKUP_KEYS.CYCLER_TEST]: CyclerTestSummary,
-    [LOOKUP_KEYS.EXPERIMENT]: ExperimentSummary,
+    [LOOKUP_KEYS.ArbitraryFile]: ArbitraryFileSummary,
+    [LOOKUP_KEYS.AdditionalStorage]: AdditionalStorageSummary,
+    [LOOKUP_KEYS.Harvester]: HarvesterSummary,
+    [LOOKUP_KEYS.Team]: TeamSummary,
+    [LOOKUP_KEYS.Lab]: LabSummary,
+    [LOOKUP_KEYS.Unit]: UnitSummary,
+    [LOOKUP_KEYS.ColumnFamily]: ColumnSummary,
+    [LOOKUP_KEYS.Path]: PathSummary,
+    [LOOKUP_KEYS.File]: FileSummary,
+    [LOOKUP_KEYS.CyclerTest]: CyclerTestSummary,
+    [LOOKUP_KEYS.Experiment]: ExperimentSummary,
 } as const
 
 /**
@@ -70,6 +70,10 @@ export default function CardSummary<T extends GalvResource>({
             CUSTOM_SUMMARIES[lookupKey as keyof typeof CUSTOM_SUMMARIES]!
         return <COMPONENT resource={apiResource} />
     }
+
+    console.warn(
+        `Using generic fallback summary for ${lookupKey}. This will be deprecated soon.`,
+    )
 
     const is_family_child = (child_key: LookupKey, family_key: LookupKey) => {
         if (!get_is_family(family_key)) return false

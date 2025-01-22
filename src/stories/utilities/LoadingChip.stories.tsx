@@ -42,7 +42,7 @@ type Story = StoryObj<typeof meta>
 export const WithURL: Story = {
     args: {
         url: 'http://example.com/',
-        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />,
+        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.Team} />,
     },
 }
 
@@ -51,6 +51,6 @@ export const WithURL: Story = {
  */
 export const NoURL: Story = {
     args: {
-        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.TEAM} />,
+        icon: <LookupKeyIcon lookupKey={LOOKUP_KEYS.Team} />,
     },
 }

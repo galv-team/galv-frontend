@@ -5,18 +5,18 @@ describe('template spec', () => {
         cy.intercept(
             {
                 method: 'GET',
-                url: `${PATHS.CELL}`,
+                url: `${PATHS.Cell}`,
             },
-            { fixture: PATHS.CELL.replace(/^\//, '') },
+            { fixture: PATHS.Cell.replace(/^\//, '') },
         )
         cy.intercept(
             {
                 method: 'GET',
-                url: `${PATHS.CELL}/*`,
+                url: `${PATHS.Cell}/*`,
             },
             async (req) => {
                 const id = req.url.split('/').pop()
-                const cells = await cy.fixture(PATHS.CELL.replace(/^\//, ''))
+                const cells = await cy.fixture(PATHS.Cell.replace(/^\//, ''))
                 req.reply({
                     body: cells.results.find((cell) => cell.uuid === id),
                 })

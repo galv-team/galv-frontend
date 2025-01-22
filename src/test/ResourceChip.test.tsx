@@ -15,7 +15,7 @@ import { expect, it, vi } from 'vitest'
 import { cells } from './fixtures/fixtures'
 import ResourceChip from '../Components/ResourceChip'
 
-vi.mock('../Components/Representation')
+vi.mock('../Components/representation/GenericRepresentation')
 
 const cell = cells[0]
 
@@ -28,7 +28,7 @@ it('renders', async () => {
                 <FetchResourceContextProvider>
                     <FilterContextProvider>
                         <ResourceChip
-                            lookupKey={LOOKUP_KEYS.CELL}
+                            lookupKey={LOOKUP_KEYS.Cell}
                             resourceId={cell.id}
                         />
                     </FilterContextProvider>
@@ -36,6 +36,6 @@ it('renders', async () => {
             </QueryClientProvider>
         </MemoryRouter>,
     )
-    await screen.findByText(/DummyRepresentation/)
+    await screen.findByText(/Dummy.*GenericRepresentation/)
     expect(screen.getByText((t) => t.includes(cell.id))).toBeInTheDocument()
 })

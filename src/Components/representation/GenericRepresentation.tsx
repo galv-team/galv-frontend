@@ -4,11 +4,11 @@ import {
     GalvResource,
     LookupKey,
     PRIORITY_LEVELS,
-} from '../constants'
+} from '../../constants'
 import { ReactNode } from 'react'
-import { useFetchResource } from './FetchResourceContext'
+import { useFetchResource } from '../FetchResourceContext'
 
-export function representation({
+export function genericRepresentation({
     data,
     lookupKey,
 }: {
@@ -57,7 +57,7 @@ export default function Representation<T extends GalvResource>({
         <>
             {prefix ?? ''}
             {query.data
-                ? representation({ data: query.data.data, lookupKey })
+                ? genericRepresentation({ data: query.data.data, lookupKey })
                 : resourceId}
             {suffix ?? ''}
         </>

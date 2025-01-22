@@ -458,7 +458,7 @@ export default function PrettyObject<
                 permissions={permissions}
                 query={permissions_query}
                 edit_fun_factory={_edit_mode ? edit_fun_factory : undefined}
-                is_path={lookupKey === LOOKUP_KEYS.PATH}
+                is_path={lookupKey === LOOKUP_KEYS.Path}
             />
             <TableContainer
                 className={clsx(classes.prettyTable, {

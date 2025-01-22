@@ -20,7 +20,7 @@ import Autocomplete, {
     createFilterOptions,
 } from '@mui/material/Autocomplete'
 import CircularProgress from '@mui/material/CircularProgress'
-import { representation } from '../Representation'
+import { genericRepresentation } from '../representation/GenericRepresentation'
 import { useFetchResource } from '../FetchResourceContext'
 import { get_modal_title, ResourceCreator } from '../ResourceCreator'
 import Modal from '@mui/material/Modal'
@@ -72,7 +72,7 @@ export const PrettyResourceSelect = <T extends GalvResource>({
     const represent = (url: string) => {
         const object = url_to_query_result(url)
         if (!object) return url
-        return representation({ data: object, lookupKey })
+        return genericRepresentation({ data: object, lookupKey })
     }
     const url_to_value = (url: string) => represent(url)
     const value_to_url = (value: string) => {
@@ -225,7 +225,7 @@ export default function PrettyResource({
     if (lookupKey !== url_components?.lookupKey) {
         // Labs' Galv Storage is exposed under the Additional Storage lookup key because currently we
         // don't support multiple resource types in a single array.
-        if (lookupKey === LOOKUP_KEYS.ADDITIONAL_STORAGE)
+        if (lookupKey === LOOKUP_KEYS.AdditionalStorage)
             lookupKey = url_components?.lookupKey ?? lookupKey
         else lookupKey = lookupKey ?? url_components?.lookupKey
     }

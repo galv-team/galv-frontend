@@ -28,7 +28,7 @@ import { has } from '../Components/misc'
 // @ts-expect-error - globalThis is not defined in Jest
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
-vi.mock('../Components/Representation')
+vi.mock('/Components/representation/GenericRepresentation')
 vi.mock('../Components/ResourceChip')
 vi.mock('../DatasetChart')
 
@@ -64,7 +64,7 @@ const do_render = async () => {
     render(
         <ContextStack>
             <ResourceCardFromQuery<Cell>
-                lookupKey={LOOKUP_KEYS.CELL}
+                lookupKey={LOOKUP_KEYS.Cell}
                 resourceId={cells[0].id}
                 expanded
             />
@@ -672,19 +672,19 @@ describe('ResourceCard', () => {
                 id_label.parentElement! as HTMLElement,
             ).getByRole('combobox')
             expect(input).toHaveValue(
-                `representation: CELL_FAMILY [${cell_family.id}]`,
+                `representation: CellFamily [${cell_family.id}]`,
             )
             await user.click(input)
             await user.clear(input)
             await user.keyboard('2') // should match the second cell family
             const autocomplete = await screen.findByRole('listbox')
             const option = within(autocomplete).getByText(
-                `representation: CELL_FAMILY [${cell_families[1].id}]`,
+                `representation: CellFamily [${cell_families[1].id}]`,
             )
             await user.click(option)
             await wait()
             expect(input).toHaveValue(
-                `representation: CELL_FAMILY [${cell_families[1].id}]`,
+                `representation: CellFamily [${cell_families[1].id}]`,
             )
         })
     }, 15000)
@@ -957,23 +957,23 @@ describe('ResourceCard', () => {
         // TODO: Fix these tests - can't get them to actually change the type
         // The button registers as clicked, but the type update rerender doesn't seem to happen.
         // it('allows changing the type of a string to a resource', async () => {
-        //     const row = await setup("key str", "galv_CELL");
+        //     const row = await setup("key str", "galv_Cell");
         //     expect(within(row).getByRole('combobox')).toHaveValue("undefined/cells/custom")
         // })
         // it('allows changing the type of a boolean to a resource', async () => {
-        //     const row = await setup("key bool", "galv_CELL");
+        //     const row = await setup("key bool", "galv_Cell");
         //     expect(within(row).getByRole('combobox')).toHaveValue("")
         // })
         // it('allows changing the type of a number to a resource', async () => {
-        //     const row = await setup("key num", "galv_CELL");
+        //     const row = await setup("key num", "galv_Cell");
         //     expect(within(row).getByRole('combobox')).toHaveValue("")
         // })
         // it('allows changing the type of an array to a resource', async () => {
-        //     const row = await setup("key arr", "galv_CELL");
+        //     const row = await setup("key arr", "galv_Cell");
         //     expect(within(row).getByRole('combobox')).toHaveValue("")
         // })
         // it('allows changing the type of an object to a resource', async () => {
-        //     const row = await setup("key obj", "galv_CELL");
+        //     const row = await setup("key obj", "galv_Cell");
         //     expect(within(row).getByRole('combobox')).toHaveValue("")
         // })
     }, 500000) // Takes forever on MacOS 13 for some reason?

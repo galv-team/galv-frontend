@@ -29,7 +29,7 @@ it('renders', async () => {
                     <FilterContextProvider>
                         <AttachmentUploadContextProvider>
                             <WrappedResourceCreator
-                                lookupKey={LOOKUP_KEYS.CELL}
+                                lookupKey={LOOKUP_KEYS.Cell}
                             />
                         </AttachmentUploadContextProvider>
                     </FilterContextProvider>

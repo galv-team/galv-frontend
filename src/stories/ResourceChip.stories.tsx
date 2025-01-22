@@ -71,7 +71,7 @@ const meta = {
     args: {
         short_name: false,
         resourceId: cells[0].id,
-        lookupKey: LOOKUP_KEYS.CELL,
+        lookupKey: LOOKUP_KEYS.Cell,
     },
 } satisfies Meta<typeof ResourceChip>
 

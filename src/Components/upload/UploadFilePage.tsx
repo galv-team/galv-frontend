@@ -124,11 +124,11 @@ export function ReuploadFile({ clickOnly }: ReuploadFileProps) {
         onSuccess: (data: AxiosResponse<ObservedFileCreate>) => {
             if (data) {
                 queryClient.invalidateQueries({
-                    queryKey: [LOOKUP_KEYS.FILE, data.data.id],
+                    queryKey: [LOOKUP_KEYS.File, data.data.id],
                     exact: true,
                     refetchType: 'all',
                 })
-                navigate(`${PATHS[LOOKUP_KEYS.FILE]}/${data.data.id}`)
+                navigate(`${PATHS[LOOKUP_KEYS.File]}/${data.data.id}`)
             }
         },
         onError: (error: AxiosError) => {
@@ -146,7 +146,7 @@ export function ReuploadFile({ clickOnly }: ReuploadFileProps) {
             setComplete(true)
             if (data)
                 queryClient.invalidateQueries({
-                    queryKey: [LOOKUP_KEYS.FILE, data.data.id],
+                    queryKey: [LOOKUP_KEYS.File, data.data.id],
                     exact: true,
                     refetchType: 'all',
                 })
@@ -262,11 +262,11 @@ export function UploadFilePage() {
         onSuccess: (data: AxiosResponse<ObservedFileCreate>) => {
             if (data) {
                 queryClient.invalidateQueries({
-                    queryKey: [LOOKUP_KEYS.FILE, data.data.id],
+                    queryKey: [LOOKUP_KEYS.File, data.data.id],
                     exact: true,
                     refetchType: 'all',
                 })
-                navigate(`${PATHS[LOOKUP_KEYS.FILE]}/${data.data.id}`)
+                navigate(`${PATHS[LOOKUP_KEYS.File]}/${data.data.id}`)
             }
         },
         onError: (error: AxiosError) => {
@@ -362,7 +362,7 @@ export function UploadFilePage() {
                 Harvesters. If in doubt, use .csv files!
             </Typography>
             <CardActionBar
-                lookupKey={LOOKUP_KEYS.FILE}
+                lookupKey={LOOKUP_KEYS.File}
                 excludeContext={true}
                 selectable={false}
                 editable={true}
@@ -386,9 +386,9 @@ export function UploadFilePage() {
                 <PrettyObject
                     target={to_type_value_notation_wrapper(
                         UndoRedo.current as SerializableObject,
-                        LOOKUP_KEYS.FILE,
+                        LOOKUP_KEYS.File,
                     )}
-                    lookupKey={LOOKUP_KEYS.FILE}
+                    lookupKey={LOOKUP_KEYS.File}
                     edit_mode={true}
                     creating={true}
                     onEdit={(v) => {

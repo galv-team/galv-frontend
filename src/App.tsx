@@ -118,7 +118,7 @@ export function Core() {
             <Divider component="li" key="div0">
                 {open && 'Outputs'}
             </Divider>
-            {[LOOKUP_KEYS.EXPERIMENT, LOOKUP_KEYS.CYCLER_TEST].map(
+            {[LOOKUP_KEYS.Experiment, LOOKUP_KEYS.CyclerTest].map(
                 (lookupKey) => (
                     <LI key={lookupKey} lookupKey={lookupKey} />
                 ),
@@ -127,11 +127,11 @@ export function Core() {
                 {open && 'Resources'}
             </Divider>
             {[
-                LOOKUP_KEYS.FILE,
-                LOOKUP_KEYS.CELL,
-                LOOKUP_KEYS.EQUIPMENT,
-                LOOKUP_KEYS.SCHEDULE,
-                LOOKUP_KEYS.ARBITRARY_FILE,
+                LOOKUP_KEYS.File,
+                LOOKUP_KEYS.Cell,
+                LOOKUP_KEYS.Equipment,
+                LOOKUP_KEYS.Schedule,
+                LOOKUP_KEYS.ArbitraryFile,
             ].map((lookupKey) => (
                 <LI key={lookupKey} lookupKey={lookupKey} />
             ))}
@@ -139,10 +139,10 @@ export function Core() {
                 {open && 'Inputs'}
             </Divider>
             {[
-                LOOKUP_KEYS.PATH,
-                LOOKUP_KEYS.VALIDATION_SCHEMA,
-                LOOKUP_KEYS.COLUMN_FAMILY,
-                LOOKUP_KEYS.UNIT,
+                LOOKUP_KEYS.Path,
+                LOOKUP_KEYS.ValidationSchema,
+                LOOKUP_KEYS.ColumnFamily,
+                LOOKUP_KEYS.Unit,
             ].map((lookupKey) => (
                 <LI key={lookupKey} lookupKey={lookupKey} />
             ))}
@@ -150,10 +150,10 @@ export function Core() {
                 {open && 'Management'}
             </Divider>
             {[
-                LOOKUP_KEYS.LAB,
-                LOOKUP_KEYS.TEAM,
-                LOOKUP_KEYS.HARVESTER,
-                LOOKUP_KEYS.ADDITIONAL_STORAGE,
+                LOOKUP_KEYS.Lab,
+                LOOKUP_KEYS.Team,
+                LOOKUP_KEYS.Harvester,
+                LOOKUP_KEYS.AdditionalStorage,
             ].map((lookupKey) => (
                 <LI key={lookupKey} lookupKey={lookupKey} />
             ))}
@@ -275,7 +275,7 @@ export function Core() {
         return (
             <ResourceCard
                 resourceId={id ?? -1}
-                lookupKey={lookupKey ?? 'CYCLER_TEST'}
+                lookupKey={lookupKey ?? 'CyclerTest'}
                 expanded={true}
                 editing={searchParams.get('editing') === 'true'}
             />
@@ -292,7 +292,7 @@ export function Core() {
             return <></>
         }
 
-        return <ResourceList lookupKey={lookupKey ?? 'CYCLER_TEST'} />
+        return <ResourceList lookupKey={lookupKey ?? 'CyclerTest'} />
     }
 
     /* A <Routes> looks through its children <Route>s and renders the first one that matches the current URL. */
@@ -302,7 +302,7 @@ export function Core() {
                 <Route path={PATHS.DASHBOARD} element={Layout}>
                     {/*<Route path={PATHS.GRAPH} element={<DatasetChart />} />*/}
                     <Route
-                        path={`${PATHS.MAPPING}/:id`}
+                        path={`${PATHS.ColumnMapping}/:id`}
                         element={<Mapping />}
                     />
                     {/* Handle direct resource lookups */}

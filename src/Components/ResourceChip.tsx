@@ -8,7 +8,7 @@ import QueryWrapper, { QueryWrapperProps } from './QueryWrapper'
 import ErrorChip from './error/ErrorChip'
 import { FAMILY_LOOKUP_KEYS, GalvResource, PATHS } from '../constants'
 import ErrorBoundary from './ErrorBoundary'
-import Representation from './Representation'
+import Representation from './representation/GenericRepresentation'
 import { FilterContext } from './filtering/FilterContext'
 import ApiResourceContextProvider, {
     ApiResourceContextProviderProps,

@@ -81,7 +81,7 @@ function MappingQuickSelect({
         mappings.find((m) => m.url === file.mapping)?.url ?? '',
     )
     const { useUpdateQuery } = useFetchResource()
-    const updateQuery = useUpdateQuery<ObservedFile>(LOOKUP_KEYS.FILE, {
+    const updateQuery = useUpdateQuery<ObservedFile>(LOOKUP_KEYS.File, {
         after_cache: () => {
             setStatus(
                 <Alert severity="success">Mapping updated successfully</Alert>,
@@ -202,7 +202,7 @@ function FileStatus({
                         file.permissions.write && (
                             <Button
                                 component={Link}
-                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                                to={`${PATHS.ColumnMapping}/${file.id ?? file.id}`}
                                 size="small"
                             >
                                 Edit mapping
@@ -224,7 +224,7 @@ function FileStatus({
                         file.permissions.write && (
                             <Button
                                 component={Link}
-                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                                to={`${PATHS.ColumnMapping}/${file.id ?? file.id}`}
                                 size="small"
                             >
                                 Edit mapping
@@ -253,7 +253,7 @@ function FileStatus({
                         file.permissions.write && (
                             <Button
                                 component={Link}
-                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                                to={`${PATHS.ColumnMapping}/${file.id ?? file.id}`}
                                 size="small"
                             >
                                 Choose mapping
@@ -282,7 +282,7 @@ function FileStatus({
                         file.permissions.write && (
                             <Button
                                 component={Link}
-                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                                to={`${PATHS.ColumnMapping}/${file.id ?? file.id}`}
                                 size="small"
                             >
                                 Create mapping

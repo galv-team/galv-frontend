@@ -46,10 +46,14 @@ export const get_select_function =
     <T,>(lookupKey: LookupKey) =>
     (data: AxiosResponse<GalvResource>) => {
         Object.entries(FIELDS[lookupKey]).forEach(([k, v]) => {
-            if (has(v, 'transformation'))
+            if (has(v, 'transformation')) {
+                console.warn(
+                    `[FIELDS deprecation] ${lookupKey}.${k} has a transformation`,
+                )
                 data.data[k as keyof typeof data.data] = v.transformation(
                     data.data[k as keyof typeof data.data],
                 )
+            }
         })
         return data as AxiosResponse<T>
     }

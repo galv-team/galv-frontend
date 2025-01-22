@@ -137,6 +137,41 @@ const build_get_endpoints =
 
         const data = resources[resource_name]
 
+        // Return the type of a key in the resource and whether it's a Galv resource
+        const get_type = (
+            k: keyof (typeof data)[0],
+            override_value?: unknown,
+        ): { type: string; galv_resource: boolean } => {
+            console.log('get_type', { k, override_value })
+            const value = override_value ?? (data[0][k] as unknown)
+            const regex = /https?:\/\/[^/]+\/([\w_]+)\/[a-zA-Z0-9_-]+/
+            if (value instanceof Array) {
+                const types = value.map((x) => get_type(k, x))
+                if (!types.every((x) => x.type === types[0].type)) {
+                    console.warn(`Array ${k} has multiple types: ${types}`)
+                    return { type: 'Unknown', galv_resource: false }
+                }
+                return types[0]
+            }
+            const match = regex.exec(String(value))
+            if (k === ('url' as typeof k) || !match)
+                return { type: typeof value, galv_resource: false }
+            // Split the match section into parts on _ and then capitalize each part
+            const parts = match[1]
+                .split('_')
+                .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+
+            const fix_ending = (s: string) => {
+                if (s.endsWith('ies')) return s.slice(0, -3) + 'y'
+                if (s.endsWith('s')) return s.slice(0, -1)
+                return s
+            }
+
+            const type = fix_ending(parts.join(''))
+            console.log('type', type)
+            return { type, galv_resource: true }
+        }
+
         // If there's a description request, return the description
         if (/describe\/$/.test(url_extras)) {
             const d = data[0]
@@ -144,7 +179,7 @@ const build_get_endpoints =
             for (const key in d) {
                 if (['custom_properties'].includes(key)) continue
                 dict[key as keyof typeof d] = {
-                    type: typeof d[key as keyof typeof d],
+                    ...get_type(key as keyof typeof d),
                     many: Array.isArray(d[key as keyof typeof d]),
                     help_text: key,
                     required: false,

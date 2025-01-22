@@ -31,7 +31,7 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import Chip from '@mui/material/Chip'
-import Representation from './Components/Representation'
+import Representation from './Components/representation/GenericRepresentation'
 import ListSubheader from '@mui/material/ListSubheader'
 import IntroText from './Components/IntroText'
 import Box from '@mui/material/Box'
@@ -131,7 +131,7 @@ function KeySummary({
                             <ListItemText key="count">
                                 <Representation
                                     resourceId={schema_id}
-                                    lookupKey={LOOKUP_KEYS.VALIDATION_SCHEMA}
+                                    lookupKey={LOOKUP_KEYS.ValidationSchema}
                                 />
                                 : {count}
                             </ListItemText>
@@ -237,7 +237,7 @@ function KeySummary({
                                                                 d.detail.schema,
                                                             )}
                                                             lookupKey={
-                                                                LOOKUP_KEYS.VALIDATION_SCHEMA
+                                                                LOOKUP_KEYS.ValidationSchema
                                                             }
                                                         />
                                                         <Typography>
@@ -342,7 +342,7 @@ export function SchemaValidationList() {
 export function DatasetStatus() {
     const { useListQuery } = useFetchResource()
     const query = useListQuery(
-        LOOKUP_KEYS.FILE,
+        LOOKUP_KEYS.File,
     ) as ListQueryResult<ObservedFile>
     const { classes, theme } = useStyles()
 
@@ -412,8 +412,8 @@ export function DatasetStatus() {
             ) : (
                 <Card>
                     <CardHeader
-                        avatar={<LookupKeyIcon lookupKey={LOOKUP_KEYS.FILE} />}
-                        title={DISPLAY_NAMES_PLURAL[LOOKUP_KEYS.FILE]}
+                        avatar={<LookupKeyIcon lookupKey={LOOKUP_KEYS.File} />}
+                        title={DISPLAY_NAMES_PLURAL[LOOKUP_KEYS.File]}
                         action={
                             <Stack
                                 direction="row"
@@ -495,7 +495,7 @@ export function DatasetStatus() {
                                                         >
                                                             <ApiResourceContextProvider
                                                                 lookupKey={
-                                                                    LOOKUP_KEYS.FILE
+                                                                    LOOKUP_KEYS.File
                                                                 }
                                                                 resourceId={
                                                                     f.id
@@ -564,7 +564,7 @@ export function DatasetStatus() {
                                                         >
                                                             <ApiResourceContextProvider
                                                                 lookupKey={
-                                                                    LOOKUP_KEYS.FILE
+                                                                    LOOKUP_KEYS.File
                                                                 }
                                                                 resourceId={
                                                                     f.id

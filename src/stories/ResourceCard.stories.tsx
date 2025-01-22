@@ -40,7 +40,7 @@ const meta = {
                         <FetchResourceContextProvider>
                             <ApiResourceContextProvider
                                 lookupKey={
-                                    context.args.lookupKey ?? LOOKUP_KEYS.CELL
+                                    context.args.lookupKey ?? LOOKUP_KEYS.Cell
                                 }
                                 resourceId={
                                     context.args.resourceId ?? cells[0].id
@@ -90,7 +90,7 @@ const meta = {
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
     args: {
         resourceId: cells[0].id,
-        lookupKey: LOOKUP_KEYS.CELL,
+        lookupKey: LOOKUP_KEYS.Cell,
     },
     beforeEach: async () => {
         window.confirm = fn(() => true)
@@ -292,7 +292,7 @@ export const DeleteError: Story = {
  */
 export const CompleteUpload: Story = {
     args: {
-        lookupKey: LOOKUP_KEYS.FILE,
+        lookupKey: LOOKUP_KEYS.File,
         resourceId: files.find((f) => f.name === 'partial.csv')?.id,
     },
 }

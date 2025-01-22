@@ -54,7 +54,8 @@ export type FieldDescription = {
         | 'choice'
         | 'json'
         | string
-    many: boolean
+    galv_resource: boolean // Whether the `type` is a Galv Resource
+    many: boolean // Whether the field is a list
     help_text: string
     required: boolean
     read_only: boolean
@@ -558,7 +559,7 @@ export default function FetchResourceContextProvider({
                 queryClient.invalidateQueries({
                     queryKey: [lookupKey, 'list'],
                 })
-                if (lookupKey === LOOKUP_KEYS.LAB) {
+                if (lookupKey === LOOKUP_KEYS.Lab) {
                     refresh_user()
                 }
                 // Invalidate autocomplete cache

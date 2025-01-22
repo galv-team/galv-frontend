@@ -19,7 +19,7 @@ const meta = {
         k: { options: Object.values(LOOKUP_KEYS) },
     },
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
-    args: { k: LOOKUP_KEYS.CELL },
+    args: { k: LOOKUP_KEYS.Cell },
 } satisfies Meta<typeof IntroText>
 
 export default meta

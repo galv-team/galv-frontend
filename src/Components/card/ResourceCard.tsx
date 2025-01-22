@@ -29,7 +29,7 @@ import {
 import ResourceChip from '../ResourceChip'
 import ErrorBoundary from '../ErrorBoundary'
 import UndoRedoProvider, { useUndoRedoContext } from '../UndoRedoContext'
-import Representation from '../Representation'
+import Representation from '../representation/GenericRepresentation'
 import { FilterContext } from '../filtering/FilterContext'
 import ApiResourceContextProvider, {
     ApiResourceContextProviderProps,
@@ -140,8 +140,8 @@ function ResourceCard<T extends GalvResource>({
             // Harvesters must be created elsewhere - they can't be forked
             onFork={
                 apiResource?.permissions?.create &&
-                lookupKey !== LOOKUP_KEYS.HARVESTER &&
-                lookupKey !== LOOKUP_KEYS.TOKEN
+                lookupKey !== LOOKUP_KEYS.Harvester &&
+                lookupKey !== LOOKUP_KEYS.Token
                     ? () => setForking(true)
                     : undefined
             }
@@ -195,7 +195,7 @@ function ResourceCard<T extends GalvResource>({
                     : undefined
             }
             reimportable={
-                lookupKey === LOOKUP_KEYS.FILE &&
+                lookupKey === LOOKUP_KEYS.File &&
                 apiResource?.permissions?.write &&
                 has(apiResource, 'state') &&
                 apiResource.state !== 'RETRY IMPORT'
@@ -260,7 +260,7 @@ The file will be added to the Harvester's usual queue for processing.
                         <A component={Link} to={PATHS[lookupKey]}>
                             {DISPLAY_NAMES[lookupKey]}
                         </A>
-                        <LoadingChip icon={<ICONS.TEAM />} />
+                        <LoadingChip icon={<ICONS.Team />} />
                     </Stack>
                 }
                 action={action}
@@ -320,7 +320,7 @@ The file will be added to the Harvester's usual queue for processing.
                         {has(apiResource, 'team') &&
                             apiResource.team !== null && (
                                 <ResourceChip
-                                    lookupKey="TEAM"
+                                    lookupKey={LOOKUP_KEYS.Team}
                                     resourceId={id_from_ref_props<number>(
                                         apiResource.team,
                                     )}

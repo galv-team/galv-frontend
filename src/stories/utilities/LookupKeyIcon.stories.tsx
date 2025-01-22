@@ -19,7 +19,7 @@ const meta = {
         lookupKey: { options: Object.values(LOOKUP_KEYS) },
     },
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
-    args: { lookupKey: LOOKUP_KEYS.CELL, tooltip: false },
+    args: { lookupKey: LOOKUP_KEYS.Cell, tooltip: false },
 } satisfies Meta<typeof LookupKeyIcon>
 
 export default meta

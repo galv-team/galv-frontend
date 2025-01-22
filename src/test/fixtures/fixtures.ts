@@ -84,7 +84,7 @@ export const cells: Cell[] = [
                 },
             },
             cf: {
-                _type: 'galv_CELL_FAMILY',
+                _type: 'galv_CellFamily',
                 _value: 'http://example.com/cell_families/1000-1000-1000-1000',
             },
         },

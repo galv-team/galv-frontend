@@ -146,10 +146,10 @@ export default function CurrentUserContextProvider({
     })
 
     const Refresh = useQuery({
-        queryKey: [LOOKUP_KEYS.USER, 'refresh'],
+        queryKey: [LOOKUP_KEYS.User, 'refresh'],
         queryFn: () => {
             if (!user) return
-            const api = new API_HANDLERS[LOOKUP_KEYS.USER](api_config)
+            const api = new API_HANDLERS[LOOKUP_KEYS.User](api_config)
             return api
                 .usersRetrieve({ id: user.id })
                 .then((response: AxiosResponse<User>) => {

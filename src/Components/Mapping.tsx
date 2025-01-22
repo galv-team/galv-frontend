@@ -166,7 +166,7 @@ function CreateColumnType({
                             onCreate(new_resource_url)
                         }}
                         onDiscard={() => setOpen(false)}
-                        lookupKey={LOOKUP_KEYS.COLUMN_FAMILY}
+                        lookupKey={LOOKUP_KEYS.ColumnFamily}
                     />
                 </UndoRedoProvider>
             </>
@@ -184,7 +184,7 @@ function SelectColumnType({
     reset_name: string
 }) {
     const { useListQuery } = useFetchResource()
-    const query = useListQuery<DataColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
+    const query = useListQuery<DataColumnType>(LOOKUP_KEYS.ColumnFamily)
     const { classes } = useStyles()
     const [createModalOpen, setCreateModalOpen] = useState(false)
 
@@ -826,7 +826,7 @@ function MappingManager({
     })
     const { classes } = useStyles()
     const { useListQuery, useCreateQuery, useUpdateQuery } = useFetchResource()
-    const col_query = useListQuery<DataColumnType>(LOOKUP_KEYS.COLUMN_FAMILY)
+    const col_query = useListQuery<DataColumnType>(LOOKUP_KEYS.ColumnFamily)
     const [more, setMore] = React.useState(false)
     const [advancedPropertiesOpen, setAdvancedPropertiesOpen] =
         React.useState(false)
@@ -838,14 +838,14 @@ function MappingManager({
         return m ? { ...m } : blank_map()
     })
     const navigate = useNavigate()
-    const updateFileMutation = useUpdateQuery<ObservedFile>(LOOKUP_KEYS.FILE)
+    const updateFileMutation = useUpdateQuery<ObservedFile>(LOOKUP_KEYS.File)
     const updateFile = (new_mapping: DB_MappingResource) =>
         updateFileMutation.mutate(
             { ...file!, mapping: new_mapping.url },
             { onSuccess: () => navigate(0) },
         )
     const createMapMutation = useCreateQuery<DB_MappingResource>(
-        LOOKUP_KEYS.MAPPING,
+        LOOKUP_KEYS.ColumnMapping,
         { after_cache: (r) => updateFile(r.data) },
     )
     const createMap = (data: ApplicableMappingResource) => {
@@ -864,12 +864,12 @@ function MappingManager({
         })
     }
     const updateMapMutation = useUpdateQuery<DB_MappingResource>(
-        LOOKUP_KEYS.MAPPING,
+        LOOKUP_KEYS.ColumnMapping,
     )
     const updateMap = (data: DB_MappingResource) =>
         updateMapMutation.mutate(data, { onSuccess: () => navigate(0) })
     // TODO: Implement deleteMapMutation when backend supplies delete permissions
-    // const deleteMapMutation = useDeleteQuery<DB_MappingResource>(LOOKUP_KEYS.MAPPING)
+    // const deleteMapMutation = useDeleteQuery<DB_MappingResource>(LOOKUP_KEYS.ColumnMapping)
     // const deleteMap = (data: DB_MappingResource) => deleteMapMutation.mutate(data, {onSuccess: () => navigate(0)})
 
     if (col_query?.hasNextPage && !col_query.isFetchingNextPage)
@@ -963,7 +963,7 @@ function MappingManager({
                     {file?.id && (
                         <ResourceChip
                             resourceId={file.id as string}
-                            lookupKey={LOOKUP_KEYS.FILE}
+                            lookupKey={LOOKUP_KEYS.File}
                         />
                     )}
                 </Typography>
@@ -1231,12 +1231,12 @@ Do you wish to continue?`)
                                             <PrettyResource
                                                 target={{
                                                     _type: key_to_type(
-                                                        LOOKUP_KEYS.TEAM,
+                                                        LOOKUP_KEYS.Team,
                                                     ),
                                                     _value: mapping.mapping
                                                         .team,
                                                 }}
-                                                lookupKey={LOOKUP_KEYS.TEAM}
+                                                lookupKey={LOOKUP_KEYS.Team}
                                                 edit_mode={true}
                                                 allow_new={false}
                                                 onChange={(
@@ -1498,7 +1498,7 @@ export default function WrappedMapping() {
         >
             <ApiResourceContextProvider
                 resourceId={id}
-                lookupKey={LOOKUP_KEYS.FILE}
+                lookupKey={LOOKUP_KEYS.File}
             >
                 <Mapping />
             </ApiResourceContextProvider>

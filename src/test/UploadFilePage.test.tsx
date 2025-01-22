@@ -28,7 +28,7 @@ import { LOOKUP_KEYS } from '../constants'
 // @ts-expect-error - globalThis is not defined in Jest
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
-vi.mock('../Components/Representation')
+vi.mock('/Components/representation/GenericRepresentation')
 vi.mock('../Components/ResourceChip')
 vi.mock('../DatasetChart')
 vi.mock('../Components/AuthImage')
@@ -182,7 +182,7 @@ describe('UploadFilePage', () => {
             render(
                 <ContextStack>
                     <ApiResourceContextProvider
-                        lookupKey={LOOKUP_KEYS.FILE}
+                        lookupKey={LOOKUP_KEYS.File}
                         resourceId={f!.id}
                     >
                         <FileSummary resource={f!} />
