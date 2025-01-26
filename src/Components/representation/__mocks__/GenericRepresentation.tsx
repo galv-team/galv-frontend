@@ -10,6 +10,7 @@ export function genericRepresentation(params: {
     data: GalvResource
     lookupKey: LookupKey
 }): string {
+    console.log('genericRepresentation', params)
     return `representation: ${params.lookupKey} [${params.data.id}]`
 }
 

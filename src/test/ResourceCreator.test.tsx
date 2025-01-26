@@ -6,14 +6,14 @@
 
 import { LOOKUP_KEYS } from '../constants'
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { FilterContextProvider } from '../Components/filtering/FilterContext'
 import { MemoryRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
 import AttachmentUploadContextProvider from '../Components/AttachmentUploadContext'
-import { it, vi } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import WrappedResourceCreator from '../Components/ResourceCreator'
 
 vi.mock('../Components/CardActionBar')
@@ -37,6 +37,10 @@ it('renders', async () => {
             </QueryClientProvider>
         </MemoryRouter>,
     )
-    await userEvent.click(screen.getByRole('button'))
+    await waitFor(async () => {
+        const btn = screen.getByRole('button')
+        expect(btn).toBeInTheDocument()
+        await userEvent.click(btn)
+    })
     await screen.findByText(/DummyPrettyObject/)
 })

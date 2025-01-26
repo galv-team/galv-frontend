@@ -28,7 +28,7 @@ import { has } from '../Components/misc'
 // @ts-expect-error - globalThis is not defined in Jest
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
-vi.mock('/Components/representation/GenericRepresentation')
+vi.mock('../Components/representation/GenericRepresentation')
 vi.mock('../Components/ResourceChip')
 vi.mock('../DatasetChart')
 

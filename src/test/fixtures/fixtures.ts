@@ -58,7 +58,7 @@ export const cells: Cell[] = [
                             { _type: 'string', _value: 'yes' },
                             { _type: 'string', _value: 'nested' },
                             {
-                                _type: 'galv_TEAM',
+                                _type: 'galv_Team',
                                 _value: 'http://example.com/teams/1',
                             },
                         ],

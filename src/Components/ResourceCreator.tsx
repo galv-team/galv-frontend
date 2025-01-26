@@ -506,6 +506,12 @@ export default function WrappedResourceCreator<T extends GalvResource>(
             return
         }
 
+        // Currently, we can always create Files, but this may change in the future
+        if (props.lookupKey === LOOKUP_KEYS.File) {
+            setCreateable(!!user)
+            return
+        }
+
         const lab_admin_resources = [
             LOOKUP_KEYS.Team,
             LOOKUP_KEYS.AdditionalStorage,
@@ -516,7 +522,10 @@ export default function WrappedResourceCreator<T extends GalvResource>(
         }
 
         console.log(`Checking if ${props.lookupKey} can be created`, {
-            description_query_data: description_query.data,
+            description_query_data: description_query.data?.data,
+            creatable: Object.keys(description_query.data?.data ?? {}).includes(
+                'team',
+            ),
         })
 
         setCreateable(

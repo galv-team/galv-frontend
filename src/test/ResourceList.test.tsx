@@ -6,14 +6,15 @@
 
 import { LOOKUP_KEYS, LookupKey } from '../constants'
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import FetchResourceContextProvider from '../Components/FetchResourceContext'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { cells, experiments, files } from './fixtures/fixtures'
+import { cells, experiments, files, users } from './fixtures/fixtures'
 import WrappedResourceList from '../Components/ResourceList'
 import { MemoryRouter } from 'react-router-dom'
 import SelectionManagementContextProvider from '../Components/SelectionManagementContext'
+import CurrentUserContextProvider from '../Components/CurrentUserContext'
 
 vi.mock('../Components/IntroText')
 vi.mock('../Components/card/ResourceCard')
@@ -25,11 +26,15 @@ const doRender = async (key: LookupKey = LOOKUP_KEYS.Cell) => {
     render(
         <MemoryRouter initialEntries={['/']}>
             <QueryClientProvider client={queryClient}>
-                <FetchResourceContextProvider>
-                    <SelectionManagementContextProvider>
-                        <WrappedResourceList lookupKey={key} />
-                    </SelectionManagementContextProvider>
-                </FetchResourceContextProvider>
+                <CurrentUserContextProvider
+                    user_override={JSON.stringify(users[0])}
+                >
+                    <FetchResourceContextProvider>
+                        <SelectionManagementContextProvider>
+                            <WrappedResourceList lookupKey={key} />
+                        </SelectionManagementContextProvider>
+                    </FetchResourceContextProvider>
+                </CurrentUserContextProvider>
             </QueryClientProvider>
         </MemoryRouter>,
     )
@@ -69,9 +74,11 @@ describe('ResourceList', () => {
     it('shows create and create family buttons', async () => {
         await doRender()
 
-        expect(screen.getAllByRole('button', { name: /Create/i })).toHaveLength(
-            2,
-        )
+        await waitFor(async () => {
+            expect(
+                screen.getAllByRole('button', { name: /Create/i }),
+            ).toHaveLength(2)
+        })
 
         expect(
             screen.getByRole('button', { name: /Family/i }),
@@ -82,8 +89,10 @@ describe('ResourceList', () => {
         await doRender(LOOKUP_KEYS.File)
         await screen.findByText((t) => t.includes(files[0].id))
 
-        expect(
-            screen.getByRole('link', { name: /Upload/i }),
-        ).toBeInTheDocument()
+        await waitFor(async () => {
+            expect(
+                screen.getByRole('link', { name: /Upload/i }),
+            ).toBeInTheDocument()
+        })
     })
 })

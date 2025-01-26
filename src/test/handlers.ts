@@ -142,7 +142,11 @@ const build_get_endpoints =
             k: keyof (typeof data)[0],
             override_value?: unknown,
         ): { type: string; galv_resource: boolean } => {
-            console.log('get_type', { k, override_value })
+            if (override_value === undefined)
+                debug('get_type', {
+                    k,
+                    get_type: get_type(k, data[0][k]),
+                })
             const value = override_value ?? (data[0][k] as unknown)
             const regex = /https?:\/\/[^/]+\/([\w_]+)\/[a-zA-Z0-9_-]+/
             if (value instanceof Array) {

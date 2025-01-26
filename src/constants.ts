@@ -1192,7 +1192,7 @@ export const FIELDS = {
  [LOOKUP_KEYS.Cell]: "cell_id",
  [LOOKUP_KEYS.Equipment]: "equipment_id",
  [LOOKUP_KEYS.Schedule]: "schedule_id",
- [LOOKUP_KEYS.TEAM]: "team_id",
+ [LOOKUP_KEYS.Team]: "team_id",
  } as const
  */
 
