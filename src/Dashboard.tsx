@@ -342,7 +342,7 @@ export function SchemaValidationList() {
 export function DatasetStatus() {
     const { useListQuery } = useFetchResource()
     const query = useListQuery(
-        LOOKUP_KEYS.File,
+        LOOKUP_KEYS.ObservedFile,
     ) as ListQueryResult<ObservedFile>
     const { classes, theme } = useStyles()
 
@@ -412,8 +412,12 @@ export function DatasetStatus() {
             ) : (
                 <Card>
                     <CardHeader
-                        avatar={<LookupKeyIcon lookupKey={LOOKUP_KEYS.File} />}
-                        title={DISPLAY_NAMES_PLURAL[LOOKUP_KEYS.File]}
+                        avatar={
+                            <LookupKeyIcon
+                                lookupKey={LOOKUP_KEYS.ObservedFile}
+                            />
+                        }
+                        title={DISPLAY_NAMES_PLURAL[LOOKUP_KEYS.ObservedFile]}
                         action={
                             <Stack
                                 direction="row"
@@ -495,7 +499,7 @@ export function DatasetStatus() {
                                                         >
                                                             <ApiResourceContextProvider
                                                                 lookupKey={
-                                                                    LOOKUP_KEYS.File
+                                                                    LOOKUP_KEYS.ObservedFile
                                                                 }
                                                                 resourceId={
                                                                     f.id
@@ -564,7 +568,7 @@ export function DatasetStatus() {
                                                         >
                                                             <ApiResourceContextProvider
                                                                 lookupKey={
-                                                                    LOOKUP_KEYS.File
+                                                                    LOOKUP_KEYS.ObservedFile
                                                                 }
                                                                 resourceId={
                                                                     f.id

@@ -127,7 +127,7 @@ export function Core() {
                 {open && 'Resources'}
             </Divider>
             {[
-                LOOKUP_KEYS.File,
+                LOOKUP_KEYS.ObservedFile,
                 LOOKUP_KEYS.Cell,
                 LOOKUP_KEYS.Equipment,
                 LOOKUP_KEYS.Schedule,
@@ -142,7 +142,7 @@ export function Core() {
                 LOOKUP_KEYS.Path,
                 LOOKUP_KEYS.ValidationSchema,
                 LOOKUP_KEYS.ColumnFamily,
-                LOOKUP_KEYS.Unit,
+                LOOKUP_KEYS.DataUnit,
             ].map((lookupKey) => (
                 <LI key={lookupKey} lookupKey={lookupKey} />
             ))}

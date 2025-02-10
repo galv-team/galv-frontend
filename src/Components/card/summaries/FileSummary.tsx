@@ -81,7 +81,7 @@ function MappingQuickSelect({
         mappings.find((m) => m.url === file.mapping)?.url ?? '',
     )
     const { useUpdateQuery } = useFetchResource()
-    const updateQuery = useUpdateQuery<ObservedFile>(LOOKUP_KEYS.File, {
+    const updateQuery = useUpdateQuery<ObservedFile>(LOOKUP_KEYS.ObservedFile, {
         after_cache: () => {
             setStatus(
                 <Alert severity="success">Mapping updated successfully</Alert>,

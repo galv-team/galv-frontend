@@ -86,7 +86,7 @@ describe('ResourceList', () => {
     })
 
     it('shows an upload button for files', async () => {
-        await doRender(LOOKUP_KEYS.File)
+        await doRender(LOOKUP_KEYS.ObservedFile)
         await screen.findByText((t) => t.includes(files[0].id))
 
         await waitFor(async () => {

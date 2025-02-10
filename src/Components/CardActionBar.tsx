@@ -95,9 +95,16 @@ export default function CardActionBar(props: CardActionBarProps) {
             {Object.entries(apiResourceDescription ?? {})
                 .filter((e) => e[1].galv_resource)
                 .map(([k, v]) => {
-                    const relative_lookupKey = v.type as LookupKey
+                    // TransparentGroupSerializer is a special case because it's a single group but displayed as many Users
+                    const relative_lookupKey =
+                        v.type === 'TransparentGroupSerializer'
+                            ? 'User'
+                            : (v.type as LookupKey)
                     let content: ReactNode
-                    if (has_value(v, 'many', true)) {
+                    if (
+                        has_value(v, 'many', true) ||
+                        v.type === 'TransparentGroupSerializer'
+                    ) {
                         const relative_value = apiResource?.[
                             k as keyof typeof apiResource
                         ] as GalvResource[] | undefined
@@ -241,25 +248,28 @@ export default function CardActionBar(props: CardActionBarProps) {
 
     const destroy_section = (
         <Stack direction="row" spacing={1} alignItems="center">
-            {props.lookupKey === LOOKUP_KEYS.File && props.reimportable && (
-                <SafeTooltip
-                    title="Force the harvester to re-import this file"
-                    arrow
-                    describeChild
-                    key="reimport"
-                >
-                    <IconButton
-                        onClick={() => props.onReImport && props.onReImport()}
-                        disabled={!props.reimportable}
+            {props.lookupKey === LOOKUP_KEYS.ObservedFile &&
+                props.reimportable && (
+                    <SafeTooltip
+                        title="Force the harvester to re-import this file"
+                        arrow
+                        describeChild
+                        key="reimport"
                     >
-                        <MdRepartition
-                            {...iconProps}
-                            className={clsx(classes.deleteIcon)}
-                            {...iconProps}
-                        />
-                    </IconButton>
-                </SafeTooltip>
-            )}
+                        <IconButton
+                            onClick={() =>
+                                props.onReImport && props.onReImport()
+                            }
+                            disabled={!props.reimportable}
+                        >
+                            <MdRepartition
+                                {...iconProps}
+                                className={clsx(classes.deleteIcon)}
+                                {...iconProps}
+                            />
+                        </IconButton>
+                    </SafeTooltip>
+                )}
             <SafeTooltip
                 title={
                     props.destroyable

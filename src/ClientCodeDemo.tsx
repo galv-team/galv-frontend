@@ -35,7 +35,7 @@ function DatasetSelector({
     fileQueryLimit?: number
 }) {
     const { useListQuery } = useFetchResource()
-    const query = useListQuery(LOOKUP_KEYS.File, {
+    const query = useListQuery(LOOKUP_KEYS.ObservedFile, {
         limit: fileQueryLimit ?? DEFAULT_FETCH_LIMIT,
     })
 

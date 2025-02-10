@@ -507,7 +507,7 @@ export default function WrappedResourceCreator<T extends GalvResource>(
         }
 
         // Currently, we can always create Files, but this may change in the future
-        if (props.lookupKey === LOOKUP_KEYS.File) {
+        if (props.lookupKey === LOOKUP_KEYS.ObservedFile) {
             setCreateable(!!user)
             return
         }
@@ -539,7 +539,7 @@ export default function WrappedResourceCreator<T extends GalvResource>(
     const ADD_ICON = ICONS.CREATE
 
     // Files are a special case and there's a whole page for handling them
-    if (props.lookupKey === LOOKUP_KEYS.File)
+    if (props.lookupKey === LOOKUP_KEYS.ObservedFile)
         return (
             <Button component={Link} to={PATHS.UPLOAD} variant="contained">
                 Upload a new File

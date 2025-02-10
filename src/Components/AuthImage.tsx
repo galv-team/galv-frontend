@@ -30,7 +30,7 @@ export default function AuthImage({
         'Galv-Storage-No-Redirect': true,
     }
     const query = useQuery({
-        queryKey: [LOOKUP_KEYS.File, file.id, 'png'],
+        queryKey: [LOOKUP_KEYS.ObservedFile, file.id, 'png'],
         queryFn: async () => {
             const response = await axios.get(file.png, {
                 headers,

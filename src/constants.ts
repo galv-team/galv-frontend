@@ -208,7 +208,7 @@ export const LOOKUP_KEYS = {
     Harvester: 'Harvester',
     Path: 'Path',
     ParquetPartition: 'ParquetPartition',
-    File: 'File',
+    ObservedFile: 'ObservedFile',
     ColumnMapping: 'ColumnMapping',
     CellFamily: 'CellFamily',
     Cell: 'Cell',
@@ -224,7 +224,7 @@ export const LOOKUP_KEYS = {
     Team: 'Team',
     User: 'User',
     Token: 'Token',
-    Unit: 'Unit',
+    DataUnit: 'DataUnit',
     ColumnFamily: 'ColumnFamily',
     GalvStorage: 'GalvStorage',
     AdditionalStorage: 'AdditionalStorage',
@@ -257,9 +257,9 @@ export const ICONS = {
     [LOOKUP_KEYS.Harvester]: MdCloudSync,
     [LOOKUP_KEYS.Path]: MdFolder,
     [LOOKUP_KEYS.ParquetPartition]: MdExtension,
-    [LOOKUP_KEYS.File]: MdPoll,
+    [LOOKUP_KEYS.ObservedFile]: MdPoll,
     [LOOKUP_KEYS.ColumnMapping]: MdCompareArrows,
-    [LOOKUP_KEYS.Unit]: MdSubscript,
+    [LOOKUP_KEYS.DataUnit]: MdSubscript,
     [LOOKUP_KEYS.ColumnFamily]: MdSplitscreen,
     [LOOKUP_KEYS.CellFamily]: MdBatchPrediction,
     [LOOKUP_KEYS.EquipmentFamily]: MdBatchPrediction,
@@ -312,9 +312,9 @@ export const PATHS = {
     [LOOKUP_KEYS.Harvester]: '/harvesters',
     [LOOKUP_KEYS.Path]: '/paths',
     [LOOKUP_KEYS.ParquetPartition]: '/parquet_partitions',
-    [LOOKUP_KEYS.File]: '/files',
+    [LOOKUP_KEYS.ObservedFile]: '/files',
     [LOOKUP_KEYS.ColumnFamily]: '/column_types',
-    [LOOKUP_KEYS.Unit]: '/units',
+    [LOOKUP_KEYS.DataUnit]: '/units',
     DASHBOARD: '/',
     [LOOKUP_KEYS.ColumnMapping]: '/mapping',
     [LOOKUP_KEYS.Experiment]: '/experiments',
@@ -353,10 +353,10 @@ export const DISPLAY_NAMES = {
     [LOOKUP_KEYS.Harvester]: 'Harvester',
     [LOOKUP_KEYS.Path]: 'Path',
     [LOOKUP_KEYS.ParquetPartition]: 'Parquet Partition',
-    [LOOKUP_KEYS.File]: 'File',
+    [LOOKUP_KEYS.ObservedFile]: 'File',
     [LOOKUP_KEYS.ColumnMapping]: 'Mapping',
     [LOOKUP_KEYS.ColumnFamily]: 'Column Type',
-    [LOOKUP_KEYS.Unit]: 'Unit',
+    [LOOKUP_KEYS.DataUnit]: 'Unit',
     DASHBOARD: 'Dashboard',
     [LOOKUP_KEYS.Experiment]: 'Experiment',
     [LOOKUP_KEYS.CyclerTest]: 'Cycler Test',
@@ -384,10 +384,10 @@ export const DISPLAY_NAMES_PLURAL = {
     [LOOKUP_KEYS.Harvester]: 'Harvesters',
     [LOOKUP_KEYS.Path]: 'Paths',
     [LOOKUP_KEYS.ParquetPartition]: 'Parquet Partitions',
-    [LOOKUP_KEYS.File]: 'Files',
+    [LOOKUP_KEYS.ObservedFile]: 'Files',
     [LOOKUP_KEYS.ColumnMapping]: 'Mappings',
     [LOOKUP_KEYS.ColumnFamily]: 'Column Type',
-    [LOOKUP_KEYS.Unit]: 'Unit',
+    [LOOKUP_KEYS.DataUnit]: 'Unit',
     DASHBOARD: 'Dashboard',
     [LOOKUP_KEYS.Experiment]: 'Experiments',
     [LOOKUP_KEYS.CyclerTest]: 'Cycler Tests',
@@ -423,10 +423,10 @@ export const API_SLUGS = {
     [LOOKUP_KEYS.Harvester]: 'harvesters',
     [LOOKUP_KEYS.Path]: 'monitoredPaths',
     [LOOKUP_KEYS.ParquetPartition]: 'parquetPartitions',
-    [LOOKUP_KEYS.File]: 'files',
+    [LOOKUP_KEYS.ObservedFile]: 'files',
     [LOOKUP_KEYS.ColumnMapping]: 'columnMappings',
     [LOOKUP_KEYS.ColumnFamily]: 'columnTypes',
-    [LOOKUP_KEYS.Unit]: 'units',
+    [LOOKUP_KEYS.DataUnit]: 'units',
     [LOOKUP_KEYS.Cell]: 'cells',
     [LOOKUP_KEYS.Equipment]: 'equipment',
     [LOOKUP_KEYS.Schedule]: 'schedules',
@@ -463,10 +463,10 @@ export const API_HANDLERS = {
     [LOOKUP_KEYS.Harvester]: HarvestersApi,
     [LOOKUP_KEYS.Path]: MonitoredPathsApi,
     [LOOKUP_KEYS.ParquetPartition]: ParquetPartitionsApi,
-    [LOOKUP_KEYS.File]: FilesApi,
+    [LOOKUP_KEYS.ObservedFile]: FilesApi,
     [LOOKUP_KEYS.ColumnMapping]: ColumnMappingsApi,
     [LOOKUP_KEYS.ColumnFamily]: ColumnTypesApi,
-    [LOOKUP_KEYS.Unit]: UnitsApi,
+    [LOOKUP_KEYS.DataUnit]: UnitsApi,
     [LOOKUP_KEYS.CellFamily]: CellFamiliesApi,
     [LOOKUP_KEYS.EquipmentFamily]: EquipmentFamiliesApi,
     [LOOKUP_KEYS.ScheduleFamily]: ScheduleFamiliesApi,
@@ -503,10 +503,10 @@ export const API_HANDLERS_FP = {
     [LOOKUP_KEYS.Harvester]: HarvestersApiFp,
     [LOOKUP_KEYS.Path]: MonitoredPathsApiFp,
     [LOOKUP_KEYS.ParquetPartition]: ParquetPartitionsApiFp,
-    [LOOKUP_KEYS.File]: FilesApiFp,
+    [LOOKUP_KEYS.ObservedFile]: FilesApiFp,
     [LOOKUP_KEYS.ColumnMapping]: ColumnMappingsApiFp,
     [LOOKUP_KEYS.ColumnFamily]: ColumnTypesApiFp,
-    [LOOKUP_KEYS.Unit]: UnitsApiFp,
+    [LOOKUP_KEYS.DataUnit]: UnitsApiFp,
     [LOOKUP_KEYS.CellFamily]: CellFamiliesApiFp,
     [LOOKUP_KEYS.EquipmentFamily]: EquipmentFamiliesApiFp,
     [LOOKUP_KEYS.ScheduleFamily]: ScheduleFamiliesApiFp,
@@ -687,14 +687,17 @@ export const FIELDS = {
         },
         files: {
             read_only: true,
-            type: key_to_type(LOOKUP_KEYS.File),
+            type: key_to_type(LOOKUP_KEYS.ObservedFile),
             many: true,
         },
         ...team_fields,
     },
     [LOOKUP_KEYS.ParquetPartition]: {
         ...generic_fields,
-        observed_file: { read_only: true, type: key_to_type(LOOKUP_KEYS.File) },
+        observed_file: {
+            read_only: true,
+            type: key_to_type(LOOKUP_KEYS.ObservedFile),
+        },
         partition_number: {
             read_only: true,
             type: 'number',
@@ -704,7 +707,7 @@ export const FIELDS = {
         upload_errors: { read_only: true, type: 'string', many: true },
         parquet_file: { read_only: true, type: 'attachment' },
     },
-    [LOOKUP_KEYS.File]: { ...file_fields },
+    [LOOKUP_KEYS.ObservedFile]: { ...file_fields },
     FILE_CREATE: {
         ...file_fields,
         target_file_id: { read_only: true, type: 'string' },
@@ -742,12 +745,12 @@ export const FIELDS = {
         data_type: { read_only: false, type: 'string' },
         unit: {
             read_only: false,
-            type: key_to_type(LOOKUP_KEYS.Unit),
+            type: key_to_type(LOOKUP_KEYS.DataUnit),
             fetch_in_download: true,
         },
         ...team_fields,
     },
-    [LOOKUP_KEYS.Unit]: {
+    [LOOKUP_KEYS.DataUnit]: {
         ...always_fields,
         id: { read_only: true, type: 'number' },
         is_default: { read_only: true, type: 'boolean' },
@@ -808,7 +811,7 @@ export const FIELDS = {
         },
         files: {
             read_only: false,
-            type: key_to_type(LOOKUP_KEYS.File),
+            type: key_to_type(LOOKUP_KEYS.ObservedFile),
             many: true,
             fetch_in_download: true,
         },
@@ -1261,9 +1264,9 @@ You can see all the paths that have been set up by your team below.
     `,
     [LOOKUP_KEYS.ParquetPartition]: `
 Parquet partitions are the individual partitions of a parquet file.
-They are created when a [file](${PATHS[LOOKUP_KEYS.File]}) is uploaded to the database.
+They are created when a [file](${PATHS[LOOKUP_KEYS.ObservedFile]}) is uploaded to the database.
     `,
-    [LOOKUP_KEYS.File]: `
+    [LOOKUP_KEYS.ObservedFile]: `
 Files are data files produced by battery cyclers, simulations, or any combination of them.
 Files are collected when [harvesters](${PATHS[LOOKUP_KEYS.Harvester]}) crawl [monitored paths](${PATHS[LOOKUP_KEYS.Path]}).
 
@@ -1274,14 +1277,14 @@ Files are required to have, at minimum, columns for "ElapsedTime_s", "Voltage_V"
 You can see all the files that have been collected on [monitored paths](${PATHS[LOOKUP_KEYS.Path]}) created by your team.
     `,
     [LOOKUP_KEYS.ColumnFamily]: `
-Column types serve as identifiers for the data type present in a specific column of a [file](${PATHS[LOOKUP_KEYS.File]}). 
-They establish a connection between a column and its corresponding [unit](${PATHS[LOOKUP_KEYS.Unit]}), enabling accurate interpretation and analysis of the data.
+Column types serve as identifiers for the data type present in a specific column of a [file](${PATHS[LOOKUP_KEYS.ObservedFile]}). 
+They establish a connection between a column and its corresponding [unit](${PATHS[LOOKUP_KEYS.DataUnit]}), enabling accurate interpretation and analysis of the data.
 
-When new column types are added or existing ones are modified, the mapping selection for columns in the associated [file](${PATHS[LOOKUP_KEYS.File]}) is automatically updated. 
+When new column types are added or existing ones are modified, the mapping selection for columns in the associated [file](${PATHS[LOOKUP_KEYS.ObservedFile]}) is automatically updated. 
 This dynamic updating mechanism ensures that the column mappings remain aligned with the defined column types.
     `,
-    [LOOKUP_KEYS.Unit]: `
-Units represent the specific units of measurement employed to quantify and express the data contained within a [file](${PATHS[LOOKUP_KEYS.File]}). 
+    [LOOKUP_KEYS.DataUnit]: `
+Units represent the specific units of measurement employed to quantify and express the data contained within a [file](${PATHS[LOOKUP_KEYS.ObservedFile]}). 
 These units provide the necessary context and scale for interpreting and understanding the numerical values present in the data.
     `,
     [LOOKUP_KEYS.CellFamily]: `
@@ -1350,7 +1353,7 @@ Typically, a single experiment is performed on a specific cell family, employing
 
 Within an experiment, the metadata associated with the constituent tests is consolidated. 
 This includes information about the [authors](${PATHS[LOOKUP_KEYS.User]}) involved, the specific [cells](${PATHS[LOOKUP_KEYS.Cell]}) tested, the [schedules](${PATHS[LOOKUP_KEYS.Schedule]}) employed, and the [equipment](${PATHS[LOOKUP_KEYS.Equipment]}) utilised during the testing process. 
-Additionally, the actual data produced by these tests, in the form of [files](${PATHS[LOOKUP_KEYS.File]}), is also organised and associated with the respective experiment.
+Additionally, the actual data produced by these tests, in the form of [files](${PATHS[LOOKUP_KEYS.ObservedFile]}), is also organised and associated with the respective experiment.
     `,
     [LOOKUP_KEYS.CyclerTest]: `
 Cycler tests represent the fundamental application of battery testing within the Galv ecosystem. 
@@ -1370,7 +1373,7 @@ By incorporating attachments, researchers can maintain a comprehensive record of
 This includes detailed experimental protocols outlining the specific steps and parameters employed during the testing process, as well as technical specifications and datasheets for the equipment utilised.
     `,
     [LOOKUP_KEYS.ValidationSchema]: `
-Validation schemas serve as powerful tools for ensuring the integrity and consistency of data within [files](${PATHS[LOOKUP_KEYS.File]}) and validating the metadata associated with other resources in the Galv ecosystem.
+Validation schemas serve as powerful tools for ensuring the integrity and consistency of data within [files](${PATHS[LOOKUP_KEYS.ObservedFile]}) and validating the metadata associated with other resources in the Galv ecosystem.
 
 These validation schemas are defined using the JSON Schema specification, a widely adopted standard for describing and validating JSON data structures. 
 This flexible format enables the creation of schemas capable of validating any JSON data, regardless of its complexity or structure.
@@ -1463,7 +1466,7 @@ Storages are shown in the order of their priority, with the highest priority sto
     DASHBOARD: `
 The dashboard provides an overview of the resources pertinent to you and your teams. 
 
-It displays the [files](${PATHS[LOOKUP_KEYS.File]}) gathered from the [monitored paths](${PATHS[LOOKUP_KEYS.Path]}) 
+It displays the [files](${PATHS[LOOKUP_KEYS.ObservedFile]}) gathered from the [monitored paths](${PATHS[LOOKUP_KEYS.Path]}) 
 set up by your [teams](${PATHS[LOOKUP_KEYS.Team]}), along with their respective upload and validation statuses.
 
 Additionally, the dashboard lists the resources you have permission to edit, accompanied by their validation statuses.
@@ -1471,7 +1474,7 @@ Additionally, the dashboard lists the resources you have permission to edit, acc
 In the event you encounter any issues on your dashboard, you can investigate the relevant resource for more detailed information.
     `,
     ColumnMapping: `
-Mappings are utilised to map the columns in a [file](${PATHS[LOOKUP_KEYS.File]}) to recognised standard columns. 
+Mappings are utilised to map the columns in a [file](${PATHS[LOOKUP_KEYS.ObservedFile]}) to recognised standard columns. 
 This enables Galv to comprehend the data within the file and promotes homogeneity across datasets. 
 When a set of files employs the same column names to represent the same type of data, analyses can be performed across all the files.
 

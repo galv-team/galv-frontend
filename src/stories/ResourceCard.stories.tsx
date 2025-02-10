@@ -292,7 +292,7 @@ export const DeleteError: Story = {
  */
 export const CompleteUpload: Story = {
     args: {
-        lookupKey: LOOKUP_KEYS.File,
+        lookupKey: LOOKUP_KEYS.ObservedFile,
         resourceId: files.find((f) => f.name === 'partial.csv')?.id,
     },
 }

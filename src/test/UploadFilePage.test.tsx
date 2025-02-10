@@ -182,7 +182,7 @@ describe('UploadFilePage', () => {
             render(
                 <ContextStack>
                     <ApiResourceContextProvider
-                        lookupKey={LOOKUP_KEYS.File}
+                        lookupKey={LOOKUP_KEYS.ObservedFile}
                         resourceId={f!.id}
                     >
                         <FileSummary resource={f!} />

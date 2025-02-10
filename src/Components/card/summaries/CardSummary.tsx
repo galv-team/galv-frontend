@@ -43,10 +43,10 @@ const CUSTOM_SUMMARIES: Partial<
     [LOOKUP_KEYS.Harvester]: HarvesterSummary,
     [LOOKUP_KEYS.Team]: TeamSummary,
     [LOOKUP_KEYS.Lab]: LabSummary,
-    [LOOKUP_KEYS.Unit]: UnitSummary,
+    [LOOKUP_KEYS.DataUnit]: UnitSummary,
     [LOOKUP_KEYS.ColumnFamily]: ColumnSummary,
     [LOOKUP_KEYS.Path]: PathSummary,
-    [LOOKUP_KEYS.File]: FileSummary,
+    [LOOKUP_KEYS.ObservedFile]: FileSummary,
     [LOOKUP_KEYS.CyclerTest]: CyclerTestSummary,
     [LOOKUP_KEYS.Experiment]: ExperimentSummary,
 } as const

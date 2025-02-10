@@ -838,7 +838,9 @@ function MappingManager({
         return m ? { ...m } : blank_map()
     })
     const navigate = useNavigate()
-    const updateFileMutation = useUpdateQuery<ObservedFile>(LOOKUP_KEYS.File)
+    const updateFileMutation = useUpdateQuery<ObservedFile>(
+        LOOKUP_KEYS.ObservedFile,
+    )
     const updateFile = (new_mapping: DB_MappingResource) =>
         updateFileMutation.mutate(
             { ...file!, mapping: new_mapping.url },
@@ -963,7 +965,7 @@ function MappingManager({
                     {file?.id && (
                         <ResourceChip
                             resourceId={file.id as string}
-                            lookupKey={LOOKUP_KEYS.File}
+                            lookupKey={LOOKUP_KEYS.ObservedFile}
                         />
                     )}
                 </Typography>
@@ -1498,7 +1500,7 @@ export default function WrappedMapping() {
         >
             <ApiResourceContextProvider
                 resourceId={id}
-                lookupKey={LOOKUP_KEYS.File}
+                lookupKey={LOOKUP_KEYS.ObservedFile}
             >
                 <Mapping />
             </ApiResourceContextProvider>

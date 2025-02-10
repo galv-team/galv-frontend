@@ -140,7 +140,7 @@ export function ResourceList<T extends GalvResource>({
             </Grid>
             <IntroText k={lookupKey} />
             <Stack spacing={2} key="body">
-                {lookupKey === LOOKUP_KEYS.File && (
+                {lookupKey === LOOKUP_KEYS.ObservedFile && (
                     <ClientCodeDemo fileQueryLimit={itemsPerPage} />
                 )}
                 {content}

@@ -141,7 +141,8 @@ function ResourceCard<T extends GalvResource>({
             onFork={
                 apiResource?.permissions?.create &&
                 lookupKey !== LOOKUP_KEYS.Harvester &&
-                lookupKey !== LOOKUP_KEYS.Token
+                lookupKey !== LOOKUP_KEYS.Token &&
+                lookupKey !== LOOKUP_KEYS.User
                     ? () => setForking(true)
                     : undefined
             }
@@ -195,7 +196,7 @@ function ResourceCard<T extends GalvResource>({
                     : undefined
             }
             reimportable={
-                lookupKey === LOOKUP_KEYS.File &&
+                lookupKey === LOOKUP_KEYS.ObservedFile &&
                 apiResource?.permissions?.write &&
                 has(apiResource, 'state') &&
                 apiResource.state !== 'RETRY IMPORT'

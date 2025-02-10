@@ -276,7 +276,7 @@ export default function CardBody<T extends GalvResource>({
                         }}
                     />
                 )}
-                {lookupKey === LOOKUP_KEYS.File && apiResource && (
+                {lookupKey === LOOKUP_KEYS.ObservedFile && apiResource && (
                     <FileSummary resource={apiResource} hidePath={true} />
                 )}
             </Stack>
