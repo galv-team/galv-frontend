@@ -131,6 +131,8 @@ export default function CardBody<T extends GalvResource>({
                                 return {} as T
                             }
                             const data = deep_copy(d)
+                            // Remove URL field
+                            delete data.url
                             Object.entries(apiResourceDescription).forEach(
                                 ([k, v]) => {
                                     if (!v.read_only)
