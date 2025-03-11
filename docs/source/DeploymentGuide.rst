@@ -1,5 +1,5 @@
 ######################################################################################
-Getting started
+Frontend Deployment Guide
 ######################################################################################
 
 The Galv Frontend is a `React <https://reactjs.org/>`_ application.
