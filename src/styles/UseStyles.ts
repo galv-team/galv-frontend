@@ -143,7 +143,7 @@ export default makeStyles()((theme) => {
         },
         content: {
             flexGrow: 1,
-            height: '100vh',
+            height: 'calc(100vh - 81px)',
             overflow: 'auto',
             paddingTop: theme.spacing(9),
             paddingLeft: theme.spacing(0),

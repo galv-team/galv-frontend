@@ -160,88 +160,170 @@ export function Core() {
         </Stack>
     )
 
+    const footer = (
+        <footer
+            style={{
+                position: 'sticky',
+                bottom: 0,
+                width: '100%',
+                textAlign: 'center',
+                padding: '0.5em',
+                borderTop: '1px solid lightgray',
+                backgroundColor: 'white',
+                display: 'flex',
+                justifyContent: 'space-evenly',
+                zIndex: 100000,
+            }}
+        >
+            <div>
+                <small>Initial development</small>
+                <Stack direction="row" spacing={2}>
+                    <div
+                        style={{
+                            height: '40px',
+                            width: '40px',
+                            backgroundColor: 'darkblue',
+                        }}
+                    />
+                    <div
+                        style={{
+                            height: '40px',
+                            width: '40px',
+                            backgroundColor: 'darkblue',
+                        }}
+                    />
+                    <div
+                        style={{
+                            height: '40px',
+                            width: '40px',
+                            backgroundColor: 'darkblue',
+                        }}
+                    />
+                </Stack>
+            </div>
+            <div>
+                <small>Contributions</small>
+                <Stack direction="row" spacing={2}>
+                    <div
+                        style={{
+                            height: '40px',
+                            width: '40px',
+                            backgroundColor: 'darkblue',
+                        }}
+                    />
+                    <div
+                        style={{
+                            height: '40px',
+                            width: '40px',
+                            backgroundColor: 'darkblue',
+                        }}
+                    />
+                    <div
+                        style={{
+                            height: '40px',
+                            width: '40px',
+                            backgroundColor: 'darkblue',
+                        }}
+                    />
+                </Stack>
+            </div>
+        </footer>
+    )
+
     const Layout = (
-        <div className={classes.root}>
-            <CssBaseline />
-            <AppBar
-                position="absolute"
-                className={clsx(classes.appBar, open && classes.appBarShift)}
-            >
-                <Toolbar className={classes.toolbar}>
-                    <IconButton
-                        edge="start"
-                        color="inherit"
-                        title="open drawer"
-                        onClick={toggleDrawerOpen}
-                        className={clsx(classes.menuButton)}
-                    >
-                        <MdMenu />
-                    </IconButton>
-                    <Tooltip
-                        title="Galv"
-                        describeChild={true}
-                        placement="bottom-start"
-                        arrow
-                    >
-                        <Link to={PATHS.DASHBOARD} className={classes.title}>
-                            <ReactSVG
-                                className={classes.galvLogo}
-                                src="/Galv-logo.svg"
-                            />
-                        </Link>
-                    </Tooltip>
-                    <Typography
-                        component="h1"
-                        variant="h6"
-                        color="inherit"
-                        noWrap
-                        className={classes.title}
-                    >
-                        The Battery Development Metadata Secretary
-                    </Typography>
-                    <UserLogin />
-                    <SafeTooltip title={'Open help in new tab'} arrow>
+        <>
+            <div className={classes.root}>
+                <CssBaseline />
+                <AppBar
+                    position="absolute"
+                    className={clsx(
+                        classes.appBar,
+                        open && classes.appBarShift,
+                    )}
+                >
+                    <Toolbar className={classes.toolbar}>
                         <IconButton
-                            edge="end"
+                            edge="start"
                             color="inherit"
-                            component={Link}
-                            to="https://galv-team.github.io/galv-frontend/"
-                            target="_blank"
+                            title="open drawer"
+                            onClick={toggleDrawerOpen}
+                            className={clsx(classes.menuButton)}
                         >
-                            <MdHelp />
+                            <MdMenu />
                         </IconButton>
-                    </SafeTooltip>
-                </Toolbar>
-            </AppBar>
-            <Drawer
-                variant="permanent"
-                classes={{
-                    paper: clsx(
-                        classes.drawerPaper,
-                        !open && classes.drawerPaperClose,
-                    ),
-                }}
-                open={open}
-            >
-                <div className={classes.toolbarIcon}>
-                    <IconButton onClick={handleDrawerClose}>
-                        <MdChevronLeft />
-                    </IconButton>
-                </div>
-                <Divider />
-                <List>{mainListItems}</List>
-            </Drawer>
-            <main className={classes.content}>
-                <FilterContextProvider>
-                    <FilterBar key="filter_bar" />
-                    <SelectedResourcesPane />
-                    <Paper className={clsx(classes.mainPaper)} elevation={0}>
-                        <Outlet key="main_content" />
-                    </Paper>
-                </FilterContextProvider>
-            </main>
-            <SnackbarMessenger autoHideDuration={6000} />
-        </div>
+                        <Tooltip
+                            title="Galv"
+                            describeChild={true}
+                            placement="bottom-start"
+                            arrow
+                        >
+                            <Link
+                                to={PATHS.DASHBOARD}
+                                className={classes.title}
+                            >
+                                <ReactSVG
+                                    className={classes.galvLogo}
+                                    src="/Galv-logo.svg"
+                                />
+                            </Link>
+                        </Tooltip>
+                        <Typography
+                            component="h1"
+                            variant="h6"
+                            color="inherit"
+                            noWrap
+                            className={classes.title}
+                        >
+                            The Battery Development Metadata Secretary
+                        </Typography>
+                        <UserLogin />
+                        <SafeTooltip title={'Open help in new tab'} arrow>
+                            <IconButton
+                                edge="end"
+                                color="inherit"
+                                component={Link}
+                                to="https://galv-team.github.io/galv-frontend/"
+                                target="_blank"
+                            >
+                                <MdHelp />
+                            </IconButton>
+                        </SafeTooltip>
+                    </Toolbar>
+                </AppBar>
+                <Drawer
+                    variant="permanent"
+                    classes={{
+                        paper: clsx(
+                            classes.drawerPaper,
+                            !open && classes.drawerPaperClose,
+                        ),
+                    }}
+                    open={open}
+                >
+                    <div className={classes.toolbarIcon}>
+                        <IconButton onClick={handleDrawerClose}>
+                            <MdChevronLeft />
+                        </IconButton>
+                    </div>
+                    <Divider />
+                    <List>{mainListItems}</List>
+                </Drawer>
+                <main className={classes.content}>
+                    <FilterContextProvider>
+                        <FilterBar key="filter_bar" />
+                        <SelectedResourcesPane />
+                        <Paper
+                            className={clsx(classes.mainPaper)}
+                            elevation={0}
+                        >
+                            <Outlet key="main_content" />
+                        </Paper>
+                    </FilterContextProvider>
+                </main>
+                <SnackbarMessenger autoHideDuration={6000} />
+            </div>
+            {footer}
+        </>
     )
 
     function MyFallbackComponent(error: Error) {
