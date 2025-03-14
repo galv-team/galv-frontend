@@ -9,12 +9,12 @@
 # For example, to deploy a new version of the app, use
 # fly deploy --config fly.stage.toml --app galv-frontend-stage
 
-app = "galv-frontend-stage"
+app = "galv-stage"
 primary_region = "lhr"
 
 [build]
 [build.args]
-  VITE_GALV_API_BASE_URL = "https://galv-backend-stage.fly.dev"
+  VITE_GALV_API_BASE_URL = "https://galv-stage-backend.fly.dev"
 
 [http_service]
   internal_port = 80

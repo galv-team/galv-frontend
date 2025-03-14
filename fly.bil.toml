@@ -1,0 +1,24 @@
+# fly.toml app configuration file generated for galv on 2025-02-07T19:22:57Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'galv'
+primary_region = 'lhr'
+
+[build]
+[build.args]
+  VITE_GALV_API_BASE_URL = "https://galv-backend.fly.dev"
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 2
+  memory_mb = 2048
