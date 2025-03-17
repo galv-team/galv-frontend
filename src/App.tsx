@@ -25,6 +25,8 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import { MdChevronLeft, MdHelp, MdMenu } from 'react-icons/md'
+import { FaGithub } from 'react-icons/fa'
+import { IoDocumentTextOutline } from 'react-icons/io5'
 
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
@@ -160,88 +162,161 @@ export function Core() {
         </Stack>
     )
 
-    const Layout = (
-        <div className={classes.root}>
-            <CssBaseline />
-            <AppBar
-                position="absolute"
-                className={clsx(classes.appBar, open && classes.appBarShift)}
-            >
-                <Toolbar className={classes.toolbar}>
-                    <IconButton
-                        edge="start"
-                        color="inherit"
-                        title="open drawer"
-                        onClick={toggleDrawerOpen}
-                        className={clsx(classes.menuButton)}
+    const footer = (
+        <footer className={classes.footer}>
+            <div>
+                <Stack direction="row" spacing={2}>
+                    <a
+                        href="https://galv-team.github.io/galv-website/"
+                        className={classes.footerLink}
                     >
-                        <MdMenu />
-                    </IconButton>
-                    <Tooltip
-                        title="Galv"
-                        describeChild={true}
-                        placement="bottom-start"
-                        arrow
+                        <IoDocumentTextOutline
+                            style={{ marginRight: '0.2em' }}
+                        />{' '}
+                        Documentation
+                    </a>
+                    <a
+                        href="https://github.com/galv-team/"
+                        className={classes.footerLink}
                     >
-                        <Link to={PATHS.DASHBOARD} className={classes.title}>
-                            <ReactSVG
-                                className={classes.galvLogo}
-                                src="/Galv-logo.svg"
-                            />
-                        </Link>
-                    </Tooltip>
-                    <Typography
-                        component="h1"
-                        variant="h6"
-                        color="inherit"
-                        noWrap
-                        className={classes.title}
-                    >
-                        The Battery Development Metadata Secretary
-                    </Typography>
-                    <UserLogin />
-                    <SafeTooltip title={'Open help in new tab'} arrow>
-                        <IconButton
-                            edge="end"
-                            color="inherit"
-                            component={Link}
-                            to="https://galv-team.github.io/galv-frontend/"
-                            target="_blank"
-                        >
-                            <MdHelp />
-                        </IconButton>
-                    </SafeTooltip>
-                </Toolbar>
-            </AppBar>
-            <Drawer
-                variant="permanent"
-                classes={{
-                    paper: clsx(
-                        classes.drawerPaper,
-                        !open && classes.drawerPaperClose,
-                    ),
-                }}
-                open={open}
-            >
-                <div className={classes.toolbarIcon}>
-                    <IconButton onClick={handleDrawerClose}>
-                        <MdChevronLeft />
-                    </IconButton>
+                        <FaGithub style={{ marginRight: '0.2em' }} /> Contribute
+                    </a>
+                </Stack>
+            </div>
+            <Stack direction="row" spacing={2}>
+                <small>Initial development:</small>
+                <div>
+                    <Stack direction="row" spacing={2}>
+                        <a href="https://howey.eng.ox.ac.uk/">
+                            <Tooltip title="Battery Intelligence Lab">
+                                <div>
+                                    <ReactSVG
+                                        className={classes.footerLogo}
+                                        src="/bil-logo.svg"
+                                    />
+                                </div>
+                            </Tooltip>
+                        </a>
+                        <a href="https://www.rse.ox.ac.uk">
+                            <Tooltip title="Oxford Research Software Engineering">
+                                <div>
+                                    <ReactSVG
+                                        className={classes.footerLogo}
+                                        src="/oxford-rse-logo.svg"
+                                    />
+                                </div>
+                            </Tooltip>
+                        </a>
+                        <a href="https://ox.ac.uk/">
+                            <Tooltip title="University of Oxford">
+                                <div>
+                                    <ReactSVG
+                                        className={classes.footerLogo}
+                                        src="/oxford-logo.svg"
+                                    />
+                                </div>
+                            </Tooltip>
+                        </a>
+                    </Stack>
                 </div>
-                <Divider />
-                <List>{mainListItems}</List>
-            </Drawer>
-            <main className={classes.content}>
-                <FilterContextProvider>
-                    <FilterBar key="filter_bar" />
-                    <SelectedResourcesPane />
-                    <Paper className={clsx(classes.mainPaper)} elevation={0}>
-                        <Outlet key="main_content" />
-                    </Paper>
-                </FilterContextProvider>
-            </main>
-            <SnackbarMessenger autoHideDuration={6000} />
-        </div>
+            </Stack>
+        </footer>
+    )
+
+    const Layout = (
+        <>
+            <div className={classes.root}>
+                <CssBaseline />
+                <AppBar
+                    position="absolute"
+                    className={clsx(
+                        classes.appBar,
+                        open && classes.appBarShift,
+                    )}
+                >
+                    <Toolbar className={classes.toolbar}>
+                        <IconButton
+                            edge="start"
+                            color="inherit"
+                            title="open drawer"
+                            onClick={toggleDrawerOpen}
+                            className={clsx(classes.menuButton)}
+                        >
+                            <MdMenu />
+                        </IconButton>
+                        <Tooltip
+                            title="Galv"
+                            describeChild={true}
+                            placement="bottom-start"
+                            arrow
+                        >
+                            <Link
+                                to={PATHS.DASHBOARD}
+                                className={classes.title}
+                            >
+                                <ReactSVG
+                                    className={classes.galvLogo}
+                                    src="/Galv-logo.svg"
+                                />
+                            </Link>
+                        </Tooltip>
+                        <Typography
+                            component="h1"
+                            variant="h6"
+                            color="inherit"
+                            noWrap
+                            className={classes.title}
+                        >
+                            The Battery Development Metadata Secretary
+                        </Typography>
+                        <UserLogin />
+                        <SafeTooltip title={'Open help in new tab'} arrow>
+                            <IconButton
+                                edge="end"
+                                color="inherit"
+                                component={Link}
+                                to="https://galv-team.github.io/galv-frontend/"
+                                target="_blank"
+                            >
+                                <MdHelp />
+                            </IconButton>
+                        </SafeTooltip>
+                    </Toolbar>
+                </AppBar>
+                <Drawer
+                    variant="permanent"
+                    classes={{
+                        paper: clsx(
+                            classes.drawerPaper,
+                            !open && classes.drawerPaperClose,
+                        ),
+                    }}
+                    open={open}
+                >
+                    <div className={classes.toolbarIcon}>
+                        <IconButton onClick={handleDrawerClose}>
+                            <MdChevronLeft />
+                        </IconButton>
+                    </div>
+                    <Divider />
+                    <List>{mainListItems}</List>
+                </Drawer>
+                <main className={classes.content}>
+                    <FilterContextProvider>
+                        <FilterBar key="filter_bar" />
+                        <SelectedResourcesPane />
+                        <Paper
+                            className={clsx(classes.mainPaper)}
+                            elevation={0}
+                        >
+                            <Outlet key="main_content" />
+                        </Paper>
+                    </FilterContextProvider>
+                </main>
+                <SnackbarMessenger autoHideDuration={6000} />
+            </div>
+            {footer}
+        </>
     )
 
     function MyFallbackComponent(error: Error) {
