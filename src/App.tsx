@@ -25,6 +25,8 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import { MdChevronLeft, MdHelp, MdMenu } from 'react-icons/md'
+import { FaGithub } from 'react-icons/fa'
+import { IoDocumentTextOutline } from 'react-icons/io5'
 
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
@@ -161,72 +163,63 @@ export function Core() {
     )
 
     const footer = (
-        <footer
-            style={{
-                position: 'sticky',
-                bottom: 0,
-                width: '100%',
-                textAlign: 'center',
-                padding: '0.5em',
-                borderTop: '1px solid lightgray',
-                backgroundColor: 'white',
-                display: 'flex',
-                justifyContent: 'space-evenly',
-                zIndex: 100000,
-            }}
-        >
+        <footer className={classes.footer}>
             <div>
-                <small>Initial development</small>
                 <Stack direction="row" spacing={2}>
-                    <div
-                        style={{
-                            height: '40px',
-                            width: '40px',
-                            backgroundColor: 'darkblue',
-                        }}
-                    />
-                    <div
-                        style={{
-                            height: '40px',
-                            width: '40px',
-                            backgroundColor: 'darkblue',
-                        }}
-                    />
-                    <div
-                        style={{
-                            height: '40px',
-                            width: '40px',
-                            backgroundColor: 'darkblue',
-                        }}
-                    />
+                    <a
+                        href="https://galv-team.github.io/galv-website/"
+                        className={classes.footerLink}
+                    >
+                        <IoDocumentTextOutline
+                            style={{ marginRight: '0.2em' }}
+                        />{' '}
+                        Documentation
+                    </a>
+                    <a
+                        href="https://github.com/galv-team/"
+                        className={classes.footerLink}
+                    >
+                        <FaGithub style={{ marginRight: '0.2em' }} /> Contribute
+                    </a>
                 </Stack>
             </div>
-            <div>
-                <small>Contributions</small>
-                <Stack direction="row" spacing={2}>
-                    <div
-                        style={{
-                            height: '40px',
-                            width: '40px',
-                            backgroundColor: 'darkblue',
-                        }}
-                    />
-                    <div
-                        style={{
-                            height: '40px',
-                            width: '40px',
-                            backgroundColor: 'darkblue',
-                        }}
-                    />
-                    <div
-                        style={{
-                            height: '40px',
-                            width: '40px',
-                            backgroundColor: 'darkblue',
-                        }}
-                    />
-                </Stack>
-            </div>
+            <Stack direction="row" spacing={2}>
+                <small>Initial development:</small>
+                <div>
+                    <Stack direction="row" spacing={2}>
+                        <a href="https://howey.eng.ox.ac.uk/">
+                            <Tooltip title="Battery Intelligence Lab">
+                                <div>
+                                    <ReactSVG
+                                        className={classes.footerLogo}
+                                        src="/bil-logo.svg"
+                                    />
+                                </div>
+                            </Tooltip>
+                        </a>
+                        <a href="https://www.rse.ox.ac.uk">
+                            <Tooltip title="Oxford Research Software Engineering">
+                                <div>
+                                    <ReactSVG
+                                        className={classes.footerLogo}
+                                        src="/oxford-rse-logo.svg"
+                                    />
+                                </div>
+                            </Tooltip>
+                        </a>
+                        <a href="https://ox.ac.uk/">
+                            <Tooltip title="University of Oxford">
+                                <div>
+                                    <ReactSVG
+                                        className={classes.footerLogo}
+                                        src="/oxford-logo.svg"
+                                    />
+                                </div>
+                            </Tooltip>
+                        </a>
+                    </Stack>
+                </div>
+            </Stack>
         </footer>
     )
 

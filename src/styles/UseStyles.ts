@@ -110,6 +110,22 @@ export default makeStyles()((theme) => {
                 },
             },
         },
+        footerLogo: {
+            '& div': {
+                display: 'flex',
+                '& svg': {
+                    height: appBarHeight,
+                    width: 'auto',
+                },
+            },
+        },
+        footerLink: {
+            color: 'inherit',
+            textDecoration: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        },
         menuButton: {
             marginRight: 36,
         },
@@ -141,9 +157,20 @@ export default makeStyles()((theme) => {
                 width: theme.spacing(9),
             },
         },
+        footer: {
+            width: '100%',
+            textAlign: 'center',
+            padding: '0.5em',
+            borderTop: '1px solid lightgray',
+            backgroundColor: 'white',
+            display: 'flex',
+            justifyContent: 'space-evenly',
+            alignItems: 'center',
+            height: `calc(${appBarHeight} + 2em)`,
+        },
         content: {
             flexGrow: 1,
-            height: 'calc(100vh - 81px)',
+            minHeight: `calc(100vh - calc(${appBarHeight} + 1px + 2em))`,
             overflow: 'auto',
             paddingTop: theme.spacing(9),
             paddingLeft: theme.spacing(0),
