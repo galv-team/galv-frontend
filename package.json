@@ -31,6 +31,7 @@
     "immer": "^10.1.1",
     "native-file-system-adapter": "^3.0.1",
     "parquet-wasm": "0.6.1",
+    "plausible-tracker": "^0.3.9",
     "react": "^19.0.0",
     "react-code-blocks": "^0.1.6",
     "react-dom": "^19.0.0",

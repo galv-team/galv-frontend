@@ -38,6 +38,10 @@ Importantly, you will need to provide the ``build.arg`` variable ``VITE_GALV_API
 This should be the fully-qualified domain name of the Galv Backend API, e.g. ``https://my-galv-backend.fly.dev``.
 This is what Galv will use to make requests to the Backend.
 
+You may also want to set the ``VITE_GALV_ANALYTICS_URL`` variable to the fully-qualified domain name of a
+`Plausible <https://plausible.io/>`_ instance, if you have one set up.
+If set, Galv will send data about page views and external links to Plausible.
+
 On a related note, the Backend API needs to have the ``FRONTEND_VIRTUAL_HOST``
 environment variable set to the fully-qualified domain name of the Frontend,
 e.g. ``https://my-galv-frontend.fly.dev``.

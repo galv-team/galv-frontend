@@ -64,6 +64,18 @@ import Paper from '@mui/material/Paper'
 import SafeTooltip from './Components/SafeTooltip'
 import UploadFilePage from './Components/upload/UploadFilePage'
 import Tooltip from '@mui/material/Tooltip'
+import Plausible from 'plausible-tracker'
+
+const plausible = Plausible({
+    apiHost:
+        import.meta.env.VITE_GALV_ANALYTICS_URL ??
+        'https://localhost/plausible',
+    trackLocalhost: !import.meta.env.VITE_GALV_ANALYTICS_URL,
+})
+
+const { enableAutoPageviews, enableAutoOutboundTracking } = plausible
+enableAutoPageviews()
+enableAutoOutboundTracking()
 
 export const pathMatches = (path: string, pathname: string) =>
     matchPath({ path: path, end: true }, pathname) !== null

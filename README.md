@@ -28,7 +28,8 @@ The Dockerfile is in the root directory of this repository.
 
 To deploy the frontend, you will need to set the following environment variables in the Docker container:
 
--   `GALV_API_ROOT_URL`: the URL of the Galv REST API you are targeting with the frontend
+-   `VITE_GALV_API_BASE_URL`: the URL of the Galv REST API you are targeting with the frontend
+-   (optional) `VITE_GALV_ANALYTICS_URL`: URL of the Plausible analytics instance to use
 
 You can set these variables either by editing the Dockerfile, or by passing them in as arguments to `docker run` or `docker-compose up`.
 If you're using `docker-compose`, you can set them in the `environment` section of the `frontend` service in the `docker-compose.yml` file.
