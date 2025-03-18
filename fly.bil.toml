@@ -9,6 +9,7 @@ primary_region = 'lhr'
 [build]
 [build.args]
   VITE_GALV_API_BASE_URL = "https://galv-backend.fly.dev"
+  VITE_GALV_ANALYTICS_URL = "https://plausible-oxrse.fly.dev"
 
 [http_service]
   internal_port = 80
