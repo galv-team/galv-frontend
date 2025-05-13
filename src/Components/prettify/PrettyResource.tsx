@@ -47,7 +47,9 @@ export const PrettyResourceSelect = <T extends GalvResource>({
     const [modalOpen, setModalOpen] = useState(false)
 
     if (allow_new === undefined)
-        allow_new = Object.keys(FIELDS[lookupKey]).includes('team')
+        allow_new =
+            lookupKey !== LOOKUP_KEYS.FILE &&
+            Object.keys(FIELDS[lookupKey]).includes('team')
 
     const query = useListQuery<T>(lookupKey)
 
@@ -72,7 +74,7 @@ export const PrettyResourceSelect = <T extends GalvResource>({
     const represent = (url: string) => {
         const object = url_to_query_result(url)
         if (!object) return url
-        return representation({ data: object, lookupKey })
+        return `${representation({ data: object, lookupKey })} [${object.id}]`
     }
     const url_to_value = (url: string) => represent(url)
     const value_to_url = (value: string) => {
