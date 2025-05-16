@@ -20,11 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.extract_tag.outputs.tag }}
+      release_id: ${{ steps.release_info.outputs.release_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Validate release exists and is a draft
+        id: release_info
         if: github.event_name == 'workflow_dispatch'
         run: |
           set -e
@@ -34,7 +36,7 @@ jobs:
             echo "❌ Tag '${{ github.event.inputs.tag }}' does not correspond to a draft release."
             exit 1
           fi
-          echo "RELEASE_ID=$(echo "$release_json" | jq -r '.id')" >> "$GITHUB_ENV"
+          echo "release_id=$(echo "$release_json" | jq -r '.id')" >> "$GITHUB_OUTPUT"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -112,13 +114,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: ci
     if: |
-      failure() &&
-      (
-        github.event_name != 'workflow_dispatch' ||
-        env.RELEASE_ID != ''
-      )
+      failure()
     steps:
       - name: Comment on draft release
+        if: |
+          github.event_name != 'workflow_dispatch' ||
+          needs.ci.outputs.release_id != ''
         run: |
           gh api \
             -H "Accept: application/vnd.github+json" \
