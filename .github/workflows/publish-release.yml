@@ -78,7 +78,7 @@ jobs:
       - name: Set ECR variables
         run: |
           echo "ECR_REGISTRY=$(aws sts get-caller-identity --query 'Account' --output text).dkr.ecr.eu-west-2.amazonaws.com" >> $GITHUB_ENV
-          echo "ECR_REPOSITORY=galv-backend" >> $GITHUB_ENV
+          echo "ECR_REPOSITORY=galv-frontend" >> $GITHUB_ENV
 
       - name: Docker metadata
         id: meta
