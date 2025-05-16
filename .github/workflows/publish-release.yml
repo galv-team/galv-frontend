@@ -55,7 +55,7 @@ jobs:
 
       - name: Archive frontend build output
         run: |
-          tar -czf frontend-build.tar.gz -C build .
+          tar -czf frontend-build.tar.gz -C dist .
 
       - name: Upload build artifact to release
         uses: softprops/action-gh-release@v2
