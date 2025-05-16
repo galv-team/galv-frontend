@@ -672,19 +672,19 @@ describe('ResourceCard', () => {
                 id_label.parentElement! as HTMLElement,
             ).getByRole('combobox')
             expect(input).toHaveValue(
-                `representation: CELL_FAMILY [${cell_family.id}]`,
+                `representation: CELL_FAMILY [${cell_family.id}] [${cell_family.id}]`,
             )
             await user.click(input)
             await user.clear(input)
             await user.keyboard('2') // should match the second cell family
             const autocomplete = await screen.findByRole('listbox')
             const option = within(autocomplete).getByText(
-                `representation: CELL_FAMILY [${cell_families[1].id}]`,
+                `representation: CELL_FAMILY [${cell_families[1].id}] [${cell_families[1].id}]`,
             )
             await user.click(option)
             await wait()
             expect(input).toHaveValue(
-                `representation: CELL_FAMILY [${cell_families[1].id}]`,
+                `representation: CELL_FAMILY [${cell_families[1].id}] [${cell_families[1].id}]`,
             )
         })
     }, 15000)

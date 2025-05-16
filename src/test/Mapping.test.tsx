@@ -197,7 +197,9 @@ it('renders', async () => {
     await user.clear(team)
     await user.keyboard(teams[0].name[0]) // should autocomplete
     const autocomplete = await screen.findByRole('listbox')
-    const option = within(autocomplete).getByText(teams[0].name)
+    const option = within(autocomplete).getByText(teams[0].name, {
+        exact: false,
+    })
     await user.click(option)
     expect(team).toBeInTheDocument()
     expect(team_warning).not.toBeInTheDocument()
