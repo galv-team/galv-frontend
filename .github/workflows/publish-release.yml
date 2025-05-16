@@ -65,15 +65,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}
-          tags: |
-            type=raw,value=${{ steps.extract_tag.outputs.tag }}
-            type=raw,value=latest
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -88,6 +79,15 @@ jobs:
         run: |
           echo "ECR_REGISTRY=$(aws sts get-caller-identity --query 'Account' --output text).dkr.ecr.eu-west-2.amazonaws.com" >> $GITHUB_ENV
           echo "ECR_REPOSITORY=galv-backend" >> $GITHUB_ENV
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}
+          tags: |
+            type=raw,value=${{ steps.extract_tag.outputs.tag }}
+            type=raw,value=latest
 
       - name: Build and push image to ECR
         uses: docker/build-push-action@v5
