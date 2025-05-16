@@ -103,6 +103,8 @@ jobs:
     needs: ci
     if: success()
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Publish the release
         run: |
           tag="${{ github.event.release.tag_name }}"
@@ -127,6 +129,8 @@ jobs:
     if: |
       failure()
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Mark release as failed
         run: |
           tag="${{ github.event.release.tag_name }}"
