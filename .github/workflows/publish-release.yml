@@ -1,5 +1,5 @@
-# Take a draft release and publish it
-# In the process, build and check the code, add built artifacts to the release, and publish a Docker image
+# Take a release and augment it
+# build and check the code, add built artifacts to the release, and publish a Docker image
 
 name: Publish Release
 
@@ -25,17 +25,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate release exists and is a draft
+      - name: Validate release exists
         id: release_info
         if: github.event_name == 'workflow_dispatch'
         run: |
           set -e
           release_json=$(gh api /repos/${{ github.repository }}/releases/tags/${{ github.event.inputs.tag }})
-          is_draft=$(echo "$release_json" | jq -r '.draft')
-          if [ "$is_draft" != "true" ]; then
-            echo "❌ Tag '${{ github.event.inputs.tag }}' does not correspond to a draft release."
-            exit 1
-          fi
           echo "release_id=$(echo "$release_json" | jq -r '.id')" >> "$GITHUB_OUTPUT"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -104,8 +99,12 @@ jobs:
     needs: ci
     if: success()
     steps:
-      - name: Publish the draft release
-        run: gh release edit "$TAG" --draft=false
+      - name: Publish the release
+        run: |
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/releases/${{ github.event.release.id }}/comments \
+            -f body='✅ CI passed. Docker image has been pushed to ECR and the frontend build has been uploaded.'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.ci.outputs.tag }}

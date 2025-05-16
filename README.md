@@ -112,4 +112,4 @@ pnpm run cypress:open
 ## Releases
 
 Releases should be tagged with a semver version number.
-The release should be created **as a draft**, at which point a workflow will be triggered to build the release and upload it to the GitHub releases page.
+When releases are created, a workflow will be triggered to build the release and upload it to the GitHub releases page.
