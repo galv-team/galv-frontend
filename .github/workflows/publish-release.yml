@@ -98,14 +98,14 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  publish:
+  append-ci-status:
     runs-on: ubuntu-latest
     needs: ci
-    if: success()
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Publish the release
+        if: success()
         run: |
           tag="${{ github.event.release.tag_name }}"
 
@@ -123,15 +123,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  comment-on-failure:
-    runs-on: ubuntu-latest
-    needs: ci
-    if: |
-      failure()
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Mark release as failed
+        if: failure()
         run: |
           tag="${{ github.event.release.tag_name }}"
           title="${{ github.event.release.name }}"
