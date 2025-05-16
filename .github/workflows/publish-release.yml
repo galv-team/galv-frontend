@@ -1,0 +1,128 @@
+# Take a draft release and publish it
+# In the process, build and check the code, add built artifacts to the release, and publish a Docker image
+
+name: Publish Release
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag name'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.extract_tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate release exists and is a draft
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -e
+          release_json=$(gh api /repos/${{ github.repository }}/releases/tags/${{ github.event.inputs.tag }})
+          is_draft=$(echo "$release_json" | jq -r '.draft')
+          if [ "$is_draft" != "true" ]; then
+            echo "❌ Tag '${{ github.event.inputs.tag }}' does not correspond to a draft release."
+            exit 1
+          fi
+          echo "RELEASE_ID=$(echo "$release_json" | jq -r '.id')" >> "$GITHUB_ENV"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract tag
+        id: extract_tag
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node (optional)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+      - run: npm run build:plain
+
+      - name: Archive frontend build output
+        run: |
+          tar -czf frontend-build.tar.gz -C build .
+
+      - name: Upload build artifact to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: frontend-build.tar.gz
+          tag_name: ${{ needs.ci.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}
+          tags: |
+            type=raw,value=${{ steps.extract_tag.outputs.tag }}
+            type=raw,value=latest
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set ECR variables
+        run: |
+          echo "ECR_REGISTRY=$(aws sts get-caller-identity --query 'Account' --output text).dkr.ecr.eu-west-2.amazonaws.com" >> $GITHUB_ENV
+          echo "ECR_REPOSITORY=galv-backend" >> $GITHUB_ENV
+
+      - name: Build and push image to ECR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: ci
+    if: success()
+    steps:
+      - name: Publish the draft release
+        run: gh release edit "$TAG" --draft=false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.ci.outputs.tag }}
+
+  comment-on-failure:
+    runs-on: ubuntu-latest
+    needs: ci
+    if: |
+      failure() &&
+      (
+        github.event_name != 'workflow_dispatch' ||
+        env.RELEASE_ID != ''
+      )
+    steps:
+      - name: Comment on draft release
+        run: |
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/releases/${{ github.event.release.id }}/comments \
+            -f body='🚨 CI failed. This release remains a draft. Please fix issues and re-run the workflow.'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
