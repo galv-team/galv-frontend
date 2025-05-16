@@ -46,8 +46,8 @@ jobs:
         with:
           node-version: 20
 
-      - run: npm ci
-      - run: npm run build:plain
+      - run: pnpm ci
+      - run: pnpm run build
 
       - name: Archive frontend build output
         run: |
