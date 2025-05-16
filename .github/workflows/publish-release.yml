@@ -105,13 +105,21 @@ jobs:
     steps:
       - name: Publish the release
         run: |
-          gh api \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/releases/${{ github.event.release.id }}/comments \
-            -f body='✅ CI passed. Docker image has been pushed to ECR and the frontend build has been uploaded.'
+          tag="${{ github.event.release.tag_name }}"
+
+          # Safely append CI failure notice to body with markdown preserved
+          body=$(cat <<EOF
+          ${{ github.event.release.body }}
+    
+          ---
+    
+          ✅ CI passed. Docker image has been pushed to ECR and the frontend build has been uploaded.
+          EOF
+          )
+      
+          gh release edit "$tag" --notes "$body"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ needs.ci.outputs.tag }}
 
   comment-on-failure:
     runs-on: ubuntu-latest
@@ -119,14 +127,26 @@ jobs:
     if: |
       failure()
     steps:
-      - name: Comment on draft release
-        if: |
-          github.event_name != 'workflow_dispatch' ||
-          needs.ci.outputs.release_id != ''
+      - name: Mark release as failed
         run: |
-          gh api \
-            -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/releases/${{ github.event.release.id }}/comments \
-            -f body='🚨 CI failed. This release remains a draft. Please fix issues and re-run the workflow.'
+          tag="${{ github.event.release.tag_name }}"
+          title="${{ github.event.release.name }}"
+
+          # Prefix 🚫 if not already present
+          if [[ "$title" == 🚫* ]]; then
+            exit 0
+          fi
+
+          # Safely append CI failure notice to body with markdown preserved
+          body=$(cat <<EOF
+          ${{ github.event.release.body }}
+    
+          ---
+    
+          🚨 **CI failed**: This release remains incomplete. Artifacts may be missing or broken.
+          EOF
+          )
+      
+          gh release edit "$tag" --title "$title" --notes "$body"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
