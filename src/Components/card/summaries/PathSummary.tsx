@@ -30,7 +30,8 @@ export default function PathSummary({ resource }: { resource: GalvResource }) {
                 Files:
                 <ChipList
                     chips={r.files.map(
-                        (s) => `${import.meta.env.VITE_GALV_API_BASE_URL}${s}`,
+                        (s) =>
+                            `${window.__ENV__.VITE_GALV_API_BASE_URL ?? 'http://localhost:8000'}${s}`,
                     )}
                 />
             </Stack>

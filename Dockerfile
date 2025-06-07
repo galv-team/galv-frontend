@@ -12,11 +12,6 @@ COPY . /app/
 
 RUN mv .env.vite .env
 
-ARG VITE_GALV_API_BASE_URL
-ARG VITE_GALV_ANALYTICS_URL
-ENV VITE_GALV_API_BASE_URL=$VITE_GALV_API_BASE_URL
-ENV VITE_GALV_ANALYTICS_URL=$VITE_GALV_ANALYTICS_URL
-
 RUN pnpm install
 
 RUN pnpm build
@@ -24,7 +19,10 @@ RUN pnpm build
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY --from=build /app/nginx.conf.template /etc/nginx/conf.d/custom.conf
+COPY env.template.js /usr/share/nginx/html/env.template.js
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 80
-CMD ["/bin/sh" , "-c" , "exec nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "-c", "/entrypoint.sh && exec nginx -g 'daemon off;'"]
 

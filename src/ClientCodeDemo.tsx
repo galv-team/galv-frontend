@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { CopyBlock, a11yLight } from 'react-code-blocks'
+import { a11yLight, CopyBlock } from 'react-code-blocks'
 import { useCurrentUser } from './Components/CurrentUserContext'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
@@ -88,7 +88,7 @@ export default function ClientCodeDemo(props: { fileQueryLimit?: number }) {
         code
             .replace(
                 /GALV_API_HOST/g,
-                import.meta.env.VITE_GALV_API_BASE_URL ?? 'API_url',
+                window.__ENV__.VITE_GALV_API_BASE_URL ?? 'API_url',
             )
             .replace(/GALV_USER_TOKEN/g, user?.token ?? 'your_token_here')
             .replace(

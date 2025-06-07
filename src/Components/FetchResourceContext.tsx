@@ -28,7 +28,7 @@ import {
 } from '@tanstack/react-query'
 import { get_select_function } from './ApiResourceContext'
 import { useSnackbarMessenger } from './SnackbarMessengerContext'
-import { Configuration, ObservedFileCreate, ObservedFile } from '@galv/galv'
+import { Configuration, ObservedFile, ObservedFileCreate } from '@galv/galv'
 import { has } from './misc'
 
 export type Axios = typeof axios
@@ -305,7 +305,9 @@ export default function FetchResourceContextProvider({
         >
         if (lookupKey) {
             const api_handler = new API_HANDLERS[lookupKey]({
-                basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+                basePath:
+                    window.__ENV__.VITE_GALV_API_BASE_URL ??
+                    'http://localhost:8000',
             } as Configuration)
             const describe = api_handler[
                 `${API_SLUGS[lookupKey]}DescribeRetrieve` as keyof typeof api_handler

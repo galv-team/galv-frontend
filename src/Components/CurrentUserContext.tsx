@@ -102,7 +102,9 @@ export default function CurrentUserContextProvider({
     const queryClient = useQueryClient()
     const get_config = () =>
         new Configuration({
-            basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+            basePath:
+                window.__ENV__.VITE_GALV_API_BASE_URL ??
+                'http://localhost:8000',
             username,
             password,
         })
@@ -141,7 +143,8 @@ export default function CurrentUserContextProvider({
     }
 
     const api_config = new Configuration({
-        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        basePath:
+            window.__ENV__.VITE_GALV_API_BASE_URL ?? 'http://localhost:8000',
         accessToken: user?.token,
     })
 

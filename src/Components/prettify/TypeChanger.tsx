@@ -239,7 +239,7 @@ const get_conversion_fun = (
     if (key) {
         return (v: TypeValueNotation) => {
             const current = str(v)._value
-            const page = `${import.meta.env.VITE_GALV_API_BASE_URL}${PATHS[key]}`
+            const page = `${window.__ENV__.VITE_GALV_API_BASE_URL ?? 'http://localhost:8000'}${PATHS[key]}`
             if (current.startsWith(page)) {
                 return { _type: type, _value: page }
             }
@@ -327,7 +327,9 @@ function TypeChangeResourcePopover({
                                 placement="bottom"
                                 describeChild={true}
                             >
-                                <span><ICON /></span>
+                                <span>
+                                    <ICON />
+                                </span>
                             </SafeTooltip>
                         </ToggleButton>
                     )
@@ -415,7 +417,9 @@ function TypeChangePopover({
                         placement="bottom"
                         describeChild={true}
                     >
-                        <span><MdMoreVert /></span>
+                        <span>
+                            <MdMoreVert />
+                        </span>
                     </SafeTooltip>
                 </IconButton>
             </Stack>

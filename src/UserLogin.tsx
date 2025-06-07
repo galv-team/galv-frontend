@@ -393,7 +393,8 @@ export function LoginForm() {
     }
 
     const config = new Configuration({
-        basePath: import.meta.env.VITE_GALV_API_BASE_URL,
+        basePath:
+            window.__ENV__.VITE_GALV_API_BASE_URL ?? 'http://localhost:8000',
     })
 
     const request_reset = () => {
