@@ -52,9 +52,10 @@ const cases = [
                 _type: 'object',
                 _value: { 0: { _type: 'string', _value: '1' } },
             },
+            // hard-coded to the VITE_GALV_API_BASE_URL env var value
             galv_CELL: {
                 _type: 'galv_CELL',
-                _value: `${import.meta.env.VITE_GALV_API_BASE_URL ?? 'undefined'}/cells/1`,
+                _value: `http://localhost:8080/cells/1`,
             },
         },
     },
@@ -100,9 +101,10 @@ const cases = [
                 _type: 'object',
                 _value: { 0: { _type: 'number', _value: 1 } },
             },
+            // hard-coded to the VITE_GALV_API_BASE_URL env var value
             galv_CELL: {
                 _type: 'galv_CELL',
-                _value: `${import.meta.env.VITE_GALV_API_BASE_URL ?? 'undefined'}/cells/1`,
+                _value: `http://localhost:8080/cells/1`,
             },
         },
     },
