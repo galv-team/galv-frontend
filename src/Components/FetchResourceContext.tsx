@@ -306,7 +306,8 @@ export default function FetchResourceContextProvider({
         if (lookupKey) {
             const api_handler = new API_HANDLERS[lookupKey]({
                 basePath:
-                    window.__ENV__.VITE_GALV_API_BASE_URL ??
+                    window.__ENV__?.VITE_GALV_API_BASE_URL ??
+                    import.meta.env.VITE_GALV_API_BASE_URL ??
                     'http://localhost:8000',
             } as Configuration)
             const describe = api_handler[

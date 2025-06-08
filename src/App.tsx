@@ -68,9 +68,13 @@ import Plausible from 'plausible-tracker'
 
 const plausible = Plausible({
     apiHost:
-        window.__ENV__.VITE_GALV_ANALYTICS_URL ?? 'https://localhost/plausible',
+        window.__ENV__?.VITE_GALV_ANALYTICS_URL ??
+        import.meta.env.VITE_GALV_ANALYTICS_URL ??
+        'https://localhost/plausible',
     trackLocalhost: !(
-        window.__ENV__.VITE_GALV_ANALYTICS_URL ?? 'https://localhost/plausible'
+        window.__ENV__?.VITE_GALV_ANALYTICS_URL ??
+        import.meta.env.VITE_GALV_ANALYTICS_URL ??
+        'https://localhost/plausible'
     ),
 })
 

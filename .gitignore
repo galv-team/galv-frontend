@@ -42,3 +42,5 @@ storybook-static/
 docker-compose.override.yaml
 
 .eslintcache
+
+env.js

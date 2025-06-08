@@ -1,26 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
 <!--
 # SPDX-License-Identifier: BSD-2-Clause
 # Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 # of Oxford, and the 'Galv' Developers. All rights reserved.
 -->
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="/Galv-icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Galv: a web app for gathering battery tester data"
-    />
-    <link rel="apple-touch-icon" href="/Galv-icon.svg" />
-    <link rel="manifest" href="/manifest.json" />
-    <title>Galv</title>
-  </head>
-  <body>
-    <noscript>This app requires JavaScript to run.</noscript>
-    <div id="root"></div>
-    <script type="module" src="/src/index.tsx"></script>
-  </body>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" href="/Galv-icon.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000000" />
+        <meta
+            name="description"
+            content="Galv: a web app for gathering battery tester data"
+        />
+        <link rel="apple-touch-icon" href="/Galv-icon.svg" />
+        <link rel="manifest" href="/manifest.json" />
+        <title>Galv</title>
+        <!--Runtime envvars-->
+        <script type="text/javascript" src="./env.js"></script>
+    </head>
+    <body>
+        <noscript>This app requires JavaScript to run.</noscript>
+        <div id="root"></div>
+        <script type="module" src="/src/index.tsx"></script>
+    </body>
 </html>

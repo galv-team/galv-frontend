@@ -88,7 +88,9 @@ export default function ClientCodeDemo(props: { fileQueryLimit?: number }) {
         code
             .replace(
                 /GALV_API_HOST/g,
-                window.__ENV__.VITE_GALV_API_BASE_URL ?? 'API_url',
+                window.__ENV__?.VITE_GALV_API_BASE_URL ??
+                    import.meta.env.VITE_GALV_API_BASE_URL ??
+                    'API_url',
             )
             .replace(/GALV_USER_TOKEN/g, user?.token ?? 'your_token_here')
             .replace(
