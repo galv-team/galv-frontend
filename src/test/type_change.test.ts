@@ -4,8 +4,8 @@
 
 import { convert } from '../Components/prettify/TypeChanger'
 import {
-    TypeValueNotationWrapper,
     TypeValueNotation,
+    TypeValueNotationWrapper,
 } from '../Components/TypeValueNotation'
 import { describe, expect, test } from 'vitest'
 
@@ -52,7 +52,10 @@ const cases = [
                 _type: 'object',
                 _value: { 0: { _type: 'string', _value: '1' } },
             },
-            galv_CELL: { _type: 'galv_CELL', _value: 'undefined/cells/1' },
+            galv_CELL: {
+                _type: 'galv_CELL',
+                _value: `${import.meta.env.VITE_GALV_API_BASE_URL ?? 'undefined'}/cells/1`,
+            },
         },
     },
     {
@@ -97,7 +100,10 @@ const cases = [
                 _type: 'object',
                 _value: { 0: { _type: 'number', _value: 1 } },
             },
-            galv_CELL: { _type: 'galv_CELL', _value: 'undefined/cells/1' },
+            galv_CELL: {
+                _type: 'galv_CELL',
+                _value: `${import.meta.env.VITE_GALV_API_BASE_URL ?? 'undefined'}/cells/1`,
+            },
         },
     },
     {
