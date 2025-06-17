@@ -248,12 +248,16 @@ The file will be added to the Harvester's usual queue for processing.
                     />
                 }
                 title={
-                    <A
-                        component={Link}
-                        to={`${PATHS[lookupKey]}/${resourceId}`}
-                    >
-                        {resourceId}
-                    </A>
+                    lookupKey === LOOKUP_KEYS.MAPPING ? (
+                        resourceId
+                    ) : (
+                        <A
+                            component={Link}
+                            to={`${PATHS[lookupKey]}/${resourceId}`}
+                        >
+                            {resourceId}
+                        </A>
+                    )
                 }
                 subheader={
                     <Stack direction="row" spacing={1}>
@@ -293,24 +297,31 @@ The file will be added to the Harvester's usual queue for processing.
                     </Avatar>
                 }
                 title={
-                    <A
-                        component={Link}
-                        to={`${PATHS[lookupKey]}/${resourceId}`}
-                    >
+                    lookupKey === LOOKUP_KEYS.MAPPING ? (
                         <Representation
                             resourceId={resourceId}
                             lookupKey={lookupKey}
-                            prefix={
-                                family_key && family ? (
-                                    <Representation
-                                        resourceId={family.id as string}
-                                        lookupKey={family_key}
-                                        suffix=" "
-                                    />
-                                ) : undefined
-                            }
                         />
-                    </A>
+                    ) : (
+                        <A
+                            component={Link}
+                            to={`${PATHS[lookupKey]}/${resourceId}`}
+                        >
+                            <Representation
+                                resourceId={resourceId}
+                                lookupKey={lookupKey}
+                                prefix={
+                                    family_key && family ? (
+                                        <Representation
+                                            resourceId={family.id as string}
+                                            lookupKey={family_key}
+                                            suffix=" "
+                                        />
+                                    ) : undefined
+                                }
+                            />
+                        </A>
+                    )
                 }
                 subheader={
                     <Stack direction="row" spacing={1} alignItems="center">
