@@ -54,8 +54,12 @@ export default function AuthFile({ url }: { url: string }) {
     const [dataUrl, setDataUrl] = useState('')
     const [filename, setFilename] = useState('file')
     const [downloading, setDownloading] = useState(false)
+    const { user } = useCurrentUser();
+    const auth = user
+        ? {authorization: `Bearer ${user.token}`}
+        : {};
     const headers = {
-        authorization: `Bearer ${useCurrentUser().user?.token}`,
+        ...auth,
         'Galv-Storage-No-Redirect': true,
     }
     const query = useQuery({

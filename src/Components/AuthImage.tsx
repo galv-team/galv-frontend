@@ -14,9 +14,9 @@ import Skeleton from '@mui/material/Skeleton'
  * With a direct link, the Origin header is set to null, which results in CORS errors.
  */
 export default function AuthImage({
-    file,
-    ...imgProps
-}: {
+                                      file,
+                                      ...imgProps
+                                  }: {
     file: { id: string; path: string; name?: string; png: string }
 } & Partial<
     React.DetailedHTMLProps<
@@ -25,8 +25,12 @@ export default function AuthImage({
     >
 >) {
     const [imageData, setImageData] = useState('')
+    const { user } = useCurrentUser();
+    const auth = user
+        ? {authorization: `Bearer ${user.token}`}
+        : {};
     const headers = {
-        authorization: `Bearer ${useCurrentUser().user?.token}`,
+        ...auth,
         'Galv-Storage-No-Redirect': true,
     }
     const query = useQuery({

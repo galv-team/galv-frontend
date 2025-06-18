@@ -110,7 +110,7 @@ export function DatasetChart({
     const [parquetModuleInitalized, setParquetModuleInitialized] =
         useState(false)
     const token = useCurrentUser().user?.token
-    const headers = { Authorization: `Bearer ${token}` }
+    const headers = token? { Authorization: `Bearer ${token}` } : {}
 
     useEffect(() => {
         // React advises to declare the async function directly inside useEffect

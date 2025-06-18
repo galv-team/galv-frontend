@@ -71,7 +71,9 @@ export async function zipBlobs(
             return fetchAuthFile({
                 url: response.data.parquet_file,
                 headers: {
-                    authorization: `Bearer ${api_config.accessToken}`,
+                    authorization: api_config.accessToken
+                        ? `Bearer ${api_config.accessToken}`
+                        : undefined,
                     'Galv-Storage-No-Redirect': true,
                 },
             })
