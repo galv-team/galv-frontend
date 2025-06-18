@@ -175,8 +175,9 @@ export default makeStyles()((theme) => {
             paddingTop: theme.spacing(9),
             paddingLeft: theme.spacing(0),
             paddingRight: theme.spacing(0),
-            paddingBottom: theme.spacing(0),
+            paddingBottom: '3em',
             fontFamily: 'Helvetica Neue,Helvetica,Arial,sans-serif',
+            position: 'relative',
         },
         deleteIcon: {
             '&:hover': { color: theme.palette.error.light },
@@ -395,6 +396,9 @@ export default makeStyles()((theme) => {
             display: 'flex',
             justifyContent: 'flex-end',
             alignItems: 'center',
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
         },
         inlineProgress: {
             marginLeft: theme.spacing(1),
