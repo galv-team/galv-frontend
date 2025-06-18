@@ -10,7 +10,7 @@ import {
     GalvResource,
     is_lookupKey,
     LOOKUP_KEYS,
-    LookupKey,
+    LookupKey
 } from '../constants'
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import {
@@ -24,7 +24,7 @@ import {
     useQuery,
     useQueryClient,
     UseQueryOptions,
-    UseQueryResult,
+    UseQueryResult
 } from '@tanstack/react-query'
 import { get_select_function } from './ApiResourceContext'
 import { useSnackbarMessenger } from './SnackbarMessengerContext'
@@ -234,7 +234,6 @@ export default function FetchResourceContextProvider({
             getPreviousPageParam: (firstPage, allPages, firstPageParam) =>
                 firstPage?.data?.previous ? firstPageParam - 1 : null,
             initialPageParam: 0,
-            enabled: useCurrentUser().user !== null,
         })
         const out: ListQueryResult<T> = { ...query, results: undefined }
         if (query.data === undefined) return out
@@ -291,7 +290,7 @@ export default function FetchResourceContextProvider({
         const query_options: UseQueryOptions<AxiosResponse<T>, AxiosError> = {
             queryKey: [lookupKey, resourceId],
             queryFn,
-            enabled: useCurrentUser().user !== null && resourceId !== '',
+            enabled: resourceId !== '',
             ...options?.extra_query_options,
         }
         return useQuery<AxiosResponse<T>, AxiosError>(query_options)
