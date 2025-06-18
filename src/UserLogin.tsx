@@ -394,7 +394,8 @@ export function LoginForm() {
 
     const config = new Configuration({
         basePath:
-            window.__ENV__?.VITE_GALV_API_BASE_URL ??
+            (window as { __ENV__?: Record<string, string> }).__ENV__
+                ?.VITE_GALV_API_BASE_URL ??
             import.meta.env.VITE_GALV_API_BASE_URL ??
             'http://localhost:8080',
     })

@@ -239,7 +239,7 @@ const get_conversion_fun = (
     if (key) {
         return (v: TypeValueNotation) => {
             const current = str(v)._value
-            const page = `${window.__ENV__?.VITE_GALV_API_BASE_URL ?? import.meta.env.VITE_GALV_API_BASE_URL ?? 'http://localhost:8080'}${PATHS[key]}`
+            const page = `${(window as { __ENV__?: Record<string, string> }).__ENV__?.VITE_GALV_API_BASE_URL ?? import.meta.env.VITE_GALV_API_BASE_URL ?? 'http://localhost:8080'}${PATHS[key]}`
             if (current.startsWith(page)) {
                 return { _type: type, _value: page }
             }

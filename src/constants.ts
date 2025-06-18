@@ -1239,7 +1239,7 @@ To create a new harvester, you can utilize a Python script on a computer with ac
 Visit the [harvester repository](https://github.com/galv-team/galv-harvester) for detailed instructions on setting up and configuring harvesters. 
 You will need the following information:
 
-1. Server URL: \`${window.__ENV__?.VITE_GALV_API_BASE_URL ?? import.meta.env.VITE_GALV_API_BASE_URL ?? 'http://localhost:8080'}\`
+1. Server URL: \`${(window as { __ENV__?: Record<string, string> }).__ENV__?.VITE_GALV_API_BASE_URL ?? import.meta.env.VITE_GALV_API_BASE_URL ?? 'http://localhost:8080'}\`
 2. API token: Generate a new token in the [token section](${PATHS[LOOKUP_KEYS.TOKEN]})
 
 Below, you can view all the harvesters that are associated with your [labs](${PATHS[LOOKUP_KEYS.LAB]}).

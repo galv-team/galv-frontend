@@ -103,7 +103,8 @@ export default function CurrentUserContextProvider({
     const get_config = () =>
         new Configuration({
             basePath:
-                window.__ENV__?.VITE_GALV_API_BASE_URL ??
+                (window as { __ENV__?: Record<string, string> }).__ENV__
+                    ?.VITE_GALV_API_BASE_URL ??
                 import.meta.env.VITE_GALV_API_BASE_URL ??
                 'http://localhost:8000',
             username,
@@ -145,7 +146,8 @@ export default function CurrentUserContextProvider({
 
     const api_config = new Configuration({
         basePath:
-            window.__ENV__?.VITE_GALV_API_BASE_URL ??
+            (window as { __ENV__?: Record<string, string> }).__ENV__
+                ?.VITE_GALV_API_BASE_URL ??
             import.meta.env.VITE_GALV_API_BASE_URL ??
             'http://localhost:8080',
         accessToken: user?.token,

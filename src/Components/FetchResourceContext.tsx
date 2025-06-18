@@ -10,7 +10,7 @@ import {
     GalvResource,
     is_lookupKey,
     LOOKUP_KEYS,
-    LookupKey
+    LookupKey,
 } from '../constants'
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import {
@@ -24,7 +24,7 @@ import {
     useQuery,
     useQueryClient,
     UseQueryOptions,
-    UseQueryResult
+    UseQueryResult,
 } from '@tanstack/react-query'
 import { get_select_function } from './ApiResourceContext'
 import { useSnackbarMessenger } from './SnackbarMessengerContext'
@@ -305,7 +305,8 @@ export default function FetchResourceContextProvider({
         if (lookupKey) {
             const api_handler = new API_HANDLERS[lookupKey]({
                 basePath:
-                    window.__ENV__?.VITE_GALV_API_BASE_URL ??
+                    (window as { __ENV__?: Record<string, string> }).__ENV__
+                        ?.VITE_GALV_API_BASE_URL ??
                     import.meta.env.VITE_GALV_API_BASE_URL ??
                     'http://localhost:8000',
             } as Configuration)
