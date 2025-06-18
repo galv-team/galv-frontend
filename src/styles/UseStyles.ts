@@ -283,7 +283,7 @@ export default makeStyles()((theme) => {
                 '& .MuiListItemIcon-root': {
                     minWidth: theme.spacing(1),
                     marginRight: theme.spacing(0.5),
-                    marginTop: 0,
+                    marginTop: '12px',
                 },
             },
         },
