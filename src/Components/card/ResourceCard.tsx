@@ -197,6 +197,8 @@ function ResourceCard<T extends GalvResource>({
             reimportable={
                 lookupKey === LOOKUP_KEYS.FILE &&
                 apiResource?.permissions?.write &&
+                has(apiResource, 'harvester') &&
+                !!apiResource.harvester &&
                 has(apiResource, 'state') &&
                 apiResource.state !== 'RETRY IMPORT'
             }
