@@ -47,7 +47,10 @@ export function ResourceList<T extends GalvResource>({
 
     const [page, setPage] = React.useState(0)
     const [_itemsPerPage, setItemsPerPage] = React.useState(DEFAULT_PAGE_SIZE)
-    const itemsPerPage = useMemo(() => _itemsPerPage === -1 ? undefined : _itemsPerPage, [_itemsPerPage])
+    const itemsPerPage = useMemo(
+        () => (_itemsPerPage === -1 ? undefined : _itemsPerPage),
+        [_itemsPerPage],
+    )
 
     const query = useListQuery<T>(lookupKey, { limit: itemsPerPage })
 
@@ -60,7 +63,7 @@ export function ResourceList<T extends GalvResource>({
     if (query.isInitialLoading) {
         content = Array(itemsPerPage ?? DEFAULT_PAGE_SIZE)
             .fill(0)
-            .map((_, i) => <Skeleton key={i} variant="rounded" height="6em" />)
+            .map((_, i) => <Skeleton key={i} variant="rounded" height="25em" />)
     } else if (query.results?.length === 0) {
         if (!user?.token)
             content = (
@@ -86,7 +89,8 @@ export function ResourceList<T extends GalvResource>({
         content = results
             .filter(
                 (r, i) =>
-                    i >= page * (itemsPerPage ?? 0) && i < (page + 1) * (itemsPerPage ?? Infinity),
+                    i >= page * (itemsPerPage ?? 0) &&
+                    i < (page + 1) * (itemsPerPage ?? Infinity),
             )
             .map((resource: T, i) => (
                 <ResourceCard

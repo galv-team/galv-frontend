@@ -21,7 +21,6 @@ import QueryWrapper from '../../QueryWrapper'
 import CircularProgress from '@mui/material/CircularProgress'
 import { ReuploadFile } from '../../upload/UploadFilePage'
 import Typography from '@mui/material/Typography'
-import AlertTitle from '@mui/material/AlertTitle'
 import AuthImage from '../../AuthImage'
 import { useFetchResource } from '../../FetchResourceContext'
 import MenuItem from '@mui/material/MenuItem'
@@ -31,10 +30,9 @@ import DownloadButton from '../../download/DownloadButton'
 
 function StatusAlert({
     message,
-    fix_button,
     children,
     ...alertProps
-}: { message: ReactNode; fix_button: ReactNode } & AlertProps) {
+}: { message: ReactNode; fix_button?: ReactNode } & AlertProps) {
     const { classes } = useStyles()
     const [open, setOpen] = React.useState(false)
     const EXPAND_ICON = ICONS[open ? 'EXPAND_LESS' : 'EXPAND_MORE']
@@ -48,15 +46,13 @@ function StatusAlert({
             >
                 {message}
                 <Stack direction="row" alignItems="center">
-                    {fix_button}
-                    {children && (
-                        <IconButton
-                            onClick={() => setOpen(!open)}
-                            title="expand"
-                        >
-                            <EXPAND_ICON />
-                        </IconButton>
-                    )}
+                    <IconButton
+                        onClick={() => setOpen(!open)}
+                        title="expand"
+                        disabled={!children}
+                    >
+                        <EXPAND_ICON />
+                    </IconButton>
                 </Stack>
             </Stack>
             <Collapse in={open} unmountOnExit>
@@ -184,53 +180,39 @@ function FileStatus({
         if (map.is_valid) {
             if (file.uploader && file.state === 'MAP ASSIGNED') {
                 return (
-                    <Alert {...alertProps}>
-                        <AlertTitle>Ready for reupload</AlertTitle>
+                    <StatusAlert message="Ready for reupload" {...alertProps}>
                         <Typography>
                             The mapping has been selected for this file, and it
                             is ready for re-uploading. Please drop the file into
                             the upload area to re-upload it.
                         </Typography>
                         {file.permissions.write && <ReuploadFile />}
-                    </Alert>
+                    </StatusAlert>
                 )
             }
             return (
                 <StatusAlert
                     message={`File mapped using valid mapping '${map.name}'`}
-                    fix_button={
-                        file.permissions.write && (
-                            <Button
-                                component={Link}
-                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
-                                size="small"
-                            >
-                                Edit mapping
-                            </Button>
-                        )
-                    }
                     severity="success"
                     {...alertProps}
                 >
                     Data has the required columns. Preview and analysis tools
                     are available.
+                    {file.permissions.write && (
+                        <Button
+                            component={Link}
+                            to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                            size="small"
+                        >
+                            Edit mapping
+                        </Button>
+                    )}
                 </StatusAlert>
             )
         } else {
             return (
                 <StatusAlert
                     message={`An invalid mapping '${map.name}' is applied to this file`}
-                    fix_button={
-                        file.permissions.write && (
-                            <Button
-                                component={Link}
-                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
-                                size="small"
-                            >
-                                Edit mapping
-                            </Button>
-                        )
-                    }
                     severity="warning"
                     {...alertProps}
                 >
@@ -241,6 +223,15 @@ function FileStatus({
                     {file.permissions.write && (
                         <MappingQuickSelect file={file} mappings={mappings} />
                     )}
+                    {file.permissions.write && (
+                        <Button
+                            component={Link}
+                            to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                            size="small"
+                        >
+                            Customise mapping
+                        </Button>
+                    )}
                 </StatusAlert>
             )
         }
@@ -249,17 +240,6 @@ function FileStatus({
             return (
                 <StatusAlert
                     message="There are mappings that can be applied to this file, but none have been selected"
-                    fix_button={
-                        file.permissions.write && (
-                            <Button
-                                component={Link}
-                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
-                                size="small"
-                            >
-                                Choose mapping
-                            </Button>
-                        )
-                    }
                     severity="warning"
                     {...alertProps}
                 >
@@ -272,23 +252,21 @@ function FileStatus({
                     {file.permissions.write && (
                         <MappingQuickSelect file={file} mappings={mappings} />
                     )}
+                    {file.permissions.write && (
+                        <Button
+                            component={Link}
+                            to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                            size="small"
+                        >
+                            Customise mapping
+                        </Button>
+                    )}
                 </StatusAlert>
             )
         } else {
             return (
                 <StatusAlert
                     message="There are no mappings that can be applied to this file"
-                    fix_button={
-                        file.permissions.write && (
-                            <Button
-                                component={Link}
-                                to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
-                                size="small"
-                            >
-                                Create mapping
-                            </Button>
-                        )
-                    }
                     severity="error"
                     {...alertProps}
                 >
@@ -298,6 +276,15 @@ function FileStatus({
                     can be performed across all the files. Galv requires that
                     certain key columns are present in every file:
                     'ElapsedTime_s', 'Voltage_V', and 'Current_A'.
+                    {file.permissions.write && (
+                        <Button
+                            component={Link}
+                            to={`${PATHS.MAPPING}/${file.id ?? file.id}`}
+                            size="small"
+                        >
+                            Create mapping
+                        </Button>
+                    )}
                 </StatusAlert>
             )
         }
@@ -375,13 +362,12 @@ export default function FileSummary({
                 <QueryWrapper
                     queries={[applicableMappingsQuery]}
                     loading={
-                        <Alert
+                        <StatusAlert
                             icon={<CircularProgress />}
                             color="info"
                             role={'presentation'}
-                        >
-                            Fetching file mapping info
-                        </Alert>
+                            message="Fetching file mapping info"
+                        />
                     }
                     error={
                         <Alert color="warning" role={'presentation'}>
