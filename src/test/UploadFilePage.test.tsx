@@ -8,6 +8,7 @@ import {
     fireEvent,
     render,
     screen,
+    waitFor,
     within,
 } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -195,6 +196,15 @@ describe('UploadFilePage', () => {
 
         it('shows file upload dialogue for resume', async () => {
             const user = userEvent.setup()
+
+            // Expand the file summary to show the upload button
+            await waitFor(async () => {
+                const expand = await screen.findByRole('button', {
+                    name: /expand/i,
+                })
+                expect(expand).not.toBeDisabled()
+                await user.click(expand)
+            })
 
             // Has upload button
             const upload_button = await screen.findByRole('button', {
