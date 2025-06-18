@@ -2,7 +2,7 @@
 // Copyright  (c) 2020-2023, The Chancellor, Masters and Scholars of the University
 // of Oxford, and the 'Galv' Developers. All rights reserved.
 
-import React, { ReactNode, useContext } from 'react'
+import React, { ReactNode, useContext, useMemo } from 'react'
 import useStyles from '../styles/UseStyles'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
@@ -46,7 +46,8 @@ export function ResourceList<T extends GalvResource>({
     const { passesFilters } = useContext(FilterContext)
 
     const [page, setPage] = React.useState(0)
-    const [itemsPerPage, setItemsPerPage] = React.useState(DEFAULT_PAGE_SIZE)
+    const [_itemsPerPage, setItemsPerPage] = React.useState(DEFAULT_PAGE_SIZE)
+    const itemsPerPage = useMemo(() => _itemsPerPage === -1 ? undefined : _itemsPerPage, [_itemsPerPage])
 
     const query = useListQuery<T>(lookupKey, { limit: itemsPerPage })
 
@@ -57,7 +58,7 @@ export function ResourceList<T extends GalvResource>({
     let content: ReactNode
 
     if (query.isInitialLoading) {
-        content = Array(itemsPerPage)
+        content = Array(itemsPerPage ?? DEFAULT_PAGE_SIZE)
             .fill(0)
             .map((_, i) => <Skeleton key={i} variant="rounded" height="6em" />)
     } else if (query.results?.length === 0) {
@@ -85,7 +86,7 @@ export function ResourceList<T extends GalvResource>({
         content = results
             .filter(
                 (r, i) =>
-                    i >= page * itemsPerPage && i < (page + 1) * itemsPerPage,
+                    i >= page * (itemsPerPage ?? 0) && i < (page + 1) * (itemsPerPage ?? Infinity),
             )
             .map((resource: T, i) => (
                 <ResourceCard
@@ -178,10 +179,14 @@ export function ResourceList<T extends GalvResource>({
                         50,
                         { value: -1, label: 'All' },
                     ]}
-                    rowsPerPage={itemsPerPage}
-                    onRowsPerPageChange={(e) =>
-                        setItemsPerPage(parseInt(e.target.value, 10))
-                    }
+                    rowsPerPage={_itemsPerPage}
+                    onRowsPerPageChange={(e) => {
+                        setItemsPerPage(
+                            parseInt(e.target.value, DEFAULT_PAGE_SIZE),
+                        )
+                    }}
+                    showFirstButton={true}
+                    showLastButton={true}
                     // todo: Custom pagination actions? https://mui.com/material-ui/react-table/#custom-pagination-actions
                 />
             </Stack>
