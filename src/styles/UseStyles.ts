@@ -101,6 +101,9 @@ export default makeStyles()((theme) => {
                 duration: theme.transitions.duration.enteringScreen,
             }),
         },
+        drawerList: {
+            fontSize: '1.5em',
+        },
         galvLogo: {
             '& div': {
                 display: 'flex',

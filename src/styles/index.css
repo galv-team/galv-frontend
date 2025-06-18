@@ -22,8 +22,3 @@ code {
 .MuiPopover-paper {
     overflow: visible;
 }
-
-/* Consistent icon size */
-body svg {
-    font-size: 1.8em;
-}
