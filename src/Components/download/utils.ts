@@ -1,12 +1,6 @@
 import { showSaveFilePicker } from 'native-file-system-adapter'
-import {
-    Configuration,
-    DumpApi,
-    ObservedFile,
-    ParquetPartitionsApi,
-} from '@galv/galv'
-import { assertFulfilled, has } from '../misc'
-import { fetchAuthFile } from '../AuthFile'
+import { Configuration, DumpApi, ObservedFile } from '@galv/galv'
+import { has } from '../misc'
 import { BlobReader, BlobWriter, ZipWriter } from '@zip.js/zip.js'
 
 /**
@@ -20,79 +14,6 @@ type ZipBlobsOptions = {
     file: ObservedFile
     api_config: Configuration
     in_directory?: string | boolean
-}
-
-/**
- * Zip the ParquetPartitions of a file into a Blob for download
- *
- * @param options - The file to zip, the API configuration to use, and whether to include the directory name in the zip
- *
- * @returns A Promise<Blob> containing the zipped ParquetPartitions
- */
-export async function zipBlobs({
-    file,
-    api_config,
-    in_directory,
-}: ZipBlobsOptions): Promise<Blob>
-/**
- * Zip the ParquetPartitions of a file into a Blob for download
- *
- * @param options - The file to zip, the API configuration to use, and whether to include the directory name in the zip
- * @param zipWriter - A ZipWriter<Blob> to add the blobs to
- *
- * @returns A Promise<ZipWriter<Blob>> containing the zipWriter with ParquetPartitions added
- */
-export async function zipBlobs(
-    { file, api_config, in_directory }: ZipBlobsOptions,
-    zipWriter: ZipWriter<Blob>,
-): Promise<ZipWriter<Blob>>
-export async function zipBlobs(
-    { file, api_config, in_directory = true }: ZipBlobsOptions,
-    zipWriter?: ZipWriter<Blob>,
-): Promise<ZipWriter<Blob> | Blob> {
-    const dir_name_raw =
-        in_directory === true ? getFileName(file) : in_directory || ''
-    const dir_name =
-        dir_name_raw && !/\/$/.test(dir_name_raw)
-            ? `${dir_name_raw}/`
-            : dir_name_raw
-    const partitions = await Promise.allSettled(
-        file.parquet_partitions.map(async (partition_id) => {
-            const response = await new ParquetPartitionsApi(
-                api_config,
-            ).parquetPartitionsRetrieve({ id: partition_id })
-            // Second, fetch the ParquetPartition file via getAuthFile
-            if (
-                !has(response.data, 'parquet_file') ||
-                response.data.parquet_file === null
-            ) {
-                return undefined
-            }
-            return fetchAuthFile({
-                url: response.data.parquet_file,
-                headers: {
-                    authorization: api_config.accessToken
-                        ? `Bearer ${api_config.accessToken}`
-                        : undefined,
-                    'Galv-Storage-No-Redirect': true,
-                },
-            })
-        }),
-    )
-    const zW = zipWriter ?? new ZipWriter(new BlobWriter('application/zip'))
-    await Promise.all(
-        partitions
-            .filter((p) => assertFulfilled(p))
-            .map((p) => p.value)
-            .filter((p) => p !== undefined)
-            .map((p) => {
-                return zW.add(
-                    `${dir_name}${p.filename}`,
-                    new BlobReader(p.content.data),
-                )
-            }),
-    )
-    return zipWriter ? zW : await zW.close()
 }
 
 /**

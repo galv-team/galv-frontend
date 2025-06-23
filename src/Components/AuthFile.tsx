@@ -9,10 +9,6 @@ import Button from '@mui/material/Button'
 import { ICONS } from '../constants'
 import SafeTooltip from './SafeTooltip'
 
-const clean_filename = (filename: string) => {
-    return filename.replace(/\.parquet.*$/, '.parquet')
-}
-
 export async function fetchAuthFile({
     url,
     headers,
@@ -83,7 +79,7 @@ export default function AuthFile({ url }: { url: string }) {
             <Button
                 component="a"
                 href={dataUrl}
-                download={clean_filename(filename) ?? 'file.parquet'}
+                download={filename}
                 color="success"
                 startIcon={<ICONS.SAVE />}
             >

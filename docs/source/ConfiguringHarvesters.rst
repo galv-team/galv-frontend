@@ -147,9 +147,6 @@ Hopefully you'll see some files imported and mapped on the Files page.
 They should be accompanied by an image that shows a preview of the data.
 
 You can click on the File to see the data in more detail, and download the dataset.
-
-To download the dataset, expand the card for an IMPORTED File,
-click one of its 'Parquet partitions', and then click the 'Download' button.
 You'll see that some columns have been renamed to match Galv's naming conventions:
 `ElapsedTime_s` for the primary time column, and `Voltage_V` and `Current_A` for the primary data columns.
 

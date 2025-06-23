@@ -62,14 +62,14 @@ const CustomDropzone = ({ setFile }: { setFile: (file: File) => void }) => {
                         )}
                         <aside>
                             {acceptedFiles.map((file) => (
-                                <li key={file.name}>
+                                <p key={file.name}>
                                     {file.name} - {file.size} bytes
-                                </li>
+                                </p>
                             ))}
                             {fileRejections.map(({ file, errors }) => (
                                 <li key={file.name}>
                                     {file.name} - {file.size} bytes
-                                    <ul>
+                                    <ul style={{listStyle: 'none'}}>
                                         {errors.map((e) => (
                                             <li key={e.code}>{e.message}</li>
                                         ))}

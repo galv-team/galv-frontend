@@ -25,7 +25,6 @@ import {
     harvesters,
     labs,
     monitored_paths,
-    parquet_partitions,
     schedule_families,
     schedule_identifiers,
     schedules,
@@ -62,7 +61,6 @@ const resources = {
     users,
     harvesters,
     monitored_paths,
-    parquet_partitions,
 } as const
 
 const DEBUG_TESTS = false
