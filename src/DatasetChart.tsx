@@ -12,13 +12,13 @@ import Box from '@mui/material/Box'
 import Skeleton from '@mui/material/Skeleton'
 import CanvasJSReact from '@canvasjs/react-charts'
 import { useCurrentUser } from './Components/CurrentUserContext'
-import { Table, tableFromIPC } from 'apache-arrow'
 import Paper from '@mui/material/Paper'
 import MobileStepper from '@mui/material/MobileStepper'
 import Button from '@mui/material/Button'
 import { KeyboardArrowRight } from 'react-icons/md'
 import { KeyboardArrowLeft } from 'react-icons/md'
-import * as wasm from 'parquet-wasm/bundler/arrow1'
+import { ZipReader, BlobReader, BlobWriter } from '@zip.js/zip.js'
+import Papa from 'papaparse'
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart
 
@@ -27,28 +27,25 @@ const COLORS = ['#de6565', '#5d5dab']
 /*
 Take a parquet file and render a chart of the data.
  */
-export function DatasetChartPanel({ table }: { table: Table }) {
+type DatasetRow = Record<string, number>
+
+export function DatasetChartPanel({ rows }: { rows: DatasetRow[] }) {
     const [chartKey, setChartKey] = useState<number[]>([])
     const COL_KEYS = ['Current_A', 'Voltage_V']
 
     // Check metadata for key columns.
     // If key columns are not present, show an error and suggest the user re-map the column types.
 
-    const bytes_to_values = (bytes: Uint8Array) => Array.from(bytes)
-    const col_to_values = (col: string) =>
-        bytes_to_values(table?.select([col]).batches[0].data.children[0].values)
-    const x_values = table && col_to_values('ElapsedTime_s')
+    const x_values = rows.map((r) => r.ElapsedTime_s)
     const chart_data =
-        table &&
         COL_KEYS.map((key, i) => {
             if (!chartKey.includes(i))
                 setChartKey((prevState) => [...prevState, i])
-            const values = col_to_values(key)
             const dataPoints: { x: number; y: number | null }[] = []
             x_values.forEach((t, n) => {
                 dataPoints.push({
                     x: t,
-                    y: values[n] ?? null,
+                    y: rows[n] && rows[n][key] !== undefined ? rows[n][key] : null,
                 })
             })
             return {
@@ -99,54 +96,35 @@ export function DatasetChartPanel({ table }: { table: Table }) {
     )
 }
 
-export function DatasetChart({
-    parquet_partitions,
-}: {
-    parquet_partitions: string[]
-}) {
+export function DatasetChart({ zip_file }: { zip_file: string }) {
     const [fetching, setFetching] = useState(false)
     const [tables, setTables] = useState<ReactNode[]>([])
     const [currentTableIndex, setCurrentTableIndex] = useState(0)
-    const [parquetModuleInitalized, setParquetModuleInitialized] =
-        useState(false)
     const token = useCurrentUser().user?.token
     const headers = token? { Authorization: `Bearer ${token}` } : {}
 
-    useEffect(() => {
-        // React advises to declare the async function directly inside useEffect
-        async function getParquetModule() {
-            // const parquetModule = await import(
-            //     "https://unpkg.com/parquet-wasm@0.4.0-beta.5/esm/arrow2.js"
-            //     );
-            // // Need to await the default export first to initialize the WebAssembly code
-            // const {memory} = await parquetModule.default();
-            // setParquetModule(parquetModule);
-            // return [parquetModule, memory];
-            await wasm
-            setParquetModuleInitialized(true)
-        }
-
-        if (!parquetModuleInitalized) {
-            getParquetModule()
-        }
-    }, [])
-
-    if (
-        !fetching &&
-        tables.length < parquet_partitions.length &&
-        parquetModuleInitalized
-    ) {
+    if (!fetching && tables.length === 0) {
         setFetching(true)
-        fetch(parquet_partitions[tables.length], { method: 'GET', headers })
-            .then((r) => r.json())
-            .then((r) => fetch(r.parquet_file, { headers }))
+        fetch(zip_file, { method: 'GET', headers })
             .then((r) => r.arrayBuffer())
-            .then((ab) => new Uint8Array(ab))
-            .then(async (arr) => wasm.readParquet(arr))
-            .then((pq) => pq.intoIPCStream())
-            .then((ipc) => tableFromIPC(ipc))
-            .then((t) =>
-                setTables([...tables, <DatasetChartPanel table={t} />]),
+            .then(async (ab) => {
+                const reader = new ZipReader(new BlobReader(new Blob([ab])))
+                const entries = await reader.getEntries()
+                const first = entries[0]
+                if (!first) throw new Error('No file in zip')
+                const blob = await first.getData(new BlobWriter())
+                await reader.close()
+                return await blob.text()
+            })
+            .then((text) =>
+                Papa.parse<DatasetRow>(text, {
+                    header: true,
+                    dynamicTyping: true,
+                    skipEmptyLines: true,
+                }).data,
+            )
+            .then((rows) =>
+                setTables([...tables, <DatasetChartPanel rows={rows} />]),
             )
             .then(() => setFetching(false))
             .catch((e) => console.error('Error fetching S3 file', e))
@@ -168,8 +146,7 @@ export function DatasetChart({
                         }}
                     >
                         <Typography>
-                            Part {currentTableIndex}/
-                            {parquet_partitions.length - 1}
+                            Part {currentTableIndex}/0
                         </Typography>
                     </Paper>
                     <Box sx={{ width: '100%', p: 2 }}>
@@ -184,7 +161,7 @@ export function DatasetChart({
                     </Typography>
                     <MobileStepper
                         variant="text"
-                        steps={parquet_partitions.length}
+                        steps={1}
                         position="static"
                         activeStep={currentTableIndex}
                         nextButton={
@@ -202,8 +179,7 @@ export function DatasetChart({
                                         )
                                     }
                                     disabled={
-                                        currentTableIndex ===
-                                            parquet_partitions.length - 1 ||
+                                        currentTableIndex >= tables.length - 1
                                         currentTableIndex >= tables.length - 1
                                     }
                                 >
@@ -231,11 +207,7 @@ export function DatasetChart({
     )
 }
 
-export default function DatasetChartWrapper({
-    parquet_partitions,
-}: {
-    parquet_partitions: string[]
-}) {
+export default function DatasetChartWrapper({ zip_file }: { zip_file: string }) {
     const [open, setOpen] = useState<boolean>(false)
 
     return (
@@ -250,7 +222,7 @@ export default function DatasetChartWrapper({
                 onClick={() => setOpen(!open)}
                 sx={{ cursor: 'pointer' }}
             />
-            {open && <DatasetChart parquet_partitions={parquet_partitions} />}
+            {open && <DatasetChart zip_file={zip_file} />}
         </Card>
     )
 }

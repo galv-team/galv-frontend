@@ -53,15 +53,12 @@ dependencies:
   '@zip.js/zip.js':
     specifier: ^2.7.52
     version: 2.7.52
-  apache-arrow:
-    specifier: ^17.0.0
-    version: 17.0.0
   array-move:
     specifier: ^4.0.0
     version: 4.0.0
-  arrow-js-ffi:
-    specifier: ^0.4.2
-    version: 0.4.2(apache-arrow@17.0.0)
+  papaparse:
+    specifier: ^5.4.1
+    version: 5.4.1
   axios:
     specifier: 0.21.4
     version: 0.21.4
@@ -80,9 +77,6 @@ dependencies:
   native-file-system-adapter:
     specifier: ^3.0.1
     version: 3.0.1
-  parquet-wasm:
-    specifier: 0.6.1
-    version: 0.6.1
   plausible-tracker:
     specifier: ^0.3.9
     version: 0.3.9
@@ -4578,20 +4572,6 @@ packages:
       picomatch: 2.3.1
     dev: true
 
-  /apache-arrow@17.0.0:
-    resolution: {integrity: sha512-X0p7auzdnGuhYMVKYINdQssS4EcKec9TCXyez/qtJt32DrIMGbzqiaMiQ0X6fQlQpw8Fl0Qygcv4dfRAr5Gu9Q==}
-    hasBin: true
-    dependencies:
-      '@swc/helpers': 0.5.12
-      '@types/command-line-args': 5.2.3
-      '@types/command-line-usage': 5.0.4
-      '@types/node': 20.14.11
-      command-line-args: 5.2.1
-      command-line-usage: 7.0.1
-      flatbuffers: 24.3.25
-      json-bignum: 0.0.3
-      tslib: 2.6.2
-    dev: false
 
   /arch@2.2.0:
     resolution: {integrity: sha512-Of/R0wqp83cgHozfIYLbBMnej79U/SVGOOyuB3VVFv1NRM/PSFMK12x9KVtiYzJqmnU5WR2qp0Z5rHb7sWGnFQ==}
@@ -4635,13 +4615,6 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /arrow-js-ffi@0.4.2(apache-arrow@17.0.0):
-    resolution: {integrity: sha512-tD6jl4MYXjsMRoVVDX+po04fpd0bO8XaKqa3gtRerGSttS4Vh39NW3ELU0oLuIPNSkwM5In/G1aSSCHyVlrKjA==}
-    peerDependencies:
-      apache-arrow: '>=15'
-    dependencies:
-      apache-arrow: 17.0.0
-    dev: false
 
   /asn1@0.2.6:
     resolution: {integrity: sha512-ix/FxPn0MDjeyJ7i/yoHGFt/EX6LyNbxSEhPPXODPL+KB0VPk86UYfL0lMdy+KCnv+fmvIzySwaK5COwqVbWTQ==}
@@ -7955,6 +7928,10 @@ packages:
       yocto-queue: 0.1.0
     dev: true
 
+  /papaparse@5.4.1:
+    resolution: {integrity: sha512-1m271XxqvZBJghPofkmmQHzL0SU3xaVTmmsrIur5JlzPWnAsUGZTllCkbGKhzVXyzq6GF4nGz53BFYNjqZ0XJw==}
+    dev: false
+
   /p-locate@3.0.0:
     resolution: {integrity: sha512-x+12w/To+4GFfgJhBEpiDcLozRJGegY+Ei7/z0tSLkMmxGZNybVMSfWj9aJn8Z5Fc7dBUNJOOVgPv2H7IwulSQ==}
     engines: {node: '>=6'}
@@ -7994,9 +7971,6 @@ packages:
     dependencies:
       callsites: 3.1.0
 
-  /parquet-wasm@0.6.1:
-    resolution: {integrity: sha512-wTM/9Y4EHny8i0qgcOlL9UHsTXftowwCqDsAD8axaZbHp0Opp3ue8oxexbzTVNhqBjFhyhLiU3MT0rnEYnYU0Q==}
-    dev: false
 
   /parse-entities@2.0.0:
     resolution: {integrity: sha512-kkywGpCcRYhqQIchaWqZ875wzpS/bMKhz5HnN3p7wveJTkTtyAB/AlnS0f8DFSqYW1T82t6yEAkEcB+A1I3MbQ==}

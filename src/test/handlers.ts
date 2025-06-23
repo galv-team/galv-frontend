@@ -25,7 +25,6 @@ import {
     harvesters,
     labs,
     monitored_paths,
-    parquet_partitions,
     schedule_families,
     schedule_identifiers,
     schedules,
@@ -62,7 +61,6 @@ const resources = {
     users,
     harvesters,
     monitored_paths,
-    parquet_partitions,
 } as const
 
 const DEBUG_TESTS = false
@@ -241,7 +239,7 @@ const build_stub_endpoints =
 
 export const restHandlers = [
     // /:resource/:id/file/ cases should return a file
-    ...['arbitrary_files', 'parquet_partitions'].map((r) =>
+    ...['arbitrary_files'].map((r) =>
         http.get(RegExp(`/${r}/[a-zA-Z0-9-]+/file/`), () => {
             const buffer = new ArrayBuffer(3)
             const view = new Uint8Array(buffer)
@@ -252,6 +250,14 @@ export const restHandlers = [
                 },
             })
         }),
+    http.get(/\/files\/[a-zA-Z0-9-]+\/zip\//, () => {
+        const buffer = new ArrayBuffer(3)
+        const view = new Uint8Array(buffer)
+        view.set([1, 2, 3])
+        return HttpResponse.arrayBuffer(buffer, {
+            headers: { 'Content-Type': 'application/zip' },
+        })
+    }),
     ),
     ...Object.keys(resources).map((r) =>
         http.get(

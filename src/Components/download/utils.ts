@@ -1,11 +1,6 @@
 import { showSaveFilePicker } from 'native-file-system-adapter'
-import {
-    Configuration,
-    DumpApi,
-    ObservedFile,
-    ParquetPartitionsApi,
-} from '@galv/galv'
-import { assertFulfilled, has } from '../misc'
+import { Configuration, DumpApi, ObservedFile } from '@galv/galv'
+import { has } from '../misc'
 import { fetchAuthFile } from '../AuthFile'
 import { BlobReader, BlobWriter, ZipWriter } from '@zip.js/zip.js'
 
@@ -23,11 +18,11 @@ type ZipBlobsOptions = {
 }
 
 /**
- * Zip the ParquetPartitions of a file into a Blob for download
+ * Zip the data of a file into a Blob for download
  *
  * @param options - The file to zip, the API configuration to use, and whether to include the directory name in the zip
  *
- * @returns A Promise<Blob> containing the zipped ParquetPartitions
+ * @returns A Promise<Blob> containing the zipped data
  */
 export async function zipBlobs({
     file,
@@ -35,12 +30,12 @@ export async function zipBlobs({
     in_directory,
 }: ZipBlobsOptions): Promise<Blob>
 /**
- * Zip the ParquetPartitions of a file into a Blob for download
+ * Zip the data of a file into a Blob for download
  *
  * @param options - The file to zip, the API configuration to use, and whether to include the directory name in the zip
  * @param zipWriter - A ZipWriter<Blob> to add the blobs to
  *
- * @returns A Promise<ZipWriter<Blob>> containing the zipWriter with ParquetPartitions added
+ * @returns A Promise<ZipWriter<Blob>> containing the zipWriter with file data added
  */
 export async function zipBlobs(
     { file, api_config, in_directory }: ZipBlobsOptions,
@@ -56,42 +51,19 @@ export async function zipBlobs(
         dir_name_raw && !/\/$/.test(dir_name_raw)
             ? `${dir_name_raw}/`
             : dir_name_raw
-    const partitions = await Promise.allSettled(
-        file.parquet_partitions.map(async (partition_id) => {
-            const response = await new ParquetPartitionsApi(
-                api_config,
-            ).parquetPartitionsRetrieve({ id: partition_id })
-            // Second, fetch the ParquetPartition file via getAuthFile
-            if (
-                !has(response.data, 'parquet_file') ||
-                response.data.parquet_file === null
-            ) {
-                return undefined
-            }
-            return fetchAuthFile({
-                url: response.data.parquet_file,
-                headers: {
-                    authorization: api_config.accessToken
-                        ? `Bearer ${api_config.accessToken}`
-                        : undefined,
-                    'Galv-Storage-No-Redirect': true,
-                },
-            })
-        }),
-    )
     const zW = zipWriter ?? new ZipWriter(new BlobWriter('application/zip'))
-    await Promise.all(
-        partitions
-            .filter((p) => assertFulfilled(p))
-            .map((p) => p.value)
-            .filter((p) => p !== undefined)
-            .map((p) => {
-                return zW.add(
-                    `${dir_name}${p.filename}`,
-                    new BlobReader(p.content.data),
-                )
-            }),
-    )
+    if (has(file, 'zip_file') && file.zip_file) {
+        const { filename, content } = await fetchAuthFile({
+            url: file.zip_file,
+            headers: {
+                authorization: api_config.accessToken
+                    ? `Bearer ${api_config.accessToken}`
+                    : undefined,
+                'Galv-Storage-No-Redirect': true,
+            },
+        })
+        await zW.add(`${dir_name}${filename}`, new BlobReader(content.data))
+    }
     return zipWriter ? zW : await zW.close()
 }
 
@@ -162,7 +134,7 @@ export const downloadResources = async ({
                     )) {
                         if (
                             writtenFiles.has(value.id) ||
-                            !has(value, 'parquet_partitions')
+                            !has(value, 'zip_file')
                         )
                             continue
                         writtenFiles.add(value.id)
