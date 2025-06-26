@@ -165,13 +165,32 @@ Viewing your data
 
 When Galv imports data from a file, it applies some light processing to it so that it is compatible with other
 Galv files.
-The data are saved in comma-separated values (CSV) format, and compressed into a zip for efficient storage and transfer.
-Very large files are broken into partitions, which each CSV containing a subset of the data (e.g. 1,000,000 rows).
+It also saves the data in `.parquet <https://parquet.apache.org/>`_ format,
+which is a columnar storage format that is efficient for querying.
+Parquet files are broken into partitions, which each contain a subset of the data (e.g. 100,000 rows).
 
-You can view the contents of a CSV file using a tool like
-Microsoft Excel, Google Sheets, or many programing languages.
+You can see the partitions for a File by expanding its card and looking for 'parquet_partitions'.
 
-You will notice that the mapping has renamed three key columns in the data:
+    .. thumbnail:: img/download-data.gif
+      :alt: Downloading a parquet partition
+      :align: center
+      :title: Downloading a parquet partition
+
+Clicking the partition will take you to the page for the Partition.
+This page will have a download button under 'parquet_file'.
+Clicking this button will download prepare the file for download,
+and, when it's ready, you'll be able to save it to your computer.
+
+You can view the contents of a parquet file using a tool like
+`ParquetViewer <https://github.com/mukunku/ParquetViewer>`_ on Windows,
+or by using the `parquet-tools <https://pypi.org/project/parquet-tools/>`_ Python package.
+
+    .. thumbnail:: img/view-data.gif
+      :alt: Viewing a parquet partition in a GUI
+      :align: center
+      :title: Viewing a parquet partition in a GUI
+
+Notice that the mapping has renamed three key columns in the data:
 - ElapsedTime_S
 - Voltage_V
 - Current_A

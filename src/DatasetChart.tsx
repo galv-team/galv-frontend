@@ -18,6 +18,7 @@ import MobileStepper from '@mui/material/MobileStepper'
 import Button from '@mui/material/Button'
 import { KeyboardArrowRight } from 'react-icons/md'
 import { KeyboardArrowLeft } from 'react-icons/md'
+import * as wasm from 'parquet-wasm/bundler/arrow1'
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart
 

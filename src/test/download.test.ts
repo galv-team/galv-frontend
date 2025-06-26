@@ -4,9 +4,11 @@ import {
     downloadResources,
     getFileName,
     saveDownloadedFile,
+    zipBlobs,
 } from '../Components/download/utils'
+import { BlobWriter, ZipWriter } from '@zip.js/zip.js'
 import { describe, expect, it, vi } from 'vitest'
-import { experiments } from './fixtures/fixtures'
+import { experiments, files } from './fixtures/fixtures'
 import { showSaveFilePicker } from 'native-file-system-adapter'
 
 vi.mock('native-file-system-adapter', () => {
@@ -44,6 +46,23 @@ if (typeof Blob !== 'undefined' && !Blob.prototype.arrayBuffer) {
         })
     }
 }
+
+describe('zipBlobs', () => {
+    it('should zip ParquetPartitions into a Blob', async () => {
+        const file = files[0]
+        const api_config = new Configuration({ accessToken: 'token' })
+        const blob = await zipBlobs({ file, api_config })
+        expect(blob.constructor.name).toEqual('Blob')
+    })
+
+    it('should zip ParquetPartitions into a ZipWriter', async () => {
+        const file = files[0]
+        const api_config = new Configuration({ accessToken: 'token' })
+        const zipWriter = new ZipWriter(new BlobWriter('application/zip'))
+        const result = await zipBlobs({ file, api_config }, zipWriter)
+        expect(result).toBeInstanceOf(ZipWriter)
+    })
+})
 
 describe('getFileName', () => {
     it('should return the name of the file', () => {

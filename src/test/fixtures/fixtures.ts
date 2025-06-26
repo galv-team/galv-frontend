@@ -14,6 +14,7 @@ import {
     Lab,
     MonitoredPath,
     ObservedFile,
+    ParquetPartition,
     PermittedAccessLevels,
     Schedule,
     ScheduleFamily,
@@ -606,8 +607,7 @@ export const files: ObservedFile[] = [
         mapping:
             'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
         has_required_columns: true,
-        zip_file:
-            'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/zip_file/',
+        parquet_partitions: ['705b801c-d969-4ea6-b750-5bc5b41eb079'],
         extra_metadata:
             'http://localhost:8001/files/34854b61-7126-446e-97f8-6fbe92e692ea/extra_metadata/',
         summary:
@@ -643,7 +643,7 @@ export const files: ObservedFile[] = [
         mapping:
             'http://localhost:8001/column_mappings/fd64f179-ca0a-4549-80e3-8b07af10a6d2/',
         has_required_columns: true,
-        parquet_partitions: null,
+        parquet_partitions: ['b315f6f2-1955-4d51-9cc2-59f9096c705c'],
         extra_metadata:
             'http://localhost:8001/files/3c9f5a99-f633-4094-b838-358cc68da056/extra_metadata/',
         summary:
@@ -674,8 +674,11 @@ export const files: ObservedFile[] = [
         mapping:
             'http://localhost:8001/column_mappings/5e55cc2a-c088-4c09-b95b-8dc128549271/',
         has_required_columns: true,
-        parquet_partitions:
-            'http://localhost:8001/files/1143cd53-11e2-4171-868e-41646209e8fd/zip_file/',
+        parquet_partitions: [
+            '58450d2f-0a70-4714-9406-0dc561ba9b6b',
+            '505d9bf5-0566-4adb-a2f7-465d2d6fda7c',
+            '26a514d9-a2c7-40ad-b212-65c0052786e9',
+        ],
         extra_metadata:
             'http://localhost:8001/files/1143cd53-11e2-4171-868e-41646209e8fd/extra_metadata/',
         summary:

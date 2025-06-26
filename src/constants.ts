@@ -14,6 +14,7 @@ import {
     MdError,
     MdExpandLess,
     MdExpandMore,
+    MdExtension,
     MdFolder,
     MdForkRight,
     MdHideSource,
@@ -97,6 +98,8 @@ import {
     MonitoredPathsApi,
     MonitoredPathsApiFp,
     ObservedFile,
+    ParquetPartitionsApi,
+    ParquetPartitionsApiFp,
     Schedule,
     ScheduleFamiliesApi,
     ScheduleFamiliesApiFp,
@@ -204,6 +207,7 @@ export const DEFAULT_PAGE_SIZE = 10
 export const LOOKUP_KEYS = {
     HARVESTER: 'HARVESTER',
     PATH: 'PATH',
+    PARQUET_PARTITION: 'PARQUET_PARTITION',
     FILE: 'FILE',
     MAPPING: 'MAPPING',
     CELL_FAMILY: 'CELL_FAMILY',
@@ -252,6 +256,7 @@ export const is_autocomplete_key = (key: unknown): key is AutocompleteKey =>
 export const ICONS = {
     [LOOKUP_KEYS.HARVESTER]: MdCloudSync,
     [LOOKUP_KEYS.PATH]: MdFolder,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: MdExtension,
     [LOOKUP_KEYS.FILE]: MdPoll,
     [LOOKUP_KEYS.MAPPING]: MdCompareArrows,
     [LOOKUP_KEYS.UNIT]: MdSubscript,
@@ -306,6 +311,7 @@ export const ICONS = {
 export const PATHS = {
     [LOOKUP_KEYS.HARVESTER]: '/harvesters',
     [LOOKUP_KEYS.PATH]: '/paths',
+    [LOOKUP_KEYS.PARQUET_PARTITION]: '/parquet_partitions',
     [LOOKUP_KEYS.FILE]: '/files',
     [LOOKUP_KEYS.COLUMN_FAMILY]: '/column_types',
     [LOOKUP_KEYS.UNIT]: '/units',
@@ -346,6 +352,7 @@ export const PATHS = {
 export const DISPLAY_NAMES = {
     [LOOKUP_KEYS.HARVESTER]: 'Harvester',
     [LOOKUP_KEYS.PATH]: 'Path',
+    [LOOKUP_KEYS.PARQUET_PARTITION]: 'Parquet Partition',
     [LOOKUP_KEYS.FILE]: 'File',
     [LOOKUP_KEYS.MAPPING]: 'Mapping',
     [LOOKUP_KEYS.COLUMN_FAMILY]: 'Column Type',
@@ -376,6 +383,7 @@ export const DISPLAY_NAMES = {
 export const DISPLAY_NAMES_PLURAL = {
     [LOOKUP_KEYS.HARVESTER]: 'Harvesters',
     [LOOKUP_KEYS.PATH]: 'Paths',
+    [LOOKUP_KEYS.PARQUET_PARTITION]: 'Parquet Partitions',
     [LOOKUP_KEYS.FILE]: 'Files',
     [LOOKUP_KEYS.MAPPING]: 'Mappings',
     [LOOKUP_KEYS.COLUMN_FAMILY]: 'Column Type',
@@ -414,6 +422,7 @@ export const DISPLAY_NAMES_PLURAL = {
 export const API_SLUGS = {
     [LOOKUP_KEYS.HARVESTER]: 'harvesters',
     [LOOKUP_KEYS.PATH]: 'monitoredPaths',
+    [LOOKUP_KEYS.PARQUET_PARTITION]: 'parquetPartitions',
     [LOOKUP_KEYS.FILE]: 'files',
     [LOOKUP_KEYS.MAPPING]: 'columnMappings',
     [LOOKUP_KEYS.COLUMN_FAMILY]: 'columnTypes',
@@ -453,6 +462,7 @@ export const API_SLUGS = {
 export const API_HANDLERS = {
     [LOOKUP_KEYS.HARVESTER]: HarvestersApi,
     [LOOKUP_KEYS.PATH]: MonitoredPathsApi,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: ParquetPartitionsApi,
     [LOOKUP_KEYS.FILE]: FilesApi,
     [LOOKUP_KEYS.MAPPING]: ColumnMappingsApi,
     [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnTypesApi,
@@ -492,6 +502,7 @@ export const API_HANDLERS = {
 export const API_HANDLERS_FP = {
     [LOOKUP_KEYS.HARVESTER]: HarvestersApiFp,
     [LOOKUP_KEYS.PATH]: MonitoredPathsApiFp,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: ParquetPartitionsApiFp,
     [LOOKUP_KEYS.FILE]: FilesApiFp,
     [LOOKUP_KEYS.MAPPING]: ColumnMappingsApiFp,
     [LOOKUP_KEYS.COLUMN_FAMILY]: ColumnTypesApiFp,
@@ -608,7 +619,11 @@ const file_fields = {
     upload_errors: { read_only: true, type: 'string', many: true },
     column_errors: { read_only: true, type: 'string', many: true },
     upload_info: { read_only: true, type: 'string' },
-    zip_file: { read_only: true, type: 'string' },
+    parquet_partitions: {
+        read_only: true,
+        type: key_to_type(LOOKUP_KEYS.PARQUET_PARTITION),
+        many: true,
+    },
     applicable_mappings: {
         read_only: true,
         type: 'string',
@@ -676,6 +691,18 @@ export const FIELDS = {
             many: true,
         },
         ...team_fields,
+    },
+    [LOOKUP_KEYS.PARQUET_PARTITION]: {
+        ...generic_fields,
+        observed_file: { read_only: true, type: key_to_type(LOOKUP_KEYS.FILE) },
+        partition_number: {
+            read_only: true,
+            type: 'number',
+            priority: PRIORITY_LEVELS.IDENTITY,
+        },
+        uploaded: { read_only: true, type: 'boolean' },
+        upload_errors: { read_only: true, type: 'string', many: true },
+        parquet_file: { read_only: true, type: 'attachment' },
     },
     [LOOKUP_KEYS.FILE]: { ...file_fields },
     FILE_CREATE: {
@@ -1228,6 +1255,10 @@ harvesters. Matching files are added to the database when:
 
 Harvesters continuously monitor paths, uploading new files as they appear.
 You can see all the paths that have been set up by your team below.
+    `,
+    [LOOKUP_KEYS.PARQUET_PARTITION]: `
+Parquet partitions are the individual partitions of a parquet file.
+They are created when a [file](${PATHS[LOOKUP_KEYS.FILE]}) is uploaded to the database.
     `,
     [LOOKUP_KEYS.FILE]: `
 Files are data files produced by battery cyclers, simulations, or any combination of them.
