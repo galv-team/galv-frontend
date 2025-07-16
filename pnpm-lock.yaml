@@ -30,8 +30,8 @@ importers:
         specifier: ^11.13.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
       '@galv/galv':
-        specifier: 2.5.0-dev
-        version: 2.5.0-dev
+        specifier: 2.11.4
+        version: 2.11.4
       '@mui/base':
         specifier: ^5.0.0-beta.40
         version: 5.0.0-beta.70(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -860,8 +860,8 @@ packages:
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
 
-  '@galv/galv@2.5.0-dev':
-    resolution: {integrity: sha512-xZgRaW/h5vPlBZMyN33wVTD0v63W8E7fW4OSfQKiN8OCbCbNSuHTS3/9sZbgNfTYFEXrmrvc+aWwx2oPLTXQxg==}
+  '@galv/galv@2.11.4':
+    resolution: {integrity: sha512-5Rrn1fXQWgelzmmEzbjZfO9O47vAnPqTwIue0A3K5JB9qLStJCRHameRlH7UCScbFagblzkzuxuIJNTNZutX4A==}
 
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
@@ -4892,7 +4892,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@galv/galv@2.5.0-dev':
+  '@galv/galv@2.11.4':
     dependencies:
       axios: 0.21.4
     transitivePeerDependencies:
