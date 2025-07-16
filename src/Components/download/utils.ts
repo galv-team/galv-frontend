@@ -53,8 +53,17 @@ export async function zipBlobs(
             : dir_name_raw
     const zW = zipWriter ?? new ZipWriter(new BlobWriter('application/zip'))
     if (has(file, 'zip_file') && file.zip_file) {
+        const base_url =
+            (window as { __ENV__?: Record<string, string> }).__ENV__
+                ?.VITE_GALV_API_BASE_URL ??
+            import.meta.env.VITE_GALV_API_BASE_URL
+        if (!base_url) {
+            throw new Error(
+                'VITE_GALV_API_BASE_URL is not defined. Please set it in your environment variables.',
+            )
+        }
         const { filename, content } = await fetchAuthFile({
-            url: file.zip_file,
+            url: `${base_url}${file.zip_file}`,
             headers: {
                 authorization: api_config.accessToken
                     ? `Bearer ${api_config.accessToken}`
