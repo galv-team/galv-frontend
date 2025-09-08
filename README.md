@@ -36,21 +36,8 @@ If you're using `docker-compose`, you can set them in the `environment` section 
 
 ### Demo instance
 
-A demo instance of the frontend is available at [galv-demo.fly.dev](https://galv-demo.fly.dev/).
-This can be updated by running:
-
-```bash
-fly deploy --app galv-demo --config fly.demo.toml
-```
-
-If for some reason it needs to be recreated:
-
-```bash
-fly launch --name galv-demo --org oxrse --region lhr --config fly.demo.toml
-```
-
-You can copy the config, which should not need adjustment.
-It will create you a `.github/workflows/fly.yml` file, which you should delete rather than committing because otherwise it will try to deploy using the main `fly.toml` file each time a commit is made to the primary branch; probably not what we want.
+A demo instance of the frontend is available at [galv-demo.oxrse.uk](https://galv-demo.oxrse.uk/).
+It is updated every week.
 
 ## Development
 
@@ -113,3 +100,13 @@ pnpm run cypress:open
 
 Releases should be tagged with a semver version number.
 When releases are created, a workflow will be triggered to build the release and upload it to the GitHub releases page.
+This will also update the `latest` tag on the GitHub container registry,
+and push a version of the image to the AWS Elastic Container Registry (ECR) for use in AWS deployments.
+
+## Releasing with AWS
+
+We use AWS (Amazon Web Services) to host a few instances.
+There is a [repository](https://github.com/galv-team/galv-aws-cdk) that contains the AWS Cloud Development Kit (CDK) code to deploy the Galv backend to AWS.
+The workflows for the staging and demo instances use this CDK code to deploy the Galv backend to AWS.
+
+To perform a manual deployment to AWS, please follow the instructions in the CDK repository.
