@@ -44,20 +44,20 @@ for i = 1:length(dataset_ids)
     
     tmp = tempname(tempdir());
     mkdir(tmp);
-    
-    % save parquet files to temporary locations
-    for c = 1:length(metadata{i}.parquet_partitions)
-        cURL = metadata{i}.parquet_partitions{c};
-        partition = webread(cURL, options);
-        metadata{i}.parquet_partitions{c} = partition;
-        tmpf = [tempname(tmp), '.parquet'];
-        websave(tmpf, partition.parquet_file, options);   
-        % websave adds .html if it doesn't see an extension, so strip that
-        movefile([tmpf, '.html'], tmpf);
-    end
 
-    % read the datasets as parquet files
-    parquets{i} = parquetDatastore(tmp);
+    % download and unzip dataset
+    zipURL = metadata{i}.zip_file;
+    zipPath = [tempname(tmp), '.zip'];
+    websave(zipPath, zipURL, options);
+    unzip(zipPath, tmp);
+
+    % read the dataset CSV
+    files = dir(fullfile(tmp, '*.csv'));
+    if ~isempty(files)
+        parquets{i} = readtable(fullfile(tmp, files(1).name));
+    else
+        parquets{i} = table();
+    end
 end
 
 % Take a peek at one of the datasets

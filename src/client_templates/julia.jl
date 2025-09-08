@@ -5,17 +5,18 @@
 # By Matt Jaquiery <matt.jaquiery@dtc.ox.ac.uk>
 
 # Download datasets from the REST API.
-# Metadata are in dataset_metadata[id] and data are in [parquets[id]
+# Metadata are in dataset_metadata[id] and data are in dataframes[id]
 # where id is the UUID of the dataset (listed in dataset_ids).
 
 using Pkg
 
-Pkg.add(["HTTP", "JSON", "Parquet2"])
+Pkg.add(["HTTP", "JSON", "CSV", "DataFrames"])
 using HTTP
 using Downloads
 using JSON
-using Parquet2: Dataset, appendall!
+using CSV
 using DataFrames
+using ZipFile
 
 host = "GALV_API_HOST"
 token = "GALV_USER_TOKEN"
@@ -28,7 +29,7 @@ dataset_ids = String[
     "GALV_DATASET_IDS"
 ]
 dataset_metadata = Dict{String, Dict{String, Any}}()
-parquets = Dict{String, Dataset}()
+dataframes = Dict{String, DataFrame}()
 
 function vprintln(s)
     if verbose
@@ -51,35 +52,34 @@ function get_dataset(id)
     end
     dataset_metadata[id] = body
     
-    # Download parquets
-    parquet_partitions = dataset_metadata[id]["parquet_partitions"]
-    len = length(parquet_partitions)
-    vprintln("Downloading $len parquet_partitions for dataset $id")
+    # Download dataset zip
+    zip_url = dataset_metadata[id]["zip_file"]
+    vprintln("Downloading zip from $zip_url")
 
     dataset_dir = mktempdir(prefix="jl_$id")
-    
-    for (i, pp) in enumerate(parquet_partitions)
-        vprintln("Downloading partition $i from $pp")
-        partition = HTTP.request("GET", pp, headers)
-        parquet = Dict{String, Any}()
-    
-        try
-            parquet = JSON.parse(String(partition.body))
-        catch
-            println("Error parsing JSON for dataset $id parquet partition $i")
+
+    zip_data = HTTP.request("GET", zip_url, headers)
+    if zip_data.status == 200
+        zip_path = joinpath(dataset_dir, "dataset.zip")
+        open(zip_path, "w") do f
+            write(f, zip_data.body)
         end
-        pq_file = parquet["parquet_file"]
-        vprintln("Downloading .parquet from $pq_file")
-        path = joinpath(dataset_dir, "$i.parquet")
-        timings = @timed Downloads.download(pq_file, path, headers=headers)
-        s = round(timings.time, digits = 2)
-        vprintln("Partition $i downloaded in $s seconds")
+        ZipFile.Reader(zip_path) do zr
+            for f in zr.files
+                write(joinpath(dataset_dir, f.name), read(f))
+            end
+        end
+        vprintln("Dataset downloaded")
+    else
+        println("Error downloading zip for dataset $id: $(zip_data.status)")
     end
 
-    # Add parquet from directory
-    parquets[id] = Dataset(dataset_dir)
-    # If you want to filter by columns, etc. then don't appendall here. This is to demonstrate loading everything.
-    appendall!(parquets[id])
+    # Read CSV from directory
+    for f in readdir(dataset_dir)
+        if endswith(f, ".csv")
+            dataframes[id] = CSV.read(joinpath(dataset_dir, f), DataFrame)
+        end
+    end
 
     vprintln("Completed.")
 end
@@ -93,5 +93,5 @@ end
 vprintln("All datasets complete.")
 
 # Load a dataset as a DataFrame
-df = DataFrame(parquets[dataset_ids[1]]; copycols=false)  # copycols=false unless you want to write to df
+df = dataframes[dataset_ids[1]]
 df

@@ -7,7 +7,9 @@
 import os
 import requests
 import json
-import pyarrow.parquet as pq
+import io
+import zipfile
+import pandas as pd
 import tempfile
 
 # Configuration
@@ -23,7 +25,7 @@ dataset_ids = [
     "GALV_DATASET_IDS"
 ]
 dataset_metadata = {}
-parquets = {}
+dataframes = {}
 
 
 def vprintln(message):
@@ -46,39 +48,26 @@ def get_dataset(id):
         return
 
     dataset_metadata[id] = body
-    parquet_partitions = dataset_metadata[id]["parquet_partitions"]
-    len_partitions = len(parquet_partitions)
-    vprintln(f"Downloading {len_partitions} parquet partitions for dataset {id}")
+    zip_url = dataset_metadata[id]["zip_file"]
+    vprintln(f"Downloading dataset zip from {zip_url}")
 
     dataset_dir = tempfile.mkdtemp(prefix=f"py_{id}")
 
-    for i, pp in enumerate(parquet_partitions):
-        vprintln(f"Downloading partition {i + 1} from {pp}")
-        partition_response = requests.get(pp, headers=headers)
-        if partition_response.status_code != 200:
-            print(f"Error fetching parquet partition {i + 1} for dataset {id}: {partition_response.status_code}")
-            continue
+    download_response = requests.get(zip_url, headers=headers)
+    if download_response.status_code == 200:
+        with zipfile.ZipFile(io.BytesIO(download_response.content)) as zf:
+            zf.extractall(dataset_dir)
+        vprintln("Dataset downloaded successfully")
+    else:
+        print(f"Error downloading zip for dataset {id}: {download_response.status_code}")
 
-        try:
-            parquet_info = partition_response.json()
-        except json.JSONDecodeError:
-            print(f"Error parsing JSON for dataset {id} parquet partition {i + 1}")
-            continue
-
-        pq_file = parquet_info["parquet_file"]
-        vprintln(f"Downloading .parquet from {pq_file}")
-        path = os.path.join(dataset_dir, f"{i + 1}.parquet")
-
-        download_response = requests.get(pq_file, headers=headers)
-        if download_response.status_code == 200:
-            with open(path, 'wb') as f:
-                f.write(download_response.content)
-            vprintln(f"Partition {i + 1} downloaded successfully")
-        else:
-            print(f"Error downloading .parquet file from {pq_file}: {download_response.status_code}")
-
-    # Add parquet from directory
-    parquets[id] = pq.ParquetDataset(dataset_dir)
+    # Read CSV from directory
+    csv_path = next(
+        (p for p in os.listdir(dataset_dir) if p.endswith('.csv')),
+        None,
+    )
+    if csv_path:
+        dataframes[id] = pd.read_csv(os.path.join(dataset_dir, csv_path))
     vprintln("Completed.")
 
 
@@ -89,5 +78,5 @@ for id in dataset_ids:
 vprintln("All datasets complete.")
 
 # Load a dataset as a DataFrame
-df = parquets[dataset_ids[0]].read().to_pandas()
+df = dataframes[dataset_ids[0]]
 print(df)

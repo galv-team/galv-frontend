@@ -10,7 +10,7 @@ import { ICONS } from '../constants'
 import SafeTooltip from './SafeTooltip'
 
 const clean_filename = (filename: string) => {
-    return filename.replace(/\.parquet.*$/, '.parquet')
+    return filename.replace(/\.csv.*$/, '.csv')
 }
 
 export async function fetchAuthFile({
@@ -26,21 +26,16 @@ export async function fetchAuthFile({
         responseType: 'blob',
     })
     const redirect_url = response.headers['galv-storage-redirect-url']
-    if (redirect_url) {
-        filename = redirect_url.split('/').pop() ?? filename
+    const disposition = response.headers['content-disposition']
+    if (disposition) {
+        filename = disposition.split('filename=')[1].split('"')[0] ?? filename
     } else {
-        const disposition = response.headers['content-disposition']
-        if (disposition) {
-            filename =
-                disposition.split('filename=')[1].split('"')[0] ?? filename
-        } else {
-            // Extract UUID from URL and use it as filename
-            filename =
-                url
-                    .split('/')
-                    .find((x) => /\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/.test(x)) ??
-                filename
-        }
+        // Extract UUID from URL and use it as filename
+        filename =
+            url
+                .split('/')
+                .find((x) => /\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/.test(x)) ??
+            filename
     }
     return {
         filename: clean_filename(filename),
@@ -54,10 +49,8 @@ export default function AuthFile({ url }: { url: string }) {
     const [dataUrl, setDataUrl] = useState('')
     const [filename, setFilename] = useState('file')
     const [downloading, setDownloading] = useState(false)
-    const { user } = useCurrentUser();
-    const auth = user
-        ? {authorization: `Bearer ${user.token}`}
-        : {};
+    const { user } = useCurrentUser()
+    const auth = user ? { authorization: `Bearer ${user.token}` } : {}
     const headers = {
         ...auth,
         'Galv-Storage-No-Redirect': true,

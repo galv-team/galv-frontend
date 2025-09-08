@@ -48,14 +48,14 @@ if (typeof Blob !== 'undefined' && !Blob.prototype.arrayBuffer) {
 }
 
 describe('zipBlobs', () => {
-    it('should zip ParquetPartitions into a Blob', async () => {
+    it('should zip file data into a Blob', async () => {
         const file = files[0]
         const api_config = new Configuration({ accessToken: 'token' })
         const blob = await zipBlobs({ file, api_config })
         expect(blob.constructor.name).toEqual('Blob')
     })
 
-    it('should zip ParquetPartitions into a ZipWriter', async () => {
+    it('should zip file data into a ZipWriter', async () => {
         const file = files[0]
         const api_config = new Configuration({ accessToken: 'token' })
         const zipWriter = new ZipWriter(new BlobWriter('application/zip'))

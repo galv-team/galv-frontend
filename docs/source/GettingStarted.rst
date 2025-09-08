@@ -139,7 +139,7 @@ Then click 'Upload File' to start the upload process.
 
 Once the file is uploaded, you will be taken to its page.
 
-Notice that Galv says the file is unmapped, and that you don't see any parquet partitions (data)
+Notice that Galv says the file is unmapped, and that you don't see any data preview yet
 or a preview image.
 At the bottom of the page, you'll see Galv is warning you that the file is unmapped.
 Use the dropdown within that warning area to select the correct mapping for the file.
@@ -165,30 +165,23 @@ Viewing your data
 
 When Galv imports data from a file, it applies some light processing to it so that it is compatible with other
 Galv files.
-It also saves the data in `.parquet <https://parquet.apache.org/>`_ format,
-which is a columnar storage format that is efficient for querying.
-Parquet files are broken into partitions, which each contain a subset of the data (e.g. 100,000 rows).
+It also saves the data in CSV format and compresses it into a single zip archive.
+Each file provides a ``zip_file`` link which contains the entire dataset as a zipped CSV file.
 
-You can see the partitions for a File by expanding its card and looking for 'parquet_partitions'.
+You can download this zip by expanding the File card and clicking ``zip_file``.
 
     .. thumbnail:: img/download-data.gif
-      :alt: Downloading a parquet partition
+      :alt: Downloading the dataset zip
       :align: center
-      :title: Downloading a parquet partition
+      :title: Downloading the dataset zip
 
-Clicking the partition will take you to the page for the Partition.
-This page will have a download button under 'parquet_file'.
-Clicking this button will download prepare the file for download,
-and, when it's ready, you'll be able to save it to your computer.
-
-You can view the contents of a parquet file using a tool like
-`ParquetViewer <https://github.com/mukunku/ParquetViewer>`_ on Windows,
-or by using the `parquet-tools <https://pypi.org/project/parquet-tools/>`_ Python package.
+You can view the contents of the CSV file using your favourite spreadsheet application
+or by using a tool such as ``pandas.read_csv`` in Python.
 
     .. thumbnail:: img/view-data.gif
-      :alt: Viewing a parquet partition in a GUI
+      :alt: Viewing the dataset in a GUI
       :align: center
-      :title: Viewing a parquet partition in a GUI
+      :title: Viewing the dataset in a GUI
 
 Notice that the mapping has renamed three key columns in the data:
 - ElapsedTime_S
@@ -196,9 +189,9 @@ Notice that the mapping has renamed three key columns in the data:
 - Current_A
 
     .. thumbnail:: img/view-data-cli.gif
-      :alt: Viewing a parquet partition using parquet-tools
+      :alt: Viewing the CSV file in a terminal
       :align: center
-      :title: Viewing a parquet partition using parquet-tools
+      :title: Viewing the CSV file in a terminal
 
 **************************************************************************************
 Next steps

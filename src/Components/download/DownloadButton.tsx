@@ -80,15 +80,11 @@ export default function DownloadButton<UseIconButton>({
                 title={
                     error
                         ? 'Error downloading'
-                        : `Download${loading ? 'ing' : ''} ${includeData ? 'ZIP' : 'JSON'}`
+                        : `Download${loading ? 'ing' : ''} ${includeData ? 'Data + Metadata' : 'Metadata'}`
                 }
             >
                 <span aria-disabled={loading}>
-                    <IconButton
-                        onClick={start}
-                        disabled={loading}
-                        {...props}
-                    >
+                    <IconButton onClick={start} disabled={loading} {...props}>
                         {loading ? (
                             <CircularProgress />
                         ) : error ? (
@@ -121,7 +117,7 @@ export default function DownloadButton<UseIconButton>({
         >
             {error
                 ? 'Retry download?'
-                : `Download ${includeData ? 'ZIP' : 'JSON'}`}
+                : `Download ${includeData ? 'Data + Metadata' : 'Metadata'}`}
         </Button>
     )
 }
