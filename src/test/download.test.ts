@@ -28,9 +28,10 @@ vi.mock('native-file-system-adapter', () => {
 
 vi.mock('../Components/AuthFile', () => {
     return {
-        fetchAuthFile: vi.fn().mockImplementation((url: string) => ({
-            filename: `${url.split('/').pop()}.csv`,
-            content: new Blob(['test content'], { type: 'text/plain' }),
+        fetchAuthFile: vi.fn().mockImplementation(() => ({
+            content: {
+                data: new Blob(['test content'], { type: 'text/plain' }),
+            },
         })),
     }
 })

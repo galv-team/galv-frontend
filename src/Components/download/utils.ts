@@ -54,16 +54,22 @@ export async function zipBlobs(
     const zW = zipWriter ?? new ZipWriter(new BlobWriter('application/zip'))
     if (has(file, 'zip_file') && file.zip_file) {
         const base_url =
-            (window as { __ENV__?: Record<string, string> }).__ENV__
+            ((window as { __ENV__?: Record<string, string> }).__ENV__
                 ?.VITE_GALV_API_BASE_URL ??
-            import.meta.env.VITE_GALV_API_BASE_URL
+            import.meta.env.VITE_GALV_API_BASE_URL ??
+            import.meta.env.MODE === 'test')
+                ? 'http://localhost:8001'
+                : undefined
         if (!base_url) {
             throw new Error(
                 'VITE_GALV_API_BASE_URL is not defined. Please set it in your environment variables.',
             )
         }
+        const url = file.zip_file.startsWith(base_url)
+            ? file.zip_file
+            : `${base_url}${file.zip_file}`
         const { filename, content } = await fetchAuthFile({
-            url: `${base_url}${file.zip_file}`,
+            url,
             headers: {
                 authorization: api_config.accessToken
                     ? `Bearer ${api_config.accessToken}`
@@ -71,7 +77,8 @@ export async function zipBlobs(
                 'Galv-Storage-No-Redirect': true,
             },
         })
-        await zW.add(`${dir_name}${filename}`, new BlobReader(content.data))
+        const f_name = /\.\w+$/.test(filename) ? filename : `${filename}.csv`
+        await zW.add(`${dir_name}${f_name}`, new BlobReader(content.data))
     }
     return zipWriter ? zW : await zW.close()
 }
