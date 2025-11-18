@@ -1,0 +1,11 @@
+# nginx.default
+
+location /static/ {
+  alias /app/static/;
+  add_header Access-Control-Allow-Origin *;
+}
+
+location ^~ /.well-known/acme-challenge/ {
+    root /usr/share/nginx/html;
+    try_files $uri =404;
+}
