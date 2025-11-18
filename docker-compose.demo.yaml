@@ -2,11 +2,9 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile_dev
+      dockerfile: Dockerfile
       args:
         VITE_GALV_API_BASE_URL: "https://galv-demo-api.oxrse.uk"
-    depends_on:
-      - backend
     env_file:
       - .env.vite
     environment:
