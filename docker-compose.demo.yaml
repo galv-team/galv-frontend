@@ -12,7 +12,7 @@ services:
       VITE_GALV_API_BASE_URL: "https://galv-demo-api.oxrse.uk"
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8000:80"
     volumes:
       - ./src:/app/src
   #    command: tail -F anything
@@ -36,7 +36,7 @@ services:
       - vhost:/etc/nginx/vhost.d
       - /var/run/docker.sock:/tmp/docker.sock:ro
     depends_on:
-      - app
+      - frontend
     healthcheck:
       test: [ "CMD-SHELL", "nginx -t" ]
       interval: 30s
